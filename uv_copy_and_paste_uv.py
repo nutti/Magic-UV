@@ -19,7 +19,7 @@
 bl_info = {
     "name" : "Copy and Paste UV",
     "author" : "Nutti",
-    "version" : (0,1),
+    "version" : (1,0),
     "blender" : (2, 6, 5),
     "location" : "UV Mapping > Copy and Paste UV",
     "description" : "Copy and Paste UV data",
