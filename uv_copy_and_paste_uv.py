@@ -103,7 +103,8 @@ class CopyPasteUVs_PasteUV( bpy.types.Operator ):
                     dest_indices.append( poly.loop_indices[ j ] )
         
         if len( dest_indices ) != len( src_indices ):
-            self.report( { 'WARNING' }, "Selected faces is different from copied faces." )
+            self.report( { 'WARNING' }, "Number of selected faces is different from copied faces." )
+            return { 'CANCELLED' }
         else:
             dest_obj = active_obj
 
@@ -115,7 +116,7 @@ class CopyPasteUVs_PasteUV( bpy.types.Operator ):
 
         bpy.ops.object.mode_set( mode = 'EDIT' )
 
-        return {'FINISHED'}
+        return { 'FINISHED' }
 
 # registration
 
