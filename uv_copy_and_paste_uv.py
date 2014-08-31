@@ -62,13 +62,12 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='OBJECT')
 
         # create source indices list
-        src_indices = list()
+        src_indices = []
         for i in range(len(active_obj.data.polygons)):
             # get selected faces
             poly = active_obj.data.polygons[i]
             if poly.select:
-                for j in range(len(poly.loop_indices)):
-                    src_indices.append(poly.loop_indices[j])
+               src_indices.extend(poly.loop_indices)
         
         # check if any faces are selected
         if len(src_indices) == 0:
@@ -76,6 +75,9 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
             bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         else:
+            self.report(
+                {'INFO'},
+                str(len(src_indices)) + " indices are selected.")
             src_obj = active_obj
         
         # revert to original mode
@@ -100,6 +102,11 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
         global dest_indices
         global src_obj
         
+        # check if copying operation was executed
+        if src_indices is None or src_obj is None:
+        	self.report({'WARNING'}, "Do copy operation at first.")
+        	return {'CANCELLED'}
+        
         # get active (source) object to be pasted to
         active_obj = bpy.context.active_object
 
@@ -108,20 +115,21 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='OBJECT')
 
         # create source indices list
-        dest_indices = list()
+        dest_indices = []
         for i in range(len(active_obj.data.polygons)):
             # get selected faces
             poly = active_obj.data.polygons[i]
             if poly.select:
-                for j in range(len(poly.loop_indices)):
-                    dest_indices.append(poly.loop_indices[j])
+            	dest_indices.extend(poly.loop_indices)
         
         if len(dest_indices) != len(src_indices):
             self.report(
                 {'WARNING'},
-                "Number of selected faces is different from copied faces.")
+                "Number of selected faces is different from copied faces." +
+                "(src:" + str(len(src_indices)) +
+                ", dest:" + str(len(dest_indices)) + ")")
             bpy.ops.object.mode_set(mode=mode_orig)
-            return { 'CANCELLED' }
+            return {'CANCELLED'}
         else:
             dest_obj = active_obj
 
@@ -132,6 +140,10 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
             dest_data = dest_uv.data[dest_indices[i]]
             src_data = src_uv.data[src_indices[i]]
             dest_data.uv = src_data.uv
+
+        self.report(
+            {'INFO'},
+            str(len(dest_indices)) + " indices are copied.")
 
         # revert to original mode
         bpy.ops.object.mode_set(mode=mode_orig)
