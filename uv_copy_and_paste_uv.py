@@ -1,3 +1,5 @@
+# <pep8-80 compliant>
+
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -16,6 +18,8 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+import bpy
+
 bl_info = {
     "name" : "Copy and Paste UV",
     "author" : "Nutti",
@@ -29,53 +33,61 @@ bl_info = {
     "category" : "UV"
 }
 
-import bpy
+src_indices = None           # source indices
+dest_indices = None          # destination indices
+src_obj = None               # source object
 
-src_indices=None           # source indices
-dest_indices=None          # destination indices
-src_obj=None               # source object
 
 # copy UV
-class CopyAndPasteUV_CopyUV( bpy.types.Operator ):
-    ''''''
+class CopyAndPasteUVCopyUV(bpy.types.Operator):
+    """Copying UV coordinate on selected object."""
+    
     bl_idname = "uv.copy_uv"
     bl_label = "Copy UV"
     bl_description = "Copy UV data"
-    bl_options = { 'REGISTER', 'UNDO' }
+    bl_options = {'REGISTER', 'UNDO'}
 
-    def execute( self, context):
+    def execute(self, context):
         
         # global variables
         global src_indices
         global dest_indices
         global src_obj
         
-        # get active (source) object to be copied from.
+        # get active (source) object to be copied from
         active_obj = bpy.context.active_object;
 
-        bpy.ops.object.mode_set( mode = 'OBJECT' )
+        # change to 'OBJECT' mode, in order to access internal data
+        mode_orig = bpy.context.object.mode
+        bpy.ops.object.mode_set(mode='OBJECT')
 
         # create source indices list
-        src_indices=list()
-        for i in range( len( active_obj.data.polygons ) ):
+        src_indices = list()
+        for i in range(len(active_obj.data.polygons)):
             # get selected faces
-            poly = active_obj.data.polygons[ i ]
+            poly = active_obj.data.polygons[i]
             if poly.select:
-                for j in range( len( poly.loop_indices ) ):
-                    src_indices.append( poly.loop_indices[ j ] )
+                for j in range(len(poly.loop_indices)):
+                    src_indices.append(poly.loop_indices[j])
         
-        if len( src_indices ) == 0:
-            self.report( { 'WARNING' }, "No faces are not selected." )
+        # check if any faces are selected
+        if len(src_indices) == 0:
+            self.report({'WARNING'}, "No faces are not selected.")
+            bpy.ops.object.mode_set(mode=mode_orig)
+            return {'CANCELLED'}
         else:
-            src_obj=active_obj
+            src_obj = active_obj
         
-        bpy.ops.object.mode_set( mode = 'EDIT' )
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
         
-        return { 'FINISHED' }
+        return {'FINISHED'}
+
 
 # paste UV
-class CopyPasteUVs_PasteUV( bpy.types.Operator ):
-    ''''''
+class CopyAndPasteUVPasteUV(bpy.types.Operator):
+    """Paste UV coordinate which is copied."""
+    
     bl_idname = "uv.paste_uv"
     bl_label = "Paste UV"
     bl_description = "Paste UV data"
@@ -88,22 +100,27 @@ class CopyPasteUVs_PasteUV( bpy.types.Operator ):
         global dest_indices
         global src_obj
         
-        # get active (source) object to be pasted to.
+        # get active (source) object to be pasted to
         active_obj = bpy.context.active_object
 
-        bpy.ops.object.mode_set( mode = 'OBJECT' )
+        # change to 'OBJECT' mode, in order to access internal data
+        mode_orig = bpy.context.object.mode
+        bpy.ops.object.mode_set(mode='OBJECT')
 
         # create source indices list
         dest_indices = list()
-        for i in range( len( active_obj.data.polygons ) ):
+        for i in range(len(active_obj.data.polygons)):
             # get selected faces
-            poly = active_obj.data.polygons[ i ]
+            poly = active_obj.data.polygons[i]
             if poly.select:
-                for j in range( len( poly.loop_indices ) ):
-                    dest_indices.append( poly.loop_indices[ j ] )
+                for j in range(len(poly.loop_indices)):
+                    dest_indices.append(poly.loop_indices[j])
         
-        if len( dest_indices ) != len( src_indices ):
-            self.report( { 'WARNING' }, "Number of selected faces is different from copied faces." )
+        if len(dest_indices) != len(src_indices):
+            self.report(
+                {'WARNING'},
+                "Number of selected faces is different from copied faces.")
+            bpy.ops.object.mode_set(mode=mode_orig)
             return { 'CANCELLED' }
         else:
             dest_obj = active_obj
@@ -111,26 +128,33 @@ class CopyPasteUVs_PasteUV( bpy.types.Operator ):
         # update UV data
         src_uv = src_obj.data.uv_layers.active         # source UV data
         dest_uv = dest_obj.data.uv_layers.active       # destination UV data
-        for i in range( len( dest_indices ) ):
-            dest_uv.data[ dest_indices[ i ] ].uv = src_uv.data[ src_indices[ i ] ].uv
+        for i in range(len(dest_indices)):
+            dest_data = dest_uv.data[dest_indices[i]]
+            src_data = src_uv.data[src_indices[i]]
+            dest_data.uv = src_data.uv
 
-        bpy.ops.object.mode_set( mode = 'EDIT' )
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
 
-        return { 'FINISHED' }
+        return {'FINISHED'}
+
 
 # registration
 
-def add_to_menu( self, context ):
-    self.layout.operator( "uv.copy_uv" )
-    self.layout.operator( "uv.paste_uv" )
-    
+def add_to_menu(self, context):
+    self.layout.operator("uv.copy_uv")
+    self.layout.operator("uv.paste_uv")
+
+
 def register():
-    bpy.utils.register_module( __name__ )
-    bpy.types.VIEW3D_MT_uv_map.append( add_to_menu )
+    bpy.utils.register_module(__name__)
+    bpy.types.VIEW3D_MT_uv_map.append(add_to_menu)
+
 
 def unregister():
-    bpy.utils.unregister_module( __name__ )
-    bpy.types.VIEW3D_MT_uv_map.remove( add_to_menu )
-    
+    bpy.utils.unregister_module(__name__)
+    bpy.types.VIEW3D_MT_uv_map.remove(add_to_menu)
+
+
 if __name__ == "__main__":
     register()
