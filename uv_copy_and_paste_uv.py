@@ -77,7 +77,7 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
         else:
             self.report(
                 {'INFO'},
-                str(len(src_indices)) + " indices are selected.")
+                 "%d indices are selected." % len(src_indices))
             src_obj = active_obj
         
         # revert to original mode
@@ -126,8 +126,7 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
             self.report(
                 {'WARNING'},
                 "Number of selected faces is different from copied faces." +
-                "(src:" + str(len(src_indices)) +
-                ", dest:" + str(len(dest_indices)) + ")")
+                "(src:%d, dest:%d)" % (len(src_indices), len(dest_indices)))
             bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         else:
@@ -143,7 +142,7 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
 
         self.report(
             {'INFO'},
-            str(len(dest_indices)) + " indices are copied.")
+            "%d indices are copied." % len(dest_indices))
 
         # revert to original mode
         bpy.ops.object.mode_set(mode=mode_orig)
@@ -153,19 +152,19 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
 
 # registration
 
-def add_to_menu(self, context):
+def menu_func(self, context):
     self.layout.operator("uv.copy_uv")
     self.layout.operator("uv.paste_uv")
 
 
 def register():
     bpy.utils.register_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.append(add_to_menu)
+    bpy.types.VIEW3D_MT_uv_map.append(menu_func)
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.remove(add_to_menu)
+    bpy.types.VIEW3D_MT_uv_map.remove(menu_func)
 
 
 if __name__ == "__main__":
