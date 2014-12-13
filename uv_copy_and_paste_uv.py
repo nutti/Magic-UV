@@ -19,12 +19,13 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
+import bmesh
 
 bl_info = {
     "name" : "Copy and Paste UV",
     "author" : "Nutti",
     "version" : (2,0),
-    "blender" : (2, 7, 0),
+    "blender" : (2, 7, 2),
     "location" : "UV Mapping > Copy and Paste UV",
     "description" : "Copy and Paste UV data",
     "warning" : "",
@@ -36,7 +37,6 @@ bl_info = {
 src_indices = None           # source indices
 dest_indices = None          # destination indices
 src_uv_map = None            # source uv map
-dest_uv_map = None           # destination uv map
 src_obj = None               # source object
 
 # copy UV
@@ -49,9 +49,27 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        global src_indices
+        global src_uv_map
+        global src_obj
+    
         self.report({'INFO'}, "Copy UV coordinate.")
         
-        return copy_from(self, "")
+        # prepare for coping
+        ret, src_obj, mode_orig = prep_copy()
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        # copy
+        src_indices = get_selected_indices(src_obj)
+        ret, src_uv_map = copy_opt(self, "", src_obj, src_indices)
+        
+        # finish coping
+        fini_copy(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        return {'FINISHED'}
 
 
 # paste UV
@@ -64,10 +82,89 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        self.report({'INFO'}, "Paste UV coordinate.")
+        global src_indices
+        global dest_indices
+        global src_uv_map
+        global src_obj
     
-        return paste_to(self, "")
+        self.report({'INFO'}, "Paste UV coordinate.")
 
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        dest_indices = get_selected_indices(dest_obj)
+        ret = paste_opt(
+            self, "", src_obj, src_indices, src_uv_map, dest_obj, dest_indices)
+        fini_paste(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        return {'FINISHED'}
+
+
+# copy UV (by selection sequence)
+class CopyAndPasteUVCopyUVBySelSeq(bpy.types.Operator):
+    """Copying UV coordinate on selected object by selection sequence."""
+    
+    bl_idname = "uv.copy_uv_sel_seq"
+    bl_label = "Copy UV (Selection Sequence)"
+    bl_description = "Copy UV data by selection sequence."
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        global src_indices
+        global src_uv_map
+        global src_obj
+
+        self.report({'INFO'}, "Copy UV coordinate. (sequence)")
+        
+        # prepare for coping
+        ret, src_obj, mode_orig = prep_copy()
+        if ret != 0:
+            return {'CANCELLED'}
+
+        # copy
+        src_indices = get_selected_indices_by_sel_seq(src_obj)
+        ret, src_uv_map = copy_opt(self, "", src_obj, src_indices)
+
+        # finish coping
+        fini_copy(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
+# paste UV (by selection sequence)
+class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
+    """Paste UV coordinate which is copied by selection sequence."""
+    
+    bl_idname = "uv.paste_uv_sel_seq"
+    bl_label = "Paste UV (Selection Sequence)"
+    bl_description = "Paste UV data by selection sequence."
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        global src_indices
+        global dest_indices
+        global src_uv_map
+        global src_obj
+
+        self.report({'INFO'}, "Paste UV coordinate. (sequence)")
+
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        if ret != 0:
+            return {'CANCELLED'}
+
+        dest_indices = get_selected_indices_by_sel_seq(dest_obj)
+        ret = paste_opt(
+            self, "", src_obj, src_indices, src_uv_map, dest_obj, dest_indices)
+        fini_paste(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
 
 
 # copy UV map (sub menu operator)
@@ -77,11 +174,29 @@ class CopyAndPasteUVCopyUVMapSubOpt(bpy.types.Operator):
     uv_map = bpy.props.StringProperty()
     
     def execute(self, context):
+        global src_indices
+        global src_uv_map
+        global src_obj
+        
         self.report(
             {'INFO'},
             "Copy UV coordinate. (UV map:" + self.uv_map + ")")
+
+        # prepare for coping
+        ret, src_obj, mode_orig = prep_copy()
+        if ret != 0:
+            return {'CANCELLED'}
         
-        return copy_from(self, self.uv_map)
+        # copy
+        src_indices = get_selected_indices(src_obj)
+        ret, src_uv_map = copy_opt(self, self.uv_map, src_obj, src_indices)
+        
+        # finish coping
+        fini_copy(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        return {'FINISHED'}
 
 
 # copy UV map
@@ -113,10 +228,30 @@ class CopyAndPasteUVPasteUVMapSubOpt(bpy.types.Operator):
     uv_map = bpy.props.StringProperty()
     
     def execute(self, context):
+        global src_indices
+        global dest_indices
+        global src_uv_map
+        global src_obj
+        
         self.report(
             {'INFO'},
             "Paste UV coordinate. (UV map:" + self.uv_map + ")")
-        return paste_to(self, self.uv_map)
+        
+        self.report({'INFO'}, "Paste UV coordinate.")
+
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        dest_indices = get_selected_indices(dest_obj)
+        ret = paste_opt(
+            self, self.uv_map, src_obj, src_indices, src_uv_map,
+            dest_obj, dest_indices)
+        fini_paste(mode_orig)
+        if ret != 0:
+            return {'CANCELLED'}
+        
+        return {'FINISHED'}
 
 
 # paste UV map
@@ -140,86 +275,150 @@ class CopyAndPasteUVPasteUVMap(bpy.types.Menu):
                 CopyAndPasteUVPasteUVMapSubOpt.bl_idname,
                 text=m).uv_map = m
 
-# copy
-def copy_from(self, uv_map):
-    # global variables
-    global src_indices
-    global src_uv_map
-    global src_obj
-    
+
+def prep_copy():
+    """
+    parepare for copy operation.
+    @return tuple(error code, active object, current mode)
+    """
     # get active (source) object to be copied from
-    active_obj = bpy.context.active_object;
+    obj = bpy.context.active_object;
 
     # change to 'OBJECT' mode, in order to access internal data
-    mode_orig = bpy.context.object.mode
+    mode = bpy.context.object.mode
     bpy.ops.object.mode_set(mode='OBJECT')
-
-    # create source indices list
-    src_indices = []
-    for i in range(len(active_obj.data.polygons)):
-        # get selected faces
-        poly = active_obj.data.polygons[i]
-        if poly.select:
-           src_indices.extend(poly.loop_indices)
     
+    return (0, obj, mode)
+
+
+# finish copy operation
+def fini_copy(mode_orig):
+    """
+    finish copy operation.
+    @param  mode_orig orignal mode
+    """
+    # revert to original mode
+    bpy.ops.object.mode_set(mode=mode_orig)
+
+
+# prepare for paste operation
+def prep_paste(src_obj, src_indices):
+    """
+    prepare for paste operation.
+    @param  src_obj object that is copied from
+    @param  src_indices indices will be copied
+    @return tuple(error code, active object, current mode)
+    """
+     # check if copying operation was executed
+    if src_indices is None or src_obj is None:
+        self.report({'WARNING'}, "Do copy operation at first.")
+        return (1, None, None)
+    
+    # get active (source) object to be pasted to
+    obj = bpy.context.active_object
+
+    # change to 'OBJECT' mode, in order to access internal data
+    mode = bpy.context.object.mode
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    return (0, obj, mode)
+
+
+# finish paste operation
+def fini_paste(mode):
+    """
+    finish paste operation.
+    @param  mode_orig orignal mode
+    """
+    # revert to original mode
+    bpy.ops.object.mode_set(mode=mode)
+
+
+def get_selected_indices(obj):
+    """
+    get selected indices.
+    @param  obj object
+    @return indices
+    """
+    out = []
+    for i in range(len(obj.data.polygons)):
+        # get selected faces
+        poly = obj.data.polygons[i]
+        if poly.select:
+           out.extend(poly.loop_indices)
+    return out
+
+
+def get_selected_indices_by_sel_seq(obj):
+    """
+    get selected indices.
+    @param  obj object
+    @return indices
+    """
+    out = []
+    faces = []
+    
+    # get selection sequence
+    mode_orig = bpy.context.object.mode
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(obj.data)
+    for e in bm.select_history:
+        if isinstance(e, bmesh.types.BMFace):
+            faces.append(e.loops[0].face.index)
+    
+    # get selected indices by selection sequence
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for f in faces:
+        poly = obj.data.polygons[f]
+        out.extend(poly.loop_indices)
+    bpy.ops.object.mode_set(mode=mode_orig)
+    
+    return out
+
+
+def copy_opt(self, uv_map, src_obj, src_indices):
+    """
+    copy operation.
+    @param  self operation object
+    @param  uv_map UV Map to be copied. (current map when null str)
+    @param  src_obj source object
+    @param  src_indices source indices
+    @return tuple(error code, UV map)
+    """
     # check if any faces are selected
     if len(src_indices) == 0:
         self.report({'WARNING'}, "No faces are not selected.")
-        bpy.ops.object.mode_set(mode=mode_orig)
-        return {'CANCELLED'}
+        return (1, None)
     else:
         self.report({'INFO'}, "%d indices are selected." % len(src_indices))
-        src_obj = active_obj
     
     if uv_map == "":
-        src_uv_map = src_obj.data.uv_layers.active.name
+        uv_map = src_obj.data.uv_layers.active.name
     else:
-        src_uv_map = uv_map
+        uv_map = uv_map
     
-    # revert to original mode
-    bpy.ops.object.mode_set(mode=mode_orig)
-    
-    return {'FINISHED'}
+    return (0, uv_map)
 
 
-# paste
-def paste_to(self, uv_map):
-    # global variables
-    global src_indices
-    global dest_indices
-    global src_uv_map
-    global dest_uv_map
-    global src_obj
-    
-    # check if copying operation was executed
-    if src_indices is None or src_obj is None:
-        self.report({'WARNING'}, "Do copy operation at first.")
-        return {'CANCELLED'}
-    
-    # get active (source) object to be pasted to
-    active_obj = bpy.context.active_object
-
-    # change to 'OBJECT' mode, in order to access internal data
-    mode_orig = bpy.context.object.mode
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    # create source indices list
-    dest_indices = []
-    for i in range(len(active_obj.data.polygons)):
-        # get selected faces
-        poly = active_obj.data.polygons[i]
-        if poly.select:
-            dest_indices.extend(poly.loop_indices)
-    
+def paste_opt(self, uv_map, src_obj, src_indices,
+    src_uv_map, dest_obj, dest_indices):
+    """
+    paste operation.
+    @param  self operation object
+    @param  uv_map UV Map to be pasted. (current map when null str)
+    @param  src_obj source object
+    @param  src_indices source indices
+    @param  src_uv_map source UV map
+    @param  dest_obj destination object
+    @param  dest_indices destination object
+    @return error code
+    """
     if len(dest_indices) != len(src_indices):
         self.report(
             {'WARNING'},
             "Number of selected faces is different from copied faces." +
             "(src:%d, dest:%d)" % (len(src_indices), len(dest_indices)))
-        bpy.ops.object.mode_set(mode=mode_orig)
-        return {'CANCELLED'}
-    else:
-        dest_obj = active_obj
+        return 1
         
     if uv_map == "":
         dest_uv_map = dest_obj.data.uv_layers.active.name
@@ -236,10 +435,7 @@ def paste_to(self, uv_map):
 
     self.report({'INFO'}, "%d indices are copied." % len(dest_indices))
 
-    # revert to original mode
-    bpy.ops.object.mode_set(mode=mode_orig)
-
-    return {'FINISHED'}
+    return 0
 
 
 # registration
@@ -247,6 +443,8 @@ def menu_func(self, context):
     self.layout.separator()
     self.layout.operator(CopyAndPasteUVCopyUV.bl_idname)
     self.layout.operator(CopyAndPasteUVPasteUV.bl_idname)
+    self.layout.operator(CopyAndPasteUVCopyUVBySelSeq.bl_idname)
+    self.layout.operator(CopyAndPasteUVPasteUVBySelSeq.bl_idname)
     self.layout.menu(CopyAndPasteUVCopyUVMap.bl_idname)
     self.layout.menu(CopyAndPasteUVPasteUVMap.bl_idname)
 
