@@ -39,6 +39,21 @@ dest_indices = None          # destination indices
 src_uv_map = None            # source uv map
 src_obj = None               # source object
 
+# master menu
+class CopyAndPasteUVMenu(bpy.types.Menu):
+    bl_idname = "uv.copy_and_paste_uv_menu"
+    bl_label = "Copy/Paste UV"
+    bl_description = "Copy and Paste UV Menu"
+
+    def draw(self, context):
+        self.layout.operator(CopyAndPasteUVCopyUV.bl_idname)
+        self.layout.operator(CopyAndPasteUVPasteUV.bl_idname)
+        self.layout.operator(CopyAndPasteUVCopyUVBySelSeq.bl_idname)
+        self.layout.operator(CopyAndPasteUVPasteUVBySelSeq.bl_idname)
+        self.layout.menu(CopyAndPasteUVCopyUVMap.bl_idname)
+        self.layout.menu(CopyAndPasteUVPasteUVMap.bl_idname)
+
+
 # copy UV
 class CopyAndPasteUVCopyUV(bpy.types.Operator):
     """Copying UV coordinate on selected object."""
@@ -441,12 +456,7 @@ def paste_opt(self, uv_map, src_obj, src_indices,
 # registration
 def menu_func(self, context):
     self.layout.separator()
-    self.layout.operator(CopyAndPasteUVCopyUV.bl_idname)
-    self.layout.operator(CopyAndPasteUVPasteUV.bl_idname)
-    self.layout.operator(CopyAndPasteUVCopyUVBySelSeq.bl_idname)
-    self.layout.operator(CopyAndPasteUVPasteUVBySelSeq.bl_idname)
-    self.layout.menu(CopyAndPasteUVCopyUVMap.bl_idname)
-    self.layout.menu(CopyAndPasteUVPasteUVMap.bl_idname)
+    self.layout.menu(CopyAndPasteUVMenu.bl_idname)
 
 
 def register():
