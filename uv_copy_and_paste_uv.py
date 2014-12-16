@@ -378,7 +378,7 @@ def get_selected_indices_by_sel_seq(obj):
     bpy.ops.object.mode_set(mode='EDIT')
     bm = bmesh.from_edit_mesh(obj.data)
     for e in bm.select_history:
-        if isinstance(e, bmesh.types.BMFace):
+        if isinstance(e, bmesh.types.BMFace) and e.select:
             faces.append(e.loops[0].face.index)
     
     # get selected indices by selection sequence
