@@ -22,6 +22,7 @@ import bpy
 import bmesh
 import math
 from collections import namedtuple
+from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -173,6 +174,12 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
     bl_label = "Paste UV (Selection Sequence)"
     bl_description = "Paste UV data by selection sequence."
     bl_options = {'REGISTER', 'UNDO'}
+
+    moveUVsValue = IntProperty(
+            default = 0,
+            min = 0,
+            max = 1000
+        )
 
     def execute(self, context):
         global src_sel_face_info
@@ -477,25 +484,35 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
     # update UV data
     src_uv = src_obj.data.uv_layers[src_uv_map]
     dest_uv = dest_obj.data.uv_layers[dest_uv_map]
+
     for i in range(len(dest_sel_face_info)):
-        # calculate degrees between source and destination face
-        deg = math.degrees(math.acos(
-              src_sel_face_info[i].normal.dot(dest_sel_face_info[i].normal) /
-              (src_sel_face_info[i].normal.magnitude *
-               dest_sel_face_info[i].normal.magnitude)))
+        ## calculate degrees between source and destination face
+        #deg = math.degrees(math.acos(
+              #src_sel_face_info[i].normal.dot(dest_sel_face_info[i].normal) /
+              #(src_sel_face_info[i].normal.magnitude *
+               #dest_sel_face_info[i].normal.magnitude)))
         dest_indices = dest_sel_face_info[i].indices
         src_indices = src_sel_face_info[i].indices
         
-        # if degree is bigger than 90 deg, reverse copy ordering
-        if math.fabs(deg) > math.radians(90.0):
-            dest_indices = list(dest_indices)
-            dest_indices.reverse()
-        
+        ## if degree is bigger than 90 deg, reverse copy ordering
+        #if math.fabs(deg) > math.radians(90.0):
+            #dest_indices = list(dest_indices)
+            #dest_indices.reverse()
+
+        for k in range(self.moveUVsValue):
+        #if self.moveUVsValue > 0:
+            it = src_indices[len(src_indices) - 1]
+            src_indices.remove(it)
+            src_indices.insert(0, it)
+            #print(len(src_indices))
+
         # update
         for j in range(len(dest_indices)):
             dest_data = dest_uv.data[dest_indices[j]]
             src_data = src_uv.data[src_indices[j]]
             dest_data.uv = src_data.uv
+
+    self.moveUVsValue = 0
 
     self.report({'INFO'}, "%d faces are copied." % len(dest_sel_face_info))
 
