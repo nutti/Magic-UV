@@ -20,6 +20,13 @@
 
 import bpy
 import bmesh
+import math
+from collections import namedtuple
+
+__author__ = "Nutti <nutti.metro@gmail.com>"
+__status__ = "production"
+__version__ = "2.0"
+__date__ = "20 December 2014"
 
 bl_info = {
     "name" : "Copy and Paste UV",
@@ -34,10 +41,12 @@ bl_info = {
     "category" : "UV"
 }
 
-src_indices = None           # source indices
-dest_indices = None          # destination indices
+SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices')
+
 src_uv_map = None            # source uv map
 src_obj = None               # source object
+src_sel_face_info = None     # source selected faces information
+dest_sel_face_info = None    # destination selected faces information
 
 # master menu
 class CopyAndPasteUVMenu(bpy.types.Menu):
@@ -64,7 +73,7 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        global src_indices
+        global src_sel_face_info
         global src_uv_map
         global src_obj
     
@@ -76,8 +85,8 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
             return {'CANCELLED'}
         
         # copy
-        src_indices = get_selected_indices(src_obj)
-        ret, src_uv_map = copy_opt(self, "", src_obj, src_indices)
+        src_sel_face_info = get_selected_faces(src_obj)
+        ret, src_uv_map = copy_opt(self, "", src_obj, src_sel_face_info)
         
         # finish coping
         fini_copy(mode_orig)
@@ -97,20 +106,25 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        global src_indices
-        global dest_indices
+        global src_sel_face_info
+        global dest_sel_face_info
         global src_uv_map
         global src_obj
     
         self.report({'INFO'}, "Paste UV coordinate.")
 
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        # prepare for pasting
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
         
-        dest_indices = get_selected_indices(dest_obj)
+        # paste
+        dest_sel_face_info = get_selected_faces(dest_obj)
         ret = paste_opt(
-            self, "", src_obj, src_indices, src_uv_map, dest_obj, dest_indices)
+            self, "", src_obj, src_sel_face_info,
+            src_uv_map, dest_obj, dest_sel_face_info)
+        
+        # finish pasting
         fini_paste(mode_orig)
         if ret != 0:
             return {'CANCELLED'}
@@ -128,7 +142,7 @@ class CopyAndPasteUVCopyUVBySelSeq(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        global src_indices
+        global src_sel_face_info
         global src_uv_map
         global src_obj
 
@@ -140,8 +154,8 @@ class CopyAndPasteUVCopyUVBySelSeq(bpy.types.Operator):
             return {'CANCELLED'}
 
         # copy
-        src_indices = get_selected_indices_by_sel_seq(src_obj)
-        ret, src_uv_map = copy_opt(self, "", src_obj, src_indices)
+        src_sel_face_info = get_selected_faces_by_sel_seq(src_obj)
+        ret, src_uv_map = copy_opt(self, "", src_obj, src_sel_face_info)
 
         # finish coping
         fini_copy(mode_orig)
@@ -161,20 +175,25 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        global src_indices
-        global dest_indices
+        global src_sel_face_info
+        global dest_sel_face_info
         global src_uv_map
         global src_obj
 
         self.report({'INFO'}, "Paste UV coordinate. (sequence)")
 
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        # prepare for pasting
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
 
-        dest_indices = get_selected_indices_by_sel_seq(dest_obj)
+        # paste
+        dest_sel_face_info = get_selected_faces_by_sel_seq(dest_obj)
         ret = paste_opt(
-            self, "", src_obj, src_indices, src_uv_map, dest_obj, dest_indices)
+            self, "", src_obj, src_sel_face_info,
+            src_uv_map, dest_obj, dest_sel_face_info)
+            
+        # finish pasting
         fini_paste(mode_orig)
         if ret != 0:
             return {'CANCELLED'}
@@ -189,7 +208,7 @@ class CopyAndPasteUVCopyUVMapSubOpt(bpy.types.Operator):
     uv_map = bpy.props.StringProperty()
     
     def execute(self, context):
-        global src_indices
+        global src_sel_face_info
         global src_uv_map
         global src_obj
         
@@ -203,8 +222,10 @@ class CopyAndPasteUVCopyUVMapSubOpt(bpy.types.Operator):
             return {'CANCELLED'}
         
         # copy
-        src_indices = get_selected_indices(src_obj)
-        ret, src_uv_map = copy_opt(self, self.uv_map, src_obj, src_indices)
+        src_sel_face_info = get_selected_faces(src_obj)
+        ret, src_uv_map = copy_opt(
+            self, self.uv_map, src_obj,
+            src_sel_face_info)
         
         # finish coping
         fini_copy(mode_orig)
@@ -243,25 +264,26 @@ class CopyAndPasteUVPasteUVMapSubOpt(bpy.types.Operator):
     uv_map = bpy.props.StringProperty()
     
     def execute(self, context):
-        global src_indices
-        global dest_indices
+        global src_sel_face_info
+        global dest_sel_face_info
         global src_uv_map
         global src_obj
         
         self.report(
-            {'INFO'},
-            "Paste UV coordinate. (UV map:" + self.uv_map + ")")
-        
-        self.report({'INFO'}, "Paste UV coordinate.")
+            {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
 
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_indices)
+        # prepare for pasting
+        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
         
-        dest_indices = get_selected_indices(dest_obj)
+        # paste
+        dest_sel_face_info = get_selected_faces(dest_obj)
         ret = paste_opt(
-            self, self.uv_map, src_obj, src_indices, src_uv_map,
-            dest_obj, dest_indices)
+            self, self.uv_map, src_obj, src_sel_face_info, src_uv_map,
+            dest_obj, dest_sel_face_info)
+        
+        # finish pasting
         fini_paste(mode_orig)
         if ret != 0:
             return {'CANCELLED'}
@@ -317,15 +339,15 @@ def fini_copy(mode_orig):
 
 
 # prepare for paste operation
-def prep_paste(src_obj, src_indices):
+def prep_paste(src_obj, src_sel_face_info):
     """
     prepare for paste operation.
     @param  src_obj object that is copied from
-    @param  src_indices indices will be copied
+    @param  src_sel_face_info information about faces will be copied
     @return tuple(error code, active object, current mode)
     """
      # check if copying operation was executed
-    if src_indices is None or src_obj is None:
+    if src_sel_face_info is None or src_obj is None:
         self.report({'WARNING'}, "Do copy operation at first.")
         return (1, None, None)
     
@@ -349,26 +371,28 @@ def fini_paste(mode):
     bpy.ops.object.mode_set(mode=mode)
 
 
-def get_selected_indices(obj):
+def get_selected_faces(obj):
     """
-    get selected indices.
+    get information about selected faces.
     @param  obj object
-    @return indices
+    @return information about selected faces (list of SelectedFaceInfo)
     """
     out = []
     for i in range(len(obj.data.polygons)):
         # get selected faces
         poly = obj.data.polygons[i]
         if poly.select:
-           out.extend(poly.loop_indices)
+            face_info = SelectedFaceInfo(
+                poly.normal.copy(), list(poly.loop_indices))
+            out.append(face_info)
     return out
 
 
-def get_selected_indices_by_sel_seq(obj):
+def get_selected_faces_by_sel_seq(obj):
     """
-    get selected indices.
+    get information about selected indices.
     @param  obj object
-    @return indices
+    @return information about selected faces (list of SelectedFaceInfo)
     """
     out = []
     faces = []
@@ -381,31 +405,35 @@ def get_selected_indices_by_sel_seq(obj):
         if isinstance(e, bmesh.types.BMFace) and e.select:
             faces.append(e.loops[0].face.index)
     
-    # get selected indices by selection sequence
+    # get selected faces by selection sequence
     bpy.ops.object.mode_set(mode='OBJECT')
     for f in faces:
         poly = obj.data.polygons[f]
-        out.extend(poly.loop_indices)
+        face_info = SelectedFaceInfo(
+            poly.normal.copy(), list(poly.loop_indices))
+        out.append(face_info)
+        
     bpy.ops.object.mode_set(mode=mode_orig)
     
     return out
 
 
-def copy_opt(self, uv_map, src_obj, src_indices):
+def copy_opt(self, uv_map, src_obj, src_sel_face_info):
     """
     copy operation.
     @param  self operation object
     @param  uv_map UV Map to be copied. (current map when null str)
     @param  src_obj source object
-    @param  src_indices source indices
+    @param  src_sel_face_info source information about selected faces
     @return tuple(error code, UV map)
     """
     # check if any faces are selected
-    if len(src_indices) == 0:
+    if len(src_sel_face_info) == 0:
         self.report({'WARNING'}, "No faces are not selected.")
         return (1, None)
     else:
-        self.report({'INFO'}, "%d indices are selected." % len(src_indices))
+        self.report(
+            {'INFO'}, "%d face(s) are selected." % len(src_sel_face_info))
     
     if uv_map == "":
         uv_map = src_obj.data.uv_layers.active.name
@@ -415,40 +443,61 @@ def copy_opt(self, uv_map, src_obj, src_indices):
     return (0, uv_map)
 
 
-def paste_opt(self, uv_map, src_obj, src_indices,
-    src_uv_map, dest_obj, dest_indices):
+def paste_opt(self, uv_map, src_obj, src_sel_face_info,
+    src_uv_map, dest_obj, dest_sel_face_info):
     """
     paste operation.
     @param  self operation object
     @param  uv_map UV Map to be pasted. (current map when null str)
     @param  src_obj source object
-    @param  src_indices source indices
+    @param  src_sel_face_info source information about selected faces
     @param  src_uv_map source UV map
     @param  dest_obj destination object
-    @param  dest_indices destination object
+    @param  dest_sel_face_info destination information about selected faces
     @return error code
     """
-    if len(dest_indices) != len(src_indices):
+    if len(dest_sel_face_info) != len(src_sel_face_info):
         self.report(
             {'WARNING'},
             "Number of selected faces is different from copied faces." +
-            "(src:%d, dest:%d)" % (len(src_indices), len(dest_indices)))
+            "(src:%d, dest:%d)" %
+            (len(src_sel_face_info), len(dest_sel_face_info)))
         return 1
-        
+    for i in range(len(dest_sel_face_info)):
+        if (len(dest_sel_face_info[i].indices) !=
+            len(src_sel_face_info[i].indices)):
+            self.report({'WARNING'}, "Some faces are different size.")
+            return 1
+    
     if uv_map == "":
         dest_uv_map = dest_obj.data.uv_layers.active.name
     else:
         dest_uv_map = uv_map
-
+        
     # update UV data
     src_uv = src_obj.data.uv_layers[src_uv_map]
     dest_uv = dest_obj.data.uv_layers[dest_uv_map]
-    for i in range(len(dest_indices)):
-        dest_data = dest_uv.data[dest_indices[i]]
-        src_data = src_uv.data[src_indices[i]]
-        dest_data.uv = src_data.uv
+    for i in range(len(dest_sel_face_info)):
+        # calculate degrees between source and destination face
+        deg = math.degrees(math.acos(
+              src_sel_face_info[i].normal.dot(dest_sel_face_info[i].normal) /
+              (src_sel_face_info[i].normal.magnitude *
+               dest_sel_face_info[i].normal.magnitude)))
+        dest_indices = dest_sel_face_info[i].indices
+        src_indices = src_sel_face_info[i].indices
+        
+        # if degree is bigger than 90 deg, reverse copy ordering
+        if math.fabs(deg) > math.radians(90.0):
+            dest_indices = list(dest_indices)
+            dest_indices.reverse()
+        
+        # update
+        for j in range(len(dest_indices)):
+            dest_data = dest_uv.data[dest_indices[j]]
+            src_data = src_uv.data[src_indices[j]]
+            dest_data.uv = src_data.uv
 
-    self.report({'INFO'}, "%d indices are copied." % len(dest_indices))
+    self.report({'INFO'}, "%d faces are copied." % len(dest_sel_face_info))
 
     return 0
 
