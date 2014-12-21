@@ -22,6 +22,7 @@ import bpy
 import bmesh
 import math
 from collections import namedtuple
+from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -173,6 +174,18 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
     bl_label = "Paste UV (Selection Sequence)"
     bl_description = "Paste UV data by selection sequence."
     bl_options = {'REGISTER', 'UNDO'}
+
+    flip_copied_uv = BoolProperty(
+        name="flip_copied_uv",
+        description="flip_copied_uv...",
+        default=False
+    )
+
+    rotate_copied_uv = IntProperty(
+            default = 0,
+            min = 0,
+            max = 30
+        )
 
     def execute(self, context):
         global src_sel_face_info
@@ -473,24 +486,26 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
         dest_uv_map = dest_obj.data.uv_layers.active.name
     else:
         dest_uv_map = uv_map
-        
+
     # update UV data
     src_uv = src_obj.data.uv_layers[src_uv_map]
     dest_uv = dest_obj.data.uv_layers[dest_uv_map]
+
     for i in range(len(dest_sel_face_info)):
-        # calculate degrees between source and destination face
-        deg = math.degrees(math.acos(
-              src_sel_face_info[i].normal.dot(dest_sel_face_info[i].normal) /
-              (src_sel_face_info[i].normal.magnitude *
-               dest_sel_face_info[i].normal.magnitude)))
         dest_indices = dest_sel_face_info[i].indices
         src_indices = src_sel_face_info[i].indices
-        
-        # if degree is bigger than 90 deg, reverse copy ordering
-        if math.fabs(deg) > math.radians(90.0):
+
+        ## Flip UVs
+        if self.flip_copied_uv is True:
             dest_indices = list(dest_indices)
             dest_indices.reverse()
-        
+
+        ## Rotate UVs
+        for k in range(self.rotate_copied_uv):
+            item_rotate = dest_indices[-1]
+            dest_indices.remove(item_rotate)
+            dest_indices.insert(0, item_rotate)
+
         # update
         for j in range(len(dest_indices)):
             dest_data = dest_uv.data[dest_indices[j]]
