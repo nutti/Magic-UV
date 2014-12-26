@@ -176,16 +176,14 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     flip_copied_uv = BoolProperty(
-        name="flip_copied_uv",
-        description="flip_copied_uv...",
-        default=False
-    )
+        name = "flip_copied_uv",
+        description = "flip_copied_uv...",
+        default = False )
 
     rotate_copied_uv = IntProperty(
-            default = 0,
-            min = 0,
-            max = 30
-        )
+        default = 0,
+        min = 0,
+        max = 30 )
 
     def execute(self, context):
         global src_sel_face_info
@@ -414,6 +412,8 @@ def get_selected_faces_by_sel_seq(obj):
     mode_orig = bpy.context.object.mode
     bpy.ops.object.mode_set(mode='EDIT')
     bm = bmesh.from_edit_mesh(obj.data)
+    if bpy.app.version[0] >= 2 and bpy.app.version[1] >= 73:
+        bm.faces.ensure_lookup_table()
     for e in bm.select_history:
         if isinstance(e, bmesh.types.BMFace) and e.select:
             faces.append(e.loops[0].face.index)
@@ -495,12 +495,12 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
         dest_indices = dest_sel_face_info[i].indices
         src_indices = src_sel_face_info[i].indices
 
-        ## Flip UVs
+        # Flip UVs
         if self.flip_copied_uv is True:
             dest_indices = list(dest_indices)
             dest_indices.reverse()
 
-        ## Rotate UVs
+        # Rotate UVs
         for k in range(self.rotate_copied_uv):
             item_rotate = dest_indices[-1]
             dest_indices.remove(item_rotate)
