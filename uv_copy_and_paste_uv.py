@@ -26,14 +26,14 @@ from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "2.0"
-__date__ = "20 December 2014"
+__version__ = "2.1"
+__date__ = "23 January 2015"
 
 bl_info = {
     "name" : "Copy and Paste UV",
     "author" : "Nutti",
-    "version" : (2,0),
-    "blender" : (2, 7, 2),
+    "version" : (2,1),
+    "blender" : (2, 7, 3),
     "location" : "UV Mapping > Copy and Paste UV",
     "description" : "Copy and Paste UV data",
     "warning" : "",
@@ -106,6 +106,17 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
     bl_description = "Paste UV data"
     bl_options = {'REGISTER', 'UNDO'}
 
+    flip_copied_uv = BoolProperty(
+        name = "Flip Copied UV",
+        description = "Flip Copied UV...",
+        default = False)
+
+    rotate_copied_uv = IntProperty(
+        default = 0,
+        name = "Rotate Copied UV",
+        min = 0,
+        max = 30)
+
     def execute(self, context):
         global src_sel_face_info
         global dest_sel_face_info
@@ -176,21 +187,22 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     flip_copied_uv = BoolProperty(
-        name = "flip_copied_uv",
-        description = "flip_copied_uv...",
-        default = False )
+        name = "Flip Copied UV",
+        description = "Flip Copied UV...",
+        default = False)
 
     rotate_copied_uv = IntProperty(
         default = 0,
+        name = "Rotate Copied UV",
         min = 0,
-        max = 30 )
+        max = 30)
 
     def execute(self, context):
         global src_sel_face_info
         global dest_sel_face_info
         global src_uv_map
         global src_obj
-
+        
         self.report({'INFO'}, "Paste UV coordinate. (sequence)")
 
         # prepare for pasting
@@ -273,6 +285,17 @@ class CopyAndPasteUVPasteUVMapSubOpt(bpy.types.Operator):
     bl_idname = "uv.paste_uv_map_sub_opt"
     bl_label = "Paste UV Map (Sub Menu Operator)"
     uv_map = bpy.props.StringProperty()
+    
+    flip_copied_uv = BoolProperty(
+        name = "Flip Copied UV",
+        description = "Flip Copied UV...",
+        default = False)
+
+    rotate_copied_uv = IntProperty(
+        default = 0,
+        name = "Rotate Copied UV",
+        min = 0,
+        max = 30)
     
     def execute(self, context):
         global src_sel_face_info
