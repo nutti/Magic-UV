@@ -26,8 +26,8 @@ from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "2.0"
-__date__ = "20 December 2014"
+__version__ = "2.1"
+__date__ = "23 January 2015"
 
 bl_info = {
     "name" : "Copy and Paste UV",
