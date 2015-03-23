@@ -26,8 +26,8 @@ from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "2.1"
-__date__ = "23 January 2015"
+__version__ = "2.2"
+__date__ = "XX March 2015"
 
 bl_info = {
     "name" : "Copy and Paste UV",
@@ -525,8 +525,7 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
 
         # Rotate UVs
         for k in range(self.rotate_copied_uv):
-            item_rotate = dest_indices[-1]
-            dest_indices.remove(item_rotate)
+            item_rotate = dest_indices.pop()
             dest_indices.insert(0, item_rotate)
 
         # update
