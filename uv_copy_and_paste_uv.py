@@ -26,13 +26,13 @@ from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "2.1"
-__date__ = "23 January 2015"
+__version__ = "2.2"
+__date__ = "3 April 2015"
 
 bl_info = {
     "name" : "Copy and Paste UV",
     "author" : "Nutti",
-    "version" : (2,1),
+    "version" : (2,2),
     "blender" : (2, 7, 3),
     "location" : "UV Mapping > Copy and Paste UV",
     "description" : "Copy and Paste UV data",
@@ -43,11 +43,6 @@ bl_info = {
 }
 
 SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices')
-
-src_uv_map = None            # source uv map
-src_obj = None               # source object
-src_sel_face_info = None     # source selected faces information
-dest_sel_face_info = None    # destination selected faces information
 
 # master menu
 class CopyAndPasteUVMenu(bpy.types.Menu):
@@ -72,22 +67,32 @@ class CopyAndPasteUVCopyUV(bpy.types.Operator):
     bl_label = "Copy UV"
     bl_description = "Copy UV data"
     bl_options = {'REGISTER', 'UNDO'}
+    
+    # static variables
+    src_uv_map = None            # source uv map
+    src_obj = None               # source object
+    src_sel_face_info = None     # source selected faces information
+    
+    def __init__(self):
+        CopyAndPasteUVCopyUV.src_uv_map = None
+        CopyAndPasteUVCopyUV.src_obj = None
+        CopyAndPasteUVCopyUV.src_sel_face_info = None
 
     def execute(self, context):
-        global src_sel_face_info
-        global src_uv_map
-        global src_obj
     
         self.report({'INFO'}, "Copy UV coordinate.")
         
         # prepare for coping
-        ret, src_obj, mode_orig = prep_copy()
+        ret, CopyAndPasteUVCopyUV.src_obj, mode_orig = prep_copy(self)
         if ret != 0:
             return {'CANCELLED'}
         
         # copy
-        src_sel_face_info = get_selected_faces(src_obj)
-        ret, src_uv_map = copy_opt(self, "", src_obj, src_sel_face_info)
+        CopyAndPasteUVCopyUV.src_sel_face_info = get_selected_faces(
+            CopyAndPasteUVCopyUV.src_obj)
+        ret, CopyAndPasteUVCopyUV.src_uv_map = copy_opt(
+            self, "", CopyAndPasteUVCopyUV.src_obj,
+            CopyAndPasteUVCopyUV.src_sel_face_info)
         
         # finish coping
         fini_copy(mode_orig)
@@ -116,25 +121,27 @@ class CopyAndPasteUVPasteUV(bpy.types.Operator):
         name = "Rotate Copied UV",
         min = 0,
         max = 30)
+   
+    def __init__(self):
+        self.src_uv_map = CopyAndPasteUVCopyUV.src_uv_map
+        self.src_obj = CopyAndPasteUVCopyUV.src_obj
+        self.src_sel_face_info = CopyAndPasteUVCopyUV.src_sel_face_info
 
     def execute(self, context):
-        global src_sel_face_info
-        global dest_sel_face_info
-        global src_uv_map
-        global src_obj
     
         self.report({'INFO'}, "Paste UV coordinate.")
 
         # prepare for pasting
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
+        ret, dest_obj, mode_orig = prep_paste(
+            self, self.src_obj, self.src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
         
         # paste
         dest_sel_face_info = get_selected_faces(dest_obj)
         ret = paste_opt(
-            self, "", src_obj, src_sel_face_info,
-            src_uv_map, dest_obj, dest_sel_face_info)
+            self, "", self.src_obj, self.src_sel_face_info,
+            self.src_uv_map, dest_obj, dest_sel_face_info)
         
         # finish pasting
         fini_paste(mode_orig)
@@ -153,21 +160,30 @@ class CopyAndPasteUVCopyUVBySelSeq(bpy.types.Operator):
     bl_description = "Copy UV data by selection sequence."
     bl_options = {'REGISTER', 'UNDO'}
 
+    # static variables
+    src_uv_map = None            # source uv map
+    src_obj = None               # source object
+    src_sel_face_info = None     # source selected faces information
+    
+    def __init__(self):
+        CopyAndPasteUVCopyUVBySelSeq.src_uv_map = None
+        CopyAndPasteUVCopyUVBySelSeq.src_obj = None
+        CopyAndPasteUVCopyUVBySelSeq.src_sel_face_info = None
+
     def execute(self, context):
-        global src_sel_face_info
-        global src_uv_map
-        global src_obj
 
         self.report({'INFO'}, "Copy UV coordinate. (sequence)")
         
         # prepare for coping
-        ret, src_obj, mode_orig = prep_copy()
+        ret, CopyAndPasteUVCopyUVBySelSeq.src_obj, mode_orig = prep_copy(self)
         if ret != 0:
             return {'CANCELLED'}
 
         # copy
-        src_sel_face_info = get_selected_faces_by_sel_seq(src_obj)
-        ret, src_uv_map = copy_opt(self, "", src_obj, src_sel_face_info)
+        CopyAndPasteUVCopyUVBySelSeq.src_sel_face_info = get_selected_faces_by_sel_seq(CopyAndPasteUVCopyUVBySelSeq.src_obj)
+        ret, CopyAndPasteUVCopyUVBySelSeq.src_uv_map = copy_opt(
+            self, "", CopyAndPasteUVCopyUVBySelSeq.src_obj,
+            CopyAndPasteUVCopyUVBySelSeq.src_sel_face_info)
 
         # finish coping
         fini_copy(mode_orig)
@@ -197,24 +213,26 @@ class CopyAndPasteUVPasteUVBySelSeq(bpy.types.Operator):
         min = 0,
         max = 30)
 
+    def __init__(self):
+        self.src_uv_map = CopyAndPasteUVCopyUVBySelSeq.src_uv_map
+        self.src_obj = CopyAndPasteUVCopyUVBySelSeq.src_obj
+        self.src_sel_face_info = CopyAndPasteUVCopyUVBySelSeq.src_sel_face_info
+
     def execute(self, context):
-        global src_sel_face_info
-        global dest_sel_face_info
-        global src_uv_map
-        global src_obj
         
         self.report({'INFO'}, "Paste UV coordinate. (sequence)")
 
         # prepare for pasting
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
+        ret, dest_obj, mode_orig = prep_paste(
+            self, self.src_obj, self.src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
 
         # paste
         dest_sel_face_info = get_selected_faces_by_sel_seq(dest_obj)
         ret = paste_opt(
-            self, "", src_obj, src_sel_face_info,
-            src_uv_map, dest_obj, dest_sel_face_info)
+            self, "", self.src_obj, self.src_sel_face_info,
+            self.src_uv_map, dest_obj, dest_sel_face_info)
             
         # finish pasting
         fini_paste(mode_orig)
@@ -229,26 +247,34 @@ class CopyAndPasteUVCopyUVMapSubOpt(bpy.types.Operator):
     bl_idname = "uv.copy_uv_map_sub_opt"
     bl_label = "Copy UV Map (Sub Menu Operator)"
     uv_map = bpy.props.StringProperty()
+
+    # static variables
+    src_uv_map = None            # source uv map
+    src_obj = None               # source object
+    src_sel_face_info = None     # source selected faces information
     
+    def __init__(self):
+        CopyAndPasteUVCopyUVMapSubOpt.src_uv_map = None
+        CopyAndPasteUVCopyUVMapSubOpt.src_obj = None
+        CopyAndPasteUVCopyUVMapSubOpt.src_sel_face_info = None
+
     def execute(self, context):
-        global src_sel_face_info
-        global src_uv_map
-        global src_obj
         
         self.report(
             {'INFO'},
             "Copy UV coordinate. (UV map:" + self.uv_map + ")")
 
         # prepare for coping
-        ret, src_obj, mode_orig = prep_copy()
+        ret, CopyAndPasteUVCopyUVMapSubOpt.src_obj, mode_orig = prep_copy(self)
         if ret != 0:
             return {'CANCELLED'}
         
         # copy
-        src_sel_face_info = get_selected_faces(src_obj)
-        ret, src_uv_map = copy_opt(
-            self, self.uv_map, src_obj,
-            src_sel_face_info)
+        CopyAndPasteUVCopyUVMapSubOpt.src_sel_face_info = get_selected_faces(
+            CopyAndPasteUVCopyUVMapSubOpt.src_obj)
+        ret, CopyAndPasteUVCopyUVMapSubOpt.src_uv_map = copy_opt(
+            self, self.uv_map, CopyAndPasteUVCopyUVMapSubOpt.src_obj,
+            CopyAndPasteUVCopyUVMapSubOpt.src_sel_face_info)
         
         # finish coping
         fini_copy(mode_orig)
@@ -296,26 +322,28 @@ class CopyAndPasteUVPasteUVMapSubOpt(bpy.types.Operator):
         name = "Rotate Copied UV",
         min = 0,
         max = 30)
-    
+
+    def __init__(self):
+        self.src_uv_map = CopyAndPasteUVCopyUVMapSubOpt.src_uv_map
+        self.src_obj = CopyAndPasteUVCopyUVMapSubOpt.src_obj
+        self.src_sel_face_info = CopyAndPasteUVCopyUVMapSubOpt.src_sel_face_info
+
     def execute(self, context):
-        global src_sel_face_info
-        global dest_sel_face_info
-        global src_uv_map
-        global src_obj
         
         self.report(
             {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
 
         # prepare for pasting
-        ret, dest_obj, mode_orig = prep_paste(src_obj, src_sel_face_info)
+        ret, dest_obj, mode_orig = prep_paste(
+            self, self.src_obj, self.src_sel_face_info)
         if ret != 0:
             return {'CANCELLED'}
         
         # paste
         dest_sel_face_info = get_selected_faces(dest_obj)
         ret = paste_opt(
-            self, self.uv_map, src_obj, src_sel_face_info, src_uv_map,
-            dest_obj, dest_sel_face_info)
+            self, self.uv_map, self.src_obj, self.src_sel_face_info,
+            self.src_uv_map, dest_obj, dest_sel_face_info)
         
         # finish pasting
         fini_paste(mode_orig)
@@ -347,13 +375,18 @@ class CopyAndPasteUVPasteUVMap(bpy.types.Menu):
                 text=m).uv_map = m
 
 
-def prep_copy():
+def prep_copy(self):
     """
     parepare for copy operation.
     @return tuple(error code, active object, current mode)
     """
     # get active (source) object to be copied from
     obj = bpy.context.active_object;
+    
+    # check if active object has more than one UV map
+    if len(obj.data.uv_textures.keys()) == 0:
+        self.report({'WARNING'}, "Object must have more than one UV map.")
+        return (1, None, None)
 
     # change to 'OBJECT' mode, in order to access internal data
     mode = bpy.context.object.mode
@@ -373,7 +406,7 @@ def fini_copy(mode_orig):
 
 
 # prepare for paste operation
-def prep_paste(src_obj, src_sel_face_info):
+def prep_paste(self, src_obj, src_sel_face_info):
     """
     prepare for paste operation.
     @param  src_obj object that is copied from
@@ -387,6 +420,11 @@ def prep_paste(src_obj, src_sel_face_info):
     
     # get active (source) object to be pasted to
     obj = bpy.context.active_object
+
+    # check if active object has more than one UV map
+    if len(obj.data.uv_textures.keys()) == 0:
+        self.report({'WARNING'}, "Object must have more than one UV map.")
+        return (2, None, None)
 
     # change to 'OBJECT' mode, in order to access internal data
     mode = bpy.context.object.mode
@@ -525,8 +563,7 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
 
         # Rotate UVs
         for k in range(self.rotate_copied_uv):
-            item_rotate = dest_indices[-1]
-            dest_indices.remove(item_rotate)
+            item_rotate = dest_indices.pop()
             dest_indices.insert(0, item_rotate)
 
         # update
