@@ -75,8 +75,17 @@ class CPUVFlipRotate(bpy.types.Operator):
 
         for i in range(len(sel_face)):
             indices = sel_face[i].indices
+            indices_orig = indices.copy()
             indices = cpuv_common.flip_rotate_uvs(
-            	list(indices), self.flip, self.rotate)
+                list(indices), self.flip, self.rotate)
+            
+            orig = []
+            for j in range(len(indices_orig)):
+                orig.append(uv.data[indices_orig[j]].uv.copy())
+                
+            # update
+            for j in range(len(indices_orig)):
+                uv.data[indices[j]].uv = orig[j]
 
         # revert to original mode
         bpy.ops.object.mode_set(mode=mode)
