@@ -52,43 +52,52 @@ class CPUVFlipRotate(bpy.types.Operator):
         pass
 
     def execute(self, context):
-        
+
         self.report({'INFO'}, "Flip/Rotate UVs.")
+        
+        # save current mode
+        mode_orig = bpy.context.object.mode
 
-        # get active object to be fliped/rotated
-        obj = bpy.context.active_object
-
-        # check if active object has more than one UV map
-        if len(obj.data.uv_textures.keys()) == 0:
-            self.report({'WARNING'}, "Object must have more than one UV map.")
+        try:
+    
+            # get active object to be fliped/rotated
+            obj = bpy.context.active_object
+    
+            # check if active object has more than one UV map
+            if len(obj.data.uv_textures.keys()) == 0:
+                raise CPUVError({'WARNING'}, "Object must have more than one UV map.")
+    
+            # change to 'OBJECT' mode, in order to access internal data
+            
+            bpy.ops.object.mode_set(mode='OBJECT')
+            
+            sel_face = cpuv_common.get_selected_faces_by_sel_seq(obj)
+            uv_map = obj.data.uv_layers.active.name
+            
+            # update UV data
+            uv = obj.data.uv_layers[uv_map]
+    
+            for i in range(len(sel_face)):
+                indices = sel_face[i].indices
+                indices_orig = indices.copy()
+                indices = cpuv_common.flip_rotate_uvs(
+                    list(indices), self.flip, self.rotate)
+                
+                orig = []
+                for j in range(len(indices_orig)):
+                    orig.append(uv.data[indices_orig[j]].uv.copy())
+                    
+                # update
+                for j in range(len(indices_orig)):
+                    uv.data[indices[j]].uv = orig[j]
+        
+        except cpuv_common.CPUVError as e:
+            e.report(self)
+            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
 
-        # change to 'OBJECT' mode, in order to access internal data
-        mode = bpy.context.object.mode
-        bpy.ops.object.mode_set(mode='OBJECT')
-        
-        sel_face = cpuv_common.get_selected_faces_by_sel_seq(obj)
-        uv_map = obj.data.uv_layers.active.name
-        
-        # update UV data
-        uv = obj.data.uv_layers[uv_map]
-
-        for i in range(len(sel_face)):
-            indices = sel_face[i].indices
-            indices_orig = indices.copy()
-            indices = cpuv_common.flip_rotate_uvs(
-                list(indices), self.flip, self.rotate)
-            
-            orig = []
-            for j in range(len(indices_orig)):
-                orig.append(uv.data[indices_orig[j]].uv.copy())
-                
-            # update
-            for j in range(len(indices_orig)):
-                uv.data[indices[j]].uv = orig[j]
-
         # revert to original mode
-        bpy.ops.object.mode_set(mode=mode)
+        bpy.ops.object.mode_set(mode=mode_orig)
 
         return {'FINISHED'}
 

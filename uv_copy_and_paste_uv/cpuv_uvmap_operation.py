@@ -50,23 +50,31 @@ class CPUVUVMapCopyUVOperation(bpy.types.Operator):
         self.report(
             {'INFO'},
             "Copy UV coordinate. (UV map:" + self.uv_map + ")")
+        
+        # save current mode
+        mode_orig = bpy.context.object.mode
 
-        # prepare for coping
-        ret, CPUVUVMapCopyUVOperation.src_obj, mode_orig = cpuv_common.prep_copy(self)
-        if ret != 0:
+        try:
+            # prepare for coping
+            CPUVUVMapCopyUVOperation.src_obj = cpuv_common.prep_copy(self)
+            
+            # copy
+            CPUVUVMapCopyUVOperation.src_sel_face_info = cpuv_common.get_selected_faces(
+                CPUVUVMapCopyUVOperation.src_obj)
+            CPUVUVMapCopyUVOperation.src_uv_map = cpuv_common.copy_opt(
+                self, self.uv_map, CPUVUVMapCopyUVOperation.src_obj,
+                CPUVUVMapCopyUVOperation.src_sel_face_info)
+            
+            # finish coping
+            cpuv_common.fini_copy()
+        
+        except cpuv_common.CPUVError as e:
+            e.report(self)
+            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         
-        # copy
-        CPUVUVMapCopyUVOperation.src_sel_face_info = cpuv_common.get_selected_faces(
-            CPUVUVMapCopyUVOperation.src_obj)
-        ret, CPUVUVMapCopyUVOperation.src_uv_map = cpuv_common.copy_opt(
-            self, self.uv_map, CPUVUVMapCopyUVOperation.src_obj,
-            CPUVUVMapCopyUVOperation.src_sel_face_info)
-        
-        # finish coping
-        cpuv_common.fini_copy(mode_orig)
-        if ret != 0:
-            return {'CANCELLED'}
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
         
         return {'FINISHED'}
 
@@ -81,8 +89,7 @@ class CPUVUVMapCopyUV(bpy.types.Menu):
     bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
-        global menu_count
-    
+        
         layout = self.layout
         
         # create sub menu
@@ -119,23 +126,31 @@ class CPUVUVMapPasteUVOperation(bpy.types.Operator):
         
         self.report(
             {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
+        
+        # save current mode
+        mode_orig = bpy.context.object.mode
 
-        # prepare for pasting
-        ret, dest_obj, mode_orig = cpuv_common.prep_paste(
-            self, self.src_obj, self.src_sel_face_info)
-        if ret != 0:
+        try:
+            # prepare for pasting
+            dest_obj = cpuv_common.prep_paste(
+                self, self.src_obj, self.src_sel_face_info)
+            
+            # paste
+            dest_sel_face_info = cpuv_common.get_selected_faces(dest_obj)
+            cpuv_common.paste_opt(
+                self, self.uv_map, self.src_obj, self.src_sel_face_info,
+                self.src_uv_map, dest_obj, dest_sel_face_info)
+            
+            # finish pasting
+            cpuv_common.fini_paste()
+        
+        except cpuv_common.CPUVError as e:
+            e.report(self)
+            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         
-        # paste
-        dest_sel_face_info = cpuv_common.get_selected_faces(dest_obj)
-        ret = cpuv_common.paste_opt(
-            self, self.uv_map, self.src_obj, self.src_sel_face_info,
-            self.src_uv_map, dest_obj, dest_sel_face_info)
-        
-        # finish pasting
-        cpuv_common.fini_paste(mode_orig)
-        if ret != 0:
-            return {'CANCELLED'}
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
         
         return {'FINISHED'}
 
@@ -150,8 +165,7 @@ class CPUVUVMapPasteUV(bpy.types.Menu):
     bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
-        global menu_count
-    
+        
         layout = self.layout
         
         # create sub menu

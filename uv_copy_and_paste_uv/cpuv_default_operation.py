@@ -51,22 +51,30 @@ class CPUVCopyUV(bpy.types.Operator):
     
         self.report({'INFO'}, "Copy UV coordinate.")
         
-        # prepare for coping
-        ret, CPUVCopyUV.src_obj, mode_orig = cpuv_common.prep_copy(self)
-        if ret != 0:
+        # save current mode
+        mode_orig = bpy.context.object.mode
+        
+        try:
+            # prepare for coping
+            CPUVCopyUV.src_obj = cpuv_common.prep_copy(self)
+        
+            # copy
+            CPUVCopyUV.src_sel_face_info = cpuv_common.get_selected_faces(
+                CPUVCopyUV.src_obj)
+            CPUVCopyUV.src_uv_map = cpuv_common.copy_opt(
+                self, "", CPUVCopyUV.src_obj,
+                CPUVCopyUV.src_sel_face_info)
+            
+            # finish coping
+            cpuv_common.fini_copy()
+            
+        except cpuv_common.CPUVError as e:
+            e.report(self)
+            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         
-        # copy
-        CPUVCopyUV.src_sel_face_info = cpuv_common.get_selected_faces(
-            CPUVCopyUV.src_obj)
-        ret, CPUVCopyUV.src_uv_map = cpuv_common.copy_opt(
-            self, "", CPUVCopyUV.src_obj,
-            CPUVCopyUV.src_sel_face_info)
-        
-        # finish coping
-        cpuv_common.fini_copy(mode_orig)
-        if ret != 0:
-            return {'CANCELLED'}
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
         
         return {'FINISHED'}
 
@@ -99,24 +107,33 @@ class CPUVPasteUV(bpy.types.Operator):
     def execute(self, context):
     
         self.report({'INFO'}, "Paste UV coordinate.")
-
-        # prepare for pasting
-        ret, dest_obj, mode_orig = cpuv_common.prep_paste(
-            self, self.src_obj, self.src_sel_face_info)
-        if ret != 0:
+        
+        # save current mode
+        mode_orig = bpy.context.object.mode
+        
+        try:
+            # prepare for pasting
+            dest_obj = cpuv_common.prep_paste(
+                self, self.src_obj, self.src_sel_face_info)
+            
+            # paste
+            dest_sel_face_info = cpuv_common.get_selected_faces(dest_obj)
+            cpuv_common.paste_opt(
+                self, "", self.src_obj, self.src_sel_face_info,
+                self.src_uv_map, dest_obj, dest_sel_face_info)
+            
+            # finish pasting
+            cpuv_common.fini_paste()
+            
+        except cpuv_common.CPUVError as e:
+            e.report(self)
+            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
         
-        # paste
-        dest_sel_face_info = cpuv_common.get_selected_faces(dest_obj)
-        ret = cpuv_common.paste_opt(
-            self, "", self.src_obj, self.src_sel_face_info,
-            self.src_uv_map, dest_obj, dest_sel_face_info)
-        
-        # finish pasting
-        cpuv_common.fini_paste(mode_orig)
-        if ret != 0:
-            return {'CANCELLED'}
+        # revert to original mode
+        bpy.ops.object.mode_set(mode=mode_orig)
         
         return {'FINISHED'}
+            
 
 
