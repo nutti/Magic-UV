@@ -29,7 +29,7 @@ __status__ = "production"
 __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
-SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices')
+SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices center')
 
 class CPUVError(Exception):
     def __init__(self, level, str):
@@ -105,13 +105,16 @@ def get_selected_faces(obj):
     @return information about selected faces (list of SelectedFaceInfo)
     """
     out = []
+    # get selection sequence
+    mode_orig = bpy.context.object.mode
     for i in range(len(obj.data.polygons)):
         # get selected faces
         poly = obj.data.polygons[i]
         if poly.select:
             face_info = SelectedFaceInfo(
-                poly.normal.copy(), list(poly.loop_indices))
+                poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
             out.append(face_info)
+    bpy.ops.object.mode_set(mode=mode_orig)
     return out
 
 
@@ -139,7 +142,7 @@ def get_selected_faces_by_sel_seq(obj):
     for f in faces:
         poly = obj.data.polygons[f]
         face_info = SelectedFaceInfo(
-            poly.normal.copy(), list(poly.loop_indices))
+            poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
         out.append(face_info)
         
     bpy.ops.object.mode_set(mode=mode_orig)

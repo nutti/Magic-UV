@@ -44,6 +44,7 @@ if "bpy" in locals():
     imp.reload(cpuv_selseq_operation)
     imp.reload(cpuv_uvmap_operation)
     imp.reload(cpuv_fliprot_operation)
+    imp.reload(cpuv_transfer_uv_operation)
 else:
     from . import cpuv_menu
     from . import cpuv_common
@@ -51,6 +52,7 @@ else:
     from . import cpuv_selseq_operation
     from . import cpuv_uvmap_operation
     from . import cpuv_fliprot_operation
+    from . import cpuv_transfer_uv_operation
 
 import bpy
 

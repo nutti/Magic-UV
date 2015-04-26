@@ -33,7 +33,7 @@ class CPUVFlipRotate(bpy.types.Operator):
     """FlipRrotate UV."""
     
     bl_idname = "uv.flip_rotate"
-    bl_label = "Flip/Rotate UV."
+    bl_label = "Flip/Rotate UV"
     bl_description = "Flip/Rotate UV."
     bl_options = {'REGISTER', 'UNDO'}
 
