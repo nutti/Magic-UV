@@ -35,17 +35,8 @@ class CPUVUVMapCopyUVOperation(bpy.types.Operator):
     bl_label = "Copy UV Map (Sub Menu Operator)"
     uv_map = bpy.props.StringProperty()
 
-    # static variables
-    src_uv_map = None            # source uv map
-    src_obj = None               # source object
-    src_sel_face_info = None     # source selected faces information
-    
-    def __init__(self):
-        CPUVUVMapCopyUVOperation.src_uv_map = None
-        CPUVUVMapCopyUVOperation.src_obj = None
-        CPUVUVMapCopyUVOperation.src_sel_face_info = None
-
     def execute(self, context):
+        props = bpy.context.scene.cpuv_props
         
         self.report(
             {'INFO'},
@@ -56,14 +47,13 @@ class CPUVUVMapCopyUVOperation(bpy.types.Operator):
 
         try:
             # prepare for coping
-            CPUVUVMapCopyUVOperation.src_obj = cpuv_common.prep_copy(self)
+            props.src_obj = cpuv_common.prep_copy(self)
             
             # copy
-            CPUVUVMapCopyUVOperation.src_sel_face_info = cpuv_common.get_selected_faces(
-                CPUVUVMapCopyUVOperation.src_obj)
-            CPUVUVMapCopyUVOperation.src_uv_map = cpuv_common.copy_opt(
-                self, self.uv_map, CPUVUVMapCopyUVOperation.src_obj,
-                CPUVUVMapCopyUVOperation.src_sel_face_info)
+            props.src_faces = cpuv_common.get_selected_faces(
+                props.src_obj)
+            props.src_uv_map = cpuv_common.copy_opt(
+                self, self.uv_map, props.src_obj, props.src_faces)
             
             # finish coping
             cpuv_common.fini_copy()
@@ -117,12 +107,8 @@ class CPUVUVMapPasteUVOperation(bpy.types.Operator):
         min = 0,
         max = 30)
 
-    def __init__(self):
-        self.src_uv_map = CPUVUVMapCopyUVOperation.src_uv_map
-        self.src_obj = CPUVUVMapCopyUVOperation.src_obj
-        self.src_sel_face_info = CPUVUVMapCopyUVOperation.src_sel_face_info
-
     def execute(self, context):
+        props = bpy.context.scene.cpuv_props
         
         self.report(
             {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
@@ -133,13 +119,13 @@ class CPUVUVMapPasteUVOperation(bpy.types.Operator):
         try:
             # prepare for pasting
             dest_obj = cpuv_common.prep_paste(
-                self, self.src_obj, self.src_sel_face_info)
+                self, props.src_obj, props.src_faces)
             
             # paste
-            dest_sel_face_info = cpuv_common.get_selected_faces(dest_obj)
+            dest_faces = cpuv_common.get_selected_faces(dest_obj)
             cpuv_common.paste_opt(
-                self, self.uv_map, self.src_obj, self.src_sel_face_info,
-                self.src_uv_map, dest_obj, dest_sel_face_info)
+                self, self.uv_map, props.src_obj, props.src_faces,
+                props.src_uv_map, dest_obj, dest_faces)
             
             # finish pasting
             cpuv_common.fini_paste()

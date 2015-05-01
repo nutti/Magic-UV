@@ -27,16 +27,10 @@ __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
 # Properties used by this add-on.
-class CPUVProperties(bpy.types.PropertyGroup):
-    src_uv_map = PointerProperty(
-        name="Source UV map",
-        description="Source UV map")
-    src_obj = PointerProperty(
-        name="Source object",
-        description="Source object")
-    src_faces = PointerProperty(
-        name="Source selected faces")
-    test = IntProperty(default=0)
+class CPUVProperties():
+    src_uv_map = None
+    src_obj = None
+    src_faces = None
     
 
 def init_properties(props):

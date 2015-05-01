@@ -40,6 +40,7 @@ if "bpy" in locals():
     import imp
     imp.reload(cpuv_menu)
     imp.reload(cpuv_common)
+    imp.reload(cpuv_properties)
     imp.reload(cpuv_default_operation)
     imp.reload(cpuv_selseq_operation)
     imp.reload(cpuv_uvmap_operation)
@@ -48,6 +49,7 @@ if "bpy" in locals():
 else:
     from . import cpuv_menu
     from . import cpuv_common
+    from . import cpuv_properties
     from . import cpuv_default_operation
     from . import cpuv_selseq_operation
     from . import cpuv_uvmap_operation
@@ -60,16 +62,18 @@ import bpy
 def menu_func(self, context):
     self.layout.separator()
     self.layout.menu(cpuv_menu.CPUVMenu.bl_idname)
-
+    
 
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.VIEW3D_MT_uv_map.append(menu_func)
+    bpy.types.Scene.cpuv_props = cpuv_properties.CPUVProperties()
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
     bpy.types.VIEW3D_MT_uv_map.remove(menu_func)
+    del bpy.types.Scene.cpuv_props
 
 
 if __name__ == "__main__":

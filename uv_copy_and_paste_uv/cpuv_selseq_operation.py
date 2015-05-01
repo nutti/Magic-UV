@@ -38,17 +38,8 @@ class CPUVSelSeqCopyUV(bpy.types.Operator):
     bl_description = "Copy UV data by selection sequence."
     bl_options = {'REGISTER', 'UNDO'}
 
-    # static variables
-    src_uv_map = None            # source uv map
-    src_obj = None               # source object
-    src_sel_face_info = None     # source selected faces information
-    
-    def __init__(self):
-        CPUVSelSeqCopyUV.src_uv_map = None
-        CPUVSelSeqCopyUV.src_obj = None
-        CPUVSelSeqCopyUV.src_sel_face_info = None
-
     def execute(self, context):
+        props = bpy.context.scene.cpuv_props
 
         self.report({'INFO'}, "Copy UV coordinate. (sequence)")
         
@@ -57,13 +48,12 @@ class CPUVSelSeqCopyUV(bpy.types.Operator):
         
         try:
             # prepare for coping
-            CPUVSelSeqCopyUV.src_obj = cpuv_common.prep_copy(self)
+            props.src_obj = cpuv_common.prep_copy(self)
     
             # copy
-            CPUVSelSeqCopyUV.src_sel_face_info = cpuv_common.get_selected_faces_by_sel_seq(CPUVSelSeqCopyUV.src_obj)
-            CPUVSelSeqCopyUV.src_uv_map = cpuv_common.copy_opt(
-                self, "", CPUVSelSeqCopyUV.src_obj,
-                CPUVSelSeqCopyUV.src_sel_face_info)
+            props.src_faces = cpuv_common.get_selected_faces_by_sel_seq(props.src_obj)
+            props.src_uv_map = cpuv_common.copy_opt(
+                self, "", props.src_obj, props.src_faces)
     
             # finish coping
             cpuv_common.fini_copy()
@@ -99,12 +89,8 @@ class CPUVSelSeqPasteUV(bpy.types.Operator):
         min = 0,
         max = 30)
 
-    def __init__(self):
-        self.src_uv_map = CPUVSelSeqCopyUV.src_uv_map
-        self.src_obj = CPUVSelSeqCopyUV.src_obj
-        self.src_sel_face_info = CPUVSelSeqCopyUV.src_sel_face_info
-
     def execute(self, context):
+        props = bpy.context.scene.cpuv_props
         
         self.report({'INFO'}, "Paste UV coordinate. (sequence)")
         
@@ -114,13 +100,13 @@ class CPUVSelSeqPasteUV(bpy.types.Operator):
         try:
             # prepare for pasting
             dest_obj = cpuv_common.prep_paste(
-                self, self.src_obj, self.src_sel_face_info)
+                self, props.src_obj, props.src_faces)
     
             # paste
-            dest_sel_face_info = cpuv_common.get_selected_faces_by_sel_seq(dest_obj)
+            dest_faces = cpuv_common.get_selected_faces_by_sel_seq(dest_obj)
             cpuv_common.paste_opt(
-                self, "", self.src_obj, self.src_sel_face_info,
-                self.src_uv_map, dest_obj, dest_sel_face_info)
+                self, "", props.src_obj, props.src_faces,
+                props.src_uv_map, dest_obj, dest_faces)
                 
             # finish pasting
             cpuv_common.fini_paste()
