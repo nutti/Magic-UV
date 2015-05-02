@@ -40,6 +40,18 @@ class CPUVError(Exception):
     def report(self, obj):
         obj.report(self.err_level, self.err_str)
 
+def change_active_object(fm, to):
+    mode_orig = bpy.context.object.mode
+    bpy.ops.object.mode_set(mode='OBJECT')
+    fm.select = False
+    bpy.context.scene.objects.active = to
+    to.select = True
+    bpy.ops.object.mode_set(mode=mode_orig)
+
+def update_mesh():
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.editmode_toggle()
+
 def prep_copy(self):
     """
     parepare for copy operation.
@@ -116,6 +128,44 @@ def get_selected_faces(obj):
             out.append(face_info)
     bpy.ops.object.mode_set(mode=mode_orig)
     return out
+
+
+def get_selected_face_indices(obj):
+    out = []
+    mode_orig = bpy.context.object.mode
+    for i in range(len(obj.data.polygons)):
+        # get selected faces
+        poly = obj.data.polygons[i]
+        if poly.select:
+            out.append(i)
+    bpy.ops.object.mode_set(mode=mode_orig)
+    return out
+
+
+def get_faces_from_indices(obj, indices):
+    out = []
+    mode_orig = bpy.context.object.mode
+    for i in indices:
+        # get selected faces
+        poly = obj.data.polygons[i]
+        face_info = SelectedFaceInfo(
+            poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
+        out.append(face_info)
+    bpy.ops.object.mode_set(mode=mode_orig)
+    return out
+
+
+def select_faces_by_indices(obj, indices):
+    mode_orig = bpy.context.object.mode
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # clear
+    for p in obj.data.polygons:
+        p.select = False
+    # select
+    for i in indices:
+        poly = obj.data.polygons[i]
+        poly.select = True
+    bpy.ops.object.mode_set(mode=mode_orig)
 
 
 def get_selected_faces_by_sel_seq(obj):
