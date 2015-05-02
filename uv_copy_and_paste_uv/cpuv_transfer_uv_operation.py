@@ -33,14 +33,18 @@ __date__ = "X XXXX 2015"
 
 
 # sort array by normal
-def sort_by_center(src, dest, precise):
+def sort_by_center(src, dest, precise, strategy):
     src_sorted = []
     dest_sorted = []
 
     for s in src:
         matched = False
         for d in dest:
-            diff = s.center - d.center
+            diff = None
+            if strategy == "CENTER":
+                diff = s.center - d.center
+            elif strategy == "NORMAL":
+                diff = s.normal - d.normal
             if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
                 src_sorted.append(s)
                 dest_sorted.append(d)
@@ -64,17 +68,24 @@ class CPUVTransferUVCopy(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     src_obj_name = None
+    src_face_indices = None
 
     def execute(self, context):
         self.report({'INFO'}, "Transfer UV copy.")
         mode_orig = bpy.context.object.mode
         try:
+            cpuv_common.update_mesh()
+            
+            from . import debug
+            
+            debug.start_debug()
             # get active object name
             CPUVTransferUVCopy.src_obj_name = bpy.context.active_object.name
             # prepare for coping
             src_obj = cpuv_common.prep_copy(self)
             # copy
             src_sel_face_info = cpuv_common.get_selected_faces_by_sel_seq(src_obj)
+            CPUVTransferUVCopy.src_face_indices = cpuv_common.get_selected_face_indices(src_obj)
             CPUVTransferUVCopy.src_uv_map = cpuv_common.copy_opt(
                 self, "", src_obj, src_sel_face_info)
             # finish coping
@@ -87,6 +98,14 @@ class CPUVTransferUVCopy(bpy.types.Operator):
         bpy.ops.object.mode_set(mode=mode_orig)
         return {'FINISHED'}
 
+
+def get_strategy(scene, context):
+    items = []
+
+    items.append(("NORMAL", "Normal", "Normal."))
+    items.append(("CENTER", "Center", "Center of face."))
+
+    return items
 
 # transfer UV (paste)
 class CPUVTransferUVPaste(bpy.types.Operator):
@@ -105,6 +124,11 @@ class CPUVTransferUVPaste(bpy.types.Operator):
         name="Precise",
         min=0.000001,
         max=1.0)
+    
+    strategy = EnumProperty(
+        name="Strategy",
+        description="Matching strategy",
+        items=get_strategy)
     
     def execute(self, context):
 
@@ -130,10 +154,17 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                     {'WARNING'}, "Object must have more than one UV map.")
 
             # get first selected faces
-            src_face_indices = cpuv_common.get_selected_face_indices(src_obj)
+            cpuv_common.update_mesh()
+            src_face_indices = copy.copy(CPUVTransferUVCopy.src_face_indices)
+            ini_src_face_indices = copy.copy(src_face_indices)
             src_sel_face = cpuv_common.get_faces_from_indices(src_obj, src_face_indices)
-            dest_face_indices = cpuv_common.get_selected_face_indices(src_obj)
+            dest_face_indices = cpuv_common.get_selected_face_indices(dest_obj)
+            ini_dest_face_indices = copy.copy(dest_face_indices)
             dest_sel_face = cpuv_common.get_faces_from_indices(src_obj, dest_face_indices)
+
+            from . import debug
+            
+            debug.start_debug()
 
             # store previous selected faces
             src_sel_face_prev = copy.deepcopy(src_sel_face)
@@ -145,12 +176,17 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 # source object
                 #####################
                 cpuv_common.change_active_object(dest_obj, src_obj)
+                # reset selection
+                cpuv_common.select_faces_by_indices(src_obj, src_face_indices)
                 # change to 'EDIT' mode, in order to access internal data
                 bpy.ops.object.mode_set(mode='EDIT')
                 # select more
                 bpy.ops.mesh.select_more()
                 cpuv_common.update_mesh()
-                src_sel_face = cpuv_common.get_selected_faces(src_obj)
+                # get selected faces
+                src_face_indices = cpuv_common.get_selected_face_indices(src_obj)
+                src_sel_face = cpuv_common.get_faces_from_indices(src_obj, src_face_indices)
+                #src_sel_face = cpuv_common.get_selected_faces(src_obj)
                 # if there is no more selection, process is completed
                 if len(src_sel_face) == len(src_sel_face_prev):
                     break
@@ -159,12 +195,17 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 # destination object
                 #####################
                 cpuv_common.change_active_object(src_obj, dest_obj)
+                # reset selection
+                cpuv_common.select_faces_by_indices(dest_obj, dest_face_indices)
                 # change to 'EDIT' mode, in order to access internal data
                 bpy.ops.object.mode_set(mode='EDIT')
                 # select more
                 bpy.ops.mesh.select_more()
                 cpuv_common.update_mesh()
-                dest_sel_face = cpuv_common.get_selected_faces(dest_obj)
+                # get selected faces
+                dest_face_indices = cpuv_common.get_selected_face_indices(dest_obj)
+                dest_sel_face = cpuv_common.get_faces_from_indices(dest_obj, dest_face_indices)
+                #dest_sel_face = cpuv_common.get_selected_faces(dest_obj)
                 # if there is no more selection, process is completed
                 if len(dest_sel_face) == len(dest_sel_face_prev):
                     break
@@ -177,13 +218,13 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 dest_sel_face_prev = copy.deepcopy(dest_sel_face)
 
             # sort array in order to match selected faces
-            src_sel_face, dest_sel_face = sort_by_center(src_sel_face_prev, dest_sel_face_prev, self.precise)
+            src_sel_face, dest_sel_face = sort_by_center(src_sel_face_prev, dest_sel_face_prev, self.precise, self.strategy)
+
+            #for i in range(len(src_sel_face)):
+            #    self.report({'INFO'}, "s:%d-%d | d:%d-%d" % (src_sel_face[i].indices[0], src_sel_face[i].indices[3],
+            #                                                 dest_sel_face[i].indices[0], dest_sel_face[i].indices[3]))
 
             bpy.ops.object.mode_set(mode='OBJECT')
-
-            for i in range(len(src_sel_face)):
-                self.report({'INFO'}, "s:%d-%d | d:%d-%d" % (src_sel_face[i].indices[0], src_sel_face[i].indices[3],
-                                                             dest_sel_face[i].indices[0], dest_sel_face[i].indices[3]))
 
             # now, paste UV coordinate.
             cpuv_common.paste_opt(
@@ -193,14 +234,14 @@ class CPUVTransferUVPaste(bpy.types.Operator):
         except cpuv_common.CPUVError as e:
             e.report(self)
             cpuv_common.change_active_object(src_obj, dest_obj)
-            cpuv_common.select_faces_by_indices(src_obj, src_face_indices)
-            cpuv_common.select_faces_by_indices(dest_obj, dest_face_indices)
+            cpuv_common.select_faces_by_indices(src_obj, ini_src_face_indices)
+            cpuv_common.select_faces_by_indices(dest_obj, ini_dest_face_indices)
             bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
 
         # revert to original mode
         cpuv_common.change_active_object(src_obj, dest_obj)
-        cpuv_common.select_faces_by_indices(src_obj, src_face_indices)
-        cpuv_common.select_faces_by_indices(dest_obj, dest_face_indices)
+        cpuv_common.select_faces_by_indices(src_obj, ini_src_face_indices)
+        cpuv_common.select_faces_by_indices(dest_obj, ini_dest_face_indices)
         bpy.ops.object.mode_set(mode=mode_orig)
         return {'FINISHED'}
