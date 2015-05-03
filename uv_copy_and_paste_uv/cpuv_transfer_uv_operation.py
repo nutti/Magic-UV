@@ -33,7 +33,7 @@ __date__ = "X XXXX 2015"
 
 
 # sort array by normal
-def sort_by_center(src, dest, precise, strategy):
+def sort_faces(src, dest, precise, strategy):
     src_sorted = []
     dest_sorted = []
 
@@ -75,10 +75,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
         mode_orig = bpy.context.object.mode
         try:
             cpuv_common.update_mesh()
-            
-            from . import debug
-            
-            debug.start_debug()
+
             # get active object name
             CPUVTransferUVCopy.src_obj_name = bpy.context.active_object.name
             # prepare for coping
@@ -162,10 +159,6 @@ class CPUVTransferUVPaste(bpy.types.Operator):
             ini_dest_face_indices = copy.copy(dest_face_indices)
             dest_sel_face = cpuv_common.get_faces_from_indices(src_obj, dest_face_indices)
 
-            from . import debug
-            
-            debug.start_debug()
-
             # store previous selected faces
             src_sel_face_prev = copy.deepcopy(src_sel_face)
             dest_sel_face_prev = copy.deepcopy(dest_sel_face)
@@ -186,7 +179,6 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 # get selected faces
                 src_face_indices = cpuv_common.get_selected_face_indices(src_obj)
                 src_sel_face = cpuv_common.get_faces_from_indices(src_obj, src_face_indices)
-                #src_sel_face = cpuv_common.get_selected_faces(src_obj)
                 # if there is no more selection, process is completed
                 if len(src_sel_face) == len(src_sel_face_prev):
                     break
@@ -205,7 +197,6 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 # get selected faces
                 dest_face_indices = cpuv_common.get_selected_face_indices(dest_obj)
                 dest_sel_face = cpuv_common.get_faces_from_indices(dest_obj, dest_face_indices)
-                #dest_sel_face = cpuv_common.get_selected_faces(dest_obj)
                 # if there is no more selection, process is completed
                 if len(dest_sel_face) == len(dest_sel_face_prev):
                     break
@@ -218,11 +209,7 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 dest_sel_face_prev = copy.deepcopy(dest_sel_face)
 
             # sort array in order to match selected faces
-            src_sel_face, dest_sel_face = sort_by_center(src_sel_face_prev, dest_sel_face_prev, self.precise, self.strategy)
-
-            #for i in range(len(src_sel_face)):
-            #    self.report({'INFO'}, "s:%d-%d | d:%d-%d" % (src_sel_face[i].indices[0], src_sel_face[i].indices[3],
-            #                                                 dest_sel_face[i].indices[0], dest_sel_face[i].indices[3]))
+            src_sel_face, dest_sel_face = sort_faces(src_sel_face_prev, dest_sel_face_prev, self.precise, self.strategy)
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
