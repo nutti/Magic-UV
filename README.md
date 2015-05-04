@@ -4,7 +4,20 @@ This is a blender add-on "Copy/Paste UV".
 You can easily copy and paste UV with this plugin.
 
 **Stable version is included on Blender.**
-If you want to try new version, you can download it from [release page](https://github.com/nutti/Copy-And-Paste-UV/releases)
+(You can also download older version from below links.)
+
+If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Copy-And-Paste-UV/archive/develop.zip).
+
+## Release URL
+
+|Version|Download URL|
+|---|---|
+|*unstable*|[Download](https://github.com/nutti/Copy-And-Paste-UV/archive/develop.zip)|
+|2.2|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.2)|
+|2.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.1)|
+|2.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.0)|
+|1.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v1.1)|
+|1.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v1.0)|
 
 ## Support languages
 
@@ -22,19 +35,65 @@ This add-on's features are as follows.
 
 ## Tutorials
 
-If you want how to use this add-on, see tutorials.
-
 ### Copy/Paste UV Coordinates
+
+1. Select face which UV will be copied
+2. Press key **U**
+3. Click **Copy UV**
+4. Select face which UV will be pasted
+5. Press key **U**
+6. Click **Paste UV**
+7. *(optional)* You can flip or rotate UV from toolshelf option
+
 [![](http://img.youtube.com/vi/Iy1RI6KNZ_M/0.jpg)](https://www.youtube.com/watch?v=Iy1RI6KNZ_M)
 
-### Copy/Paste UV Coordinates (by selection sequence)<br>Copy/Paste UV Coordinates (between UVMaps)
+### Copy/Paste UV Coordinates (by selection sequence)
+
+1. Select faces which UV will be copied  
+(You can select more than two faces)
+2. Press key **U**
+3. Click **Copy UV (Selection Sequence)**
+4. Select faces which UV will be pasted  
+(You **MUST** select same number of face to be copied)
+5. Press key **U**
+6. Click **Paste UV (Selection Sequence)**
+7. *(optional)* You can flip or rotate UV from toolshelf option
+
 [![](http://img.youtube.com/vi/K4DToZHc768/0.jpg)](https://www.youtube.com/watch?v=K4DToZHc768)
 
+### Copy/Paste UV Coordinates (between UVMaps)
+
+1. Select faces which UV will be copied
+2. Press key **U**
+3. Click **Copy UV Map** - (UV map you want to copied)
+4. Select faces which UV will be pasted
+5. Press key **U**
+6. Click **Paste UV (Selection Sequence)** - (UV map you want to pasted)
+7. *(optional)* You can flip or rotate UV from toolshelf option
+
 ### Flip/Rotate UVs
+
+1. Select faces which UV will be flipped/rotated.
+2. Press key **U**
+3. Click **Flip/Rotate UV**
+4. You can flip or rotate UV from toolshelf option
+
 [![](http://img.youtube.com/vi/qp2Kn1fN96Q/0.jpg)](https://www.youtube.com/watch?v=qp2Kn1fN96Q)
 
 ### Transfer UV
-[![](http://img.youtube.com/vi/rbP0hExl3Zc/0.jpg)](https://www.youtube.com/watch?v=rbP0hExl3Zc)
+
+1. Select face which UV will be copied  
+(You can select more than two faces)
+2. Press key **U**
+3. Click **Transfer UV Copy**
+4. Select face which UV will be pasted  
+(You **MUST** select same number of face to be copied)
+5. Press key **U**
+6. Click **Transfer UV Paste**
+7. (*optional*) You can control precision or strategy from toolshelf option when UVs are transfered incorrectly.
+
+[![](http://img.youtube.com/vi/rbP0hExl3Zc/0.jpg)](https://www.youtube.com/watch?v=rbP0hExl3Zc)  
+[![](http://img.youtube.com/vi/p1W6jugsyZw/0.jpg)](https://www.youtube.com/watch?v=p1W6jugsyZw)
 
 ## Related Links
 
