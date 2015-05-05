@@ -32,28 +32,34 @@ __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
 
-# sort array by normal
+# sort faces
 def sort_faces(src, dest, precise, strategy):
     src_sorted = []
     dest_sorted = []
 
     for s in src:
-        matched = False
         for d in dest:
-            diff = None
+            matched = False
+            if len(s.indices) != len(d.indices):
+                continue
+
             if strategy == "CENTER":
                 diff = s.center - d.center
+                if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
+                    matched = True
             elif strategy == "NORMAL":
                 diff = s.normal - d.normal
-            if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
+                if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
+                    matched = True
+            elif strategy == "INDEX":
+                matched = True
+                for i in range(len(s.indices)):
+                    if s.indices[i] != d.indices[i]:
+                        matched = False
+            if matched is True:
                 src_sorted.append(s)
                 dest_sorted.append(d)
-                matched = True
                 break
-        if matched is False:
-            raise cpuv_common.CPUVError(
-                {'WARNING'},
-                "Could not find any pair between source and destination")
 
     return (src_sorted, dest_sorted)
 
@@ -101,6 +107,7 @@ def get_strategy(scene, context):
 
     items.append(("NORMAL", "Normal", "Normal."))
     items.append(("CENTER", "Center", "Center of face."))
+    items.append(("INDEX", "Index", "Vertex Index."))
 
     return items
 
