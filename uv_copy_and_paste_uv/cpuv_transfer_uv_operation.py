@@ -33,35 +33,8 @@ __date__ = "X XXXX 2015"
 
 
 # sort faces
-def sort_faces(src, dest, precise, strategy):
-    src_sorted = []
-    dest_sorted = []
-
-    for s in src:
-        for d in dest:
-            matched = False
-            if len(s.indices) != len(d.indices):
-                continue
-
-            if strategy == "CENTER":
-                diff = s.center - d.center
-                if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
-                    matched = True
-            elif strategy == "NORMAL":
-                diff = s.normal - d.normal
-                if math.fabs(diff.x) < precise and math.fabs(diff.y) < precise and math.fabs(diff.z) < precise:
-                    matched = True
-            elif strategy == "INDEX":
-                matched = True
-                for i in range(len(s.indices)):
-                    if s.indices[i] != d.indices[i]:
-                        matched = False
-            if matched is True:
-                src_sorted.append(s)
-                dest_sorted.append(d)
-                break
-
-    return (src_sorted, dest_sorted)
+def sort_faces(src, dest):
+    return (src, dest)
 
 
 # transfer UV (copy)
@@ -102,15 +75,6 @@ class CPUVTransferUVCopy(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def get_strategy(scene, context):
-    items = []
-
-    items.append(("NORMAL", "Normal", "Normal."))
-    items.append(("CENTER", "Center", "Center of face."))
-    items.append(("INDEX", "Index", "Vertex Index."))
-
-    return items
-
 # transfer UV (paste)
 class CPUVTransferUVPaste(bpy.types.Operator):
     """Transfer UV paste."""
@@ -122,17 +86,6 @@ class CPUVTransferUVPaste(bpy.types.Operator):
 
     flip_copied_uv = False
     rotate_copied_uv = 0
-
-    precise = FloatProperty(
-        default=0.1,
-        name="Precise",
-        min=0.000001,
-        max=1.0)
-    
-    strategy = EnumProperty(
-        name="Strategy",
-        description="Matching strategy",
-        items=get_strategy)
     
     def execute(self, context):
 
@@ -216,7 +169,7 @@ class CPUVTransferUVPaste(bpy.types.Operator):
                 dest_sel_face_prev = copy.deepcopy(dest_sel_face)
 
             # sort array in order to match selected faces
-            src_sel_face, dest_sel_face = sort_faces(src_sel_face_prev, dest_sel_face_prev, self.precise, self.strategy)
+            src_sel_face, dest_sel_face = sort_faces(src_sel_face_prev, dest_sel_face_prev)
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
