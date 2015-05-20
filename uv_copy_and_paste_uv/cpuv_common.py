@@ -20,7 +20,6 @@
 
 import bpy
 import bmesh
-import math
 from collections import namedtuple
 from bpy.props import *
 
@@ -31,14 +30,54 @@ __date__ = "X XXXX 2015"
 
 SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices center')
 
+
 class CPUVError(Exception):
-    def __init__(self, level, str):
+    """This add-on's exception class."""
+
+    def __init__(self, level, err_str):
         self.err_level = level
-        self.err_str= str
+        self.err_str = err_str
+
     def __str__(self):
         return repr(self.err_str)
+
     def report(self, obj):
         obj.report(self.err_level, self.err_str)
+
+
+class View3DModeMemory():
+    __mode_orig = None
+
+    def __init__(self):
+        self.__mode_orig = bpy.context.object.mode
+
+    def change_mode(self, mode):
+        bpy.ops.object.mode_set(mode=mode)
+
+    def __del__(self):
+        bpy.ops.object.mode_set(mode=self.__mode_orig)
+
+
+def memorize_view_3d_mode(fn):
+    def __memorize_view_3d_mode(*args, **kwargs):
+        mode_orig = bpy.context.object.mode
+        result = fn(*args, **kwargs)
+        bpy.ops.object.mode_set(mode=mode_orig)
+        return result
+    return __memorize_view_3d_mode
+
+
+def check_version(major, minor, unused):
+    if bpy.app.version[0] == major and bpy.app.version[1] == minor:
+        return 0
+    if bpy.app.version[0] > major:
+        return 1
+    else:
+        if bpy.app.version[1] > minor:
+            return 1
+        else:
+            return -1
+
 
 def change_active_object(fm, to):
     mode_orig = bpy.context.object.mode
@@ -48,9 +87,11 @@ def change_active_object(fm, to):
     to.select = True
     bpy.ops.object.mode_set(mode=mode_orig)
 
+
 def update_mesh():
     bpy.ops.object.editmode_toggle()
     bpy.ops.object.editmode_toggle()
+
 
 def prep_copy(self):
     """
@@ -59,14 +100,10 @@ def prep_copy(self):
     """
     # get active (source) object to be copied from
     obj = bpy.context.active_object;
-    
     # check if active object has more than one UV map
     if len(obj.data.uv_textures.keys()) == 0:
         raise CPUVError({'WARNING'}, "Object must have more than one UV map.")
 
-    # change to 'OBJECT' mode, in order to access internal data
-    bpy.ops.object.mode_set(mode='OBJECT')
-    
     return obj
 
 
@@ -77,6 +114,7 @@ def fini_copy():
     """
     pass
 
+
 # prepare for paste operation
 def prep_paste(self, src_obj, src_sel_face_info):
     """
@@ -85,20 +123,15 @@ def prep_paste(self, src_obj, src_sel_face_info):
     @param  src_sel_face_info information about faces will be copied
     @return active object
     """
-     # check if copying operation was executed
+    # check if copy operation was executed
     if src_sel_face_info is None or src_obj is None:
         raise CPUVError({'WARNING'}, "Do copy operation at first.")
-    
     # get active (source) object to be pasted to
     obj = bpy.context.active_object
-
     # check if active object has more than one UV map
     if len(obj.data.uv_textures.keys()) == 0:
         raise CPUVError({'WARNING'}, "Object must have more than one UV map.")
 
-    # change to 'OBJECT' mode, in order to access internal data
-    bpy.ops.object.mode_set(mode='OBJECT')
-    
     return obj
 
 
@@ -116,56 +149,35 @@ def get_selected_faces(obj):
     @param  obj object
     @return information about selected faces (list of SelectedFaceInfo)
     """
-    out = []
-    # get selection sequence
-    mode_orig = bpy.context.object.mode
-    for i in range(len(obj.data.polygons)):
-        # get selected faces
-        poly = obj.data.polygons[i]
-        if poly.select:
-            face_info = SelectedFaceInfo(
-                poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
-            out.append(face_info)
-    bpy.ops.object.mode_set(mode=mode_orig)
-    return out
+    return get_faces_from_indices(obj, get_selected_face_indices(obj))
 
 
+@memorize_view_3d_mode
 def get_selected_face_indices(obj):
-    out = []
-    mode_orig = bpy.context.object.mode
-    for i in range(len(obj.data.polygons)):
-        # get selected faces
-        poly = obj.data.polygons[i]
-        if poly.select:
-            out.append(i)
-    bpy.ops.object.mode_set(mode=mode_orig)
-    return out
+    bpy.ops.object.mode_set(mode='OBJECT')
+    polys = obj.data.polygons
+    return [i for i, p in enumerate(polys) if p.select is True]
 
 
 def get_faces_from_indices(obj, indices):
-    out = []
-    mode_orig = bpy.context.object.mode
-    for i in indices:
-        # get selected faces
-        poly = obj.data.polygons[i]
-        face_info = SelectedFaceInfo(
-            poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
-        out.append(face_info)
-    bpy.ops.object.mode_set(mode=mode_orig)
-    return out
+    polys = obj.data.polygons
+    return [
+        SelectedFaceInfo(
+            polys[i].normal.copy(),
+            list(polys[i].loop_indices),
+            polys[i].center.copy())
+        for i in indices]
 
 
+@memorize_view_3d_mode
 def select_faces_by_indices(obj, indices):
-    mode_orig = bpy.context.object.mode
     bpy.ops.object.mode_set(mode='OBJECT')
     # clear
     for p in obj.data.polygons:
         p.select = False
     # select
     for i in indices:
-        poly = obj.data.polygons[i]
-        poly.select = True
-    bpy.ops.object.mode_set(mode=mode_orig)
+        obj.data.polygons[i].select = True
 
 
 def get_selected_faces_by_sel_seq(obj):
@@ -174,30 +186,17 @@ def get_selected_faces_by_sel_seq(obj):
     @param  obj object
     @return information about selected faces (list of SelectedFaceInfo)
     """
-    out = []
-    faces = []
-    
-    # get selection sequence
-    mode_orig = bpy.context.object.mode
-    bpy.ops.object.mode_set(mode='EDIT')
+    # get indices by selection sequence
     bm = bmesh.from_edit_mesh(obj.data)
-    if bpy.app.version[0] >= 2 and bpy.app.version[1] >= 73:
+    if check_version(2, 73, 0) >= 0:
         bm.faces.ensure_lookup_table()
-    for e in bm.select_history:
-        if isinstance(e, bmesh.types.BMFace) and e.select:
-            faces.append(e.loops[0].face.index)
-    
+    indices = [
+        e.loops[0].face.index
+        for e in bm.select_history
+        if isinstance(e, bmesh.types.BMFace) and e.select]
+
     # get selected faces by selection sequence
-    bpy.ops.object.mode_set(mode='OBJECT')
-    for f in faces:
-        poly = obj.data.polygons[f]
-        face_info = SelectedFaceInfo(
-            poly.normal.copy(), list(poly.loop_indices), poly.center.copy())
-        out.append(face_info)
-        
-    bpy.ops.object.mode_set(mode=mode_orig)
-    
-    return out
+    return get_faces_from_indices(obj, indices)
 
 
 def copy_opt(self, uv_map, src_obj, src_sel_face_info):
@@ -209,23 +208,26 @@ def copy_opt(self, uv_map, src_obj, src_sel_face_info):
     @param  src_sel_face_info source information about selected faces
     @return UV map
     """
-    # check if any faces are selected
+
+    # confirm that there was no problem in copy operation
     if len(src_sel_face_info) == 0:
         raise CPUVError({'WARNING'}, "No faces are selected.")
     else:
         self.report(
             {'INFO'}, "%d face(s) are selected." % len(src_sel_face_info))
-    
+
+    # get UV map name
     if uv_map == "":
         uv_map = src_obj.data.uv_layers.active.name
     else:
         uv_map = uv_map
-    
+
     return uv_map
 
 
+@memorize_view_3d_mode
 def paste_opt(self, uv_map, src_obj, src_sel_face_info,
-    src_uv_map, dest_obj, dest_sel_face_info):
+              src_uv_map, dest_obj, dest_sel_face_info):
     """
     paste operation.
     @param  self operation object
@@ -236,23 +238,22 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
     @param  dest_obj destination object
     @param  dest_sel_face_info destination information about selected faces
     """
-    
-    # check if any faces are selected
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # confirm that there was no problem between copy and paste operation
     if len(dest_sel_face_info) == 0:
         raise CPUVError({'WARNING'}, "No faces are selected.")
-    
     if len(dest_sel_face_info) != len(src_sel_face_info):
         raise CPUVError(
             {'WARNING'},
             "Number of selected faces is different from copied faces." +
             "(src:%d, dest:%d)" %
             (len(src_sel_face_info), len(dest_sel_face_info)))
-
-    for i in range(len(dest_sel_face_info)):
-        if (len(dest_sel_face_info[i].indices) !=
-            len(src_sel_face_info[i].indices)):
+    for sinfo, dinfo in zip(src_sel_face_info, dest_sel_face_info):
+        if len(sinfo.indices) != len(dinfo.indices):
             raise CPUVError({'WARNING'}, "Some faces are different size.")
-    
+
+    # get UV map name
     if uv_map == "":
         dest_uv_map = dest_obj.data.uv_layers.active.name
     else:
@@ -261,31 +262,27 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
     # update UV data
     src_uv = src_obj.data.uv_layers[src_uv_map]
     dest_uv = dest_obj.data.uv_layers[dest_uv_map]
-
-    for i in range(len(dest_sel_face_info)):
-        dest_indices = dest_sel_face_info[i].indices
-        src_indices = src_sel_face_info[i].indices
-            
+    for sinfo, dinfo in zip(src_sel_face_info, dest_sel_face_info):
+        dest_indices = dinfo.indices
+        src_indices = sinfo.indices
+        # flip/rotate UVs
         dest_indices = flip_rotate_uvs(
             list(dest_indices), self.flip_copied_uv, self.rotate_copied_uv)
-
         # update
-        for j in range(len(dest_indices)):
-            dest_data = dest_uv.data[dest_indices[j]]
-            src_data = src_uv.data[src_indices[j]]
+        for si, di in zip(src_indices, dest_indices):
+            dest_data = dest_uv.data[di]
+            src_data = src_uv.data[si]
             dest_data.uv = src_data.uv
 
     self.report({'INFO'}, "%d faces are copied." % len(dest_sel_face_info))
 
 
 def flip_rotate_uvs(indices, flip, num_rotate):
-    # Flip UVs
+    # flip UVs
     if flip is True:
         indices.reverse()
-
-    # Rotate UVs
-    for i in range(num_rotate):
+    # rotate UVs
+    for n in range(num_rotate):
         idx = indices.pop()
         indices.insert(0, idx)
-
     return indices

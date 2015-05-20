@@ -20,7 +20,6 @@
 
 import bpy
 from bpy.props import *
-
 from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
@@ -28,98 +27,76 @@ __status__ = "production"
 __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
+
 # copy UV
 class CPUVCopyUV(bpy.types.Operator):
     """Copying UV coordinate on selected object."""
-    
+
     bl_idname = "uv.cpuv_copy_uv"
     bl_label = "Copy UV"
     bl_description = "Copy UV data"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     def execute(self, context):
-        props = bpy.context.scene.cpuv_props
-    
+        props = bpy.context.scene.cpuv_props.default
         self.report({'INFO'}, "Copy UV coordinate.")
-        
-        # save current mode
-        mode_orig = bpy.context.object.mode
-        
+        mem = cpuv_common.View3DModeMemory()
+
         try:
             # prepare for coping
             props.src_obj = cpuv_common.prep_copy(self)
-        
             # copy
             props.src_faces = cpuv_common.get_selected_faces(
                 props.src_obj)
             props.src_uv_map = cpuv_common.copy_opt(
                 self, "", props.src_obj, props.src_faces)
-            
             # finish coping
             cpuv_common.fini_copy()
-            
         except cpuv_common.CPUVError as e:
             e.report(self)
-            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
-        
-        # revert to original mode
-        bpy.ops.object.mode_set(mode=mode_orig)
-        
+
         return {'FINISHED'}
 
 
 # paste UV
 class CPUVPasteUV(bpy.types.Operator):
     """Paste UV coordinate which is copied."""
-    
+
     bl_idname = "uv.cpuv_paste_uv"
     bl_label = "Paste UV"
     bl_description = "Paste UV data"
     bl_options = {'REGISTER', 'UNDO'}
 
     flip_copied_uv = BoolProperty(
-        name = "Flip Copied UV",
-        description = "Flip Copied UV...",
-        default = False)
+        name="Flip Copied UV",
+        description="Flip Copied UV...",
+        default=False)
 
     rotate_copied_uv = IntProperty(
-        default = 0,
-        name = "Rotate Copied UV",
-        min = 0,
-        max = 30)
+        default=0,
+        name="Rotate Copied UV",
+        min=0,
+        max=30)
 
     def execute(self, context):
-        props = bpy.context.scene.cpuv_props
-    
+        props = bpy.context.scene.cpuv_props.default
         self.report({'INFO'}, "Paste UV coordinate.")
-        
-        # save current mode
-        mode_orig = bpy.context.object.mode
-        
+        mem = cpuv_common.View3DModeMemory()
+
         try:
             # prepare for pasting
             dest_obj = cpuv_common.prep_paste(
                 self, props.src_obj, props.src_faces)
-            
             # paste
             dest_faces = cpuv_common.get_selected_faces(dest_obj)
             cpuv_common.paste_opt(
                 self, "", props.src_obj, props.src_faces,
                 props.src_uv_map, dest_obj, dest_faces)
-            
             # finish pasting
             cpuv_common.fini_paste()
-            
         except cpuv_common.CPUVError as e:
             e.report(self)
-            bpy.ops.object.mode_set(mode=mode_orig)
             return {'CANCELLED'}
-        
-        # revert to original mode
-        bpy.ops.object.mode_set(mode=mode_orig)
-        
+
         return {'FINISHED'}
-            
-
-

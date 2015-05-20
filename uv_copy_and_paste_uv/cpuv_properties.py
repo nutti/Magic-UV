@@ -18,7 +18,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
 from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
@@ -26,12 +25,44 @@ __status__ = "production"
 __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
-# Properties used by this add-on.
+
+# Properties used in this add-on.
 class CPUVProperties():
+    default = None
+    selseq = None
+    uvmap = None
+    transuv = None
+
+    def __init__(self):
+        self.default = CPUVDefaultOpsProps()
+        self.selseq = CPUVSelSeqOpsProps()
+        self.uvmap = CPUVUVMapOpsProps()
+        self.transuv = CPUVTransUVOpsProps()
+
+
+class CPUVDefaultOpsProps():
     src_uv_map = None
     src_obj = None
     src_faces = None
-    
+
+
+class CPUVSelSeqOpsProps():
+    src_uv_map = None
+    src_obj = None
+    src_faces = None
+
+
+class CPUVUVMapOpsProps():
+    src_uv_map = None
+    src_obj = None
+    src_faces = None
+
+
+class CPUVTransUVOpsProps():
+    src_uv_map = None
+    src_obj_name = None
+    src_faces = None
+
 
 def init_properties(props):
     props.src_uv_map = None

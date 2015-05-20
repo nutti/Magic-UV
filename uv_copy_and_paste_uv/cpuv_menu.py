@@ -31,6 +31,7 @@ from . import cpuv_uvmap_operation
 from . import cpuv_fliprot_operation
 from . import cpuv_transfer_uv_operation
 
+
 # master menu
 class CPUVMenu(bpy.types.Menu):
     bl_idname = "uv.cpuv_menu"
@@ -45,6 +46,7 @@ class CPUVMenu(bpy.types.Menu):
         self.layout.menu(cpuv_uvmap_operation.CPUVUVMapCopyUV.bl_idname)
         self.layout.menu(cpuv_uvmap_operation.CPUVUVMapPasteUV.bl_idname)
         self.layout.operator(cpuv_fliprot_operation.CPUVFlipRotate.bl_idname)
-        self.layout.operator(cpuv_transfer_uv_operation.CPUVTransferUVCopy.bl_idname)
-        self.layout.operator(cpuv_transfer_uv_operation.CPUVTransferUVPaste.bl_idname)
-
+        self.layout.operator(
+            cpuv_transfer_uv_operation.CPUVTransferUVCopy.bl_idname)
+        self.layout.operator(
+            cpuv_transfer_uv_operation.CPUVTransferUVPaste.bl_idname)

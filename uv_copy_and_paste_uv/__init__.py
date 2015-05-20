@@ -24,16 +24,17 @@ __version__ = "3.0"
 __date__ = "X XXXX 2015"
 
 bl_info = {
-    "name" : "Copy and Paste UV",
-    "author" : "Nutti",
-    "version" : (3,0),
-    "blender" : (2, 7, 3),
-    "location" : "UV Mapping > Copy and Paste UV",
-    "description" : "Copy and Paste UV data",
-    "warning" : "",
-    "wiki_url" : "",
-    "tracker_url" : "",
-    "category" : "UV"
+    "name": "Copy and Paste UV",
+    "author": "Nutti",
+    "version": (3, 0),
+    "blender": (2, 73, 0),
+    "location": "UV Mapping > Copy and Paste UV",
+    "description": "Copy and Paste UV data",
+    "warning": "",
+    "support": "COMMUNITY",
+    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs",
+    "tracker_url": "https://developer.blender.org/T38460",
+    "category": "UV"
 }
 
 if "bpy" in locals():
@@ -57,26 +58,27 @@ else:
     from . import cpuv_transfer_uv_operation
 
 import bpy
+from . import debug
+
 
 # registration
-def menu_func(self, context):
+def menu_fn(self, context):
     self.layout.separator()
     self.layout.menu(cpuv_menu.CPUVMenu.bl_idname)
-    
+
 
 def register():
     bpy.utils.register_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.append(menu_func)
+    bpy.types.VIEW3D_MT_uv_map.append(menu_fn)
     bpy.types.Scene.cpuv_props = cpuv_properties.CPUVProperties()
+    debug.start_debug()
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.remove(menu_func)
+    bpy.types.VIEW3D_MT_uv_map.remove(menu_fn)
     del bpy.types.Scene.cpuv_props
 
 
 if __name__ == "__main__":
     register()
-
-
