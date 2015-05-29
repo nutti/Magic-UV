@@ -18,7 +18,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"

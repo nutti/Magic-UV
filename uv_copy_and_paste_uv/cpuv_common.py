@@ -21,7 +21,6 @@
 import bpy
 import bmesh
 from collections import namedtuple
-from bpy.props import *
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -31,24 +30,10 @@ __date__ = "X XXXX 2015"
 SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices center')
 
 
-class CPUVError(Exception):
-    """This add-on's exception class."""
-
-    def __init__(self, level, err_str):
-        self.err_level = level
-        self.err_str = err_str
-
-    def __str__(self):
-        return repr(self.err_str)
-
-    def report(self, obj):
-        obj.report(self.err_level, self.err_str)
-
-
 class View3DModeMemory():
     __mode_orig = None
 
-    def __init__(self):
+    def __init__(self, context):
         self.__mode_orig = bpy.context.object.mode
 
     def change_mode(self, mode):
@@ -79,11 +64,11 @@ def check_version(major, minor, unused):
             return -1
 
 
-def change_active_object(fm, to):
-    mode_orig = bpy.context.object.mode
+def change_active_object(context, fm, to):
+    mode_orig = context.object.mode
     bpy.ops.object.mode_set(mode='OBJECT')
     fm.select = False
-    bpy.context.scene.objects.active = to
+    context.scene.objects.active = to
     to.select = True
     bpy.ops.object.mode_set(mode=mode_orig)
 
@@ -93,18 +78,19 @@ def update_mesh():
     bpy.ops.object.editmode_toggle()
 
 
-def prep_copy(self):
+def prep_copy(context, self):
     """
     parepare for copy operation.
-    @return active object
+    @return (code, active object)
     """
     # get active (source) object to be copied from
-    obj = bpy.context.active_object;
+    obj = context.active_object
     # check if active object has more than one UV map
     if len(obj.data.uv_textures.keys()) == 0:
-        raise CPUVError({'WARNING'}, "Object must have more than one UV map.")
+        self.report({'WARNING'}, "Object must have more than one UV map.")
+        return (1, None)
 
-    return obj
+    return (0, obj)
 
 
 # finish copy operation
@@ -116,23 +102,25 @@ def fini_copy():
 
 
 # prepare for paste operation
-def prep_paste(self, src_obj, src_sel_face_info):
+def prep_paste(context, self, src_obj, src_sel_face_info):
     """
     prepare for paste operation.
     @param  src_obj object that is copied from
     @param  src_sel_face_info information about faces will be copied
-    @return active object
+    @return (code, active object)
     """
     # check if copy operation was executed
     if src_sel_face_info is None or src_obj is None:
-        raise CPUVError({'WARNING'}, "Do copy operation at first.")
+        self.report({'WARNING'}, "Do copy operation at first.")
+        return (1, None)
     # get active (source) object to be pasted to
-    obj = bpy.context.active_object
+    obj = context.active_object
     # check if active object has more than one UV map
     if len(obj.data.uv_textures.keys()) == 0:
-        raise CPUVError({'WARNING'}, "Object must have more than one UV map.")
+        self.report({'WARNING'}, "Object must have more than one UV map.")
+        return (2, None)
 
-    return obj
+    return (0, obj)
 
 
 # finish paste operation
@@ -143,17 +131,17 @@ def fini_paste():
     pass
 
 
-def get_selected_faces(obj):
+def get_selected_faces(context, obj):
     """
     get information about selected faces.
     @param  obj object
     @return information about selected faces (list of SelectedFaceInfo)
     """
-    return get_faces_from_indices(obj, get_selected_face_indices(obj))
+    return get_faces_from_indices(obj, get_selected_face_indices(context, obj))
 
 
 @memorize_view_3d_mode
-def get_selected_face_indices(obj):
+def get_selected_face_indices(context, obj):
     bpy.ops.object.mode_set(mode='OBJECT')
     polys = obj.data.polygons
     return [i for i, p in enumerate(polys) if p.select is True]
@@ -170,7 +158,7 @@ def get_faces_from_indices(obj, indices):
 
 
 @memorize_view_3d_mode
-def select_faces_by_indices(obj, indices):
+def select_faces_by_indices(context, obj, indices):
     bpy.ops.object.mode_set(mode='OBJECT')
     # clear
     for p in obj.data.polygons:
@@ -206,12 +194,13 @@ def copy_opt(self, uv_map, src_obj, src_sel_face_info):
     @param  uv_map UV Map to be copied. (current map when null str)
     @param  src_obj source object
     @param  src_sel_face_info source information about selected faces
-    @return UV map
+    @return (code, UV map)
     """
 
     # confirm that there was no problem in copy operation
     if len(src_sel_face_info) == 0:
-        raise CPUVError({'WARNING'}, "No faces are selected.")
+        self.report({'WARNING'}, "No faces are selected.")
+        return (1, None)
     else:
         self.report(
             {'INFO'}, "%d face(s) are selected." % len(src_sel_face_info))
@@ -222,11 +211,11 @@ def copy_opt(self, uv_map, src_obj, src_sel_face_info):
     else:
         uv_map = uv_map
 
-    return uv_map
+    return (0, uv_map)
 
 
 @memorize_view_3d_mode
-def paste_opt(self, uv_map, src_obj, src_sel_face_info,
+def paste_opt(context, self, uv_map, src_obj, src_sel_face_info,
               src_uv_map, dest_obj, dest_sel_face_info):
     """
     paste operation.
@@ -242,16 +231,19 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
 
     # confirm that there was no problem between copy and paste operation
     if len(dest_sel_face_info) == 0:
-        raise CPUVError({'WARNING'}, "No faces are selected.")
+        self.report({'WARNING'}, "No faces are selected.")
+        return 1
     if len(dest_sel_face_info) != len(src_sel_face_info):
-        raise CPUVError(
+        self.report(
             {'WARNING'},
             "Number of selected faces is different from copied faces." +
             "(src:%d, dest:%d)" %
             (len(src_sel_face_info), len(dest_sel_face_info)))
+        return 2
     for sinfo, dinfo in zip(src_sel_face_info, dest_sel_face_info):
         if len(sinfo.indices) != len(dinfo.indices):
-            raise CPUVError({'WARNING'}, "Some faces are different size.")
+            self.report({'WARNING'}, "Some faces are different size.")
+            return 3
 
     # get UV map name
     if uv_map == "":
@@ -275,6 +267,7 @@ def paste_opt(self, uv_map, src_obj, src_sel_face_info,
             dest_data.uv = src_data.uv
 
     self.report({'INFO'}, "%d faces are copied." % len(dest_sel_face_info))
+    return 0
 
 
 def flip_rotate_uvs(indices, flip, num_rotate):

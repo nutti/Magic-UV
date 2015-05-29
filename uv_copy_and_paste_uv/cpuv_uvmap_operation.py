@@ -19,7 +19,7 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
+from bpy.props import StringProperty, BoolProperty, IntProperty
 from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
@@ -35,25 +35,25 @@ class CPUVUVMapCopyUVOperation(bpy.types.Operator):
     uv_map = bpy.props.StringProperty()
 
     def execute(self, context):
-        props = bpy.context.scene.cpuv_props.uvmap
+        props = context.scene.cpuv_props.uvmap
         self.report(
             {'INFO'},
             "Copy UV coordinate. (UV map:" + self.uv_map + ")")
-        mem = cpuv_common.View3DModeMemory()
+        mem = cpuv_common.View3DModeMemory(context)
 
-        try:
-            # prepare for coping
-            props.src_obj = cpuv_common.prep_copy(self)
-            # copy
-            props.src_faces = cpuv_common.get_selected_faces(
-                props.src_obj)
-            props.src_uv_map = cpuv_common.copy_opt(
-                self, self.uv_map, props.src_obj, props.src_faces)
-            # finish coping
-            cpuv_common.fini_copy()
-        except cpuv_common.CPUVError as e:
-            e.report(self)
+        # prepare for coping
+        ret, props.src_obj = cpuv_common.prep_copy(context, self)
+        if ret != 0:
             return {'CANCELLED'}
+        # copy
+        props.src_faces = cpuv_common.get_selected_faces(
+            context, props.src_obj)
+        ret, props.src_uv_map = cpuv_common.copy_opt(
+            self, self.uv_map, props.src_obj, props.src_faces)
+        if ret != 0:
+            return {'CANCELLED'}
+        # finish coping
+        cpuv_common.fini_copy()
 
         return {'FINISHED'}
 
@@ -70,7 +70,7 @@ class CPUVUVMapCopyUV(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         # create sub menu
-        uv_maps = bpy.context.active_object.data.uv_textures.keys()
+        uv_maps = context.active_object.data.uv_textures.keys()
         for m in uv_maps:
             layout.operator(
                 CPUVUVMapCopyUVOperation.bl_idname,
@@ -95,25 +95,25 @@ class CPUVUVMapPasteUVOperation(bpy.types.Operator):
         max=30)
 
     def execute(self, context):
-        props = bpy.context.scene.cpuv_props.uvmap
+        props = context.scene.cpuv_props.uvmap
         self.report(
             {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
-        mem = cpuv_common.View3DModeMemory()
+        mem = cpuv_common.View3DModeMemory(context)
 
-        try:
-            # prepare for pasting
-            dest_obj = cpuv_common.prep_paste(
-                self, props.src_obj, props.src_faces)
-            # paste
-            dest_faces = cpuv_common.get_selected_faces(dest_obj)
-            cpuv_common.paste_opt(
-                self, self.uv_map, props.src_obj, props.src_faces,
-                props.src_uv_map, dest_obj, dest_faces)
-            # finish pasting
-            cpuv_common.fini_paste()
-        except cpuv_common.CPUVError as e:
-            e.report(self)
+        # prepare for pasting
+        ret, dest_obj = cpuv_common.prep_paste(
+            context, self, props.src_obj, props.src_faces)
+        if ret != 0:
             return {'CANCELLED'}
+        # paste
+        dest_faces = cpuv_common.get_selected_faces(context, dest_obj)
+        cpuv_common.paste_opt(
+            context, self, self.uv_map, props.src_obj, props.src_faces,
+            props.src_uv_map, dest_obj, dest_faces)
+        if ret != 0:
+            return {'CANCELLED'}
+        # finish pasting
+        cpuv_common.fini_paste()
 
         return {'FINISHED'}
 
@@ -130,7 +130,7 @@ class CPUVUVMapPasteUV(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         # create sub menu
-        uv_maps = bpy.context.active_object.data.uv_textures.keys()
+        uv_maps = context.active_object.data.uv_textures.keys()
         for m in uv_maps:
             layout.operator(
                 CPUVUVMapPasteUVOperation.bl_idname,

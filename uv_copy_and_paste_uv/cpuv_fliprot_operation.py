@@ -19,7 +19,7 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
+from bpy.props import BoolProperty, IntProperty
 from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
@@ -50,32 +50,28 @@ class CPUVFlipRotate(bpy.types.Operator):
 
     def execute(self, context):
         self.report({'INFO'}, "Flip/Rotate UVs.")
-        mem = cpuv_common.View3DModeMemory()
+        mem = cpuv_common.View3DModeMemory(context)
 
-        try:
-            # get active object to be fliped/rotated
-            obj = bpy.context.active_object
-            # check if active object has more than one UV map
-            if len(obj.data.uv_textures.keys()) == 0:
-                raise CPUVError(
-                    {'WARNING'}, "Object must have more than one UV map.")
-            sel_face = cpuv_common.get_selected_faces_by_sel_seq(obj)
-            uv_map = obj.data.uv_layers.active.name
-            # change to 'OBJECT' mode, in order to access internal data
-            mem.change_mode('OBJECT')
-            # update UV data
-            uv = obj.data.uv_layers[uv_map]
-            for sf in sel_face:
-                indices = sf.indices
-                indices_orig = indices.copy()
-                indices = cpuv_common.flip_rotate_uvs(
-                    list(indices), self.flip, self.rotate)
-                orig = [uv.data[i].uv.copy() for i in indices_orig]
-                # update
-                for j in range(len(indices_orig)):
-                    uv.data[indices[j]].uv = orig[j]
-        except cpuv_common.CPUVError as e:
-            e.report(self)
+        # get active object to be fliped/rotated
+        obj = context.active_object
+        # check if active object has more than one UV map
+        if len(obj.data.uv_textures.keys()) == 0:
+            self.report({'WARNING'}, "Object must have more than one UV map.")
             return {'CANCELLED'}
+        sel_face = cpuv_common.get_selected_faces_by_sel_seq(obj)
+        uv_map = obj.data.uv_layers.active.name
+        # change to 'OBJECT' mode, in order to access internal data
+        mem.change_mode('OBJECT')
+        # update UV data
+        uv = obj.data.uv_layers[uv_map]
+        for sf in sel_face:
+            indices = sf.indices
+            indices_orig = indices.copy()
+            indices = cpuv_common.flip_rotate_uvs(
+                list(indices), self.flip, self.rotate)
+            orig = [uv.data[i].uv.copy() for i in indices_orig]
+            # update
+            for j in range(len(indices_orig)):
+                uv.data[indices[j]].uv = orig[j]
 
         return {'FINISHED'}
