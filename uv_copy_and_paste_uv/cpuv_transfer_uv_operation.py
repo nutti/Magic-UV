@@ -39,32 +39,27 @@ def is_matched(diff, precise):
     return r1 and r2 and r3
 
 
-def sort_with_strategy(s, d, strategy, precise):
-    matched = False
-    if len(s.indices) != len(d.indices):
-        return False
-    if strategy == "CENTER":
-        diff = s.center - d.center
-        matched = is_matched(diff, precise)
-    elif strategy == "NORMAL":
-        diff = s.normal - d.normal
-        matched = is_matched(diff, precise)
-    elif strategy == "INDEX":
-        matched = True
-        for si, di in zip(s.indices, d.indices):
-            if si != di:
-                matched = False
-    return matched
+# filter faces
+def filter_faces(src, dest, precise, strategy):
+    strategy_fn = None
 
-
-# sort faces
-def sort_faces(src, dest, precise, strategy):
     if strategy == "NONE":
-        return (src, dest)
+        strategy_fn = (lambda s, d, precise:
+                       True)
+    elif strategy == "CENTER":
+        strategy_fn = (lambda s, d, precise:
+                       is_matched(s.center - d.center, precise))
+    elif strategy == "NORMAL":
+        strategy_fn = (lambda s, d, precise:
+                       is_matched(s.normal - d.normal, precise))
+    elif strategy == "INDEX":
+        strategy_fn = (lambda s, d, precise:
+                       s.indices == d.indices)
 
     return zip(*[(s, d)
                  for s, d in zip(src, dest)
-                 if sort_with_strategy(s, d, strategy, precise)
+                 if len(s.indices) == len(d.indices) and
+                 strategy_fn(s, d, precise)
                  ])
 
 
@@ -227,7 +222,7 @@ class CPUVTransferUVPaste(bpy.types.Operator):
             dest_sel_face_prev = copy.deepcopy(dest_sel_face)
 
         # sort array in order to match selected faces
-        src_sel_face, dest_sel_face = sort_faces(
+        src_sel_face, dest_sel_face = filter_faces(
             src_sel_face_prev, dest_sel_face_prev,
             self.precise, self.strategy)
 
