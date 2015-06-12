@@ -30,7 +30,7 @@ from . import cpuv_selseq_operation
 from . import cpuv_uvmap_operation
 from . import cpuv_fliprot_operation
 from . import cpuv_transfer_uv_operation
-
+from . import cpuv_topology
 
 # master menu
 class CPUVMenu(bpy.types.Menu):
@@ -50,3 +50,4 @@ class CPUVMenu(bpy.types.Menu):
             cpuv_transfer_uv_operation.CPUVTransferUVCopy.bl_idname)
         self.layout.operator(
             cpuv_transfer_uv_operation.CPUVTransferUVPaste.bl_idname)
+        self.layout.operator(cpuv_topology.CPUVTopoCopy.bl_idname)
