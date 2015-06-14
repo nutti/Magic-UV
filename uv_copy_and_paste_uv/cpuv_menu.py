@@ -51,3 +51,4 @@ class CPUVMenu(bpy.types.Menu):
         self.layout.operator(
             cpuv_transfer_uv_operation.CPUVTransferUVPaste.bl_idname)
         self.layout.operator(cpuv_topology.CPUVTopoCopy.bl_idname)
+        self.layout.operator(cpuv_topology.CPUVTopoPaste.bl_idname)
