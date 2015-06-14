@@ -52,14 +52,14 @@ class CPUVTopoCopy(bpy.types.Operator):
 
         uv_layer = bm.loops.layers.uv.active
         #uv_layer = bm.loops.layers.uv.verify()
-        sorted_faces = {}  # This is the main stuff
+        all_sorted_faces = {}  # This is the main stuff
 
-        grow_list = []
         used_verts = set()
         used_edges = set()
 
         active_face = bm.faces.active
         sel_faces = [face for face in bm.faces if face.select]
+        faces_to_parse = []
 
         if len(sel_faces) != 2 and active_face and active_face in sel_faces:
             self.report({'WARNING'}, "Two faces should be selected and active!!")
@@ -85,7 +85,7 @@ class CPUVTopoCopy(bpy.types.Operator):
 
                 # get active face stuff and uvs
                 face_stuff = get_other_verts_edges(active_face, vert1, vert2, cross_edge, uv_layer)
-                sorted_faces[active_face] = face_stuff
+                all_sorted_faces[active_face] = face_stuff
                 used_verts.update(active_face.verts)
                 used_edges.update(active_face.edges)
 
@@ -94,73 +94,103 @@ class CPUVTopoCopy(bpy.types.Operator):
                 if second_face is active_face:
                     second_face = sel_faces[1]
                 face_stuff = get_other_verts_edges(second_face, vert1, vert2, cross_edge, uv_layer)
-                sorted_faces[second_face] = face_stuff
+                all_sorted_faces[second_face] = face_stuff
                 used_verts.update(second_face.verts)
                 used_edges.update(second_face.edges)
 
                 # first Grow
-                grow_list.append(active_face)
-                grow_list.append(second_face)
+                faces_to_parse.append(active_face)
+                faces_to_parse.append(second_face)
 
                 break
 
+        ## get all connected stuff
+        #grow_list_faces = sel_faces.copy()
+        #grow_used_verts = used_verts.copy()
+
         #while True:
-            #new_grow = grow_selection(used_verts, sorted_faces.keys(), bm)
+            #new_grow = grow_selection(grow_used_verts, grow_list_faces, bm)
             ##print(new_grow)
-            #if not new_grow:
+            #if not new_grow[0]:
                 #break
 
-        for face in grow_list:
-            face_stuff = sorted_faces.get(face)
-            recurse_faces(face, face_stuff, used_verts, used_edges, sorted_faces, uv_layer, self, bm)
-        print(len(sorted_faces.keys()))
-            #grow_list.append(new_grow)
+            #grow_list_faces += new_grow[0]
+            #grow_used_verts.update(new_grow[1])
 
+        # parse all faces
+        while True:
+            new_parsed_faces = []
+
+            if not faces_to_parse:
+                break
+
+            for face in faces_to_parse:
+                face_stuff = all_sorted_faces.get(face)
+                new_faces = parse_faces(face, face_stuff, used_verts, used_edges, all_sorted_faces, uv_layer, self)
+                new_parsed_faces += new_faces
+
+            faces_to_parse.clear()
+            faces_to_parse = new_parsed_faces
+
+        bmesh.update_edit_mesh(active_obj.data)
 
         return {'FINISHED'}
 
 
 # recurse faces around the new_grow only
-def recurse_faces(check_face, face_stuff, used_verts, used_edges, sorted_faces, uv_layer, self, bm):
-    for sorted_edge in face_stuff[1]:
-        shared_faces = get_shared_faces(check_face, sorted_edge, bm.faces, sorted_faces.keys())
-        #shared_faces = sorted_edge.link_faces
+def parse_faces(check_face, face_stuff, used_verts, used_edges, all_sorted_faces, uv_layer, self):
+    new_shared_faces = []
 
-        if len(shared_faces) > 1:
-            self.report({'WARNING'}, str(len(shared_faces)) + " faces share edge!!")
-            return {'CANCELLED'}
+    for sorted_edge in face_stuff[1]:
+        shared_faces = sorted_edge.link_faces
 
         if shared_faces:
-            shared_face = shared_faces[0]
-            #if check_face is shared_face:
-                #shared_face = shared_faces[1]
 
-            # get verts of the edge
-            vert1 = sorted_edge.verts[0]
-            vert2 = sorted_edge.verts[1]
+            if len(shared_faces) > 2:
+                bpy.ops.mesh.select_all(action='DESELECT')
+                for face_sel in shared_faces:
+                    face_sel.select = True
 
-            #print(face_stuff[0], vert1, vert2)
-            if face_stuff[0].index(vert1) > face_stuff[0].index(vert2):
-                vert1 = sorted_edge.verts[1]
-                vert2 = sorted_edge.verts[0]
+                self.report({'WARNING'}, str(len(shared_faces)) + " faces share edge!!")
+                break
+                return {'CANCELLED'}
 
-            #print(shared_face.verts, vert1, vert2)
-            new_face_stuff = get_other_verts_edges(shared_face, vert1, vert2, sorted_edge, uv_layer)
-            sorted_faces[shared_face] = new_face_stuff
-            used_verts.update(shared_face.verts)
-            used_edges.update(shared_face.edges)
+            clear_shared_faces = get_new_shared_faces(check_face, sorted_edge, shared_faces, all_sorted_faces.keys())
 
-            shared_face.select = True  # test
+            if clear_shared_faces:
+                shared_face = clear_shared_faces[0]
+                #if check_face is shared_face:
+                    #shared_face = clear_shared_faces[1]
 
-            # recurse this methdwith shared face
-            recurse_faces(shared_face, new_face_stuff, used_verts, used_edges, sorted_faces, uv_layer, self, bm)
+                # get verts of the edge
+                vert1 = sorted_edge.verts[0]
+                vert2 = sorted_edge.verts[1]
 
+                #print(face_stuff[0], vert1, vert2)
+                if face_stuff[0].index(vert1) > face_stuff[0].index(vert2):
+                    vert1 = sorted_edge.verts[1]
+                    vert2 = sorted_edge.verts[0]
 
-def get_shared_faces(orig_face, shared_edge, check_faces, used_faces):
+                #print(shared_face.verts, vert1, vert2)
+                new_face_stuff = get_other_verts_edges(shared_face, vert1, vert2, sorted_edge, uv_layer)
+                all_sorted_faces[shared_face] = new_face_stuff
+                used_verts.update(shared_face.verts)
+                used_edges.update(shared_face.edges)
+
+                shared_face.select = True  # test
+
+                ## recurse this methdwith shared face
+                #parse_faces(shared_face, new_face_stuff, used_verts, used_edges, all_sorted_faces, uv_layer, self, grow_list_faces)
+
+                new_shared_faces.append(shared_face)
+
+    return new_shared_faces
+
+def get_new_shared_faces(orig_face, shared_edge, check_faces, used_faces):
     shared_faces = []
 
     for face in check_faces:
-        if shared_edge in face.edges and face not in used_faces:
+        if shared_edge in face.edges and face not in used_faces and face is not orig_face:
             shared_faces.append(face)
 
     return shared_faces
@@ -168,14 +198,17 @@ def get_shared_faces(orig_face, shared_edge, check_faces, used_faces):
 
 #def grow_selection(used_verts, used_faces, bm):
     #growed_faces = []
+    #growed_verts = []
 
     #for face in bm.faces:
         #if face not in used_faces:
             #for vert in face.verts: 
                 #if vert in used_verts:
                     #growed_faces.append(face)
+                    #growed_verts += [vert2 for vert2 in face.verts]
+                    #break
 
-    #return growed_faces
+    #return [growed_faces, growed_verts]
 
 
 def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
