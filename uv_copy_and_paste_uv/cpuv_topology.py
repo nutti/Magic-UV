@@ -25,7 +25,7 @@ from collections import OrderedDict
 
 __author__ = "Nutti, Mifth"
 __status__ = "production"
-__version__ = "3.0"
+__version__ = "3.1"
 __date__ = "XXX"
 
 global topology_copied
@@ -88,7 +88,7 @@ class CPUVTopoPaste(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(active_obj.data)
 
         uv_layer = bm.loops.layers.uv.active
-        #uv_layer = bm.loops.layers.uv.verify()
+        #uv_layer = bm.loops.layers.uv.verify()  # another approach
 
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
@@ -118,44 +118,57 @@ def main_parse(self, active_obj, bm, uv_layer):
         self.report({'WARNING'}, "Two faces should be selected and active!!")
         return {'CANCELLED'}
 
-    # get first grow of two faces
+    # get shared edge of two faces
+    cross_edges = []
     for edge in active_face.edges:
         if edge in sel_faces[0].edges and edge in sel_faces[1].edges:
-            cross_edge = edge
-            vert1 = None
-            vert2 = None
+            cross_edges.append(edge)
 
-            dot_n = active_face.normal.copy().normalized()
-            dot_v_1 = (edge.verts[0].co - edge.verts[1].co).normalized()
-            dot_v_2 = (edge.verts[1].co - edge.verts[0].co).normalized()
+    # pars two selected faces
+    if cross_edges and len(cross_edges) == 1:
+        shared_edge = cross_edges[0]
+        vert1 = None
+        vert2 = None
 
-            if dot_n.cross(dot_v_1).dot(dot_n) > 0:
-                vert1 = edge.verts[0]
-                vert2 = edge.verts[1]
-            else:
-                vert1 = edge.verts[1]
-                vert2 = edge.verts[0]
+        dot_n = active_face.normal.copy().normalized()
+        edge_vec_1 = (shared_edge.verts[1].co - shared_edge.verts[0].co)
+        edge_vec_len = edge_vec_1.length
+        edge_vec_1 = edge_vec_1.normalized()
 
-            # get active face stuff and uvs
-            face_stuff = get_other_verts_edges(active_face, vert1, vert2, cross_edge, uv_layer)
-            all_sorted_faces[active_face] = face_stuff
-            used_verts.update(active_face.verts)
-            used_edges.update(active_face.edges)
+        af_center = active_face.calc_center_median()
+        af_vec = shared_edge.verts[0].co + (edge_vec_1 * (edge_vec_len * 0.5))
+        af_vec = (af_vec - af_center).normalized()
 
-            # get first selected face stuff and uvs as they share cross_edge
-            second_face = sel_faces[0]
-            if second_face is active_face:
-                second_face = sel_faces[1]
-            face_stuff = get_other_verts_edges(second_face, vert1, vert2, cross_edge, uv_layer)
-            all_sorted_faces[second_face] = face_stuff
-            used_verts.update(second_face.verts)
-            used_edges.update(second_face.edges)
+        #print(af_vec.cross(edge_vec_1).dot(dot_n))
+        if af_vec.cross(edge_vec_1).dot(dot_n) > 0:
+            vert1 = shared_edge.verts[0]
+            vert2 = shared_edge.verts[1]
+        else:
+            vert1 = shared_edge.verts[1]
+            vert2 = shared_edge.verts[0]
 
-            # first Grow
-            faces_to_parse.append(active_face)
-            faces_to_parse.append(second_face)
+        # get active face stuff and uvs
+        face_stuff = get_other_verts_edges(active_face, vert1, vert2, shared_edge, uv_layer)
+        all_sorted_faces[active_face] = face_stuff
+        used_verts.update(active_face.verts)
+        used_edges.update(active_face.edges)
 
-            break
+        # get first selected face stuff and uvs as they share shared_edge
+        second_face = sel_faces[0]
+        if second_face is active_face:
+            second_face = sel_faces[1]
+        face_stuff = get_other_verts_edges(second_face, vert1, vert2, shared_edge, uv_layer)
+        all_sorted_faces[second_face] = face_stuff
+        used_verts.update(second_face.verts)
+        used_edges.update(second_face.edges)
+
+        # first Grow
+        faces_to_parse.append(active_face)
+        faces_to_parse.append(second_face)
+
+    else:
+        self.report({'WARNING'}, "Two faces should should share one edge!!")
+        return {'CANCELLED'}
 
     # parse all faces
     while True:
@@ -220,10 +233,7 @@ def parse_faces(check_face, face_stuff, used_verts, used_edges, all_sorted_faces
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                shared_face.select = True  # test
-
-                ## recurse this methdwith shared face
-                #parse_faces(shared_face, new_face_stuff, used_verts, used_edges, all_sorted_faces, uv_layer, self, grow_list_faces)
+                #shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)
 
@@ -258,7 +268,6 @@ def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
     face_edges = [first_edge]
     face_verts = [vert1, vert2]
     face_loops = []
-    #face_pin_uvs = []
 
     other_edges = [edge for edge in face.edges if edge not in face_edges]
 
@@ -269,15 +278,9 @@ def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
         for edge in other_edges:
             if face_verts[-1] in edge.verts:
                 other_vert = edge.other_vert(face_verts[-1])
+
                 if other_vert not in face_verts:
                     face_verts.append(other_vert)
-                    
-                #if face_verts[-1] is edge.verts[0]:
-                    #if edge.verts[1] not in face_verts:
-                        #face_verts.append(edge.verts[1])
-                #elif face_verts[-1] is edge.verts[1]:
-                    #if edge.verts[0] not in face_verts:
-                        #face_verts.append(edge.verts[0])
 
                 found_edge = edge
                 if found_edge not in face_edges:
@@ -291,8 +294,6 @@ def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
         for loop in face.loops:
             if loop.vert is vert:
                 face_loops.append(loop[uv_layer])
-                #face_pin_uvs.append(loop[uv_layer].pin_uv)
                 break
 
     return [face_verts, face_edges, face_loops]
-
