@@ -92,8 +92,21 @@ class CPUVTopoPaste(bpy.types.Operator):
 
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
+            # check ammount of copied/pasted faces
+            if len(all_sorted_faces) != len(topology_copied):
+                self.report({'WARNING'}, "Mesh has different ammount of faces!!")
+                return {'CANCELLED'}
+
             for i, face_data in enumerate(all_sorted_faces.values()):
                 copied_data = topology_copied[i]
+
+                # check ammount of copied/pasted verts
+                if len(copied_data[0]) != len(face_data[2]):
+                    bpy.ops.mesh.select_all(action='DESELECT')
+                    list(all_sorted_faces.keys())[i].select = True  # select problematic face
+
+                    self.report({'WARNING'}, "Face have different ammount of verts!!")
+                    return {'CANCELLED'}
 
                 for j, uvloop in enumerate(face_data[2]):
                     uvloop.uv = copied_data[0][j]
