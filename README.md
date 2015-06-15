@@ -13,6 +13,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Copy-And-Paste-UV/archive/develop.zip)|
+|3.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.0)|
 |2.2|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.2)|
 |2.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.1)|
 |2.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.0)|
@@ -108,7 +109,7 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
-|3.0|2015.X.XX|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
+|3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
 |2.2|2015.4.11|[1] Fixed bug<br>[2] Refactoring|
 |2.1|2015.1.23|Fixed bug for Blender 2.73|
 |2.0|2014.12.31|[1] **Add feature**<br> - Copy/Paste UV Coordinates (by selection sequence)<br> - Copy/Paste UV Coordinates (between UVMaps)<br>[2] Optimization|

@@ -25,7 +25,7 @@ from . import cpuv_common
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "3.0"
-__date__ = "X XXXX 2015"
+__date__ = "15 Jun 2015"
 
 
 # copy UV (by selection sequence)
