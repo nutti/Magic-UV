@@ -23,14 +23,14 @@ import bpy
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "3.0"
-__date__ = "X XXXX 2015"
+__date__ = "15 Jun 2015"
 
 from . import cpuv_default_operation
 from . import cpuv_selseq_operation
 from . import cpuv_uvmap_operation
 from . import cpuv_fliprot_operation
 from . import cpuv_transfer_uv_operation
-from . import cpuv_topology
+
 
 # master menu
 class CPUVMenu(bpy.types.Menu):
@@ -50,5 +50,3 @@ class CPUVMenu(bpy.types.Menu):
             cpuv_transfer_uv_operation.CPUVTransferUVCopy.bl_idname)
         self.layout.operator(
             cpuv_transfer_uv_operation.CPUVTransferUVPaste.bl_idname)
-        self.layout.operator(cpuv_topology.CPUVTopoCopy.bl_idname)
-        self.layout.operator(cpuv_topology.CPUVTopoPaste.bl_idname)

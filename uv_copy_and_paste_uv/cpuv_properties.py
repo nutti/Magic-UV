@@ -22,7 +22,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "3.0"
-__date__ = "X XXXX 2015"
+__date__ = "15 Jun 2015"
 
 
 # Properties used in this add-on.
