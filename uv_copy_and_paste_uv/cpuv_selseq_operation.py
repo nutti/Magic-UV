@@ -24,8 +24,8 @@ from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.0"
-__date__ = "15 Jun 2015"
+__version__ = "3.1"
+__date__ = "17 Jun 2015"
 
 
 # copy UV (by selection sequence)
@@ -34,7 +34,7 @@ class CPUVSelSeqCopyUV(bpy.types.Operator):
 
     bl_idname = "uv.cpuv_selseq_copy_uv"
     bl_label = "Copy UV (Selection Sequence)"
-    bl_description = "Copy UV data by selection sequence."
+    bl_description = "Copy UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -65,7 +65,7 @@ class CPUVSelSeqPasteUV(bpy.types.Operator):
 
     bl_idname = "uv.cpuv_selseq_paste_uv"
     bl_label = "Paste UV (Selection Sequence)"
-    bl_description = "Paste UV data by selection sequence."
+    bl_description = "Paste UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
     flip_copied_uv = BoolProperty(

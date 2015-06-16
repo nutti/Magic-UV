@@ -13,6 +13,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Copy-And-Paste-UV/archive/develop.zip)|
+|3.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.1)|
 |3.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.0)|
 |2.2|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.2)|
 |2.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.1)|
@@ -94,7 +95,8 @@ This add-on's features are as follows.
 7. (*optional*) You can control precision or strategy from toolshelf option when UVs are transfered incorrectly.
 
 [![](http://img.youtube.com/vi/rbP0hExl3Zc/0.jpg)](https://www.youtube.com/watch?v=rbP0hExl3Zc)  
-[![](http://img.youtube.com/vi/p1W6jugsyZw/0.jpg)](https://www.youtube.com/watch?v=p1W6jugsyZw)
+[![](http://img.youtube.com/vi/p1W6jugsyZw/0.jpg)](https://www.youtube.com/watch?v=p1W6jugsyZw)  
+[![](http://img.youtube.com/vi/LicrCKTV5kM/0.jpg)](https://www.youtube.com/watch?v=LicrCKTV5kM)
 
 ## Related Links
 
@@ -109,6 +111,7 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
+|3.1|2015.6.17|Improve feature<br> - Transfer UV|
 |3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
 |2.2|2015.4.11|[1] Fixed bug<br>[2] Refactoring|
 |2.1|2015.1.23|Fixed bug for Blender 2.73|
