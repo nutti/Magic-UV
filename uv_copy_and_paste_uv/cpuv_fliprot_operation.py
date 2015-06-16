@@ -24,8 +24,8 @@ from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.0"
-__date__ = "15 Jun 2015"
+__version__ = "3.1"
+__date__ = "17 Jun 2015"
 
 
 # flip/rotate
@@ -34,7 +34,7 @@ class CPUVFlipRotate(bpy.types.Operator):
 
     bl_idname = "uv.flip_rotate"
     bl_label = "Flip/Rotate UV"
-    bl_description = "Flip/Rotate UV."
+    bl_description = "Flip/Rotate UV"
     bl_options = {'REGISTER', 'UNDO'}
 
     flip = BoolProperty(

@@ -21,13 +21,19 @@
 import bpy
 import bmesh
 from collections import namedtuple
+from . import cpuv_properties
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.0"
-__date__ = "15 Jun 2015"
+__version__ = "3.1"
+__date__ = "17 Jun 2015"
 
 SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices center')
+
+
+def debug_print(*s):
+    if cpuv_properties.DEBUG:
+        print(s)
 
 
 class View3DModeMemory():

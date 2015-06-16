@@ -20,16 +20,15 @@
 
 import bpy
 import bmesh
-
 from collections import OrderedDict
+from . import cpuv_properties
+from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth"
 __status__ = "production"
-__version__ = "3.0"
-__date__ = "15 Jun 2015"
+__version__ = "3.1"
+__date__ = "17 Jun 2015"
 
-global topology_copied
-topology_copied = []
 
 class CPUVCopiedStuff():
 
@@ -45,7 +44,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
 
     bl_idname = "uv.transfer_uv_copy"
     bl_label = "Transfer UV Copy"
-    bl_description = "Transfer UV Copy."
+    bl_description = "Transfer UV Copy"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -56,11 +55,8 @@ class CPUVTransferUVCopy(bpy.types.Operator):
             self.report({'WARNING'}, "No UV Map!!")
             return {'CANCELLED'}
 
-        uv_layer = bm.loops.layers.uv.active
-        #uv_layer = bm.loops.layers.uv.verify()
-
-        topology_copied.clear()
-
+        uv_layer = bm.loops.layers.uv.verify()
+        cpuv_properties.topology_copied.clear()
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
             for face_data in all_sorted_faces.values():
@@ -71,7 +67,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
                     uvs.append(loop.uv.copy())
                     pin_uvs.append(loop.pin_uv)
 
-                topology_copied.append([uvs, pin_uvs])
+                cpuv_properties.topology_copied.append([uvs, pin_uvs])
 
         bmesh.update_edit_mesh(active_obj.data)
 
@@ -84,7 +80,7 @@ class CPUVTransferUVPaste(bpy.types.Operator):
 
     bl_idname = "uv.transfer_uv_paste"
     bl_label = "Transfer UV Paste"
-    bl_description = "Transfer UV Paste."
+    bl_description = "Transfer UV Paste"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -95,25 +91,24 @@ class CPUVTransferUVPaste(bpy.types.Operator):
             self.report({'WARNING'}, "No UV Map!!")
             return {'CANCELLED'}
 
-        uv_layer = bm.loops.layers.uv.active
-        #uv_layer = bm.loops.layers.uv.verify()  # another approach
+        uv_layer = bm.loops.layers.uv.verify()  # another approach
 
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
-            # check ammount of copied/pasted faces
-            if len(all_sorted_faces) != len(topology_copied):
-                self.report({'WARNING'}, "Mesh has different ammount of faces!!")
+            # check amount of copied/pasted faces
+            if len(all_sorted_faces) != len(cpuv_properties.topology_copied):
+                self.report({'WARNING'}, "Mesh has different amount of faces!!")
                 return {'CANCELLED'}
 
             for i, face_data in enumerate(all_sorted_faces.values()):
-                copied_data = topology_copied[i]
+                copied_data = cpuv_properties.topology_copied[i]
 
-                # check ammount of copied/pasted verts
+                # check amount of copied/pasted verts
                 if len(copied_data[0]) != len(face_data[2]):
                     bpy.ops.mesh.select_all(action='DESELECT')
                     list(all_sorted_faces.keys())[i].select = True  # select problematic face
 
-                    self.report({'WARNING'}, "Face have different ammount of verts!!")
+                    self.report({'WARNING'}, "Face have different amount of verts!!")
                     return {'CANCELLED'}
 
                 for j, uvloop in enumerate(face_data[2]):
@@ -203,7 +198,6 @@ def main_parse(self, active_obj, bm, uv_layer):
             new_faces = parse_faces(face, face_stuff, used_verts, used_edges, all_sorted_faces, uv_layer, self)
 
             if new_faces == 'CANCELLED':
-                #break
                 self.report({'WARNING'}, "More than 2 faces share edge!!")
                 return None
 
@@ -229,36 +223,35 @@ def parse_faces(check_face, face_stuff, used_verts, used_edges, all_sorted_faces
                     face_sel.select = True
 
                 shared_faces = []
-                #break
                 return 'CANCELLED'
 
             clear_shared_faces = get_new_shared_faces(check_face, sorted_edge, shared_faces, all_sorted_faces.keys())
 
             if clear_shared_faces:
                 shared_face = clear_shared_faces[0]
-                #if check_face is shared_face:
-                    #shared_face = clear_shared_faces[1]
 
                 # get verts of the edge
                 vert1 = sorted_edge.verts[0]
                 vert2 = sorted_edge.verts[1]
 
-                #print(face_stuff[0], vert1, vert2)
+                cpuv_common.debug_print(face_stuff[0], vert1, vert2)
                 if face_stuff[0].index(vert1) > face_stuff[0].index(vert2):
                     vert1 = sorted_edge.verts[1]
                     vert2 = sorted_edge.verts[0]
 
-                #print(shared_face.verts, vert1, vert2)
+                cpuv_common.debug_print(shared_face.verts, vert1, vert2)
                 new_face_stuff = get_other_verts_edges(shared_face, vert1, vert2, sorted_edge, uv_layer)
                 all_sorted_faces[shared_face] = new_face_stuff
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                #shared_face.select = True  # test which faces are parsed
+                if cpuv_properties.DEBUG:
+                    shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)
 
     return new_shared_faces
+
 
 def get_new_shared_faces(orig_face, shared_edge, check_faces, used_faces):
     shared_faces = []
@@ -268,21 +261,6 @@ def get_new_shared_faces(orig_face, shared_edge, check_faces, used_faces):
             shared_faces.append(face)
 
     return shared_faces
-
-
-#def grow_selection(used_verts, used_faces, bm):
-    #growed_faces = []
-    #growed_verts = []
-
-    #for face in bm.faces:
-        #if face not in used_faces:
-            #for vert in face.verts: 
-                #if vert in used_verts:
-                    #growed_faces.append(face)
-                    #growed_verts += [vert2 for vert2 in face.verts]
-                    #break
-
-    #return [growed_faces, growed_verts]
 
 
 def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
