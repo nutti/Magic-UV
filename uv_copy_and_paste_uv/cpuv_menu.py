@@ -22,7 +22,7 @@ import bpy
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.1"
+__version__ = "3.2"
 __date__ = "17 Jun 2015"
 
 from . import cpuv_default_operation

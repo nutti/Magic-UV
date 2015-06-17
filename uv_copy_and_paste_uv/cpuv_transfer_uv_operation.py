@@ -26,16 +26,8 @@ from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth"
 __status__ = "production"
-__version__ = "3.1"
+__version__ = "3.2"
 __date__ = "17 Jun 2015"
-
-
-class CPUVCopiedStuff():
-
-    # class constructor
-    def __init__(self, obj_name):
-        self.obj_name = obj_name
-        self.faces = []
 
 
 # transfer UV (copy)
@@ -48,6 +40,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        props = context.scene.cpuv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
 
@@ -56,7 +49,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
             return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
-        cpuv_properties.topology_copied.clear()
+        props.topology_copied.clear()
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
             for face_data in all_sorted_faces.values():
@@ -67,7 +60,7 @@ class CPUVTransferUVCopy(bpy.types.Operator):
                     uvs.append(loop.uv.copy())
                     pin_uvs.append(loop.pin_uv)
 
-                cpuv_properties.topology_copied.append([uvs, pin_uvs])
+                props.topology_copied.append([uvs, pin_uvs])
 
         bmesh.update_edit_mesh(active_obj.data)
 
@@ -84,6 +77,7 @@ class CPUVTransferUVPaste(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+        props = context.scene.cpuv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
 
@@ -96,12 +90,12 @@ class CPUVTransferUVPaste(bpy.types.Operator):
         all_sorted_faces = main_parse(self, active_obj, bm, uv_layer)
         if all_sorted_faces:
             # check amount of copied/pasted faces
-            if len(all_sorted_faces) != len(cpuv_properties.topology_copied):
+            if len(all_sorted_faces) != len(props.topology_copied):
                 self.report({'WARNING'}, "Mesh has different amount of faces!!")
                 return {'CANCELLED'}
 
             for i, face_data in enumerate(all_sorted_faces.values()):
-                copied_data = cpuv_properties.topology_copied[i]
+                copied_data = props.topology_copied[i]
 
                 # check amount of copied/pasted verts
                 if len(copied_data[0]) != len(face_data[2]):
