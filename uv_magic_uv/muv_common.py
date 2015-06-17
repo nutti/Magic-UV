@@ -21,7 +21,7 @@
 import bpy
 import bmesh
 from collections import namedtuple
-from . import cpuv_properties
+from . import muv_props
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -32,7 +32,7 @@ SelectedFaceInfo = namedtuple('SelectedFaceInfo', 'normal indices center')
 
 
 def debug_print(*s):
-    if cpuv_properties.DEBUG:
+    if muv_props.DEBUG:
         print(s)
 
 

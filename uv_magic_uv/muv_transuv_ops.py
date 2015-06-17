@@ -21,26 +21,26 @@
 import bpy
 import bmesh
 from collections import OrderedDict
-from . import cpuv_properties
-from . import cpuv_common
+from . import muv_props
+from . import muv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth"
 __status__ = "production"
-__version__ = "3.2"
-__date__ = "20 Jun 2015"
+__version__ = "4.0"
+__date__ = "XX XXX 2015"
 
 
 # transfer UV (copy)
-class CPUVTransferUVCopy(bpy.types.Operator):
+class MUV_TransUVCopy(bpy.types.Operator):
     """Transfer UV copy."""
 
-    bl_idname = "uv.transfer_uv_copy"
+    bl_idname = "uv.muv_transuv_copy"
     bl_label = "Transfer UV Copy"
     bl_description = "Transfer UV Copy"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.cpuv_props.transuv
+        props = context.scene.muv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
 
@@ -78,16 +78,16 @@ class CPUVTransferUVCopy(bpy.types.Operator):
 
 
 # transfer UV (paste)
-class CPUVTransferUVPaste(bpy.types.Operator):
+class MUV_TransUVPaste(bpy.types.Operator):
     """Transfer UV paste."""
 
-    bl_idname = "uv.transfer_uv_paste"
+    bl_idname = "uv.muv_transuv_paste"
     bl_label = "Transfer UV Paste"
     bl_description = "Transfer UV Paste"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.cpuv_props.transuv
+        props = context.scene.muv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
 
@@ -246,18 +246,18 @@ def parse_faces(check_face, face_stuff, used_verts, used_edges, all_sorted_faces
                 vert1 = sorted_edge.verts[0]
                 vert2 = sorted_edge.verts[1]
 
-                cpuv_common.debug_print(face_stuff[0], vert1, vert2)
+                muv_common.debug_print(face_stuff[0], vert1, vert2)
                 if face_stuff[0].index(vert1) > face_stuff[0].index(vert2):
                     vert1 = sorted_edge.verts[1]
                     vert2 = sorted_edge.verts[0]
 
-                cpuv_common.debug_print(shared_face.verts, vert1, vert2)
+                muv_common.debug_print(shared_face.verts, vert1, vert2)
                 new_face_stuff = get_other_verts_edges(shared_face, vert1, vert2, sorted_edge, uv_layer)
                 all_sorted_faces[shared_face] = new_face_stuff
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                if cpuv_properties.DEBUG:
+                if muv_props.DEBUG:
                     shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)
