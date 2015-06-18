@@ -269,7 +269,7 @@ def get_new_shared_faces(orig_face, shared_edge, check_faces, used_faces):
     shared_faces = []
 
     for face in check_faces:
-        if shared_edge in face.edges and face not in used_faces and face is not orig_face:
+        if shared_edge in face.edges and face not in used_faces and face is not orig_face and face.hide is False:
             shared_faces.append(face)
 
     return shared_faces
