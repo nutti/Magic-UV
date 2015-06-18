@@ -99,15 +99,13 @@ class CPUVTransferUVPaste(bpy.types.Operator):
 
         # get selection history
         all_sel_faces = [e for e in bm.select_history if isinstance(e, bmesh.types.BMFace) and e.select]
-        print(all_sel_faces)
         if len(all_sel_faces) % 2 != 0:
-            self.report({'WARNING'}, "Every part should select two faces!!")
+            self.report({'WARNING'}, "Number of selected face must be even every part.")
             return {'CANCELLED'}
 
         # parse selection history
         for i in range(len(all_sel_faces)):
             if i > 0 and i % 2 != 0:
-                print(i)
                 sel_faces = [all_sel_faces[i-1], all_sel_faces[i]]
                 active_face = all_sel_faces[i]
 
