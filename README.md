@@ -13,6 +13,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Copy-And-Paste-UV/archive/develop.zip)|
+|3.2|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.2)|
 |3.1|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.1)|
 |3.0|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v3.0)|
 |2.2|[Download](https://github.com/nutti/Copy-And-Paste-UV/releases/tag/v2.2)|
@@ -90,13 +91,23 @@ This add-on's features are as follows.
 3. Click **Transfer UV Copy**
 4. Select face which UV will be pasted  
 (You **MUST** select same number of face to be copied)
+  * You can select faces throughout more than 2 meshes.
+  * If you have faces you don't want to copy/paste, hide them.
 5. Press key **U**
 6. Click **Transfer UV Paste**
 7. (*optional*) You can control precision or strategy from toolshelf option when UVs are transfered incorrectly.
 
 [![](http://img.youtube.com/vi/rbP0hExl3Zc/0.jpg)](https://www.youtube.com/watch?v=rbP0hExl3Zc)  
 [![](http://img.youtube.com/vi/p1W6jugsyZw/0.jpg)](https://www.youtube.com/watch?v=p1W6jugsyZw)  
-[![](http://img.youtube.com/vi/LicrCKTV5kM/0.jpg)](https://www.youtube.com/watch?v=LicrCKTV5kM)
+[![](http://img.youtube.com/vi/LicrCKTV5kM/0.jpg)](https://www.youtube.com/watch?v=LicrCKTV5kM)  
+
+* Transfer UV to multiple meshes
+
+[![](http://img.youtube.com/vi/ddq1J_y1RMc/0.jpg)](https://www.youtube.com/watch?v=ddq1J_y1RMc)  
+
+* Transfer UV for unhidden only
+
+[![](http://img.youtube.com/vi/WPtzYej6n0Y/0.jpg)](https://www.youtube.com/watch?v=WPtzYej6n0Y)
 
 ## Related Links
 
@@ -111,7 +122,8 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
-|3.1|2015.6.17|Improve feature<br> - Transfer UV|
+|3.2|2015.6.20|Improve feature<br> - Transfer UV<br>(1) Copy/Paste to multiple meshes<br>(2) Partially copy/paste UV|
+|3.1|2015.6.17|Improve feature<br> - Transfer UV<br>(1) Improve algorithm|
 |3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
 |2.2|2015.4.11|[1] Fixed bug<br>[2] Refactoring|
 |2.1|2015.1.23|Fixed bug for Blender 2.73|
