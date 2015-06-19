@@ -21,12 +21,9 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.1"
-__date__ = "17 Jun 2015"
+__version__ = "3.2"
+__date__ = "20 Jun 2015"
 
-
-global topology_copied
-topology_copied = []
 
 DEBUG = False
 
@@ -63,9 +60,7 @@ class CPUVUVMapOpsProps():
 
 
 class CPUVTransUVOpsProps():
-    src_uv_map = None
-    src_obj_name = None
-    src_faces = None
+    topology_copied = []
 
 
 def init_properties(props):

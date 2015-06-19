@@ -24,8 +24,8 @@ from . import cpuv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.1"
-__date__ = "17 Jun 2015"
+__version__ = "3.2"
+__date__ = "20 Jun 2015"
 
 
 # copy UV map (sub menu operator)
