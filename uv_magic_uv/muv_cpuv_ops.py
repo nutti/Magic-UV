@@ -33,7 +33,10 @@ __date__ = "XX XXX 2015"
 class MUV_CPUVCopyUV(bpy.types.Operator):
     bl_idname = "uv.muv_cpuv_copy_uv"
     bl_label = "Copy UV Ops"
-    uv_map = bpy.props.StringProperty()
+    bl_options = {'REGISTER', 'UNDO'}
+
+    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
+    
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
@@ -81,7 +84,6 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
     bl_idname = "uv.muv_cpuv_copy_uv_menu"
     bl_label = "Copy UV"
     bl_description = "Copy UV"
-    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout
@@ -102,7 +104,9 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
 class MUV_CPUVPasteUV(bpy.types.Operator):
     bl_idname = "uv.muv_cpuv_paste_uv"
     bl_label = "Paste UV Ops"
-    uv_map = bpy.props.StringProperty()
+    bl_options = {'REGISTER', 'UNDO'}
+
+    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
 
     strategy = EnumProperty(
         name="Strategy",
@@ -215,7 +219,6 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
     bl_idname = "uv.muv_cpuv_paste_uv_menu"
     bl_label = "Paste UV"
     bl_description = "Paste UV"
-    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout

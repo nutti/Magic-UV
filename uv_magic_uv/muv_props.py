@@ -66,6 +66,8 @@ class MUV_TexWrapProps():
 
 
 class MUV_UVBBProps():
+    uvs_ini = []
+    ctrl_points_ini = []
     ctrl_points = []
     running = False
 

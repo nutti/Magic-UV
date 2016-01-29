@@ -38,7 +38,7 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     bl_description = "Copy UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
     
-    uv_map = bpy.props.StringProperty()
+    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
@@ -85,7 +85,6 @@ class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
     bl_idname = "uv.muv_cpuv_selseq_copy_uv_menu"
     bl_label = "Copy UV (Selection Sequence)"
     bl_description = "Copy UV data by selection sequence"
-    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout
@@ -109,7 +108,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     bl_description = "Paste UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = bpy.props.StringProperty()
+    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
 
     strategy = EnumProperty(
         name="Strategy",
@@ -220,7 +219,6 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
     bl_idname = "uv.muv_cpuv_selseq_paste_uv_menu"
     bl_label = "Paste UV (Selection Sequence)"
     bl_description = "Paste UV data by selection sequence"
-    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout

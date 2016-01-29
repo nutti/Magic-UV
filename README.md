@@ -36,6 +36,7 @@ This add-on's features are as follows.
 * Flip/Rotate UVs
 * Transfer UV
 * Texture Lock
+* Manipulate UV with Bouding Box in UV Editor
 
 ## Tutorials
 
@@ -47,13 +48,13 @@ This add-on is introduced in some places.
 See the link below for further details.
 
 * [Blender Wiki page](http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs)
-* [Blender Artist Thread](http://blenderartists.org/forum/showthread.php?348421-Addon-Copy-and-Paste-UV-Coordinates)
+* [Blender Artist Thread](http://blenderartists.org/forum/showthread.php?391573-Add-on-Magic-UV-v4-0-%28Copy-Paste-UV%29)
 * [Google+](https://plus.google.com/100058529622539760372/posts/82eS2tGE6Nc)
 
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
-|4.0|2016.XX.XX|[1] Rename this add-on<br>[2] **Add feature**<br> - Texture Lock<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
+|4.0|2016.XX.XX|[1] Rename this add-on<br>[2] **Add feature**<br> - Texture Lock<br> - Manipulate UV with Bouding Box in UV Editor<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
 |3.2|2015.6.20|Improve feature<br> - Transfer UV<br>(1) Copy/Paste to multiple meshes<br>(2) Partially copy/paste UV|
 |3.1|2015.6.17|Improve feature<br> - Transfer UV<br>(1) Improve algorithm|
 |3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
