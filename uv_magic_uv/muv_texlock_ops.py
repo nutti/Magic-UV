@@ -35,51 +35,58 @@ def redraw_all_areas():
         area.tag_redraw()
 
 
-def get_dest_uvlist(src_vlist, src_uvlist, dest_vlist):
-    # transform 3D coord to 2D coord about verticies
-    v = src_vlist[0:3]
-    trans_mat = Matrix.Translation(-v[0])
-    src_vlist_2d = [trans_mat * sv for sv in src_vlist]
-    v = src_vlist_2d[0:3]
-    rotz_mat = Matrix.Rotation(-atan2(v[1].y, v[1].x), 3, 'Z')
-    src_vlist_2d = [rotz_mat * sv for sv in src_vlist_2d]
-    v = src_vlist_2d[0:3]
-    roty_mat = Matrix.Rotation(atan2(v[1].z, sqrt(v[1].x * v[1].x + v[1].y * v[1].y)), 3, 'Y')
-    src_vlist_2d = [roty_mat * sv for sv in src_vlist_2d]
-    v = src_vlist_2d[0:3]
-    rotx_mat = Matrix.Rotation(-atan2(v[2].z, v[2].y), 3, 'X')
-    src_vlist_2d = [rotx_mat * sv for sv in src_vlist_2d]
-    for sv in src_vlist_2d:
-        sv.z = 0.0
-    dest_vlist_2d = [trans_mat * dv for dv in dest_vlist]
-    dest_vlist_2d = [rotz_mat * dv for dv in dest_vlist_2d]
-    dest_vlist_2d = [roty_mat * dv for dv in dest_vlist_2d]
-    dest_vlist_2d = [rotx_mat * dv for dv in dest_vlist_2d]
-    for dv in dest_vlist_2d:
-        dv.z = 0.0
+def get_dest_uvlist(src_vlists, src_uvlists, dest_vlists):
+    dest_uvlists_2d = []
+    for svls, suvls, dvls in zip(src_vlists, src_uvlists, dest_vlists):
+        src_vlist = svls[1]
+        src_uvlist = suvls[1]
+        dest_vlist = dvls[1]
+        # transform 3D coord to 2D coord about verticies
+        v = src_vlist[0:3]
+        trans_mat = Matrix.Translation(-v[0])
+        src_vlist_2d = [trans_mat * sv for sv in src_vlist]
+        v = src_vlist_2d[0:3]
+        rotz_mat = Matrix.Rotation(-atan2(v[1].y, v[1].x), 3, 'Z')
+        src_vlist_2d = [rotz_mat * sv for sv in src_vlist_2d]
+        v = src_vlist_2d[0:3]
+        roty_mat = Matrix.Rotation(atan2(v[1].z, sqrt(v[1].x * v[1].x + v[1].y * v[1].y)), 3, 'Y')
+        src_vlist_2d = [roty_mat * sv for sv in src_vlist_2d]
+        v = src_vlist_2d[0:3]
+        rotx_mat = Matrix.Rotation(-atan2(v[2].z, v[2].y), 3, 'X')
+        src_vlist_2d = [rotx_mat * sv for sv in src_vlist_2d]
+        for sv in src_vlist_2d:
+            sv.z = 0.0
+        dest_vlist_2d = [trans_mat * dv for dv in dest_vlist]
+        dest_vlist_2d = [rotz_mat * dv for dv in dest_vlist_2d]
+        dest_vlist_2d = [roty_mat * dv for dv in dest_vlist_2d]
+        dest_vlist_2d = [rotx_mat * dv for dv in dest_vlist_2d]
+        for dv in dest_vlist_2d:
+            dv.z = 0.0
 
-    # transform UV coordinate for calculation
-    trans_uv = src_uvlist[0].copy()
-    src_uvlist_2d = [suv - trans_uv for suv in src_uvlist]
-    uv = src_uvlist_2d[1].copy()
-    uv_rot_mat = Matrix.Rotation(atan2(uv.y, uv.x), 2, 'Z')
-    src_uvlist_2d = [uv_rot_mat * suv for suv in src_uvlist_2d]
+        # transform UV coordinate for calculation
+        trans_uv = src_uvlist[0].copy()
+        src_uvlist_2d = [suv - trans_uv for suv in src_uvlist]
+        uv = src_uvlist_2d[1].copy()
+        uv_rot_mat = Matrix.Rotation(atan2(uv.y, uv.x), 2, 'Z')
+        src_uvlist_2d = [uv_rot_mat * suv for suv in src_uvlist_2d]
 
-    # calculate destination UV coordinate
-    dest_uvlist_2d = []
-    ov = src_vlist_2d[0].copy()
-    ouv = src_uvlist_2d[0].copy()
-    r = (src_uvlist_2d[1].x - src_uvlist_2d[0].x) / (src_vlist_2d[1].x - src_vlist_2d[0].x)
-    for sv, suv, dv in zip(src_vlist_2d, src_uvlist_2d, dest_vlist_2d):
-        u = suv.x + (dv.x - sv.x) * r
-        w = suv.y + (dv.y - sv.y) * r
-        dest_uvlist_2d.append(Vector((u, w)))
+        # calculate destination UV coordinate
+        dest_uvlist_2d = []
+        ov = src_vlist_2d[0].copy()
+        ouv = src_uvlist_2d[0].copy()
+        r = (src_uvlist_2d[1].x - src_uvlist_2d[0].x) / (src_vlist_2d[1].x - src_vlist_2d[0].x)
+        for sv, suv, dv in zip(src_vlist_2d, src_uvlist_2d, dest_vlist_2d):
+            u = suv.x + (dv.x - sv.x) * r
+            w = suv.y + (dv.y - sv.y) * r
+            dest_uvlist_2d.append(Vector((u, w)))
 
-    # reverse transform
-    dest_uvlist_2d = [uv_rot_mat.transposed() * duv for duv in dest_uvlist_2d]
-    dest_uvlist_2d = [duv + trans_uv for duv in dest_uvlist_2d]
+        # reverse transform
+        dest_uvlist_2d = [uv_rot_mat.transposed() * duv for duv in dest_uvlist_2d]
+        dest_uvlist_2d = [duv + trans_uv for duv in dest_uvlist_2d]
 
-    return dest_uvlist_2d
+        dest_uvlists_2d.append([svls[0], dest_uvlist_2d])
+
+    return dest_uvlists_2d
 
 
 class MUV_TexLockTimer(bpy.types.Operator):
@@ -126,22 +133,18 @@ class MUV_TexLockUpdater(bpy.types.Operator):
 
         # get vertex/UV list
         dest_vlist = []
-        dest_uvlist = []
         dest_llist = []
-        for f in bm.faces:
-            if f.select:
-                for l in f.loops:
-                    dest_vlist.append(l.vert.co.copy())
-                    dest_uvlist.append(l[uv_layer].uv.copy())
-                    dest_llist.append(l)
-        if len(dest_vlist) != len(props.intr_src_vlist):
-            return
+        for sv in props.intr_src_vlist:
+            f = bm.faces[sv[0]]
+            dest_vlist.append([f.index, [l.vert.co.copy() for l in f.loops]])
+            dest_llist.append([f.index, [l for l in f.loops]])
 
-        dest_uvlist_2d = get_dest_uvlist(props.intr_src_vlist, props.intr_src_uvlist, dest_vlist)
+        dest_uvlists_2d = get_dest_uvlist(props.intr_src_vlist, props.intr_src_uvlist, dest_vlist)
 
         # update UV coordinate
-        for uv, l in zip(dest_uvlist_2d, dest_llist):
-            l[uv_layer].uv = uv.copy()
+        for uvs, ls in zip(dest_uvlists_2d, dest_llist):
+            for uv, l in zip(uvs[1], ls[1]):
+                l[uv_layer].uv = uv.copy()
 
         bmesh.update_edit_mesh(obj.data)
         redraw_all_areas()
@@ -211,10 +214,9 @@ class MUV_TexLockIntrStart(bpy.types.Operator):
         props.intr_src_uvlist = []
         for f in bm.faces:
             if f.select:
-                for l in f.loops:
-                    props.intr_src_vlist.append(l.vert.co.copy())
-                    props.intr_src_uvlist.append(l[uv_layer].uv.copy())
-        if len(props.intr_src_vlist) < 3:
+                props.intr_src_vlist.append([f.index, [l.vert.co.copy() for l in f.loops]])
+                props.intr_src_uvlist.append([f.index, [l[uv_layer].uv.copy() for l in f.loops]])
+        if len(props.intr_src_vlist) < 1:
             self.report({'WARNING'}, "No faces are selected.")
             return {'CANCELLED'}
 
@@ -267,10 +269,9 @@ class MUV_TexLockStart(bpy.types.Operator):
         props.src_uvlist = []
         for f in bm.faces:
             if f.select:
-                for l in f.loops:
-                    props.src_vlist.append(l.vert.co.copy())
-                    props.src_uvlist.append(l[uv_layer].uv.copy())
-        if len(props.src_vlist) < 3:
+                props.src_vlist.append([f.index, [l.vert.co.copy() for l in f.loops]])
+                props.src_uvlist.append([f.index, [l[uv_layer].uv.copy() for l in f.loops]])
+        if len(props.src_vlist) <= 0:
             self.report({'WARNING'}, "No faces are selected.")
             return {'CANCELLED'}
 
@@ -301,20 +302,17 @@ class MUV_TexLockStop(bpy.types.Operator):
         # get vertex/UV list
         dest_vlist = []
         dest_llist = []
-        for f in bm.faces:
-            if f.select:
-                for l in f.loops:
-                    dest_vlist.append(l.vert.co.copy())
-                    dest_llist.append(l)
-        if len(dest_vlist) != len(props.src_vlist):
-            self.report({'WARNING'}, "No faces are selected.")
-            return {'CANCELLED'}
+        for sv in props.src_vlist:
+            f = bm.faces[sv[0]]
+            dest_vlist.append([f.index, [l.vert.co.copy() for l in f.loops]])
+            dest_llist.append([f.index, [l for l in f.loops]])
 
-        dest_uvlist_2d = get_dest_uvlist(props.src_vlist, props.src_uvlist, dest_vlist)
+        dest_uvlists_2d = get_dest_uvlist(props.src_vlist, props.src_uvlist, dest_vlist)
 
         # update UV coordinate
-        for uv, l in zip(dest_uvlist_2d, dest_llist):
-            l[uv_layer].uv = uv.copy()
+        for uvs, ls in zip(dest_uvlists_2d, dest_llist):
+            for uv, l in zip(uvs[1], ls[1]):
+                l[uv_layer].uv = uv.copy()
 
         bmesh.update_edit_mesh(obj.data)
         redraw_all_areas()
