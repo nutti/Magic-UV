@@ -44,7 +44,7 @@ class MUV_Properties():
         self.texwrap = MUV_TexWrapProps()
         self.uvbb = MUV_UVBBProps()
         self.texlock = MUV_TexLockProps()
-
+        self.texproj_face = MUV_TexProjFaceProps()
 
 class MUV_CPUVProps():
     src_uvs = []
@@ -78,6 +78,11 @@ class MUV_TexLockProps():
     intr_src_vlist = []
     intr_src_uvlist = []
     intr_running = False
+
+
+class MUV_TexProjFaceProps():
+    src_vlist = []
+    src_uvlist = []
 
 
 def init_props(scene):
