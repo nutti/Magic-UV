@@ -87,7 +87,7 @@ class MUV_TransUVPaste(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return MUV_TransUVPasteExecute(self, context, 1);
+        return execute_paste(self, context, 1)
 
 
 # transfer UV (paste with inverted normals)
@@ -100,10 +100,10 @@ class MUV_TransUVPasteInvertNormals(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return MUV_TransUVPasteExecute(self, context, -1);
+        return execute_paste(self, context, -1)
 
 
-def MUV_TransUVPasteExecute(self, context, invert_normals):
+def execute_paste(self, context, invert_normals):
     props = context.scene.muv_props.transuv
     active_obj = context.scene.objects.active
     bm = bmesh.from_edit_mesh(active_obj.data)
