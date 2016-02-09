@@ -55,7 +55,6 @@ class MUV_TransUVMenu(bpy.types.Menu):
     def draw(self, context):
         self.layout.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
         self.layout.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_transuv_ops.MUV_TransUVPasteInvertNormals.bl_idname, icon="PLUGIN")
 
 
 # Texture Wrap master menu

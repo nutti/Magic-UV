@@ -20,6 +20,7 @@
 
 import bpy
 import bmesh
+from bpy.props import BoolProperty
 from collections import OrderedDict
 from . import muv_props
 from . import muv_common
@@ -86,73 +87,64 @@ class MUV_TransUVPaste(bpy.types.Operator):
     bl_description = "Transfer UV Paste"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return execute_paste(self, context, 1)
-
-
-# transfer UV (paste with inverted normals)
-class MUV_TransUVPasteInvertNormals(bpy.types.Operator):
-    """Transfer UV paste invert normals."""
-
-    bl_idname = "uv.muv_transuv_paste_invert_normals"
-    bl_label = "Transfer UV Paste Invert Normals"
-    bl_description = "Transfer UV Paste Invert Normals"
-    bl_options = {'REGISTER', 'UNDO'}
+    invert_normals = BoolProperty(
+        name="Invert Normals",
+        description="Invert Normals",
+        default=False)
 
     def execute(self, context):
-        return execute_paste(self, context, -1)
+        props = context.scene.muv_props.transuv
+        active_obj = context.scene.objects.active
+        bm = bmesh.from_edit_mesh(active_obj.data)
+        
+        if not bm.loops.layers.uv:
+            self.report({'WARNING'}, "No UV Map!!")
+            return {'CANCELLED'}
 
+        uv_layer = bm.loops.layers.uv.verify()  # another approach
 
-def execute_paste(self, context, invert_normals):
-    props = context.scene.muv_props.transuv
-    active_obj = context.scene.objects.active
-    bm = bmesh.from_edit_mesh(active_obj.data)
+        # get selection history
+        all_sel_faces = [e for e in bm.select_history if isinstance(e, bmesh.types.BMFace) and e.select]
+        if len(all_sel_faces) % 2 != 0:
+            self.report({'WARNING'}, "Number of selected face must be even every part.")
+            return {'CANCELLED'}
 
-    if not bm.loops.layers.uv:
-        self.report({'WARNING'}, "No UV Map!!")
-        return {'CANCELLED'}
+        # parse selection history
+        for i in range(len(all_sel_faces)):
+            if i > 0 and i % 2 != 0:
+                sel_faces = [all_sel_faces[i-1], all_sel_faces[i]]
+                active_face = all_sel_faces[i]
 
-    uv_layer = bm.loops.layers.uv.verify()  # another approach
+                # parse all faces according to selection history
+                if self.invert_normals:
+                    all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, -1)
+                else:
+                    all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, 1)
 
-    # get selection history
-    all_sel_faces = [e for e in bm.select_history if isinstance(e, bmesh.types.BMFace) and e.select]
-    if len(all_sel_faces) % 2 != 0:
-        self.report({'WARNING'}, "Number of selected face must be even every part.")
-        return {'CANCELLED'}
-
-    # parse selection history
-    for i in range(len(all_sel_faces)):
-        if i > 0 and i % 2 != 0:
-            sel_faces = [all_sel_faces[i-1], all_sel_faces[i]]
-            active_face = all_sel_faces[i]
-
-            # parse all faces according to selection history
-            all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, invert_normals)
-
-            if all_sorted_faces:
-                # check amount of copied/pasted faces
-                if len(all_sorted_faces) != len(props.topology_copied):
-                    self.report({'WARNING'}, "Mesh has different amount of faces!!")
-                    return {'CANCELLED'}
-
-                for i, face_data in enumerate(all_sorted_faces.values()):
-                    copied_data = props.topology_copied[i]
-
-                    # check amount of copied/pasted verts
-                    if len(copied_data[0]) != len(face_data[2]):
-                        bpy.ops.mesh.select_all(action='DESELECT')
-                        list(all_sorted_faces.keys())[i].select = True  # select problematic face
-
-                        self.report({'WARNING'}, "Face have different amount of verts!!")
+                if all_sorted_faces:
+                    # check amount of copied/pasted faces
+                    if len(all_sorted_faces) != len(props.topology_copied):
+                        self.report({'WARNING'}, "Mesh has different amount of faces!!")
                         return {'CANCELLED'}
 
-                    for j, uvloop in enumerate(face_data[2]):
-                        uvloop.uv = copied_data[0][j]
-                        uvloop.pin_uv = copied_data[1][j]
+                    for i, face_data in enumerate(all_sorted_faces.values()):
+                        copied_data = props.topology_copied[i]
 
-    bmesh.update_edit_mesh(active_obj.data)
+                        # check amount of copied/pasted verts
+                        if len(copied_data[0]) != len(face_data[2]):
+                            bpy.ops.mesh.select_all(action='DESELECT')
+                            list(all_sorted_faces.keys())[i].select = True  # select problematic face
 
-    return {'FINISHED'}
+                            self.report({'WARNING'}, "Face have different amount of verts!!")
+                            return {'CANCELLED'}
+
+                        for j, uvloop in enumerate(face_data[2]):
+                            uvloop.uv = copied_data[0][j]
+                            uvloop.pin_uv = copied_data[1][j]
+
+        bmesh.update_edit_mesh(active_obj.data)
+
+        return {'FINISHED'}
 
 
 def main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, invert_normals):
