@@ -20,11 +20,12 @@
 
 import bpy
 import bmesh
+from bpy.props import BoolProperty
 from collections import OrderedDict
 from . import muv_props
 from . import muv_common
 
-__author__ = "Nutti <nutti.metro@gmail.com>, Mifth"
+__author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
 __version__ = "4.0"
 __date__ = "XX XXX 2015"
@@ -59,7 +60,8 @@ class MUV_TransUVCopy(bpy.types.Operator):
             return {'CANCELLED'}
 
         # parse all faces according to selection
-        all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face)
+        active_face_nor = active_face.normal.copy()
+        all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, active_face_nor)
 
         if all_sorted_faces:
             for face_data in all_sorted_faces.values():
@@ -86,6 +88,11 @@ class MUV_TransUVPaste(bpy.types.Operator):
     bl_description = "Transfer UV Paste"
     bl_options = {'REGISTER', 'UNDO'}
 
+    invert_normals = BoolProperty(
+        name="Invert Normals",
+        description="Invert Normals",
+        default=False)
+
     def execute(self, context):
         props = context.scene.muv_props.transuv
         active_obj = context.scene.objects.active
@@ -110,13 +117,17 @@ class MUV_TransUVPaste(bpy.types.Operator):
                 active_face = all_sel_faces[i]
 
                 # parse all faces according to selection history
-                all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face)
+                active_face_nor = active_face.normal.copy()
+                if self.invert_normals:
+                    active_face_nor.negate()
+
+                all_sorted_faces = main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, active_face_nor)
 
                 if all_sorted_faces:
                     # check amount of copied/pasted faces
                     if len(all_sorted_faces) != len(props.topology_copied):
                         self.report({'WARNING'}, "Mesh has different amount of faces!!")
-                        return {'CANCELLED'}
+                        return {'FINISHED'}
 
                     for i, face_data in enumerate(all_sorted_faces.values()):
                         copied_data = props.topology_copied[i]
@@ -127,7 +138,7 @@ class MUV_TransUVPaste(bpy.types.Operator):
                             list(all_sorted_faces.keys())[i].select = True  # select problematic face
 
                             self.report({'WARNING'}, "Face have different amount of verts!!")
-                            return {'CANCELLED'}
+                            return {'FINISHED'}
 
                         for j, uvloop in enumerate(face_data[2]):
                             uvloop.uv = copied_data[0][j]
@@ -138,7 +149,7 @@ class MUV_TransUVPaste(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face):
+def main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face, active_face_nor):
     all_sorted_faces = OrderedDict()  # This is the main stuff
 
     used_verts = set()
@@ -158,7 +169,7 @@ def main_parse(self, active_obj, bm, uv_layer, sel_faces, active_face):
         vert1 = None
         vert2 = None
 
-        dot_n = active_face.normal.copy().normalized()
+        dot_n = active_face_nor.normalized()
         edge_vec_1 = (shared_edge.verts[1].co - shared_edge.verts[0].co)
         edge_vec_len = edge_vec_1.length
         edge_vec_1 = edge_vec_1.normalized()
