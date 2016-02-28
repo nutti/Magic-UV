@@ -31,7 +31,6 @@ from . import muv_fliprot_ops
 from . import muv_transuv_ops
 from . import muv_texwrap_ops
 from . import muv_texlock_ops
-from . import muv_texproj_face_ops
 
 
 # Copy/Paste UV master menu
@@ -68,7 +67,6 @@ class MUV_TexWrapMenu(bpy.types.Menu):
         self.layout.operator(muv_texwrap_ops.MUV_TexWrapCopy.bl_idname, icon="PLUGIN")
         self.layout.operator(muv_texwrap_ops.MUV_TexWrapPaste.bl_idname, icon="PLUGIN")
 
-
 # Texture Lock master menu
 class MUV_TexLockMenu(bpy.types.Menu):
     bl_idname = "uv.muv_texlock_menu"
@@ -76,19 +74,7 @@ class MUV_TexLockMenu(bpy.types.Menu):
     bl_description = "Texture Lock Menu"
 
     def draw(self, context):
-        self.layout.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockScale.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockRotation.bl_idname, icon="PLUGIN")
 
-
-# Project texture along the face master menu
-class MUV_TexProjFaceMenu(bpy.types.Menu):
-    bl_idname = "uv.muv_texproj_face_menu"
-    bl_label = "Project texture along the face"
-    bl_description = "Project texture along the face"
-
-    def draw(self, context):
-        self.layout.operator(muv_texproj_face_ops.MUV_TexProjFaceSet.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texproj_face_ops.MUV_TexProjFaceProject.bl_idname, icon="PLUGIN")
 
