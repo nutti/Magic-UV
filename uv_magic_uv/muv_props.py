@@ -18,7 +18,8 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-from bpy.props import FloatProperty
+import bpy
+from bpy.props import FloatProperty, EnumProperty
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -28,6 +29,13 @@ __date__ = "XX XXX 2015"
 
 DEBUG = False
 
+
+def get_loaded_texture_name(scene, context):
+    items = [(key, key, "") for key in bpy.data.images.keys()]
+    items.append(("None", "None", ""))
+    return items
+
+
 # Properties used in this add-on.
 class MUV_Properties():
     cpuv = None
@@ -36,6 +44,7 @@ class MUV_Properties():
     texwrap = None
     uvbb = None
     texlock = None
+    texproj = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -44,7 +53,9 @@ class MUV_Properties():
         self.texwrap = MUV_TexWrapProps()
         self.uvbb = MUV_UVBBProps()
         self.texlock = MUV_TexLockProps()
+        self.texproj = MUV_TexProjProps()
         self.texproj_face = MUV_TexProjFaceProps()
+
 
 class MUV_CPUVProps():
     src_uvs = []
@@ -80,6 +91,10 @@ class MUV_TexLockProps():
     intr_running = False
 
 
+class MUV_TexProjProps():
+    running = False
+
+
 class MUV_TexProjFaceProps():
     src_vlist = []
     src_uvlist = []
@@ -99,10 +114,30 @@ def init_props(scene):
         default=10.0,
         min=3.0,
         max=100.0)
+    scene.muv_texproj_tex_magnitude = FloatProperty(
+        name="Magnitude",
+        description="Texture Magnitude.",
+        default=0.5,
+        min=0.0,
+        max=100.0)
+    scene.muv_texproj_tex_image = EnumProperty(
+        name="Image",
+        description="Texture Image.",
+        items=get_loaded_texture_name)
+    scene.muv_texproj_tex_transparency = FloatProperty(
+        name="Transparency",
+        description="Texture Transparency.",
+        default=0.2,
+        min=0.0,
+        max=1.0)
+
 
 
 def clear_props(scene):
     del scene.muv_props
     del scene.muv_uvbb_cp_size
     del scene.muv_uvbb_cp_react_size
+    del scene.muv_texproj_tex_magnitude
+    del scene.muv_texproj_tex_image
+    del scene.muv_texproj_tex_transparency
 

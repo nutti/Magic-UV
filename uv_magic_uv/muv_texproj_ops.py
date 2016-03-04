@@ -20,113 +20,42 @@
 
 import bpy
 import bgl
+import bmesh
 import mathutils
 from bpy_extras import view3d_utils
 from bpy.props import *
 from collections import namedtuple
 
+from . import muv_common
+
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "0.1"
-__date__ = "26 May 2015"
+__version__ = "4.0"
+__date__ = "XX XXX 2015"
 
-bl_info = {
-    "name": "Texture Projection",
-    "author": "Nutti",
-    "version": (0, 1),
-    "blender": (2, 70, 0),
-    "location": "UV > Texture Projection",
-    "description": "Project texture to mesh in View3D mode.",
-    "warning": "",
-    "support": "COMMUNITY",
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "UV"
-}
 
-SelectedFaceInfo = namedtuple(
-    'SelectedFaceInfo', 'face_index indices vertices loc loc_on_canvas')
 Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 Rect2 = namedtuple('Rect2', 'x y width height')
 
-addon_keymaps = []
+
+def redraw_all_areas():
+    for area in bpy.context.screen.areas:
+        area.tag_redraw()
 
 
-def SetTextureImageName(scene, context):
-    items = [(key, key, "") for key in bpy.data.images.keys()]
-    items.append(("None", "None", ""))
-    return items
+def get_space(area_type, region_type, space_type):
+    for area in bpy.context.screen.areas:
+        if area.type == area_type:
+            break
+    for region in area.regions:
+        if region.type == region_type:
+            break
+    for space in area.spaces:
+        if space.type == space_type:
+            break
 
+    return (area, region, space)
 
-# Properties used in this add-on.
-class TPProperties(bpy.types.PropertyGroup):
-    running = BoolProperty(
-        name="Is Running",
-        description="Is TP operation running now?",
-        default=False)
-
-
-class View3DModeMemory():
-    __mode_orig = None
-
-    def __init__(self):
-        self.__mode_orig = bpy.context.object.mode
-
-    def change_mode(self, mode):
-        bpy.ops.object.mode_set(mode=mode)
-
-    def __del__(self):
-        bpy.ops.object.mode_set(mode=self.__mode_orig)
-
-
-class TPError(Exception):
-    """This add-on's exception class."""
-
-    def __init__(self, level, err_str):
-        self.err_level = level
-        self.err_str = err_str
-
-    def __str__(self):
-        return repr(self.err_str)
-
-    def report(self, obj):
-        obj.report(self.err_level, self.err_str)
-    
-
-def memorize_view_3d_mode(fn):
-    def __memorize_view_3d_mode(*args, **kwargs):
-        mode_orig = bpy.context.object.mode
-        result = fn(*args, **kwargs)
-        bpy.ops.object.mode_set(mode=mode_orig)
-        return result
-    return __memorize_view_3d_mode
-
-
-def get_selected_faces(obj):
-    """
-    get information about selected faces.
-    @param  obj object
-    @return information about selected faces (list of SelectedFaceInfo)
-    """
-    return get_faces_from_indices(obj, get_selected_face_indices(obj))
-
-
-@memorize_view_3d_mode
-def get_selected_face_indices(obj):
-    bpy.ops.object.mode_set(mode='OBJECT')
-    polys = obj.data.polygons
-    return [i for i, p in enumerate(polys) if p.select is True]
-
-
-def get_faces_from_indices(obj, indices):
-    polys = obj.data.polygons
-    return [
-        SelectedFaceInfo(
-            i,
-            list(polys[i].loop_indices),
-            list(polys[i].vertices),
-            [], [])
-        for i in indices]
 
 
 def get_canvas(context, magnitude):
@@ -167,27 +96,26 @@ def region_to_canvas(region, rg_vec, canvas):
     return cv_vec
 
 
-class TPTextureRenderer(bpy.types.Operator):
+class MUV_TexProjRenderer(bpy.types.Operator):
     """Rendering texture"""
     
-    bl_idname = "uv.tp_texture_renderer"
+    bl_idname = "uv.muv_texproj_renderer"
     bl_label = "Texture renderer"
 
     __handle = None
-    __timer = None
     
     @staticmethod
     def handle_add(self, context):
-        TPTextureRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
-            TPTextureRenderer.draw_texture,
+        MUV_TexProjRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
+            MUV_TexProjRenderer.draw_texture,
             (self, context), 'WINDOW', 'POST_PIXEL')
     
     @staticmethod
     def handle_remove(self, context):
-        if TPTextureRenderer.__handle is not None:
+        if MUV_TexProjRenderer.__handle is not None:
             bpy.types.SpaceView3D.draw_handler_remove(
-                TPTextureRenderer.__handle, 'WINDOW')
-            TPTextureRenderer.__handle = None
+                MUV_TexProjRenderer.__handle, 'WINDOW')
+            MUV_TexProjRenderer.__handle = None
     
     @staticmethod
     def draw_texture(self, context):
@@ -195,11 +123,11 @@ class TPTextureRenderer(bpy.types.Operator):
         sc = context.scene
         
         # no texture is selected
-        if sc.tex_image == "None":
+        if sc.muv_texproj_tex_image == "None":
             return
 
         # setup rendering region
-        rect = get_canvas(context, sc.tex_magnitude)
+        rect = get_canvas(context, sc.muv_texproj_tex_magnitude)
         positions = [
             [rect.x0, rect.y0],
             [rect.x0, rect.y1],
@@ -209,7 +137,7 @@ class TPTextureRenderer(bpy.types.Operator):
         tex_coords = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0]]
 
         # get texture to be renderred
-        img = bpy.data.images[sc.tex_image]
+        img = bpy.data.images[sc.muv_texproj_tex_image]
 
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
@@ -226,158 +154,107 @@ class TPTextureRenderer(bpy.types.Operator):
         
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, sc.tex_transparency)
+        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texproj_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
         bgl.glEnd()
 
 
-class TPStartTextureProjection(bpy.types.Operator):
+class MUV_TexProjStart(bpy.types.Operator):
     """Start Texture Projection"""
     
-    bl_idname = "uv.tp_start_texture_projection"
+    bl_idname = "uv.muv_texproj_start"
     bl_label = "Start Texture Projection"
     bl_description = "Start Texture Projection."
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.tp_props
+        props = context.scene.muv_props.texproj
         if props.running is False:
-            TPTextureRenderer.handle_add(self, context)
+            MUV_TexProjRenderer.handle_add(self, context)
             props.running = True
         if context.area:
             context.area.tag_redraw()
         return {'FINISHED'}
 
 
-class TPStopTextureProjection(bpy.types.Operator):
+class MUV_TexProjStop(bpy.types.Operator):
     """Stop Texture Projection"""
     
-    bl_idname = "uv.tp_stop_texture_projection"
+    bl_idname = "uv.muv_texproj_stop"
     bl_label = "Stop Texture Projection"
     bl_description = "Stop Texture Projection."
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.tp_props
+        props = context.scene.muv_props.texproj
         if props.running is True:
-            TPTextureRenderer.handle_remove(self, context)
+            MUV_TexProjRenderer.handle_remove(self, context)
             props.running = False
         if context.area:
             context.area.tag_redraw()
         return {'FINISHED'}
 
 
-class TPProjectTexture(bpy.types.Operator):
+class MUV_TexProjProject(bpy.types.Operator):
     """Project texture."""
     
-    bl_idname = "uv.tp_project_texture"
+    bl_idname = "uv.muv_texproj_project"
     bl_label = "Project Texture"
     bl_description = "Project Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        mem = View3DModeMemory()
         sc = context.scene
-        
-        try:
-            if sc.tex_image == "None":
-                raise TPError({'WARNING'}, "You must select texture.")
-            for area in bpy.context.screen.areas:
-                if area.type == 'VIEW_3D':
-                    break
-            else:
-                raise TPError(
-                    {'WARNING'}, "Could not find any 'VIEW_3D' areas.")
-            for region in area.regions:
-                if region.type == 'WINDOW':
-                    break
-            else:
-                raise TPError(
-                    {'WARNING'}, "Could not find any 'WINDOW' regions.")
-            for space in area.spaces:
-                if space.type == 'VIEW_3D':
-                    break
-            else:
-                raise TPError(
-                    {'WARNING'}, "Could not find any 'VIEW_3D' spaces.")
-            
-            # get faces to be texture projected
-            obj = bpy.context.active_object
-            world_mat = obj.matrix_world
-            sel_faces = get_selected_faces(obj)
-            # transform 3d space to screen region
-            for f in sel_faces:
-                for v in f.vertices:
-                    f.loc.append(view3d_utils.location_3d_to_region_2d(
-                        region,
-                        space.region_3d,
-                        world_mat * obj.data.vertices[v].co
-                        ))
-            # transform screen region to canvas
-            for f in sel_faces:
-                for l in f.loc:
-                    f.loc_on_canvas.append(region_to_canvas(
-                        region, l,
-                        get_canvas(bpy.context, sc.tex_magnitude)))
-            # project texture to object
-            mem.change_mode('OBJECT')
-            uv = obj.data.uv_layers[obj.data.uv_layers.active.name]
-            tex = obj.data.uv_textures[obj.data.uv_textures.active.name]
-            for f in sel_faces:
-                tex.data[f.face_index].image = bpy.data.images[sc.tex_image]
-                for l, i in zip(f.loc_on_canvas, f.indices):
-                    uv.data[i].uv = l.to_2d()
-        except TPError as e:
-            e.report(self)
+
+        if sc.muv_texproj_tex_image == "None":
+            self.report({'WARNING'}, "You must select texture.")
             return {'CANCELLED'}
+        area, region, space = get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
+        
+        # get faces to be texture projected
+        obj = context.active_object
+        world_mat = obj.matrix_world
+        bm = bmesh.from_edit_mesh(obj.data)
+        if muv_common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
+        # get UV layer
+        if not bm.loops.layers.uv:
+            self.report({'WARNING'}, "Object must have more than one UV map.")
+            return {'CANCELLED'}
+        uv_layer = bm.loops.layers.uv.verify()
+        tex_layer = bm.faces.layers.tex.verify()
+
+        sel_faces = [f for f in bm.faces if f.select]
+
+        # transform 3d space to screen region
+        v_screen = []
+        for f in sel_faces:
+            for l in f.loops:
+                v_screen.append(view3d_utils.location_3d_to_region_2d(
+                    region,
+                    space.region_3d,
+                    world_mat * l.vert.co
+                    ))
+        # transform screen region to canvas
+        v_canvas = []
+        for v in v_screen:
+            v_canvas.append(region_to_canvas(
+                region, v,
+                get_canvas(bpy.context, sc.muv_texproj_tex_magnitude)))
+        # project texture to object
+        i = 0;
+        for f in sel_faces:
+            f[tex_layer].image = bpy.data.images[sc.muv_texproj_tex_image]
+            for l in f.loops:
+                l[uv_layer].uv = v_canvas[i].to_2d()
+                i = i + 1
+
+        redraw_all_areas()
+        bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
-
-
-class TPMagnitudeUp(bpy.types.Operator):
-    """Up texture magnitude."""
-    
-    bl_idname = "uv.tp_magnitude_up"
-    bl_label = "Magnitude UP"
-    bl_description = "Up texture magnitude"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        if context.area:
-            context.area.tag_redraw()
-        sc = context.scene
-        sc.tex_magnitude = sc.tex_magnitude + 0.1
-        return {'FINISHED'}
-
-
-class TPMagnitudeDown(bpy.types.Operator):
-    """Down texture magnitude."""
-    
-    bl_idname = "uv.tp_magnitude_down"
-    bl_label = "Magnitude DOWN"
-    bl_description = "Down texture magnitude"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        if context.area:
-            context.area.tag_redraw()
-        sc = context.scene
-        sc.tex_magnitude = sc.tex_magnitude - 0.1
-        return {'FINISHED'}
-
-
-# master menu
-class TPMenu(bpy.types.Menu):
-    bl_idname = "uv.tp_menu"
-    bl_label = "Texture Projection"
-    bl_description = "Project texture menu"
-
-    def draw(self, context):
-        self.layout.operator(TPStartTextureProjection.bl_idname)
-        self.layout.operator(TPProjectTexture.bl_idname)
-        self.layout.operator(TPStopTextureProjection.bl_idname)
 
 
 # UI view
@@ -387,84 +264,19 @@ class OBJECT_PT_TP(bpy.types.Panel):
     bl_region_type = "UI"
     
     def draw(self, context):
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        if prefs.enable_texproj is False:
+            return
         sc = context.scene
         layout = self.layout
-        props = sc.tp_props
-        if props.running:
+        props = sc.muv_props.texproj
+        if props.running == False:
+            layout.operator(MUV_TexProjStart.bl_idname, text="Start", icon='PLAY')
+        else:
+            layout.operator(MUV_TexProjStop.bl_idname, text="Stop", icon='PAUSE')
             layout.label(text="Image: ")
-            layout.prop(sc, "tex_image", text="")
-            layout.prop(sc, "tex_magnitude", text="Magnitude")
-            layout.prop(sc, "tex_transparency", text="Transparency")
+            layout.prop(sc, "muv_texproj_tex_image", text="")
+            layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
+            layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
+            layout.operator(MUV_TexProjProject.bl_idname, text="Project")
 
-
-def init_properties():
-    sc = bpy.types.Scene
-    sc.tp_props = PointerProperty(
-        name="TP operation internal data",
-        description="TP operation internal data",
-        type=TPProperties)
-    sc.tex_magnitude = FloatProperty(
-        name="Magnitude",
-        description="Texture Magnitude.",
-        default=0.5,
-        min=0.0,
-        max=100.0)
-    sc.tex_image = EnumProperty(
-        name="Image",
-        description="Texture Image.",
-        items=SetTextureImageName)
-    sc.tex_transparency = FloatProperty(
-        name="Transparency",
-        description="Texture Transparency.",
-        default=0.2,
-        min=0.0,
-        max=1.0)
-
-
-def clear_properties():
-    sc = bpy.types.Scene
-    del sc.tex_transparency
-    del sc.tex_image
-    del sc.tex_magnitude
-    del sc.tp_props
-
-
-# registration
-def menu_fn(self, context):
-    self.layout.separator()
-    self.layout.menu(TPMenu.bl_idname)
-
-
-def register():
-    bpy.utils.register_module(__name__)
-    init_properties()
-    bpy.types.VIEW3D_MT_uv_map.append(menu_fn)
-    # assign shortcut keys
-    wm = bpy.context.window_manager
-    kc = wm.keyconfigs.addon
-    key_assign_list = [
-        (TPMagnitudeUp.bl_idname, "UP_ARROW", "PRESS", True, True, False),
-        (TPMagnitudeDown.bl_idname, "DOWN_ARROW", "PRESS", True, True, False),
-        (TPProjectTexture.bl_idname, "P", "PRESS", True, True, False),
-        (TPStartTextureProjection.bl_idname, "S", "PRESS", True, True, False),
-        (TPStopTextureProjection.bl_idname, "T", "PRESS", True, True, False)
-        ]
-    if kc:
-        km = kc.keymaps.new(name="3D View", space_type="VIEW_3D")
-        for (idname, key, event, ctrl, alt, shift) in key_assign_list:
-            kmi = km.keymap_items.new(
-                idname, key, event, ctrl=ctrl, alt=alt, shift=shift)
-            addon_keymaps.append((km, kmi))
-
-
-def unregister():
-    bpy.utils.unregister_module(__name__)
-    for km, kmi in addon_keymaps:
-        km.keymap_items.remove(kmi)
-    addon_keymaps.clear()
-    bpy.types.VIEW3D_MT_uv_map.remove(menu_fn)
-    clear_properties()
-
-
-if __name__ == "__main__":
-    register()

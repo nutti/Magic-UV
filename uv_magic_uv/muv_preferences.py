@@ -44,4 +44,5 @@ class MUV_Preferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "enable_uvbb")
+        layout.prop(self, "enable_texproj")
 

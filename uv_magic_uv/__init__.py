@@ -51,6 +51,7 @@ if "bpy" in locals():
     imp.reload(muv_texlock_ops)
     imp.reload(muv_uvbb_ops)
     imp.reload(muv_mvuv_ops)
+    imp.reload(muv_texproj_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -64,6 +65,7 @@ else:
     from . import muv_texlock_ops
     from . import muv_uvbb_ops
     from . import muv_mvuv_ops
+    from . import muv_texproj_ops
 
 import bpy
 
@@ -76,6 +78,7 @@ def menu_fn(self, context):
     self.layout.menu(muv_menu.MUV_TexWrapMenu.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
+    self.layout.menu(muv_menu.MUV_TexProjMenu.bl_idname, icon="PLUGIN")
 
 
 def register():
