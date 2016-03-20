@@ -52,6 +52,7 @@ if "bpy" in locals():
     imp.reload(muv_uvbb_ops)
     imp.reload(muv_mvuv_ops)
     imp.reload(muv_texproj_ops)
+    imp.reload(muv_packuv_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -66,11 +67,12 @@ else:
     from . import muv_uvbb_ops
     from . import muv_mvuv_ops
     from . import muv_texproj_ops
+    from . import muv_packuv_ops
 
 import bpy
 
 # registration
-def menu_fn(self, context):
+def view3d_uvmap_menu_fn(self, context):
     self.layout.separator()
     self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="PLUGIN")
@@ -81,15 +83,22 @@ def menu_fn(self, context):
     self.layout.menu(muv_menu.MUV_TexProjMenu.bl_idname, icon="PLUGIN")
 
 
+def image_uvs_menu_fn(self, context):
+    self.layout.separator()
+    self.layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname, icon="PLUGIN")
+
+
 def register():
     bpy.utils.register_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.append(menu_fn)
+    bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
+    bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
     muv_props.init_props(bpy.types.Scene)
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.remove(menu_fn)
+    bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
+    bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
     muv_props.clear_props(bpy.types.Scene)
 
 
