@@ -47,8 +47,6 @@ if "bpy" in locals():
     imp.reload(muv_cpuv_selseq_ops)
     imp.reload(muv_fliprot_ops)
     imp.reload(muv_transuv_ops)
-    imp.reload(muv_texwrap_ops)
-    imp.reload(muv_texlock_ops)
     imp.reload(muv_uvbb_ops)
     imp.reload(muv_mvuv_ops)
     imp.reload(muv_texproj_ops)
@@ -62,8 +60,6 @@ else:
     from . import muv_cpuv_selseq_ops
     from . import muv_fliprot_ops
     from . import muv_transuv_ops
-    from . import muv_texwrap_ops
-    from . import muv_texlock_ops
     from . import muv_uvbb_ops
     from . import muv_mvuv_ops
     from . import muv_texproj_ops
@@ -77,10 +73,8 @@ def view3d_uvmap_menu_fn(self, context):
     self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_TexWrapMenu.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
+#    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_TexProjMenu.bl_idname, icon="PLUGIN")
 
 
 def image_uvs_menu_fn(self, context):
