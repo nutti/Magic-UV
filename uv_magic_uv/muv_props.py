@@ -18,14 +18,13 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
-from bpy.props import FloatProperty, EnumProperty
-
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
 __date__ = "XX XXX 2015"
 
+import bpy
+from bpy.props import FloatProperty, EnumProperty
 
 DEBUG = False
 
@@ -41,20 +40,15 @@ class MUV_Properties():
     cpuv = None
     cpuv_selseq = None
     transuv = None
-    texwrap = None
     uvbb = None
-    texlock = None
     texproj = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
         self.cpuv_selseq = MUV_CPUVSelSeqProps()
         self.transuv = MUV_TransUVProps()
-        self.texwrap = MUV_TexWrapProps()
         self.uvbb = MUV_UVBBProps()
-        self.texlock = MUV_TexLockProps()
         self.texproj = MUV_TexProjProps()
-        self.texproj_face = MUV_TexProjFaceProps()
 
 
 class MUV_CPUVProps():
@@ -71,33 +65,15 @@ class MUV_TransUVProps():
     topology_copied = []
 
 
-class MUV_TexWrapProps():
-    src_vlist = []
-    src_uvlist = []
-
-
 class MUV_UVBBProps():
-    uvs_ini = []
+    uv_info_ini = []
     ctrl_points_ini = []
     ctrl_points = []
     running = False
 
 
-class MUV_TexLockProps():
-    src_vlist = []
-    src_uvlist = []
-    intr_src_vlist = []
-    intr_src_uvlist = []
-    intr_running = False
-
-
 class MUV_TexProjProps():
     running = False
-
-
-class MUV_TexProjFaceProps():
-    src_vlist = []
-    src_uvlist = []
 
 
 def init_props(scene):
@@ -130,7 +106,6 @@ def init_props(scene):
         default=0.2,
         min=0.0,
         max=1.0)
-
 
 
 def clear_props(scene):

@@ -18,10 +18,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
-import bmesh
-from bpy.props import BoolProperty, IntProperty, EnumProperty
-from . import muv_common
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -29,13 +25,20 @@ __version__ = "4.0"
 __date__ = "XX XXX 2015"
 
 
-# copy UV (by selection sequence, sub menu operator)
+import bpy
+import bmesh
+from bpy.props import BoolProperty, IntProperty, EnumProperty
+from . import muv_common
+
+
 class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
-    """Copying UV coordinate on selected object by selection sequence."""
+    """
+    Operation class: Copy UV coordinate by selection sequence
+    """
 
     bl_idname = "uv.muv_cpuv_selseq_copy_uv"
-    bl_label = "Copy UV (Selection Sequence) Ops"
-    bl_description = "Copy UV data by selection sequence"
+    bl_label = "Copy UV (Selection Sequence) (Operation)"
+    bl_description = "Copy UV data by selection sequence (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
     
     uv_map = bpy.props.StringProperty(options={'HIDDEN'})
@@ -43,9 +46,12 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
         if self.uv_map == "":
-            self.report({'INFO'}, "Copy UV coordinate. (selection sequence)")
+            self.report({'INFO'}, "Copy UV coordinate (selection sequence)")
         else:
-            self.report({'INFO'}, "Copy UV coordinate. (selection sequence) (UV map:" + self.uv_map + ")")
+            self.report(
+                {'INFO'},
+                "Copy UV coordinate (selection sequence) (UV map:" +
+                self.uv_map + ")")
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -54,7 +60,8 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         # get UV layer
         if self.uv_map == "":
             if not bm.loops.layers.uv:
-                self.report({'WARNING'}, "Object must have more than one UV map.")
+                self.report(
+                    {'WARNING'}, "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
         else:
@@ -65,26 +72,26 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         props.src_pin_uvs = []
         for hist in bm.select_history:
             if isinstance(hist, bmesh.types.BMFace) and hist.select:
-                uvs = []
-                pin_uvs = []
-                for l in hist.loops:
-                    uvs.append(l[uv_layer].uv.copy())
-                    pin_uvs.append(l[uv_layer].pin_uv)
+                uvs = [l[uv_layer].uv.copy() for l in hist.loops]
+                pin_uvs = [l[uv_layer].pin_uv for l in hist.loops]
                 props.src_uvs.append(uvs)
                 props.src_pin_uvs.append(pin_uvs)
         if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
-            self.report({'WARNING'}, "No faces are selected.")
+            self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
-        self.report({'INFO'}, "%d face(s) are selected." % len(props.src_uvs))
+        self.report({'INFO'}, "%d face(s) are selected" % len(props.src_uvs))
 
         return {'FINISHED'}
 
 
-# copy UV (by selection sequence)
 class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
+    """
+    Menu class: Copy UV coordinate by selection sequence
+    """
+
     bl_idname = "uv.muv_cpuv_selseq_copy_uv_menu"
     bl_label = "Copy UV (Selection Sequence)"
-    bl_description = "Copy UV data by selection sequence"
+    bl_description = "Copy UV coordinate by selection sequence"
 
     def draw(self, context):
         layout = self.layout
@@ -99,13 +106,15 @@ class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
                 MUV_CPUVSelSeqCopyUV.bl_idname,
                 text=m, icon="PLUGIN").uv_map = m
 
-# paste UV (by selection sequence)
+
 class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
-    """Paste UV coordinate copied by selection sequence."""
+    """
+    Operation class: Paste UV coordinate by selection sequence
+    """
 
     bl_idname = "uv.muv_cpuv_selseq_paste_uv"
-    bl_label = "Paste UV (Selection Sequence)"
-    bl_description = "Paste UV data by selection sequence"
+    bl_label = "Paste UV (Selection Sequence) (Operation)"
+    bl_description = "Paste UV coordinate by selection sequence (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = bpy.props.StringProperty(options={'HIDDEN'})
@@ -132,22 +141,25 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
         if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
-            self.report({'WARNING'}, "Do copy operation at first.")
+            self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
         if self.uv_map == "":
-            self.report({'INFO'}, "Paste UV coordinate. (selection sequence)")
+            self.report({'INFO'}, "Paste UV coordinate (selection sequence)")
         else:
-            self.report({'INFO'}, "Paste UV coordinate. (selection sequence) (UV map:" + self.uv_map + ")")
+            self.report(
+                {'INFO'},
+                "Paste UV coordinate (selection sequence) (UV map:" +
+                self.uv_map + ")")
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
-
         # get UV layer
         if self.uv_map == "":
             if not bm.loops.layers.uv:
-                self.report({'WARNING'}, "Object must have more than one UV map.")
+                self.report({'WARNING'},
+                    "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
         else:
@@ -160,20 +172,19 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         for hist in bm.select_history:
             if isinstance(hist, bmesh.types.BMFace) and hist.select:
                 dest_face_indices.append(hist.index)
-                uvs = []
-                pin_uvs = []
-                for l in hist.loops:
-                    uvs.append(l[uv_layer].uv.copy())
-                    pin_uvs.append(l[uv_layer].uv.copy())
+                uvs = [l[uv_layer].uv.copy() for l in hist.loops]
+                pin_uvs = [l[uv_layer].pin_uv for l in hist.loops]
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
         if len(dest_uvs) == 0 or len(dest_pin_uvs) == 0:
-            self.report({'WARNING'}, "No faces are selected.")
+            self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
-            self.report({'WARNING'}, "Number of selected faces is different from copied faces." +
-                    "(src:%d, dest:%d)" %
-                    (len(props.src_uvs), len(dest_uvs)))
+            self.report(
+                {'WARNING'},
+                "Number of selected faces is different from copied faces" +
+                "(src:%d, dest:%d)" %
+                (len(props.src_uvs), len(dest_uvs)))
             return {'CANCELLED'}
  
         # paste
@@ -190,9 +201,9 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
                 spuv = props.src_pin_uvs[i % len(props.src_pin_uvs)]
                 duv = dest_uvs[i]
             if len(suv) != len(duv):
-                self.report({'WARNING'}, "Some faces are different size.")
+                self.report({'WARNING'}, "Some faces are different size")
                 return {'CANCELLED'}
-            suvs_fr = [uv.copy() for uv in suv]
+            suvs_fr = [uv for uv in suv]
             spuvs_fr = [pin_uv for pin_uv in spuv]
             # flip UVs
             if self.flip_copied_uv is True:
@@ -208,20 +219,24 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
             for l, suv, spuv in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr):
                 l[uv_layer].uv = suv
                 l[uv_layer].pin_uv = spuv
-        self.report({'INFO'}, "%d faces are copied." % len(dest_uvs))
+        self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
-# paste UV (by selection sequence)
 class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
+    """
+    Menu class: Paste UV coordinate by selection sequence
+    """
+
     bl_idname = "uv.muv_cpuv_selseq_paste_uv_menu"
     bl_label = "Paste UV (Selection Sequence)"
-    bl_description = "Paste UV data by selection sequence"
+    bl_description = "Paste UV coordinate by selection sequence"
 
     def draw(self, context):
         layout = self.layout
+        # create sub menu
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_maps = bm.loops.layers.uv.keys()
@@ -232,5 +247,4 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
             layout.operator(
                 MUV_CPUVSelSeqPasteUV.bl_idname,
                 text=m, icon="PLUGIN").uv_map = m
-
 

@@ -18,17 +18,20 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
 __date__ = "XX XXX 2015"
 
+
+import bpy
 from bpy.props import *
 from bpy.types import AddonPreferences
 
 class MUV_Preferences(AddonPreferences):
+    """Preferences class: Preferences for this add-on"""
+
     bl_idname = __package__
 
     enable_texproj = BoolProperty(

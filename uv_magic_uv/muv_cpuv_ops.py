@@ -18,40 +18,47 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
-import bmesh
-from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
-from . import muv_common
-
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
 __date__ = "XX XXX 2015"
 
 
-# copy UV (sub menu operator)
+import bpy
+import bmesh
+from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
+from . import muv_common
+
+
 class MUV_CPUVCopyUV(bpy.types.Operator):
+    """
+    Operation class: Copy UV coordinate
+    """
+
     bl_idname = "uv.muv_cpuv_copy_uv"
-    bl_label = "Copy UV Ops"
+    bl_label = "Copy UV (Operation)"
+    bl_description = "Copy UV coordinate (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = bpy.props.StringProperty(options={'HIDDEN'})
-    
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
         if self.uv_map == "":
-            self.report({'INFO'}, "Copy UV coordinate.")
+            self.report({'INFO'}, "Copy UV coordinate")
         else:
-            self.report({'INFO'}, "Copy UV coordinate.(UV map:" + self.uv_map + ")")
+            self.report(
+                {'INFO'}, "Copy UV coordinate (UV map:" + self.uv_map + ")")
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
+
+        # get UV layer
         if self.uv_map == "":
-            # get UV layer
             if not bm.loops.layers.uv:
-                self.report({'WARNING'}, "Object must have more than one UV map.")
+                self.report(
+                    {'WARNING'}, "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
         else:
@@ -62,28 +69,26 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
         props.src_pin_uvs = []
         for face in bm.faces:
             if face.select:
-                uvs = []
-                pin_uvs = []
-                for l in face.loops:
-                    uvs.append(l[uv_layer].uv.copy())
-                    pin_uvs.append(l[uv_layer].pin_uv)
+                uvs = [l[uv_layer].uv.copy() for l in face.loops]
+                pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
                 props.src_uvs.append(uvs)
                 props.src_pin_uvs.append(pin_uvs)
         if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
-            self.report({'WARNING'}, "No faces are selected.")
+            self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
-        self.report({'INFO'}, "%d face(s) are selected." % len(props.src_uvs))
+        self.report({'INFO'}, "%d face(s) are selected" % len(props.src_uvs))
 
         return {'FINISHED'}
 
 
-# copy UV
 class MUV_CPUVCopyUVMenu(bpy.types.Menu):
-    """Copying UV coordinate on selected object."""
+    """
+    Menu class: Copy UV coordinate
+    """
 
     bl_idname = "uv.muv_cpuv_copy_uv_menu"
     bl_label = "Copy UV"
-    bl_description = "Copy UV"
+    bl_description = "Copy UV coordinate"
 
     def draw(self, context):
         layout = self.layout
@@ -100,10 +105,14 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
                 text=m, icon="PLUGIN").uv_map = m
 
 
-# paste UV (sub menu operator)
 class MUV_CPUVPasteUV(bpy.types.Operator):
+    """
+    Operation class: Paste UV coordinate
+    """
+
     bl_idname = "uv.muv_cpuv_paste_uv"
-    bl_label = "Paste UV Ops"
+    bl_label = "Paste UV (Operation)"
+    bl_description = "Paste UV coordinate (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = bpy.props.StringProperty(options={'HIDDEN'})
@@ -130,21 +139,23 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.cpuv
         if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
-            self.report({'WARNING'}, "Do copy operation at first.")
+            self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
         if self.uv_map == "":
-            self.report({'INFO'}, "Paste UV coordinate.")
+            self.report({'INFO'}, "Paste UV coordinate")
         else:
             self.report(
-                {'INFO'}, "Paste UV coordinate. (UV map:" + self.uv_map + ")")
+                {'INFO'}, "Paste UV coordinate (UV map:" + self.uv_map + ")")
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
+
+        # get UV layer
         if self.uv_map == "":
-            # get UV layer
             if not bm.loops.layers.uv:
-                self.report({'WARNING'}, "Object must have more than one UV map.")
+                self.report({'WARNING'},
+                    "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
         else:
@@ -157,20 +168,19 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         for face in bm.faces:
             if face.select:
                 dest_face_indices.append(face.index)
-                uvs = []
-                pin_uvs = []
-                for l in face.loops:
-                    uvs.append(l[uv_layer].uv.copy())
-                    pin_uvs.append(l[uv_layer].uv.copy())
+                uvs = [l[uv_layer].uv.copy() for l in face.loops]
+                pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
         if len(dest_uvs) == 0 or len(dest_pin_uvs) == 0:
-            self.report({'WARNING'}, "No faces are selected.")
+            self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
-            self.report({'WARNING'}, "Number of selected faces is different from copied faces." +
-                    "(src:%d, dest:%d)" %
-                    (len(props.src_uvs), len(dest_uvs)))
+            self.report(
+                {'WARNING'},
+                "Number of selected faces is different from copied" +
+                "(src:%d, dest:%d)" %
+                (len(props.src_uvs), len(dest_uvs)))
             return {'CANCELLED'}
  
         # paste
@@ -187,9 +197,9 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
                 spuv = props.src_pin_uvs[i % len(props.src_pin_uvs)]
                 duv = dest_uvs[i]
             if len(suv) != len(duv):
-                self.report({'WARNING'}, "Some faces are different size.")
+                self.report({'WARNING'}, "Some faces are different size")
                 return {'CANCELLED'}
-            suvs_fr = [uv.copy() for uv in suv]
+            suvs_fr = [uv for uv in suv]
             spuvs_fr = [pin_uv for pin_uv in spuv]
             # flip UVs
             if self.flip_copied_uv is True:
@@ -205,20 +215,21 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
             for l, suv, spuv in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr):
                 l[uv_layer].uv = suv
                 l[uv_layer].pin_uv = spuv
-        self.report({'INFO'}, "%d faces are copied." % len(dest_uvs))
+        self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
 
-# paste UV
 class MUV_CPUVPasteUVMenu(bpy.types.Menu):
-    """Copying UV coordinate on selected object."""
+    """
+    Menu class: Paste UV coordinate
+    """
 
     bl_idname = "uv.muv_cpuv_paste_uv_menu"
     bl_label = "Paste UV"
-    bl_description = "Paste UV"
+    bl_description = "Paste UV coordinate"
 
     def draw(self, context):
         layout = self.layout
@@ -233,3 +244,4 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
             layout.operator(
                 MUV_CPUVPasteUV.bl_idname,
                 text=m, icon="PLUGIN").uv_map = m
+

@@ -18,6 +18,12 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+__author__ = "Nutti <nutti.metro@gmail.com>"
+__status__ = "production"
+__version__ = "4.0"
+__date__ = "XX XXX 2015"
+
+
 import bpy
 import bgl
 import bmesh
@@ -25,41 +31,18 @@ import mathutils
 from bpy_extras import view3d_utils
 from bpy.props import *
 from collections import namedtuple
-
 from . import muv_common
-
-__author__ = "Nutti <nutti.metro@gmail.com>"
-__status__ = "production"
-__version__ = "4.0"
-__date__ = "XX XXX 2015"
 
 
 Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 Rect2 = namedtuple('Rect2', 'x y width height')
 
 
-def redraw_all_areas():
-    for area in bpy.context.screen.areas:
-        area.tag_redraw()
-
-
-def get_space(area_type, region_type, space_type):
-    for area in bpy.context.screen.areas:
-        if area.type == area_type:
-            break
-    for region in area.regions:
-        if region.type == region_type:
-            break
-    for space in area.spaces:
-        if space.type == space_type:
-            break
-
-    return (area, region, space)
-
-
-
 def get_canvas(context, magnitude):
-    """Get canvas to be renderred texture."""
+    """
+    Get canvas to be renderred texture
+    """
+
     PAD_X = 20
     PAD_Y = 20
     width = context.region.width
@@ -74,32 +57,39 @@ def get_canvas(context, magnitude):
     y0 = int(center_y - len_y * 0.5)
     x1 = int(center_x + len_x * 0.5)
     y1 = int(center_y + len_y * 0.5)
+
     return Rect(x0, y0, x1, y1)
 
 
 def rect_to_rect2(rect):
-    """Convert Rect1 to Rect2"""
-    return Rect2(
-        rect.x0,
-        rect.y0,
-        rect.x1 - rect.x0,
-        rect.y1 - rect.y0
-        )
+    """
+    Convert Rect1 to Rect2
+    """
+
+    return Rect2(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0)
 
 
 def region_to_canvas(region, rg_vec, canvas):
-    """Convert screen region to canvas"""  
+    """
+    Convert screen region to canvas
+    """  
+
     cv_rect = rect_to_rect2(canvas)
     cv_vec = mathutils.Vector()
     cv_vec.x = (rg_vec.x - cv_rect.x) / cv_rect.width
     cv_vec.y = (rg_vec.y - cv_rect.y) / cv_rect.height
+
     return cv_vec
 
 
 class MUV_TexProjRenderer(bpy.types.Operator):
-    """Rendering texture"""
+    """
+    Operation class: Render selected texture
+    No operation (only rendering texture)
+    """
     
     bl_idname = "uv.muv_texproj_renderer"
+    bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
     __handle = None
@@ -119,10 +109,9 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     
     @staticmethod
     def draw_texture(self, context):
-        wm = context.window_manager
         sc = context.scene
         
-        # no texture is selected
+        # no textures are selected
         if sc.muv_texproj_tex_image == "None":
             return
 
@@ -162,11 +151,13 @@ class MUV_TexProjRenderer(bpy.types.Operator):
 
 
 class MUV_TexProjStart(bpy.types.Operator):
-    """Start Texture Projection"""
+    """
+    Operation class: Start Texture Projection
+    """
     
     bl_idname = "uv.muv_texproj_start"
     bl_label = "Start Texture Projection"
-    bl_description = "Start Texture Projection."
+    bl_description = "Start Texture Projection"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -176,15 +167,18 @@ class MUV_TexProjStart(bpy.types.Operator):
             props.running = True
         if context.area:
             context.area.tag_redraw()
+
         return {'FINISHED'}
 
 
 class MUV_TexProjStop(bpy.types.Operator):
-    """Stop Texture Projection"""
+    """
+    Operation class: Stop Texture Projection
+    """
     
     bl_idname = "uv.muv_texproj_stop"
     bl_label = "Stop Texture Projection"
-    bl_description = "Stop Texture Projection."
+    bl_description = "Stop Texture Projection"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -194,11 +188,14 @@ class MUV_TexProjStop(bpy.types.Operator):
             props.running = False
         if context.area:
             context.area.tag_redraw()
+
         return {'FINISHED'}
 
 
 class MUV_TexProjProject(bpy.types.Operator):
-    """Project texture."""
+    """
+    Operation class: Project texture
+    """
     
     bl_idname = "uv.muv_texproj_project"
     bl_label = "Project Texture"
@@ -209,9 +206,10 @@ class MUV_TexProjProject(bpy.types.Operator):
         sc = context.scene
 
         if sc.muv_texproj_tex_image == "None":
-            self.report({'WARNING'}, "You must select texture.")
+            self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
-        area, region, space = get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
+        area, region, space = muv_common.get_space(
+            'VIEW_3D', 'WINDOW', 'VIEW_3D')
         
         # get faces to be texture projected
         obj = context.active_object
@@ -219,9 +217,10 @@ class MUV_TexProjProject(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
-        # get UV layer
+
+        # get UV and texture layer
         if not bm.loops.layers.uv:
-            self.report({'WARNING'}, "Object must have more than one UV map.")
+            self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
         tex_layer = bm.faces.layers.tex.verify()
@@ -229,20 +228,18 @@ class MUV_TexProjProject(bpy.types.Operator):
         sel_faces = [f for f in bm.faces if f.select]
 
         # transform 3d space to screen region
-        v_screen = []
-        for f in sel_faces:
-            for l in f.loops:
-                v_screen.append(view3d_utils.location_3d_to_region_2d(
-                    region,
-                    space.region_3d,
-                    world_mat * l.vert.co
-                    ))
+        v_screen = [view3d_utils.location_3d_to_region_2d(
+                        region,
+                        space.region_3d,
+                        world_mat * l.vert.co)
+                        for f in sel_faces for l in f.loops]
+
         # transform screen region to canvas
-        v_canvas = []
-        for v in v_screen:
-            v_canvas.append(region_to_canvas(
-                region, v,
-                get_canvas(bpy.context, sc.muv_texproj_tex_magnitude)))
+        v_canvas = [region_to_canvas(
+                        region, v,
+                        get_canvas(bpy.context, sc.muv_texproj_tex_magnitude))
+                        for v in v_screen]
+
         # project texture to object
         i = 0;
         for f in sel_faces:
@@ -251,15 +248,19 @@ class MUV_TexProjProject(bpy.types.Operator):
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1
 
-        redraw_all_areas()
+        muv_common.redraw_all_areas()
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
 
-# UI view
 class OBJECT_PT_TP(bpy.types.Panel):
+    """
+    Panel class: Texture Projection Menu on Property Panel on View3D
+    """
+
     bl_label = "Texture Projection"
+    bl_description = "Texture Projection Menu"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     
@@ -267,6 +268,7 @@ class OBJECT_PT_TP(bpy.types.Panel):
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
         if prefs.enable_texproj is False:
             return
+
         sc = context.scene
         layout = self.layout
         props = sc.muv_props.texproj

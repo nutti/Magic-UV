@@ -18,25 +18,26 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
-
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
 __date__ = "XX XXX 2015"
 
+
+import bpy
 from . import muv_cpuv_ops
 from . import muv_cpuv_selseq_ops
-from . import muv_fliprot_ops
 from . import muv_transuv_ops
-from . import muv_texproj_ops
 
 
-# Copy/Paste UV master menu
 class MUV_CPUVMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Copy/Paste UV coordinate
+    """
+
     bl_idname = "uv.muv_cpuv_menu"
     bl_label = "Copy/Paste UV"
-    bl_description = "Copy and Paste UV Menu"
+    bl_description = "Copy and Paste UV coordinate"
 
     def draw(self, context):
         self.layout.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, icon="PLUGIN")
@@ -45,11 +46,14 @@ class MUV_CPUVMenu(bpy.types.Menu):
         self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname, icon="PLUGIN")
 
 
-# Transfer UV master menu
 class MUV_TransUVMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Transfer UV coordinate
+    """
+
     bl_idname = "uv.muv_transuv_menu"
     bl_label = "Transfer UV"
-    bl_description = "Transfer UV Menu"
+    bl_description = "Transfer UV coordinate"
 
     def draw(self, context):
         self.layout.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
