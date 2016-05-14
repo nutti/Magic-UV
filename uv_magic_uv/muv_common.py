@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
-__date__ = "XX XXX 2015"
+__date__ = "14 May 2016"
 
 
 import bpy
@@ -78,5 +78,4 @@ def get_space(area_type, region_type, space_type):
             break
 
     return (area, region, space)
-
 

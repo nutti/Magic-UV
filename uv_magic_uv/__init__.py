@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
-__date__ = "XX XXX 2015"
+__date__ = "14 May 2016"
 
 
 bl_info = {
@@ -30,7 +30,7 @@ bl_info = {
     "version": (4, 0),
     "blender": (2, 77, 0),
     "location": "View3D > U, View3D > Property Panel, ImageEditor > Property Panel, ImageEditor > UVs",
-    "description": "UV Tools",
+    "description": "UV Manipulator Tools",
     "warning": "",
     "support": "COMMUNITY",
     "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs",

@@ -32,7 +32,7 @@ import time
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.0"
-__date__ = "XX XXX 2015"
+__date__ = "14 May 2016"
 
 
 class MUV_PackUV(bpy.types.Operator):

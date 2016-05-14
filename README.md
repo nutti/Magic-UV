@@ -14,6 +14,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|4.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.0)|
 |3.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.2)|
 |3.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.1)|
 |3.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.0)|
@@ -35,8 +36,10 @@ This add-on's features are as follows.
 * Copy/Paste UV Coordinates (by selection sequence)
 * Flip/Rotate UVs
 * Transfer UV
-* Texture Lock
 * Manipulate UV with Bouding Box in UV Editor
+* Move UV from 3D View
+* Texture Projection
+* Pack UV (with same UV island packing)
 
 ## Tutorials
 
@@ -54,7 +57,7 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
-|4.0|2016.XX.XX|[1] Rename this add-on<br>[2] **Add feature**<br> - Texture Lock<br> - Manipulate UV with Bouding Box in UV Editor<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
+|4.0|2016.5.14|[1] Rename this add-on<br>[2] **Add feature**<br> - Manipulate UV with Bounding Box in UV Editor<br> - Move UV from 3D View<br> - Texture Projection<br> - Pack UV (with same UV island packing)<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
 |3.2|2015.6.20|Improve feature<br> - Transfer UV<br>(1) Copy/Paste to multiple meshes<br>(2) Partially copy/paste UV|
 |3.1|2015.6.17|Improve feature<br> - Transfer UV<br>(1) Improve algorithm|
 |3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UVs<br> - Transfer UV<br>[2] Optimization/Refactoring<br>[3] Fixed bugs|
