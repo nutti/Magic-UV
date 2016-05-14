@@ -21,49 +21,31 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "3.2"
-__date__ = "20 Jun 2015"
+__version__ = "4.0"
+__date__ = "14 May 2016"
 
 
-DEBUG = False
+import bpy
+from bpy.props import *
+from bpy.types import AddonPreferences
 
-# Properties used in this add-on.
-class CPUVProperties():
-    default = None
-    selseq = None
-    uvmap = None
-    transuv = None
+class MUV_Preferences(AddonPreferences):
+    """Preferences class: Preferences for this add-on"""
 
-    def __init__(self):
-        self.default = CPUVDefaultOpsProps()
-        self.selseq = CPUVSelSeqOpsProps()
-        self.uvmap = CPUVUVMapOpsProps()
-        self.transuv = CPUVTransUVOpsProps()
+    bl_idname = __package__
 
+    enable_texproj = BoolProperty(
+            name="Enable feature: Texture Projection",
+            default=False,
+            )
 
-class CPUVDefaultOpsProps():
-    src_uv_map = None
-    src_obj = None
-    src_faces = None
+    enable_uvbb = BoolProperty(
+            name="Enable feature: UV Bounding Box",
+            default=False,
+            )
 
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "enable_uvbb")
+        layout.prop(self, "enable_texproj")
 
-class CPUVSelSeqOpsProps():
-    src_uv_map = None
-    src_obj = None
-    src_faces = None
-
-
-class CPUVUVMapOpsProps():
-    src_uv_map = None
-    src_obj = None
-    src_faces = None
-
-
-class CPUVTransUVOpsProps():
-    topology_copied = []
-
-
-def init_properties(props):
-    props.src_uv_map = None
-    props.src_obj = None
-    props.src_faces = None

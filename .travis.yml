@@ -1,0 +1,20 @@
+language: python
+
+python:
+  - "3.4"
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install blender
+
+install:
+  - mkdir tmp && cd tmp
+  - wget http://mirror.cs.umn.edu/blender.org/release/Blender2.76/blender-2.76-linux-glibc211-x86_64.tar.bz2
+  - tar jxf blender-2.76-linux-glibc211-x86_64.tar.bz2
+  - mv blender-2.76-linux-glibc211-x86_64 blender
+  - rm blender-2.76-linux-glibc211-x86_64.tar.bz2
+  - cd ..
+  - sudo ln -s ${PWD}/uv_magic_uv ${PWD}/tmp/blender/2.76/scripts/addons/uv_magic_uv
+
+script: python ${PWD}/tests/run_tests.py ${PWD}/tmp/blender/blender
+
