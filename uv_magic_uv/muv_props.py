@@ -20,11 +20,11 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 import bpy
-from bpy.props import FloatProperty, EnumProperty
+from bpy.props import FloatProperty, EnumProperty, BoolProperty
 
 DEBUG = False
 
@@ -90,6 +90,10 @@ def init_props(scene):
         default=10.0,
         min=3.0,
         max=100.0)
+    scene.muv_uvbb_uniform_scaling = BoolProperty(
+        name="Uniform Scaling",
+        description="Enable Uniform Scaling",
+        default=False)
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude.",

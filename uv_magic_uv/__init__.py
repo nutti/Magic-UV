@@ -20,14 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 
 bl_info = {
     "name": "Magic UV",
     "author": "Nutti",
-    "version": (4, 0),
+    "version": (4, 1),
     "blender": (2, 77, 0),
     "location": "View3D > U, View3D > Property Panel, ImageEditor > Property Panel, ImageEditor > UVs",
     "description": "UV Manipulator Tools",
