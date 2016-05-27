@@ -21,7 +21,7 @@
 import bpy
 import bmesh
 import mathutils
-from bpy.props import FloatProperty, BoolProperty
+from bpy.props import FloatProperty, FloatVectorProperty, BoolProperty
 from mathutils import Vector
 from math import fabs
 from collections import defaultdict
@@ -31,8 +31,8 @@ import time
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 
 class MUV_PackUV(bpy.types.Operator):
@@ -63,7 +63,23 @@ class MUV_PackUV(bpy.types.Operator):
         min=0,
         max=1,
         default=0.001)
+
+    allowable_center_deviation = FloatVectorProperty(
+        name="Allowable Center Deviation",
+        description="Allowable center deviation to judge same UV island",
+        min=0.000001,
+        max=0.1,
+        default=(0.001, 0.001),
+        size=2)
     
+    allowable_size_deviation = FloatVectorProperty(
+        name="Allowable Size Deviation",
+        description="Allowable sizse deviation to judge same UV island",
+        min=0.000001,
+        max=0.1,
+        default=(0.001, 0.001),
+        size=2)
+
     def __init__(self):
         self.__face_to_verts = defaultdict(set)
         self.__vert_to_faces = defaultdict(set)
@@ -160,13 +176,13 @@ class MUV_PackUV(bpy.types.Operator):
             for isl_2 in island_info:
                 if isl_2['group'] == -1:
                     center_x_matched = (
-                        fabs(isl_2['center'].x - isl_1['center'].x) < 0.001)
+                        fabs(isl_2['center'].x - isl_1['center'].x) < self.allowable_center_deviation[0])
                     center_y_matched = (
-                        fabs(isl_2['center'].y - isl_1['center'].y) < 0.001)
+                        fabs(isl_2['center'].y - isl_1['center'].y) < self.allowable_center_deviation[1])
                     size_x_matched = (
-                        fabs(isl_2['size'].x - isl_1['size'].x) < 0.001)
+                        fabs(isl_2['size'].x - isl_1['size'].x) < self.allowable_size_deviation[0])
                     size_y_matched = (
-                        fabs(isl_2['size'].y - isl_1['size'].y) < 0.001)
+                        fabs(isl_2['size'].y - isl_1['size'].y) < self.allowable_size_deviation[1])
                     center_matched = center_x_matched and center_y_matched
                     size_matched = size_x_matched and size_y_matched
                     num_uv_matched = (isl_2['num_uv'] == isl_1['num_uv'])
