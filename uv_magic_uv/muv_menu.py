@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 
 import bpy
@@ -44,6 +44,20 @@ class MUV_CPUVMenu(bpy.types.Menu):
         self.layout.menu(muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname, icon="PLUGIN")
         self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname, icon="PLUGIN")
         self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname, icon="PLUGIN")
+
+
+class MUV_CPUVObjMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Copy/Paste UV coordinate per object
+    """
+
+    bl_idname = "object.muv_cpuv_obj_menu"
+    bl_label = "Copy/Paste UV"
+    bl_description = "Copy and Paste UV coordinate per object"
+
+    def draw(self, context):
+        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjCopyUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjPasteUVMenu.bl_idname, icon="PLUGIN")
 
 
 class MUV_TransUVMenu(bpy.types.Menu):

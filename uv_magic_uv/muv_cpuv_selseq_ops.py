@@ -21,8 +21,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2015"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 
 import bpy
@@ -125,7 +125,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         items=[
             ('N_N', 'N:N', 'Number of faces must be equal to source'),
             ('N_M', 'N:M', 'Number of faces must not be equal to source')],
-        default="N_N")
+        default="N_M")
 
     flip_copied_uv = BoolProperty(
         name="Flip Copied UV",

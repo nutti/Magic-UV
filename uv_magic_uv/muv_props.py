@@ -38,6 +38,7 @@ def get_loaded_texture_name(scene, context):
 # Properties used in this add-on.
 class MUV_Properties():
     cpuv = None
+    cpuv_obj = None
     cpuv_selseq = None
     transuv = None
     uvbb = None
@@ -45,6 +46,7 @@ class MUV_Properties():
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
+        self.cpuv_obj = MUV_CPUVProps()
         self.cpuv_selseq = MUV_CPUVSelSeqProps()
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()

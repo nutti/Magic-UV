@@ -82,10 +82,16 @@ def image_uvs_menu_fn(self, context):
     self.layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname, icon="PLUGIN")
 
 
+def view3d_object_menu_fn(self, context):
+    self.layout.separator()
+    self.layout.menu(muv_menu.MUV_CPUVObjMenu.bl_idname, icon="PLUGIN")
+
+
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
     bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
+    bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
     muv_props.init_props(bpy.types.Scene)
 
 
@@ -93,6 +99,7 @@ def unregister():
     bpy.utils.unregister_module(__name__)
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
     bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
+    bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
     muv_props.clear_props(bpy.types.Scene)
 
 
