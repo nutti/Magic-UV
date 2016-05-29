@@ -43,6 +43,7 @@ class MUV_Properties():
     transuv = None
     uvbb = None
     texproj = None
+    texlock = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -51,6 +52,7 @@ class MUV_Properties():
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()
         self.texproj = MUV_TexProjProps()
+        self.texlock = MUV_TexLockProps()
 
 
 class MUV_CPUVProps():
@@ -76,6 +78,12 @@ class MUV_UVBBProps():
 
 class MUV_TexProjProps():
     running = False
+
+
+class MUV_TexLockProps():
+    verts_orig = None
+    intr_verts_orig = None
+    intr_running = False
 
 
 def init_props(scene):

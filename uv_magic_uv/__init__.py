@@ -52,6 +52,7 @@ if "bpy" in locals():
     imp.reload(muv_mvuv_ops)
     imp.reload(muv_texproj_ops)
     imp.reload(muv_packuv_ops)
+    imp.reload(muv_texlock_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -65,6 +66,7 @@ else:
     from . import muv_mvuv_ops
     from . import muv_texproj_ops
     from . import muv_packuv_ops
+    from . import muv_texlock_ops
 
 import bpy
 
@@ -75,6 +77,7 @@ def view3d_uvmap_menu_fn(self, context):
     self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
+    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
 
 
 def image_uvs_menu_fn(self, context):

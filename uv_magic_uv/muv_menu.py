@@ -28,6 +28,7 @@ import bpy
 from . import muv_cpuv_ops
 from . import muv_cpuv_selseq_ops
 from . import muv_transuv_ops
+from . import muv_texlock_ops
 
 
 class MUV_CPUVMenu(bpy.types.Menu):
@@ -72,4 +73,20 @@ class MUV_TransUVMenu(bpy.types.Menu):
     def draw(self, context):
         self.layout.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
         self.layout.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname, icon="PLUGIN")
+
+
+class MUV_TexLockMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Lock
+    """
+
+    bl_idname = "uv.muv_texlock_menu"
+    bl_label = "Texture Lock"
+    bl_description = "Lock texture when vertices of mesh (Preserve UV)"
+
+    def draw(self, context):
+        self.layout.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
 
