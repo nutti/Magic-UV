@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
 
 import bpy
 import bmesh
@@ -76,7 +76,7 @@ class MUV_TransUVCopy(bpy.types.Operator):
         if all_sorted_faces:
             for face_data in all_sorted_faces.values():
                 uv_loops = face_data[2]
-                uvs = [l.uv for l in uv_loops]
+                uvs = [l.uv.copy() for l in uv_loops]
                 pin_uvs = [l.pin_uv for l in uv_loops]
                 props.topology_copied.append([uvs, pin_uvs])
 
