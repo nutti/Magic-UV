@@ -16,6 +16,11 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+__author__ = "Nutti <nutti.metro@gmail.com>"
+__status__ = "production"
+__version__ = "4.1"
+__date__ = "XX XXX 2016"
+
 import bpy
 import bmesh
 from bpy.props import BoolProperty, EnumProperty, FloatProperty
@@ -23,6 +28,10 @@ from . import muv_common
 
 
 class MUV_UnwrapConstraint(bpy.types.Operator):
+    """
+    Operation class: Unwrap with constrain UV coordinate
+    """
+
     bl_idname = "uv.muv_unwrap_constraint"
     bl_label = "Unwrap Constraint"
     bl_description = "Unwrap while keeping uv coordinate"
@@ -36,7 +45,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
             ('ANGLE_BASED', 'Angle Based', 'Angle Based'),
             ('CONFORMAL', 'Conformal', 'Conformal')],
         default='ANGLE_BASED')
-    
+
     fill_holes = BoolProperty(
         name="Fill Holes",
         description="Virtual fill holes in meshes before unwrapping",
@@ -51,7 +60,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         name="Use Subsurf Modifier",
         description="Map UVs taking vertex position after subsurf into account",
         default=False)
-    
+
     margin = FloatProperty(
         name="Margin",
         description="Space between islands",
@@ -64,32 +73,32 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         name="U-Constraint",
         description="Keep UV U-axis coordinate",
         default=False)
-    
+
     v_const = BoolProperty(
         name="V-Constraint",
         description="Keep UV V-axis coordinate",
         default=False)
 
-    
+
     def execute(self, context):
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
-        
+
         if not bm.loops.layers.uv:
             self.report(
                 {'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
-        
+
         # get original UV coordinate
         faces = [f for f in bm.faces if f.select]
         uv_list = []
         for f in faces:
             uvs = [l[uv_layer].uv.copy() for l in f.loops]
             uv_list.append(uvs)
-        
+
         # unwrap
         bpy.ops.uv.unwrap(
             method=self.method,
@@ -97,7 +106,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
             correct_aspect=self.correct_aspect,
             use_subsurf_data=self.use_subsurf_data,
             margin=self.margin)
-        
+
         # when U/V-Constraint is checked, revert original coordinate
         for f, uvs in zip(faces, uv_list):
             for l, uv in zip(f.loops, uvs):
@@ -105,9 +114,8 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
                     l[uv_layer].uv.x = uv.x
                 if self.v_const:
                     l[uv_layer].uv.y = uv.y
-        
+
         # update mesh
         bmesh.update_edit_mesh(obj.data)
-    
-        return {'FINISHED'}
 
+        return {'FINISHED'}

@@ -54,7 +54,6 @@ if "bpy" in locals():
     imp.reload(muv_packuv_ops)
     imp.reload(muv_texlock_ops)
     imp.reload(muv_mirroruv_ops)
-    imp.reload(muv_texwrap_ops)
     imp.reload(muv_wsuv_ops)
     imp.reload(muv_unwrapconst_ops)
 else:
@@ -72,7 +71,6 @@ else:
     from . import muv_packuv_ops
     from . import muv_texlock_ops
     from . import muv_mirroruv_ops
-    from . import muv_texwrap_ops
     from . import muv_wsuv_ops
     from . import muv_unwrapconst_ops
 
@@ -87,7 +85,6 @@ def view3d_uvmap_menu_fn(self, context):
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="PLUGIN")
-    #self.layout.menu(muv_menu.MUV_TexWrapMenu.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_WSUVMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='PLUGIN')
 
@@ -120,4 +117,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

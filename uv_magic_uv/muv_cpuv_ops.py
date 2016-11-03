@@ -169,7 +169,7 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
             uv_layer = bm.loops.layers.uv.verify()
         else:
             uv_layer = bm.loops.layers.uv[self.uv_map]
-        
+
         # get selected face
         dest_uvs = []
         dest_pin_uvs = []
@@ -191,7 +191,7 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
                 "(src:%d, dest:%d)" %
                 (len(props.src_uvs), len(dest_uvs)))
             return {'CANCELLED'}
- 
+
         # paste
         for i, idx in enumerate(dest_face_indices):
             suv = None
@@ -274,7 +274,8 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
             self.report({'INFO'}, "Copy UV coordinate per object")
         else:
             self.report(
-                {'INFO'}, "Copy UV coordinate per object (UV map:" + self.uv_map + ")")
+                {'INFO'},
+                "Copy UV coordinate per object (UV map:" + self.uv_map + ")")
 
         bpy.ops.object.mode_set(mode='EDIT')
 
@@ -354,7 +355,7 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
         for o in bpy.data.objects:
             if not hasattr(o.data, "uv_textures") or not o.select:
                 continue
-       
+
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.context.scene.objects.active = o
             bpy.ops.object.mode_set(mode='EDIT')
@@ -368,7 +369,9 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
                 self.report({'INFO'}, "Paste UV coordinate per object")
             else:
                 self.report(
-                    {'INFO'}, "Paste UV coordinate per object (UV map:" + self.uv_map + ")")
+                    {'INFO'},
+                    "Paste UV coordinate per object (UV map: %s)" %
+                    (self.uv_map))
 
             # get UV layer
             if self.uv_map == "" or not self.uv_map in bm.loops.layers.uv.keys():
@@ -379,7 +382,7 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
                 uv_layer = bm.loops.layers.uv.verify()
             else:
                 uv_layer = bm.loops.layers.uv[self.uv_map]
-            
+
             # get selected face
             dest_uvs = []
             dest_pin_uvs = []
@@ -397,7 +400,7 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
                     "(src:%d, dest:%d)" %
                     (len(props.src_uvs), len(dest_uvs)))
                 return {'CANCELLED'}
-     
+
             # paste
             for i, idx in enumerate(dest_face_indices):
                 suv = props.src_uvs[i]
@@ -444,5 +447,3 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
             layout.operator(
                 MUV_CPUVObjPasteUV.bl_idname,
                 text=m, icon="PLUGIN").uv_map = m
-
-

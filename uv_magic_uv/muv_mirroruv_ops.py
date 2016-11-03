@@ -33,7 +33,7 @@ from . import muv_common
 
 class MUV_MirrorUV(bpy.types.Operator):
     """
-        Mirror UV
+    Operation class: Mirror UV
     """
 
     bl_idname = "uv.muv_mirror_uv"
@@ -61,7 +61,7 @@ class MUV_MirrorUV(bpy.types.Operator):
 
     def __is_vector_similar(self, v1, v2, error):
         """
-            Check if two vectors are similar, within an error threshold
+        Check if two vectors are similar, within an error threshold
         """
         within_err_x = abs(v2.x - v1.x) < error
         within_err_y = abs(v2.y - v1.y) < error
@@ -72,7 +72,7 @@ class MUV_MirrorUV(bpy.types.Operator):
 
     def __mirror_uvs(self, uv_layer, src, dst, axis, error):
         """
-           Copy UV coordinates from one UV face to another
+        Copy UV coordinates from one UV face to another
         """
         for sl in src.loops:
             suv = sl[uv_layer].uv.copy()
@@ -85,14 +85,14 @@ class MUV_MirrorUV(bpy.types.Operator):
                     dvco.y = -dvco.y
                 elif axis == 'Z':
                     dvco.z = -dvco.z
-                
+
                 if self.__is_vector_similar(svco, dvco, error):
                     dl[uv_layer].uv = suv.copy()
 
 
     def __get_face_center(self, face):
         """
-            Get center coordinate of the face
+        Get center coordinate of the face
         """
         center = Vector((0.0, 0.0, 0.0))
         for v in face.verts:
@@ -155,4 +155,3 @@ class MUV_MirrorUV(bpy.types.Operator):
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
-

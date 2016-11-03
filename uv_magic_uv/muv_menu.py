@@ -29,7 +29,6 @@ from . import muv_cpuv_ops
 from . import muv_cpuv_selseq_ops
 from . import muv_transuv_ops
 from . import muv_texlock_ops
-from . import muv_texwrap_ops
 from . import muv_wsuv_ops
 
 
@@ -93,20 +92,6 @@ class MUV_TexLockMenu(bpy.types.Menu):
         self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
 
 
-class MUV_TexWrapMenu(bpy.types.Menu):
-    """
-    Menu class: Master menu of Texture Wrap
-    """
-
-    bl_idname = "uv.muv_texwrap_menu"
-    bl_label = "Texture Wrap"
-    bl_description = ""
-
-    def draw(self, context):
-        self.layout.operator(muv_texwrap_ops.MUV_TexWrapCopy.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texwrap_ops.MUV_TexWrapPaste.bl_idname, icon="PLUGIN")
-
-
 class MUV_WSUVMenu(bpy.types.Menu):
     """
     Menu class: Master menu of world scale UV
@@ -119,4 +104,3 @@ class MUV_WSUVMenu(bpy.types.Menu):
     def draw(self, context):
         self.layout.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, icon="PLUGIN")
         self.layout.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname, icon="PLUGIN")
- 

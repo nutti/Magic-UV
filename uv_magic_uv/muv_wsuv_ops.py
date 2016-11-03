@@ -27,14 +27,14 @@ import bpy
 import bmesh
 from mathutils import Vector
 from . import muv_common
-     
+
 
 def calc_edge_scale(uv_layer, loop0, loop1):
     v0 = loop0.vert.co
     v1 = loop1.vert.co
     uv0 = loop0[uv_layer].uv.copy()
     uv1 = loop1[uv_layer].uv.copy()
-    
+
     dv = v1 - v0
     duv = uv1 - uv0
 
@@ -48,12 +48,16 @@ def calc_edge_scale(uv_layer, loop0, loop1):
 def calc_face_scale(uv_layer, face):
     es = 0.0
     for i, l in enumerate(face.loops[1:]):
-        es = es + calc_edge_scale(uv_layer, face.loops[i], l) 
+        es = es + calc_edge_scale(uv_layer, face.loops[i], l)
 
     return es
 
 
 class MUV_WSUVMeasure(bpy.types.Operator):
+    """
+    Operation class: Measure face size
+    """
+
     bl_idname = "uv.muv_wsuv_measure"
     bl_label = "Measure"
     bl_description = "Measure face size for scale calculation"
@@ -67,15 +71,16 @@ class MUV_WSUVMeasure(bpy.types.Operator):
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
-        
+
         if not bm.loops.layers.uv:
             self.report(
                 {'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
-        
+
         sel_faces = [f for f in bm.faces if f.select]
 
+        # measure average face size
         scale = 0.0
         for f in sel_faces:
             scale = scale + calc_face_scale(uv_layer, f)
@@ -86,6 +91,10 @@ class MUV_WSUVMeasure(bpy.types.Operator):
 
 
 class MUV_WSUVApply(bpy.types.Operator):
+    """
+    Operation class: Apply scaled UV
+    """
+
     bl_idname = "uv.muv_wsuv_apply"
     bl_label = "Apply"
     bl_description = "Apply scaled UV based on scale calculation"
@@ -99,7 +108,7 @@ class MUV_WSUVApply(bpy.types.Operator):
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
-        
+
         if not bm.loops.layers.uv:
             self.report(
                 {'WARNING'}, "Object must have more than one UV map")
@@ -108,16 +117,18 @@ class MUV_WSUVApply(bpy.types.Operator):
 
         sel_faces = [f for f in bm.faces if f.select]
 
+        # measure average face size
         scale = 0.0
         for f in sel_faces:
             scale = scale + calc_face_scale(uv_layer, f)
         scale = scale / len(sel_faces)
- 
+
         ratio = props.ref_scale / scale
 
         orig_area = bpy.context.area.type
         bpy.context.area.type = 'IMAGE_EDITOR'
 
+        # apply scaled UV
         bpy.ops.transform.resize(
             value=(ratio, ratio, ratio),
             constraint_axis=(False, False, False),
@@ -135,8 +146,7 @@ class MUV_WSUVApply(bpy.types.Operator):
             release_confirm=False)
 
         bpy.context.area.type = orig_area
-        
-        bmesh.update_edit_mesh(obj.data)
-        
-        return {'FINISHED'}
 
+        bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}
