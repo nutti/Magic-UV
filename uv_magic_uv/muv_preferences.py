@@ -18,11 +18,10 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -48,4 +47,3 @@ class MUV_Preferences(AddonPreferences):
         layout = self.layout
         layout.prop(self, "enable_uvbb")
         layout.prop(self, "enable_texproj")
-

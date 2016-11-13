@@ -63,7 +63,7 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
-|4.1|2016.11.XX|[1] **Add feature**<br> - Copy/Paste UV Coordinates (Among same objects)<br> - Texture Lock<br> - Mirror UV<br> - World Scale UV<br> - Unwrap Constraint<br>[2] Improve feature - Pack UV  (with same UV island packing)<br>(1) Add option: Allowable center/size deviation option<br>[3] Fixed bug|
+|4.1|2016.11.13|[1] **Add feature**<br> - Copy/Paste UV Coordinates (Among same objects)<br> - Texture Lock<br> - Mirror UV<br> - World Scale UV<br> - Unwrap Constraint<br>[2] Improve feature - Pack UV  (with same UV island packing)<br>(1) Add option: Allowable center/size deviation option<br>[3] Fixed bug|
 |4.0|2016.5.14|[1] Rename this add-on<br>[2] **Add feature**<br> - Manipulate UV with Bounding Box in UV Editor<br> - Move UV from 3D View<br> - Texture Projection<br> - Pack UV (with same UV island packing)<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
 |3.2|2015.6.20|Improve feature<br> - Transfer UV<br>(1) Copy/Paste to multiple meshes<br>(2) Partially copy/paste UV|
 |3.1|2015.6.17|Improve feature<br> - Transfer UV<br>(1) Improve algorithm|

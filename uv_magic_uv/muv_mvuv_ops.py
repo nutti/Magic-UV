@@ -1,7 +1,27 @@
+# <pep8-80 compliant>
+
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
 __author__ = "kgeogeo, mem, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.1"
-__date__ = "XX XXX 2016"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -17,7 +37,7 @@ class MUV_MVUV(bpy.types.Operator):
     bl_idname = "view3d.muv_mvuv"
     bl_label = "Move the UV from View3D"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     __topology_dict = []
     __prev_mouse = Vector((0.0, 0.0))
     __offset_uv = Vector((0.0, 0.0))
@@ -59,8 +79,8 @@ class MUV_MVUV(bpy.types.Operator):
                         diff = uva - va
                         first = False
 
-        return topology_dict, uvs 
-   
+        return topology_dict, uvs
+
     @classmethod
     def poll(cls, context):
         return (context.edit_object)
@@ -112,7 +132,7 @@ class MUV_MVUV(bpy.types.Operator):
         if event.type == cancel_btn and event.value == 'PRESS':
             for (fidx, vidx), uv in zip(self.__topology_dict, self.__ini_uvs):
                 bm.faces[fidx].loops[vidx][active_uv].uv = uv
-            return {'FINISHED'} 
+            return {'FINISHED'}
         # confirmed
         if event.type == confirm_btn and event.value == 'PRESS':
             return {'FINISHED'}
@@ -123,6 +143,5 @@ class MUV_MVUV(bpy.types.Operator):
         self.__first_time = True
         self.__running = True
         context.window_manager.modal_handler_add(self)
-        self.__topology_dict, self.__ini_uvs = self.__find_uv(context) 
-        return {'RUNNING_MODAL'} 
-
+        self.__topology_dict, self.__ini_uvs = self.__find_uv(context)
+        return {'RUNNING_MODAL'}

@@ -19,7 +19,8 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.1"
-__date__ = "XX XXX 2016"
+__date__ = "13 Nov 2016"
+
 
 import bpy
 import bmesh

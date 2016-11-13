@@ -21,7 +21,8 @@
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
 __version__ = "4.1"
-__date__ = "XX XXX 2016"
+__date__ = "13 Nov 2016"
+
 
 import bpy
 import bmesh
@@ -127,7 +128,7 @@ class MUV_TransUVPaste(bpy.types.Operator):
             if i > 0 and i % 2 != 0:
                 sel_faces = [all_sel_faces[i - 1], all_sel_faces[i]]
                 active_face = all_sel_faces[i]
-                
+
                 # parse all faces according to selection history
                 active_face_nor = active_face.normal.copy()
                 if self.invert_normals:
@@ -340,4 +341,3 @@ def get_other_verts_edges(face, vert1, vert2, first_edge, uv_layer):
                 break
 
     return [face_verts, face_edges, face_loops]
-

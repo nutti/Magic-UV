@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.1"
-__date__ = "XX XXX 2016"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -259,7 +259,7 @@ class MUV_UVBBCmdExecuter():
     def __init__(self):
         self.__cmd_list = []
         self.__cmd_list_redo = []
-    
+
     def execute(self, begin=0, end=-1):
         """
         create matrix from history
@@ -270,7 +270,7 @@ class MUV_UVBBCmdExecuter():
             if begin <= i and (end == -1 or i <= end):
                 mat = cmd.to_matrix() * mat
         return mat
-    
+
     def undo_size(self):
         """
         get history size
@@ -319,7 +319,7 @@ class MUV_UVBBCmdExecuter():
 
 class MUV_UVBBRenderer(bpy.types.Operator):
     """
-    Operation class: Render UV bounding box 
+    Operation class: Render UV bounding box
     """
 
     bl_idname = "uv.muv_uvbb_renderer"
@@ -459,7 +459,7 @@ class MUV_UVBBStateTranslating(MUV_UVBBStateBase):
     """
     Custom class: Translating state
     """
-    
+
     __cmd_exec = None
 
     def __init__(self, cmd_exec, mouse_view, ctrl_points):
@@ -777,4 +777,3 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
             layout.prop(sc, "muv_uvbb_cp_size", text="Size")
             layout.prop(sc, "muv_uvbb_cp_react_size", text="React Size")
             layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
-
