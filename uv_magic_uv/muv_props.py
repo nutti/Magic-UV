@@ -20,11 +20,12 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
+
 
 import bpy
-from bpy.props import FloatProperty, EnumProperty
+from bpy.props import FloatProperty, EnumProperty, BoolProperty
 
 DEBUG = False
 
@@ -38,17 +39,25 @@ def get_loaded_texture_name(scene, context):
 # Properties used in this add-on.
 class MUV_Properties():
     cpuv = None
+    cpuv_obj = None
     cpuv_selseq = None
     transuv = None
     uvbb = None
     texproj = None
+    texlock = None
+    texwrap = None
+    wsuv = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
+        self.cpuv_obj = MUV_CPUVProps()
         self.cpuv_selseq = MUV_CPUVSelSeqProps()
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()
         self.texproj = MUV_TexProjProps()
+        self.texlock = MUV_TexLockProps()
+        self.texwrap = MUV_TexWrapProps()
+        self.wsuv = MUV_WSUVProps()
 
 
 class MUV_CPUVProps():
@@ -76,6 +85,21 @@ class MUV_TexProjProps():
     running = False
 
 
+class MUV_TexLockProps():
+    verts_orig = None
+    intr_verts_orig = None
+    intr_running = False
+
+
+class MUV_TexWrapProps():
+    src_face_index = -1
+
+
+class MUV_WSUVProps():
+    ref_sv = None
+    ref_suv = None
+
+
 def init_props(scene):
     scene.muv_props = MUV_Properties()
     scene.muv_uvbb_cp_size = FloatProperty(
@@ -90,6 +114,10 @@ def init_props(scene):
         default=10.0,
         min=3.0,
         max=100.0)
+    scene.muv_uvbb_uniform_scaling = BoolProperty(
+        name="Uniform Scaling",
+        description="Enable Uniform Scaling",
+        default=False)
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude.",
@@ -115,4 +143,3 @@ def clear_props(scene):
     del scene.muv_texproj_tex_magnitude
     del scene.muv_texproj_tex_image
     del scene.muv_texproj_tex_transparency
-

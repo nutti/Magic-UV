@@ -20,14 +20,16 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
 
 
 import bpy
 from . import muv_cpuv_ops
 from . import muv_cpuv_selseq_ops
 from . import muv_transuv_ops
+from . import muv_texlock_ops
+from . import muv_wsuv_ops
 
 
 class MUV_CPUVMenu(bpy.types.Menu):
@@ -46,6 +48,20 @@ class MUV_CPUVMenu(bpy.types.Menu):
         self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname, icon="PLUGIN")
 
 
+class MUV_CPUVObjMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Copy/Paste UV coordinate per object
+    """
+
+    bl_idname = "object.muv_cpuv_obj_menu"
+    bl_label = "Copy/Paste UV"
+    bl_description = "Copy and Paste UV coordinate per object"
+
+    def draw(self, context):
+        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjCopyUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjPasteUVMenu.bl_idname, icon="PLUGIN")
+
+
 class MUV_TransUVMenu(bpy.types.Menu):
     """
     Menu class: Master menu of Transfer UV coordinate
@@ -59,3 +75,32 @@ class MUV_TransUVMenu(bpy.types.Menu):
         self.layout.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
         self.layout.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname, icon="PLUGIN")
 
+
+class MUV_TexLockMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Lock
+    """
+
+    bl_idname = "uv.muv_texlock_menu"
+    bl_label = "Texture Lock"
+    bl_description = "Lock texture when vertices of mesh (Preserve UV)"
+
+    def draw(self, context):
+        self.layout.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
+
+
+class MUV_WSUVMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of world scale UV
+    """
+
+    bl_idname = "uv.muv_wsuv_menu"
+    bl_label = "World Scale UV"
+    bl_description = ""
+
+    def draw(self, context):
+        self.layout.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, icon="PLUGIN")
+        self.layout.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname, icon="PLUGIN")

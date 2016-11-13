@@ -18,11 +18,10 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2015"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -40,7 +39,7 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     bl_label = "Copy UV (Selection Sequence) (Operation)"
     bl_description = "Copy UV data by selection sequence (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     uv_map = bpy.props.StringProperty(options={'HIDDEN'})
 
     def execute(self, context):
@@ -56,7 +55,7 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
-        
+
         # get UV layer
         if self.uv_map == "":
             if not bm.loops.layers.uv:
@@ -125,7 +124,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         items=[
             ('N_N', 'N:N', 'Number of faces must be equal to source'),
             ('N_M', 'N:M', 'Number of faces must not be equal to source')],
-        default="N_N")
+        default="N_M")
 
     flip_copied_uv = BoolProperty(
         name="Flip Copied UV",
@@ -164,7 +163,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
             uv_layer = bm.loops.layers.uv.verify()
         else:
             uv_layer = bm.loops.layers.uv[self.uv_map]
-        
+
         # get selected face
         dest_uvs = []
         dest_pin_uvs = []
@@ -186,7 +185,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
                 "(src:%d, dest:%d)" %
                 (len(props.src_uvs), len(dest_uvs)))
             return {'CANCELLED'}
- 
+
         # paste
         for i, idx in enumerate(dest_face_indices):
             suv = None
@@ -247,4 +246,3 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
             layout.operator(
                 MUV_CPUVSelSeqPasteUV.bl_idname,
                 text=m, icon="PLUGIN").uv_map = m
-

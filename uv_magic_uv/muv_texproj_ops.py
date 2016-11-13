@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -47,12 +47,12 @@ def get_canvas(context, magnitude):
     PAD_Y = 20
     width = context.region.width
     height = context.region.height
-    
+
     center_x = width * 0.5
     center_y = height * 0.5
     len_x = (width - PAD_X * 2.0) * magnitude
     len_y = (height - PAD_Y * 2.0) * magnitude
-    
+
     x0 = int(center_x - len_x * 0.5)
     y0 = int(center_y - len_y * 0.5)
     x1 = int(center_x + len_x * 0.5)
@@ -72,7 +72,7 @@ def rect_to_rect2(rect):
 def region_to_canvas(region, rg_vec, canvas):
     """
     Convert screen region to canvas
-    """  
+    """
 
     cv_rect = rect_to_rect2(canvas)
     cv_vec = mathutils.Vector()
@@ -87,30 +87,30 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     Operation class: Render selected texture
     No operation (only rendering texture)
     """
-    
+
     bl_idname = "uv.muv_texproj_renderer"
     bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
     __handle = None
-    
+
     @staticmethod
     def handle_add(self, context):
         MUV_TexProjRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
             MUV_TexProjRenderer.draw_texture,
             (self, context), 'WINDOW', 'POST_PIXEL')
-    
+
     @staticmethod
     def handle_remove(self, context):
         if MUV_TexProjRenderer.__handle is not None:
             bpy.types.SpaceView3D.draw_handler_remove(
                 MUV_TexProjRenderer.__handle, 'WINDOW')
             MUV_TexProjRenderer.__handle = None
-    
+
     @staticmethod
     def draw_texture(self, context):
         sc = context.scene
-        
+
         # no textures are selected
         if sc.muv_texproj_tex_image == "None":
             return
@@ -140,7 +140,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
                 bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
             bgl.glTexEnvi(
                 bgl.GL_TEXTURE_ENV, bgl.GL_TEXTURE_ENV_MODE, bgl.GL_MODULATE)
-        
+
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
         bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texproj_tex_transparency)
@@ -154,7 +154,7 @@ class MUV_TexProjStart(bpy.types.Operator):
     """
     Operation class: Start Texture Projection
     """
-    
+
     bl_idname = "uv.muv_texproj_start"
     bl_label = "Start Texture Projection"
     bl_description = "Start Texture Projection"
@@ -175,7 +175,7 @@ class MUV_TexProjStop(bpy.types.Operator):
     """
     Operation class: Stop Texture Projection
     """
-    
+
     bl_idname = "uv.muv_texproj_stop"
     bl_label = "Stop Texture Projection"
     bl_description = "Stop Texture Projection"
@@ -196,7 +196,7 @@ class MUV_TexProjProject(bpy.types.Operator):
     """
     Operation class: Project texture
     """
-    
+
     bl_idname = "uv.muv_texproj_project"
     bl_label = "Project Texture"
     bl_description = "Project Texture"
@@ -210,7 +210,7 @@ class MUV_TexProjProject(bpy.types.Operator):
             return {'CANCELLED'}
         area, region, space = muv_common.get_space(
             'VIEW_3D', 'WINDOW', 'VIEW_3D')
-        
+
         # get faces to be texture projected
         obj = context.active_object
         world_mat = obj.matrix_world
@@ -263,7 +263,7 @@ class OBJECT_PT_TP(bpy.types.Panel):
     bl_description = "Texture Projection Menu"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    
+
     def draw(self, context):
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
         if prefs.enable_texproj is False:
@@ -281,4 +281,3 @@ class OBJECT_PT_TP(bpy.types.Panel):
             layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
             layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
             layout.operator(MUV_TexProjProject.bl_idname, text="Project")
-

@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.0"
-__date__ = "14 May 2016"
+__version__ = "4.1"
+__date__ = "13 Nov 2016"
 
 
 import bpy
@@ -177,6 +177,77 @@ class MUV_UVBBScalingCmd(MUV_UVBBCmd):
         self.__y = y
 
 
+class MUV_UVBBUniformScalingCmd(MUV_UVBBCmd):
+    """
+    Custom class: Uniform Scaling operation
+    """
+
+    __x = 0         # current x
+    __y = 0         # current y
+    __ix = 0        # initial x
+    __iy = 0        # initial y
+    __ox = 0        # origin of scaling x
+    __oy = 0        # origin of scaling y
+    __iox = 0       # initial origin of scaling x
+    __ioy = 0       # initial origin of scaling y
+    __mat = None
+
+    def __init__(self, ix, iy, ox, oy, mat):
+        self.op = 'SCALING'
+        self.__ix = ix
+        self.__iy = iy
+        self.__x = ix
+        self.__y = iy
+        self.__ox = ox
+        self.__oy = oy
+        self.__mat = mat
+        # initial origin of scaling = M(to original transform) * (ox, oy)
+        iov = mat * mathutils.Vector((ox, oy, 0.0))
+        self.__iox = iov.x
+        self.__ioy = iov.y
+
+    def to_matrix(self):
+        """
+        mat = M(to original transform)^-1 * Mt(to origin) * Ms *
+              Mt(to origin)^-1 * M(to original transform)
+        """
+        m = self.__mat
+        mi = self.__mat.inverted()
+        mtoi = mathutils.Matrix.Translation((-self.__iox, -self.__ioy, 0.0))
+        mto = mathutils.Matrix.Translation((self.__iox, self.__ioy, 0.0))
+        # every point must be transformed to origin
+        t = m * mathutils.Vector((self.__ix, self.__iy, 0.0))
+        tix, tiy = t.x, t.y
+        t = m * mathutils.Vector((self.__ox, self.__oy, 0.0))
+        tox, toy = t.x, t.y
+        t = m * mathutils.Vector((self.__x, self.__y, 0.0))
+        tx, ty = t.x, t.y
+        ms = mathutils.Matrix()
+        ms.identity()
+        tir = math.sqrt((tix - tox) * (tix - tox) + (tiy - toy) * (tiy - toy))
+        tr = math.sqrt((tx - tox) * (tx - tox) + (ty - toy) * (ty - toy))
+
+        sr = tr / tir
+
+        if ((tx - tox) * (tix - tox)) > 0:
+            self.__dir_x = 1
+        else:
+            self.__dir_x = -1
+        if ((ty - toy) * (tiy - toy)) > 0:
+            self.__dir_y = 1
+        else:
+            self.__dir_y = -1
+
+        ms[0][0] = sr * self.__dir_x
+        ms[1][1] = sr * self.__dir_y
+
+        return mi * mto * ms * mtoi * m
+
+    def set(self, x, y):
+        self.__x = x
+        self.__y = y
+
+
 class MUV_UVBBCmdExecuter():
     """
     Custom class: manage command history and execute command
@@ -188,7 +259,7 @@ class MUV_UVBBCmdExecuter():
     def __init__(self):
         self.__cmd_list = []
         self.__cmd_list_redo = []
-    
+
     def execute(self, begin=0, end=-1):
         """
         create matrix from history
@@ -199,7 +270,7 @@ class MUV_UVBBCmdExecuter():
             if begin <= i and (end == -1 or i <= end):
                 mat = cmd.to_matrix() * mat
         return mat
-    
+
     def undo_size(self):
         """
         get history size
@@ -237,10 +308,18 @@ class MUV_UVBBCmdExecuter():
             return
         self.__cmd_list.append(self.__cmd_list_redo.pop())
 
+    def pop(self):
+        if len(self.__cmd_list) <= 0:
+            return None
+        return self.__cmd_list.pop()
+
+    def push(self, cmd):
+        self.__cmd_list.push(cmd)
+
 
 class MUV_UVBBRenderer(bpy.types.Operator):
     """
-    Operation class: Render UV bounding box 
+    Operation class: Render UV bounding box
     """
 
     bl_idname = "uv.muv_uvbb_renderer"
@@ -321,6 +400,10 @@ class MUV_UVBBState(IntEnum):
     SCALING_7 = 8
     SCALING_8 = 9
     ROTATING = 10
+    UNIFORM_SCALING_1 = 11
+    UNIFORM_SCALING_2 = 12
+    UNIFORM_SCALING_3 = 13
+    UNIFORM_SCALING_4 = 14
 
 
 class MUV_UVBBStateBase():
@@ -352,6 +435,7 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
         Update state
         """
         cp_react_size = context.scene.muv_uvbb_cp_react_size
+        is_uscaling = context.scene.muv_uvbb_uniform_scaling
         if event.type == 'LEFTMOUSE':
             if event.value == 'PRESS':
                 x, y = context.region.view2d.view_to_region(
@@ -361,27 +445,12 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
                     in_cp_x = px + cp_react_size > x and px - cp_react_size < x
                     in_cp_y = py + cp_react_size > y and py - cp_react_size < y
                     if in_cp_x and in_cp_y:
-                        return MUV_UVBBState.TRANSLATING + i
-                        #if i == 0:
-                        #    return MUV_UVBBState.TRANSLATING
-                        #elif i == 1:
-                        #    return MUV_UVBBState.SCALING_1
-                        #elif i == 2:
-                        #    return MUV_UVBBState.SCALING_2
-                        #elif i == 3:
-                        #    return MUV_UVBBState.SCALING_3
-                        #elif i == 4:
-                        #    return MUV_UVBBState.SCALING_4
-                        #elif i == 5:
-                        #    return MUV_UVBBState.SCALING_5
-                        #elif i == 6:
-                        #    return MUV_UVBBState.SCALING_6
-                        #elif i == 7:
-                        #    return MUV_UVBBState.SCALING_7
-                        #elif i == 8:
-                        #    return MUV_UVBBState.SCALING_8
-                        #elif i == 9:
-                        #    return MUV_UVBBState.ROTATING
+                        if is_uscaling:
+                            arr = [1, 3, 6, 8]
+                            if i in arr:
+                                return MUV_UVBBState.UNIFORM_SCALING_1 + arr.index(i)
+                        else:
+                            return MUV_UVBBState.TRANSLATING + i
 
         return MUV_UVBBState.NONE
 
@@ -390,7 +459,7 @@ class MUV_UVBBStateTranslating(MUV_UVBBStateBase):
     """
     Custom class: Translating state
     """
-    
+
     __cmd_exec = None
 
     def __init__(self, cmd_exec, mouse_view, ctrl_points):
@@ -419,8 +488,8 @@ class MUV_UVBBStateScaling(MUV_UVBBStateBase):
     def __init__(self, cmd_exec, mouse_view, state, ctrl_points):
         self.__state = state
         self.__cmd_exec = cmd_exec
-        dir_x_list = [1, 1, 1, 0, 0, 0, 1, 1, 1]
-        dir_y_list = [1, 0, 1, 1, 1, 1, 0, 1, 1]
+        dir_x_list = [1, 1, 1, 0, 0, 1, 1, 1]
+        dir_y_list = [1, 0, 1, 1, 1, 1, 0, 1]
         idx = state - 2
         ix, iy = ctrl_points[idx + 1].x, ctrl_points[idx + 1].y
         ox, oy = ctrl_points[8 - idx].x, ctrl_points[8 - idx].y
@@ -435,6 +504,37 @@ class MUV_UVBBStateScaling(MUV_UVBBStateBase):
         if event.type == 'MOUSEMOVE':
             x, y = mouse_view.x, mouse_view.y
             self.__cmd_exec.top().set(x, y)
+        return self.__state
+
+
+class MUV_UVBBStateUniformScaling(MUV_UVBBStateBase):
+    """
+    Custom class: Uniform Scaling state
+    """
+
+    __state = None
+    __cmd_exec = None
+
+    def __init__(self, cmd_exec, mouse_view, state, ctrl_points):
+        self.__state = state
+        self.__cmd_exec = cmd_exec
+        icp_idx = [1, 3, 6, 8]
+        ocp_idx = [8, 6, 3, 1]
+        idx = state - MUV_UVBBState.UNIFORM_SCALING_1
+        ix, iy = ctrl_points[icp_idx[idx]].x, ctrl_points[icp_idx[idx]].y
+        ox, oy = ctrl_points[ocp_idx[idx]].x, ctrl_points[ocp_idx[idx]].y
+        mat = self.__cmd_exec.execute(end=self.__cmd_exec.undo_size())
+        self.__cmd_exec.append(MUV_UVBBUniformScalingCmd(
+            ix, iy, ox, oy, mat.inverted()))
+
+    def update(self, context, event, ctrl_points, mouse_view):
+        if event.type == 'LEFTMOUSE':
+            if event.value == 'RELEASE':
+                return MUV_UVBBState.NONE
+        if event.type == 'MOUSEMOVE':
+            x, y = mouse_view.x, mouse_view.y
+            self.__cmd_exec.top().set(x, y)
+
         return self.__state
 
 
@@ -492,6 +592,9 @@ class MUV_UVBBStateMgr():
                 self.__cmd_exec, mouse_view, ctrl_points)
         elif next_state == MUV_UVBBState.NONE:
             self.__state_obj = MUV_UVBBStateNone(self.__cmd_exec)
+        elif MUV_UVBBState.UNIFORM_SCALING_1 <= next_state <= MUV_UVBBState.UNIFORM_SCALING_4:
+            self.__state_obj = MUV_UVBBStateUniformScaling(
+                self.__cmd_exec, mouse_view, next_state, ctrl_points)
 
         self.__state = next_state
 
@@ -673,4 +776,4 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
             layout.label(text="Control Point")
             layout.prop(sc, "muv_uvbb_cp_size", text="Size")
             layout.prop(sc, "muv_uvbb_cp_react_size", text="React Size")
-
+            layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
