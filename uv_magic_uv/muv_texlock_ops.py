@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "XX XXX 2017"
+__date__ = "21 Jan 2017"
 
 
 import bpy
@@ -346,19 +346,20 @@ class MUV_TexLockUpdater(bpy.types.Operator):
         if context.area:
             context.area.tag_redraw()
         if props.intr_running is False:
+            self.__handle_remove(context)
             return {'FINISHED'}
         if event.type == 'TIMER':
             self.__update_uv(context)
 
         return {'PASS_THROUGH'}
 
-    def handle_add(self, context):
+    def __handle_add(self, context):
         if self.__timer is None:
             self.__timer = context.window_manager.event_timer_add(
                 0.10, context.window)
             context.window_manager.modal_handler_add(self)
 
-    def handle_remove(self, context):
+    def __handle_remove(self, context):
         if self.__timer is not None:
             context.window_manager.event_timer_remove(self.__timer)
             self.__timer = None
@@ -366,11 +367,10 @@ class MUV_TexLockUpdater(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.texlock
         if props.intr_running == False:
-            self.handle_add(context)
+            self.__handle_add(context)
             props.intr_running = True
             return {'RUNNING_MODAL'}
         else:
-            self.handle_remove(context)
             props.intr_running = False
         if context.area:
             context.area.tag_redraw()

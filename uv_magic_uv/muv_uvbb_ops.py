@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "XX XXX 2017"
+__date__ = "21 Jan 2017"
 
 
 import bpy
@@ -328,7 +328,6 @@ class MUV_UVBBRenderer(bpy.types.Operator):
     bl_description = "Bounding Box Renderer about UV in Image Editor"
 
     __handle = None
-    __timer = None
     __ctrl_points = []
 
     @staticmethod
@@ -338,10 +337,6 @@ class MUV_UVBBRenderer(bpy.types.Operator):
             MUV_UVBBRenderer.__handle = sie.draw_handler_add(
                 MUV_UVBBRenderer.draw_bb,
                 (self, context), "WINDOW", "POST_PIXEL")
-        if MUV_UVBBRenderer.__timer is None:
-            MUV_UVBBRenderer.__timer = context.window_manager.event_timer_add(
-                0.10, context.window)
-            context.window_manager.modal_handler_add(self)
 
     @staticmethod
     def handle_remove(self, context):
@@ -350,9 +345,6 @@ class MUV_UVBBRenderer(bpy.types.Operator):
             sie.draw_handler_remove(
                 MUV_UVBBRenderer.__handle, "WINDOW")
             MUV_UVBBRenderer.__handle = None
-        if MUV_UVBBRenderer.__timer is not None:
-            context.window_manager.event_timer_remove(MUV_UVBBRenderer.__timer)
-            MUV_UVBBRenderer.__timer = None
 
     @staticmethod
     def __draw_ctrl_point(self, context, pos):
@@ -626,8 +618,22 @@ class MUV_UVBBUpdater(bpy.types.Operator):
     __cmd_exec = MUV_UVBBCmdExecuter()  # Command executer
 
     def __init__(self):
+        self.__timer = None
         self.__cmd_exec = MUV_UVBBCmdExecuter()
         self.__state_mgr = MUV_UVBBStateMgr(self.__cmd_exec)
+
+    def __handle_add(self, context):
+        if self.__timer is None:
+            self.__timer = context.window_manager.event_timer_add(
+                0.1, context.window)
+            context.window_manager.modal_handler_add(self)
+        MUV_UVBBRenderer.handle_add(self, context)
+
+    def __handle_remove(self, context):
+        MUV_UVBBRenderer.handle_remove(self, context)
+        if self.__timer is not None:
+            context.window_manager.event_timer_remove(self.__timer)
+            self.__timer = None
 
     def __get_uv_info(self, context):
         """
@@ -718,6 +724,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         props = context.scene.muv_props.uvbb
         muv_common.redraw_all_areas()
         if props.running is False:
+            self.__handle_remove(context)
             return {'FINISHED'}
         if event.type == 'TIMER':
             trans_mat = self.__cmd_exec.execute()
@@ -730,25 +737,23 @@ class MUV_UVBBUpdater(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.uvbb
-        if props.running == False:
-            props.uv_info_ini = self.__get_uv_info(context)
-            if props.uv_info_ini == None:
-                return {'CANCELLED'}
-            props.ctrl_points_ini = self.__get_ctrl_point(context, props.uv_info_ini)
-            trans_mat = self.__cmd_exec.execute()
-            # Update is needed in order to display control point
-            self.__update_uvs(context, props.uv_info_ini, trans_mat)
-            props.ctrl_points = self.__update_ctrl_point(
-                context, props.ctrl_points_ini, trans_mat)
-            MUV_UVBBRenderer.handle_add(self, context)
-            props.running = True
-        else:
-            MUV_UVBBRenderer.handle_remove(self, context)
-            props.running = False
-        if context.area:
-            context.area.tag_redraw()
 
-        return {'FINISHED'}
+        if props.running == True:
+            props.running = False
+            return {'FINISHED'}
+
+        props.uv_info_ini = self.__get_uv_info(context)
+        if props.uv_info_ini == None:
+            return {'CANCELLED'}
+        props.ctrl_points_ini = self.__get_ctrl_point(context, props.uv_info_ini)
+        trans_mat = self.__cmd_exec.execute()
+        # Update is needed in order to display control point
+        self.__update_uvs(context, props.uv_info_ini, trans_mat)
+        props.ctrl_points = self.__update_ctrl_point(
+            context, props.ctrl_points_ini, trans_mat)
+        self.__handle_add(context)
+        props.running = True
+        return {'RUNNING_MODAL'}
 
 
 class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
