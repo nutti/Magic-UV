@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
@@ -110,6 +110,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     @staticmethod
     def draw_texture(self, context):
         sc = context.scene
+        prefs = prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
         # no textures are selected
         if sc.muv_texproj_tex_image == "None":
@@ -132,7 +133,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
         bgl.glEnable(bgl.GL_BLEND)
         bgl.glEnable(bgl.GL_TEXTURE_2D)
         if img.bindcode:
-            bind = img.bindcode
+            bind = img.bindcode[0]
             bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
             bgl.glTexParameteri(
                 bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
@@ -143,7 +144,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
 
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texproj_tex_transparency)
+        bgl.glColor4f(1.0, 1.0, 1.0, prefs.texproj_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
@@ -261,14 +262,20 @@ class OBJECT_PT_TP(bpy.types.Panel):
 
     bl_label = "Texture Projection"
     bl_description = "Texture Projection Menu"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = 'mesh_edit'
+
+    @classmethod
+    def poll(cls, context):
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        return prefs.enable_texproj
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon='PLUGIN')
 
     def draw(self, context):
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        if prefs.enable_texproj is False:
-            return
-
         sc = context.scene
         layout = self.layout
         props = sc.muv_props.texproj
@@ -279,5 +286,4 @@ class OBJECT_PT_TP(bpy.types.Panel):
             layout.label(text="Image: ")
             layout.prop(sc, "muv_texproj_tex_image", text="")
             layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
-            layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
             layout.operator(MUV_TexProjProject.bl_idname, text="Project")

@@ -20,20 +20,20 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti",
-    "version": (4, 1),
+    "author": "Nutti, Mifth, kgeogeo, mem, Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
+    "version": (4, 2),
     "blender": (2, 77, 0),
-    "location": "View3D > U, View3D > Property Panel, ImageEditor > Property Panel, ImageEditor > UVs",
-    "description": "UV Manipulator Tools",
+    "location": "See Add-ons Preferences",
+    "description": "UV Manipulator Tools. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs",
+    "wiki_url": "https://github.com/nutti/Magic-UV/wikil",
     "tracker_url": "https://github.com/nutti/Copy-And-Paste-UV",
     "category": "UV"
 }

@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
@@ -48,9 +48,6 @@ class MUV_PackUV(bpy.types.Operator):
     bl_label = "Pack UV"
     bl_description = "Pack UV (Same UV Islands are integrated)"
     bl_options = {'REGISTER', 'UNDO'}
-
-    __face_to_verts = defaultdict(set)
-    __vert_to_faces = defaultdict(set)
 
     rotate = BoolProperty(
         name="Rotate",

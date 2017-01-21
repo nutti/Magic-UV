@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
@@ -230,22 +230,18 @@ def main_parse(
     # parse all faces
     while True:
         new_parsed_faces = []
-
         if not faces_to_parse:
             break
-
         for face in faces_to_parse:
             face_stuff = all_sorted_faces.get(face)
             new_faces = parse_faces(
                 face, face_stuff, used_verts, used_edges, all_sorted_faces,
                 uv_layer, self)
-
             if new_faces == 'CANCELLED':
                 self.report({'WARNING'}, "More than 2 faces share edge")
                 return None
 
             new_parsed_faces += new_faces
-
         faces_to_parse = new_parsed_faces
 
     return all_sorted_faces

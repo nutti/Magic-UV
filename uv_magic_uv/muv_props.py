@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
@@ -102,44 +102,27 @@ class MUV_WSUVProps():
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
-    scene.muv_uvbb_cp_size = FloatProperty(
-        name="Size",
-        description="Control Point Size",
-        default=6.0,
-        min=3.0,
-        max=100.0)
-    scene.muv_uvbb_cp_react_size = FloatProperty(
-        name="React Size",
-        description="Size event fired",
-        default=10.0,
-        min=3.0,
-        max=100.0)
     scene.muv_uvbb_uniform_scaling = BoolProperty(
         name="Uniform Scaling",
         description="Enable Uniform Scaling",
-        default=False)
+        default=False
+    )
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude.",
         default=0.5,
         min=0.0,
-        max=100.0)
+        max=100.0
+    )
     scene.muv_texproj_tex_image = EnumProperty(
         name="Image",
         description="Texture Image.",
-        items=get_loaded_texture_name)
-    scene.muv_texproj_tex_transparency = FloatProperty(
-        name="Transparency",
-        description="Texture Transparency.",
-        default=0.2,
-        min=0.0,
-        max=1.0)
+        items=get_loaded_texture_name
+    )
 
 
 def clear_props(scene):
     del scene.muv_props
-    del scene.muv_uvbb_cp_size
-    del scene.muv_uvbb_cp_react_size
+    del scene.muv_uvbb_uniform_scaling
     del scene.muv_texproj_tex_magnitude
     del scene.muv_texproj_tex_image
-    del scene.muv_texproj_tex_transparency

@@ -18,8 +18,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
@@ -79,7 +79,6 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         name="V-Constraint",
         description="Keep UV V-axis coordinate",
         default=False)
-
 
     def execute(self, context):
         obj = bpy.context.active_object

@@ -20,14 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "XX XXX 2017"
 
 
 import bpy
 import bgl
 import mathutils
 import bmesh
+from bpy.props import BoolProperty
 import copy
 from enum import IntEnum
 import math
@@ -358,7 +359,8 @@ class MUV_UVBBRenderer(bpy.types.Operator):
         """
         Draw control point
         """
-        cp_size = context.scene.muv_uvbb_cp_size
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        cp_size = prefs.uvbb_cp_size
         offset = cp_size / 2
         verts = [
             [pos.x - offset, pos.y - offset],
@@ -434,7 +436,8 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
         """
         Update state
         """
-        cp_react_size = context.scene.muv_uvbb_cp_react_size
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        cp_react_size = prefs.uvbb_cp_react_size
         is_uscaling = context.scene.muv_uvbb_uniform_scaling
         if event.type == 'LEFTMOUSE':
             if event.value == 'PRESS':
@@ -668,17 +671,17 @@ class MUV_UVBBUpdater(bpy.types.Operator):
                 top = uv.y
 
         points = [
-                mathutils.Vector(((left + right) * 0.5, (top + bottom) * 0.5, 0.0)),
-                mathutils.Vector((left, top, 0.0)),
-                mathutils.Vector((left, (top + bottom) * 0.5, 0.0)),
-                mathutils.Vector((left, bottom, 0.0)),
-                mathutils.Vector(((left + right) * 0.5, top, 0.0)),
-                mathutils.Vector(((left + right) * 0.5, bottom, 0.0)),
-                mathutils.Vector((right, top, 0.0)),
-                mathutils.Vector((right, (top + bottom) * 0.5, 0.0)),
-                mathutils.Vector((right, bottom, 0.0)),
-                mathutils.Vector(((left + right) * 0.5, top + 0.03, 0.0))
-                ]
+            mathutils.Vector(((left + right) * 0.5, (top + bottom) * 0.5, 0.0)),
+            mathutils.Vector((left, top, 0.0)),
+            mathutils.Vector((left, (top + bottom) * 0.5, 0.0)),
+            mathutils.Vector((left, bottom, 0.0)),
+            mathutils.Vector(((left + right) * 0.5, top, 0.0)),
+            mathutils.Vector(((left + right) * 0.5, bottom, 0.0)),
+            mathutils.Vector((right, top, 0.0)),
+            mathutils.Vector((right, (top + bottom) * 0.5, 0.0)),
+            mathutils.Vector((right, bottom, 0.0)),
+            mathutils.Vector(((left + right) * 0.5, top + 0.03, 0.0))
+        ]
 
         return points
 
@@ -755,16 +758,22 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
 
     bl_space_type = 'IMAGE_EDITOR'
     bl_region_type = 'UI'
-    bl_label = 'UV Bounding Box'
+    bl_label = "UV Bounding Box"
+    bl_context = 'mesh_edit'
+
+    @classmethod
+    def poll(cls, context):
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        return prefs.enable_uvbb
+
+    def draw_header(self, context):
+        layout = self.layout
+        layout.label(text="", icon='PLUGIN')
 
     def draw(self, context):
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        if prefs.enable_uvbb is False:
-            return
         sc = context.scene
         props = sc.muv_props.uvbb
         layout = self.layout
-        layout.label(text="", icon='PLUGIN')
         if props.running == False:
             layout.operator(
                 MUV_UVBBUpdater.bl_idname, text="Display UV Bounding Box",
@@ -773,7 +782,4 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
             layout.operator(
                 MUV_UVBBUpdater.bl_idname, text="Hide UV Bounding Box",
                 icon='PAUSE')
-            layout.label(text="Control Point")
-            layout.prop(sc, "muv_uvbb_cp_size", text="Size")
-            layout.prop(sc, "muv_uvbb_cp_react_size", text="React Size")
-            layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
+        layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")

@@ -46,7 +46,6 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
         obj = context.active_object
         return (obj and obj.type == 'MESH')
 
-
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
