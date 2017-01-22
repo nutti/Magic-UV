@@ -28,6 +28,7 @@ import bpy
 from bpy.props import *
 from bpy.types import AddonPreferences
 
+
 class MUV_Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
@@ -36,12 +37,10 @@ class MUV_Preferences(AddonPreferences):
     # enable/disable switcher
     enable_texproj = BoolProperty(
         name="Texture Projection",
-        default=True,
-    )
+        default=True)
     enable_uvbb = BoolProperty(
         name="Bounding Box",
-        default=True,
-    )
+        default=True)
 
     # for Texture Projection
     texproj_tex_transparency = FloatProperty(
@@ -49,8 +48,7 @@ class MUV_Preferences(AddonPreferences):
         description="Texture Transparency.",
         default=0.2,
         min=0.0,
-        max=1.0
-    )
+        max=1.0)
 
     # for UV Bounding Box
     uvbb_cp_size = FloatProperty(
@@ -58,15 +56,13 @@ class MUV_Preferences(AddonPreferences):
         description="Control Point Size",
         default=6.0,
         min=3.0,
-        max=100.0
-    )
+        max=100.0)
     uvbb_cp_react_size = FloatProperty(
         name="React Size",
         description="Size event fired",
         default=10.0,
         min=3.0,
-        max=100.0
-    )
+        max=100.0)
 
     def draw(self, context):
         layout = self.layout

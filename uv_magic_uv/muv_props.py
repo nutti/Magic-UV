@@ -27,6 +27,7 @@ __date__ = "21 Jan 2017"
 import bpy
 from bpy.props import FloatProperty, EnumProperty, BoolProperty
 
+
 DEBUG = False
 
 
@@ -105,20 +106,17 @@ def init_props(scene):
     scene.muv_uvbb_uniform_scaling = BoolProperty(
         name="Uniform Scaling",
         description="Enable Uniform Scaling",
-        default=False
-    )
+        default=False)
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude.",
         default=0.5,
         min=0.0,
-        max=100.0
-    )
+        max=100.0)
     scene.muv_texproj_tex_image = EnumProperty(
         name="Image",
         description="Texture Image.",
-        items=get_loaded_texture_name
-    )
+        items=get_loaded_texture_name)
 
 
 def clear_props(scene):

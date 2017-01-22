@@ -48,8 +48,7 @@ class MUV_MirrorUV(bpy.types.Operator):
         ),
         name="Axis",
         description="Mirror Axis",
-        default='X'
-    )
+        default='X')
     error = FloatProperty(
         name="Error",
         description="Error threshold",
@@ -57,8 +56,7 @@ class MUV_MirrorUV(bpy.types.Operator):
         min=0.0,
         max=100.0,
         soft_min=0.0,
-        soft_max=1.0
-    )
+        soft_max=1.0)
 
     def __is_vector_similar(self, v1, v2, error):
         """
@@ -114,8 +112,7 @@ class MUV_MirrorUV(bpy.types.Operator):
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
+            self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 
@@ -123,7 +120,6 @@ class MUV_MirrorUV(bpy.types.Operator):
         for f_dst in faces:
             count = len(f_dst.verts)
             for f_src in bm.faces:
-
                 # check if this is a candidate to do mirror UV
                 if f_src.index == f_dst.index:
                     continue

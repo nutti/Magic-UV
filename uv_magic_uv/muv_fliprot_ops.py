@@ -44,7 +44,6 @@ class MUV_FlipRot(bpy.types.Operator):
         name="Flip UV",
         description="Flip UV...",
         default=False)
-
     rotate = IntProperty(
         default=0,
         name="Rotate UV",
@@ -98,6 +97,7 @@ class MUV_FlipRot(bpy.types.Operator):
             for l, duv, dpuv in zip(bm.faces[idx].loops, duvs_fr, dpuvs_fr):
                 l[uv_layer].uv = duv
                 l[uv_layer].pin_uv = dpuv
+
         self.report({'INFO'}, "%d face(s) are flipped/rotated" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)

@@ -26,6 +26,7 @@ __date__ = "21 Jan 2017"
 
 import bpy
 import bmesh
+from bpy.props import StringProperty
 from mathutils import Vector
 from . import muv_common
 
@@ -39,7 +40,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
     bl_label = "Preserve UV Aspect"
     bl_options = {'REGISTER', 'UNDO'}
 
-    dest_img_name = bpy.props.StringProperty(options={'HIDDEN'})
+    dest_img_name = StringProperty(options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
@@ -72,7 +73,9 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
 
         for img in info.keys():
             src_img = img
-            ratio = Vector((dest_img.size[0] / src_img.size[0], dest_img.size[1] / src_img.size[1]))
+            ratio = Vector((
+                dest_img.size[0] / src_img.size[0],
+                dest_img.size[1] / src_img.size[1]))
             origin = Vector((100000.0, 100000.0))
             for f in info[img]['faces']:
                 for l in f.loops:

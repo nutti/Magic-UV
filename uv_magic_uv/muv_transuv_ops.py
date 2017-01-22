@@ -166,7 +166,8 @@ class MUV_TransUVPaste(bpy.types.Operator):
 
 
 def main_parse(
-    self, active_obj, bm, uv_layer, sel_faces, active_face, active_face_nor):
+        self, active_obj, bm, uv_layer, sel_faces,
+        active_face, active_face_nor):
     all_sorted_faces = OrderedDict()  # This is the main stuff
 
     used_verts = set()
@@ -248,8 +249,8 @@ def main_parse(
 
 
 def parse_faces(
-    check_face, face_stuff, used_verts, used_edges, all_sorted_faces,
-    uv_layer, self):
+        check_face, face_stuff, used_verts, used_edges, all_sorted_faces,
+        uv_layer, self):
     """recurse faces around the new_grow only"""
 
     new_shared_faces = []

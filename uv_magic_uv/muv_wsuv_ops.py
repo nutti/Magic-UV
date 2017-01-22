@@ -74,8 +74,7 @@ class MUV_WSUVMeasure(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
+            self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 

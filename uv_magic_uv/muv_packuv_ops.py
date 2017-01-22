@@ -53,14 +53,12 @@ class MUV_PackUV(bpy.types.Operator):
         name="Rotate",
         description="Rotate option used by default pack UV function",
         default=False)
-
     margin = FloatProperty(
         name="Margin",
         description="Margin used by default pack UV function",
         min=0,
         max=1,
         default=0.001)
-
     allowable_center_deviation = FloatVectorProperty(
         name="Allowable Center Deviation",
         description="Allowable center deviation to judge same UV island",
@@ -68,7 +66,6 @@ class MUV_PackUV(bpy.types.Operator):
         max=0.1,
         default=(0.001, 0.001),
         size=2)
-
     allowable_size_deviation = FloatVectorProperty(
         name="Allowable Size Deviation",
         description="Allowable sizse deviation to judge same UV island",

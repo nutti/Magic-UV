@@ -110,7 +110,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     @staticmethod
     def draw_texture(self, context):
         sc = context.scene
-        prefs = prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
         # no textures are selected
         if sc.muv_texproj_tex_image == "None":
@@ -123,8 +123,13 @@ class MUV_TexProjRenderer(bpy.types.Operator):
             [rect.x0, rect.y1],
             [rect.x1, rect.y1],
             [rect.x1, rect.y0]
-            ]
-        tex_coords = [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0]]
+        ]
+        tex_coords = [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 0.0]
+        ]
 
         # get texture to be renderred
         img = bpy.data.images[sc.muv_texproj_tex_image]
@@ -229,17 +234,21 @@ class MUV_TexProjProject(bpy.types.Operator):
         sel_faces = [f for f in bm.faces if f.select]
 
         # transform 3d space to screen region
-        v_screen = [view3d_utils.location_3d_to_region_2d(
-                        region,
-                        space.region_3d,
-                        world_mat * l.vert.co)
-                        for f in sel_faces for l in f.loops]
+        v_screen = [
+            view3d_utils.location_3d_to_region_2d(
+                region,
+                space.region_3d,
+                world_mat * l.vert.co)
+            for f in sel_faces for l in f.loops
+        ]
 
         # transform screen region to canvas
-        v_canvas = [region_to_canvas(
-                        region, v,
-                        get_canvas(bpy.context, sc.muv_texproj_tex_magnitude))
-                        for v in v_screen]
+        v_canvas = [
+            region_to_canvas(
+                region, v,
+                get_canvas(bpy.context, sc.muv_texproj_tex_magnitude))
+            for v in v_screen
+        ]
 
         # project texture to object
         i = 0;
@@ -280,9 +289,11 @@ class OBJECT_PT_TP(bpy.types.Panel):
         layout = self.layout
         props = sc.muv_props.texproj
         if props.running == False:
-            layout.operator(MUV_TexProjStart.bl_idname, text="Start", icon='PLAY')
+            layout.operator(
+                MUV_TexProjStart.bl_idname, text="Start", icon='PLAY')
         else:
-            layout.operator(MUV_TexProjStop.bl_idname, text="Stop", icon='PAUSE')
+            layout.operator(
+                MUV_TexProjStop.bl_idname, text="Stop", icon='PAUSE')
             layout.label(text="Image: ")
             layout.prop(sc, "muv_texproj_tex_image", text="")
             layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")

@@ -28,9 +28,6 @@ import bpy
 from . import muv_props
 
 
-PHI = 3.1415926535
-
-
 def debug_print(*s):
     """
     Print message to console in debugging mode
