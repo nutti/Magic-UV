@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "21 Jan 2017"
+__date__ = "28 Jan 2017"
 
 
 import bpy

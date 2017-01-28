@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "21 Jan 2017"
+__date__ = "28 Jan 2017"
 
 
 import bpy
@@ -117,6 +117,20 @@ def init_props(scene):
         name="Image",
         description="Texture Image.",
         items=get_loaded_texture_name)
+    scene.muv_texproj_tex_transparency = FloatProperty(
+        name="Transparency",
+        description="Texture Transparency.",
+        default=0.2,
+        min=0.0,
+        max=1.0)
+    scene.muv_texproj_adjust_window = BoolProperty(
+        name="Adjust Window",
+        description="Size of renderered texture is fitted to window.",
+        default=True)
+    scene.muv_texproj_apply_tex_aspect = BoolProperty(
+        name="Texture Aspect Ratio",
+        description="Apply Texture Aspect ratio to displayed texture.",
+        default=True)
 
 
 def clear_props(scene):
@@ -124,3 +138,6 @@ def clear_props(scene):
     del scene.muv_uvbb_uniform_scaling
     del scene.muv_texproj_tex_magnitude
     del scene.muv_texproj_tex_image
+    del scene.muv_texproj_tex_transparency
+    del scene.muv_texproj_adjust_window
+    del scene.muv_texproj_apply_tex_aspect

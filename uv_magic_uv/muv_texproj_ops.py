@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "21 Jan 2017"
+__date__ = "28 Jan 2017"
 
 
 import bpy
@@ -42,16 +42,38 @@ def get_canvas(context, magnitude):
     """
     Get canvas to be renderred texture
     """
+    sc = context.scene
+    prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
-    PAD_X = 20
-    PAD_Y = 20
-    width = context.region.width
-    height = context.region.height
+    region_w = context.region.width
+    region_h = context.region.height
+    canvas_w = region_w - prefs.texproj_canvas_padding[0] * 2.0
+    canvas_h = region_h - prefs.texproj_canvas_padding[1] * 2.0
 
-    center_x = width * 0.5
-    center_y = height * 0.5
-    len_x = (width - PAD_X * 2.0) * magnitude
-    len_y = (height - PAD_Y * 2.0) * magnitude
+    img = bpy.data.images[sc.muv_texproj_tex_image]
+    tex_w = img.size[0]
+    tex_h = img.size[1]
+
+    center_x = region_w * 0.5
+    center_y = region_h * 0.5
+
+    if sc.muv_texproj_adjust_window:
+        ratio_x = canvas_w / tex_w
+        ratio_y = canvas_h / tex_h
+        if sc.muv_texproj_apply_tex_aspect:
+            ratio = ratio_y if ratio_x > ratio_y else ratio_x
+            len_x = ratio * tex_w
+            len_y = ratio * tex_h
+        else:
+            len_x = canvas_w
+            len_y = canvas_h
+    else:
+        if sc.muv_texproj_apply_tex_aspect:
+            len_x = tex_w * magnitude
+            len_y = tex_h * magnitude
+        else:
+            len_x = region_w * magnitude
+            len_y = region_h * magnitude
 
     x0 = int(center_x - len_x * 0.5)
     y0 = int(center_y - len_y * 0.5)
@@ -110,11 +132,13 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     @staticmethod
     def draw_texture(self, context):
         sc = context.scene
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
         # no textures are selected
         if sc.muv_texproj_tex_image == "None":
             return
+
+        # get texture to be renderred
+        img = bpy.data.images[sc.muv_texproj_tex_image]
 
         # setup rendering region
         rect = get_canvas(context, sc.muv_texproj_tex_magnitude)
@@ -131,9 +155,6 @@ class MUV_TexProjRenderer(bpy.types.Operator):
             [1.0, 0.0]
         ]
 
-        # get texture to be renderred
-        img = bpy.data.images[sc.muv_texproj_tex_image]
-
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
         bgl.glEnable(bgl.GL_TEXTURE_2D)
@@ -149,7 +170,7 @@ class MUV_TexProjRenderer(bpy.types.Operator):
 
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, prefs.texproj_tex_transparency)
+        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texproj_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
@@ -294,7 +315,10 @@ class OBJECT_PT_TP(bpy.types.Panel):
         else:
             layout.operator(
                 MUV_TexProjStop.bl_idname, text="Stop", icon='PAUSE')
-            layout.label(text="Image: ")
-            layout.prop(sc, "muv_texproj_tex_image", text="")
-            layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
+            layout.prop(sc, "muv_texproj_tex_image", text="Image")
+            layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
+            layout.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
+            if not sc.muv_texproj_adjust_window:
+                layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
+            layout.prop(sc, "muv_texproj_apply_tex_aspect", text="Texture Aspect Ratio")
             layout.operator(MUV_TexProjProject.bl_idname, text="Project")

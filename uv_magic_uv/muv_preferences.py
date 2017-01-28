@@ -21,7 +21,7 @@
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.2"
-__date__ = "21 Jan 2017"
+__date__ = "28 Jan 2017"
 
 
 import bpy
@@ -43,12 +43,13 @@ class MUV_Preferences(AddonPreferences):
         default=True)
 
     # for Texture Projection
-    texproj_tex_transparency = FloatProperty(
-        name="Transparency",
-        description="Texture Transparency.",
-        default=0.2,
+    texproj_canvas_padding = FloatVectorProperty(
+        name="Canvas Padding",
+        description="Canvas Padding.",
+        size=2,
+        max=50.0,
         min=0.0,
-        max=1.0)
+        default=(20.0, 20.0))
 
     # for UV Bounding Box
     uvbb_cp_size = FloatProperty(
@@ -76,7 +77,7 @@ class MUV_Preferences(AddonPreferences):
             sp = sp.split(percentage=0.3)
             col = sp.column()
             col.label("Texture Display: ")
-            col.prop(self, "texproj_tex_transparency")
+            col.prop(self, "texproj_canvas_padding")
 
         layout.prop(self, "enable_uvbb")
         if self.enable_uvbb:
@@ -87,7 +88,6 @@ class MUV_Preferences(AddonPreferences):
             col.label("Control Point: ")
             col.prop(self, "uvbb_cp_size")
             col.prop(self, "uvbb_cp_react_size")
-
 
         layout.label("Description:")
         column = layout.column(align=True)
