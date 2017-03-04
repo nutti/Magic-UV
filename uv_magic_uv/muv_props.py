@@ -20,12 +20,13 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
 from bpy.props import FloatProperty, EnumProperty, BoolProperty
+
 
 DEBUG = False
 
@@ -102,18 +103,6 @@ class MUV_WSUVProps():
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
-    scene.muv_uvbb_cp_size = FloatProperty(
-        name="Size",
-        description="Control Point Size",
-        default=6.0,
-        min=3.0,
-        max=100.0)
-    scene.muv_uvbb_cp_react_size = FloatProperty(
-        name="React Size",
-        description="Size event fired",
-        default=10.0,
-        min=3.0,
-        max=100.0)
     scene.muv_uvbb_uniform_scaling = BoolProperty(
         name="Uniform Scaling",
         description="Enable Uniform Scaling",
@@ -134,12 +123,21 @@ def init_props(scene):
         default=0.2,
         min=0.0,
         max=1.0)
+    scene.muv_texproj_adjust_window = BoolProperty(
+        name="Adjust Window",
+        description="Size of renderered texture is fitted to window.",
+        default=True)
+    scene.muv_texproj_apply_tex_aspect = BoolProperty(
+        name="Texture Aspect Ratio",
+        description="Apply Texture Aspect ratio to displayed texture.",
+        default=True)
 
 
 def clear_props(scene):
     del scene.muv_props
-    del scene.muv_uvbb_cp_size
-    del scene.muv_uvbb_cp_react_size
+    del scene.muv_uvbb_uniform_scaling
     del scene.muv_texproj_tex_magnitude
     del scene.muv_texproj_tex_image
     del scene.muv_texproj_tex_transparency
+    del scene.muv_texproj_adjust_window
+    del scene.muv_texproj_apply_tex_aspect

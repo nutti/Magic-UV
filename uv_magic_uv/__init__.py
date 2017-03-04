@@ -20,20 +20,20 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti",
-    "version": (4, 1),
+    "author": "Nutti, Mifth, kgeogeo, mem, Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
+    "version": (4, 2),
     "blender": (2, 77, 0),
-    "location": "View3D > U, View3D > Property Panel, ImageEditor > Property Panel, ImageEditor > UVs",
-    "description": "UV Manipulator Tools",
+    "location": "See Add-ons Preferences",
+    "description": "UV Manipulator Tools. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs",
+    "wiki_url": "https://github.com/nutti/Magic-UV/wikil",
     "tracker_url": "https://github.com/nutti/Copy-And-Paste-UV",
     "category": "UV"
 }
@@ -56,6 +56,7 @@ if "bpy" in locals():
     imp.reload(muv_mirroruv_ops)
     imp.reload(muv_wsuv_ops)
     imp.reload(muv_unwrapconst_ops)
+    imp.reload(muv_preserve_uv_aspect)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -73,6 +74,7 @@ else:
     from . import muv_mirroruv_ops
     from . import muv_wsuv_ops
     from . import muv_unwrapconst_ops
+    from . import muv_preserve_uv_aspect
 
 import bpy
 
@@ -84,9 +86,14 @@ def view3d_uvmap_menu_fn(self, context):
     self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="PLUGIN")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
-    self.layout.operator(muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="PLUGIN")
+    self.layout.operator(
+        muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="PLUGIN")
     self.layout.menu(muv_menu.MUV_WSUVMenu.bl_idname, icon="PLUGIN")
-    self.layout.operator(muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='PLUGIN')
+    self.layout.operator(
+        muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='PLUGIN')
+    self.layout.menu(
+        muv_preserve_uv_aspect.MUV_PreserveUVAspectMenu.bl_idname,
+        icon='PLUGIN')
 
 
 def image_uvs_menu_fn(self, context):

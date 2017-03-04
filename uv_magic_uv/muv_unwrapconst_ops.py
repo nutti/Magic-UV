@@ -18,8 +18,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
@@ -44,24 +44,21 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         description="Unwrapping method",
         items=[
             ('ANGLE_BASED', 'Angle Based', 'Angle Based'),
-            ('CONFORMAL', 'Conformal', 'Conformal')],
+            ('CONFORMAL', 'Conformal', 'Conformal')
+        ],
         default='ANGLE_BASED')
-
     fill_holes = BoolProperty(
         name="Fill Holes",
         description="Virtual fill holes in meshes before unwrapping",
         default=True)
-
     correct_aspect = BoolProperty(
         name="Correct Aspect",
         description="Map UVs taking image aspect ratio into account",
         default=True)
-
     use_subsurf_data = BoolProperty(
         name="Use Subsurf Modifier",
         description="Map UVs taking vertex position after subsurf into account",
         default=False)
-
     margin = FloatProperty(
         name="Margin",
         description="Space between islands",
@@ -74,12 +71,10 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         name="U-Constraint",
         description="Keep UV U-axis coordinate",
         default=False)
-
     v_const = BoolProperty(
         name="V-Constraint",
         description="Keep UV V-axis coordinate",
         default=False)
-
 
     def execute(self, context):
         obj = bpy.context.active_object
@@ -88,8 +83,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
+            self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 

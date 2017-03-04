@@ -20,13 +20,13 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
 import bmesh
-from bpy.props import BoolProperty, IntProperty, EnumProperty
+from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
 from . import muv_common
 
 
@@ -40,7 +40,7 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     bl_description = "Copy UV data by selection sequence (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(options={'HIDDEN'})
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
@@ -49,8 +49,8 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         else:
             self.report(
                 {'INFO'},
-                "Copy UV coordinate (selection sequence) (UV map:" +
-                self.uv_map + ")")
+                "Copy UV coordinate (selection sequence) (UV map:%s)"
+                % (self.uv_map))
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -116,21 +116,19 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     bl_description = "Paste UV coordinate by selection sequence (Operation)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = bpy.props.StringProperty(options={'HIDDEN'})
-
+    uv_map = StringProperty(options={'HIDDEN'})
     strategy = EnumProperty(
         name="Strategy",
         description="Paste Strategy",
         items=[
             ('N_N', 'N:N', 'Number of faces must be equal to source'),
-            ('N_M', 'N:M', 'Number of faces must not be equal to source')],
+            ('N_M', 'N:M', 'Number of faces must not be equal to source')
+        ],
         default="N_M")
-
     flip_copied_uv = BoolProperty(
         name="Flip Copied UV",
         description="Flip Copied UV...",
         default=False)
-
     rotate_copied_uv = IntProperty(
         default=0,
         name="Rotate Copied UV",
@@ -147,8 +145,9 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         else:
             self.report(
                 {'INFO'},
-                "Paste UV coordinate (selection sequence) (UV map:" +
-                self.uv_map + ")")
+                "Paste UV coordinate (selection sequence) (UV map:%s)"
+                % (self.uv_map))
+
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -157,8 +156,8 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         # get UV layer
         if self.uv_map == "":
             if not bm.loops.layers.uv:
-                self.report({'WARNING'},
-                    "Object must have more than one UV map")
+                self.report(
+                    {'WARNING'}, "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
         else:
@@ -181,9 +180,9 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
             self.report(
                 {'WARNING'},
-                "Number of selected faces is different from copied faces" +
-                "(src:%d, dest:%d)" %
-                (len(props.src_uvs), len(dest_uvs)))
+                "Number of selected faces is different from copied faces "
+                + "(src:%d, dest:%d)"
+                % (len(props.src_uvs), len(dest_uvs)))
             return {'CANCELLED'}
 
         # paste
@@ -218,11 +217,13 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
             for l, suv, spuv in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr):
                 l[uv_layer].uv = suv
                 l[uv_layer].pin_uv = spuv
+
         self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
+
 
 class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
     """

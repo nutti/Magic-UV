@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
@@ -49,21 +49,16 @@ class MUV_PackUV(bpy.types.Operator):
     bl_description = "Pack UV (Same UV Islands are integrated)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    __face_to_verts = defaultdict(set)
-    __vert_to_faces = defaultdict(set)
-
     rotate = BoolProperty(
         name="Rotate",
         description="Rotate option used by default pack UV function",
         default=False)
-
     margin = FloatProperty(
         name="Margin",
         description="Margin used by default pack UV function",
         min=0,
         max=1,
         default=0.001)
-
     allowable_center_deviation = FloatVectorProperty(
         name="Allowable Center Deviation",
         description="Allowable center deviation to judge same UV island",
@@ -71,7 +66,6 @@ class MUV_PackUV(bpy.types.Operator):
         max=0.1,
         default=(0.001, 0.001),
         size=2)
-
     allowable_size_deviation = FloatVectorProperty(
         name="Allowable Size Deviation",
         description="Allowable sizse deviation to judge same UV island",

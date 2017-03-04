@@ -20,8 +20,8 @@
 
 __author__ = "McBuff, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
@@ -74,8 +74,7 @@ class MUV_WSUVMeasure(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
+            self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 

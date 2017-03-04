@@ -20,13 +20,14 @@
 
 __author__ = "kgeogeo, mem, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
 import bmesh
 from mathutils import Vector
+from bpy_extras import view3d_utils
 
 
 class MUV_MVUV(bpy.types.Operator):
@@ -38,13 +39,14 @@ class MUV_MVUV(bpy.types.Operator):
     bl_label = "Move the UV from View3D"
     bl_options = {'REGISTER', 'UNDO'}
 
-    __topology_dict = []
-    __prev_mouse = Vector((0.0, 0.0))
-    __offset_uv = Vector((0.0, 0.0))
-    __prev_offset_uv = Vector((0.0, 0.0))
-    __first_time = True
-    __ini_uvs = []
-    __running = False
+    def __init__(self):
+        self.__topology_dict = []
+        self.__prev_mouse = Vector((0.0, 0.0))
+        self.__offset_uv = Vector((0.0, 0.0))
+        self.__prev_offset_uv = Vector((0.0, 0.0))
+        self.__first_time = True
+        self.__ini_uvs = []
+        self.__running = False
 
     def __find_uv(self, context):
         bm = bmesh.from_edit_mesh(context.object.data)

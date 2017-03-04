@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
@@ -166,7 +166,8 @@ class MUV_TransUVPaste(bpy.types.Operator):
 
 
 def main_parse(
-    self, active_obj, bm, uv_layer, sel_faces, active_face, active_face_nor):
+        self, active_obj, bm, uv_layer, sel_faces,
+        active_face, active_face_nor):
     all_sorted_faces = OrderedDict()  # This is the main stuff
 
     used_verts = set()
@@ -230,30 +231,26 @@ def main_parse(
     # parse all faces
     while True:
         new_parsed_faces = []
-
         if not faces_to_parse:
             break
-
         for face in faces_to_parse:
             face_stuff = all_sorted_faces.get(face)
             new_faces = parse_faces(
                 face, face_stuff, used_verts, used_edges, all_sorted_faces,
                 uv_layer, self)
-
             if new_faces == 'CANCELLED':
                 self.report({'WARNING'}, "More than 2 faces share edge")
                 return None
 
             new_parsed_faces += new_faces
-
         faces_to_parse = new_parsed_faces
 
     return all_sorted_faces
 
 
 def parse_faces(
-    check_face, face_stuff, used_verts, used_edges, all_sorted_faces,
-    uv_layer, self):
+        check_face, face_stuff, used_verts, used_edges, all_sorted_faces,
+        uv_layer, self):
     """recurse faces around the new_grow only"""
 
     new_shared_faces = []

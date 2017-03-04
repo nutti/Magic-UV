@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.1"
-__date__ = "13 Nov 2016"
+__version__ = "4.2"
+__date__ = "4 Mar 2017"
 
 
 import bpy
@@ -42,10 +42,16 @@ class MUV_CPUVMenu(bpy.types.Menu):
     bl_description = "Copy and Paste UV coordinate"
 
     def draw(self, context):
-        self.layout.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, icon="PLUGIN")
-        self.layout.menu(muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname, icon="PLUGIN")
-        self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname, icon="PLUGIN")
-        self.layout.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
+            icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
+            icon="PLUGIN")
 
 
 class MUV_CPUVObjMenu(bpy.types.Menu):
@@ -58,8 +64,10 @@ class MUV_CPUVObjMenu(bpy.types.Menu):
     bl_description = "Copy and Paste UV coordinate per object"
 
     def draw(self, context):
-        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjCopyUVMenu.bl_idname, icon="PLUGIN")
-        self.layout.menu(muv_cpuv_ops.MUV_CPUVObjPasteUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_ops.MUV_CPUVObjCopyUVMenu.bl_idname, icon="PLUGIN")
+        self.layout.menu(
+            muv_cpuv_ops.MUV_CPUVObjPasteUVMenu.bl_idname, icon="PLUGIN")
 
 
 class MUV_TransUVMenu(bpy.types.Menu):
@@ -72,8 +80,10 @@ class MUV_TransUVMenu(bpy.types.Menu):
     bl_description = "Transfer UV coordinate"
 
     def draw(self, context):
-        self.layout.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_transuv_ops.MUV_TransUVCopy.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_transuv_ops.MUV_TransUVPaste.bl_idname, icon="PLUGIN")
 
 
 class MUV_TexLockMenu(bpy.types.Menu):
@@ -86,10 +96,14 @@ class MUV_TexLockMenu(bpy.types.Menu):
     bl_description = "Lock texture when vertices of mesh (Preserve UV)"
 
     def draw(self, context):
-        self.layout.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_texlock_ops.MUV_TexLockStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_texlock_ops.MUV_TexLockStop.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_texlock_ops.MUV_TexLockIntrStart.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_texlock_ops.MUV_TexLockIntrStop.bl_idname, icon="PLUGIN")
 
 
 class MUV_WSUVMenu(bpy.types.Menu):
@@ -102,5 +116,7 @@ class MUV_WSUVMenu(bpy.types.Menu):
     bl_description = ""
 
     def draw(self, context):
-        self.layout.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, icon="PLUGIN")
-        self.layout.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, icon="PLUGIN")
+        self.layout.operator(
+            muv_wsuv_ops.MUV_WSUVApply.bl_idname, icon="PLUGIN")
