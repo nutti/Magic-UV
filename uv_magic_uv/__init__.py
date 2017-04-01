@@ -20,14 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti, Mifth, kgeogeo, mem, Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
-    "version": (4, 2),
+    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
+    "version": (4, 3),
     "blender": (2, 77, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",

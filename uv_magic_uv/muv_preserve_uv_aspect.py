@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 import bpy
@@ -45,7 +45,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.active_object
-        return (obj and obj.type == 'MESH')
+        return obj and obj.type == 'MESH'
 
     def execute(self, context):
         obj = context.active_object
@@ -71,7 +71,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
                 info[f[tex_layer].image]['faces'] = []
             info[f[tex_layer].image]['faces'].append(f)
 
-        for img in info.keys():
+        for img in info:
             src_img = img
             ratio = Vector((
                 dest_img.size[0] / src_img.size[0],
@@ -85,7 +85,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
             info[img]['ratio'] = ratio
             info[img]['origin'] = origin
 
-        for img in info.keys():
+        for img in info:
             for f in info[img]['faces']:
                 f[tex_layer].image = dest_img
                 for l in f.loops:
@@ -110,7 +110,7 @@ class MUV_PreserveUVAspectMenu(bpy.types.Menu):
     bl_label = "Preserve UV Aspect"
     bl_description = "Preserve UV Aspect"
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
         # create sub menu
         for key in bpy.data.images.keys():

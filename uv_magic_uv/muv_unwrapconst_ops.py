@@ -18,8 +18,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 import bpy
@@ -57,7 +57,8 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         default=True)
     use_subsurf_data = BoolProperty(
         name="Use Subsurf Modifier",
-        description="Map UVs taking vertex position after subsurf into account",
+        description="""Map UVs taking vertex position after subsurf
+                       into account""",
         default=False)
     margin = FloatProperty(
         name="Margin",
@@ -76,7 +77,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         description="Keep UV V-axis coordinate",
         default=False)
 
-    def execute(self, context):
+    def execute(self, _):
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:

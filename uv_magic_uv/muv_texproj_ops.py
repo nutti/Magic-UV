@@ -20,17 +20,17 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
+from collections import namedtuple
 
 import bpy
 import bgl
 import bmesh
 import mathutils
 from bpy_extras import view3d_utils
-from bpy.props import *
-from collections import namedtuple
+
 from . import muv_common
 
 
@@ -91,7 +91,7 @@ def rect_to_rect2(rect):
     return Rect2(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0)
 
 
-def region_to_canvas(region, rg_vec, canvas):
+def region_to_canvas(rg_vec, canvas):
     """
     Convert screen region to canvas
     """
@@ -117,20 +117,20 @@ class MUV_TexProjRenderer(bpy.types.Operator):
     __handle = None
 
     @staticmethod
-    def handle_add(self, context):
+    def handle_add(obj, context):
         MUV_TexProjRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
             MUV_TexProjRenderer.draw_texture,
-            (self, context), 'WINDOW', 'POST_PIXEL')
+            (obj, context), 'WINDOW', 'POST_PIXEL')
 
     @staticmethod
-    def handle_remove(self, context):
+    def handle_remove():
         if MUV_TexProjRenderer.__handle is not None:
             bpy.types.SpaceView3D.draw_handler_remove(
                 MUV_TexProjRenderer.__handle, 'WINDOW')
             MUV_TexProjRenderer.__handle = None
 
     @staticmethod
-    def draw_texture(self, context):
+    def draw_texture(_, context):
         sc = context.scene
 
         # no textures are selected
@@ -211,7 +211,7 @@ class MUV_TexProjStop(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.texproj
         if props.running is True:
-            MUV_TexProjRenderer.handle_remove(self, context)
+            MUV_TexProjRenderer.handle_remove()
             props.running = False
         if context.area:
             context.area.tag_redraw()
@@ -235,7 +235,7 @@ class MUV_TexProjProject(bpy.types.Operator):
         if sc.muv_texproj_tex_image == "None":
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
-        area, region, space = muv_common.get_space(
+        _, region, space = muv_common.get_space(
             'VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         # get faces to be texture projected
@@ -266,13 +266,13 @@ class MUV_TexProjProject(bpy.types.Operator):
         # transform screen region to canvas
         v_canvas = [
             region_to_canvas(
-                region, v,
+                v,
                 get_canvas(bpy.context, sc.muv_texproj_tex_magnitude))
             for v in v_screen
         ]
 
         # project texture to object
-        i = 0;
+        i = 0
         for f in sel_faces:
             f[tex_layer].image = bpy.data.images[sc.muv_texproj_tex_image]
             for l in f.loops:
@@ -301,7 +301,7 @@ class OBJECT_PT_TP(bpy.types.Panel):
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
         return prefs.enable_texproj
 
-    def draw_header(self, context):
+    def draw_header(self, _):
         layout = self.layout
         layout.label(text="", icon='PLUGIN')
 
@@ -309,16 +309,20 @@ class OBJECT_PT_TP(bpy.types.Panel):
         sc = context.scene
         layout = self.layout
         props = sc.muv_props.texproj
-        if props.running == False:
+        if props.running is False:
             layout.operator(
                 MUV_TexProjStart.bl_idname, text="Start", icon='PLAY')
         else:
             layout.operator(
                 MUV_TexProjStop.bl_idname, text="Stop", icon='PAUSE')
             layout.prop(sc, "muv_texproj_tex_image", text="Image")
-            layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
+            layout.prop(
+                sc, "muv_texproj_tex_transparency", text="Transparency"
+            )
             layout.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
             if not sc.muv_texproj_adjust_window:
                 layout.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
-            layout.prop(sc, "muv_texproj_apply_tex_aspect", text="Texture Aspect Ratio")
+            layout.prop(
+                sc, "muv_texproj_apply_tex_aspect", text="Texture Aspect Ratio"
+            )
             layout.operator(MUV_TexProjProject.bl_idname, text="Project")

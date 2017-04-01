@@ -20,14 +20,13 @@
 
 __author__ = "kgeogeo, mem, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 import bpy
 import bmesh
 from mathutils import Vector
-from bpy_extras import view3d_utils
 
 
 class MUV_MVUV(bpy.types.Operator):
@@ -51,8 +50,6 @@ class MUV_MVUV(bpy.types.Operator):
     def __find_uv(self, context):
         bm = bmesh.from_edit_mesh(context.object.data)
         topology_dict = []
-        first = True
-        diff = 0
         uvs = []
         active_uv = bm.loops.layers.uv.active
         for fidx, f in enumerate(bm.faces):
@@ -60,32 +57,12 @@ class MUV_MVUV(bpy.types.Operator):
                 if v.select:
                     uvs.append(f.loops[vidx][active_uv].uv.copy())
                     topology_dict.append([fidx, vidx])
-                    if first:
-                        v1 = v.link_loops[0].vert.co
-                        sv1 = view3d_utils.location_3d_to_region_2d(
-                            context.region,
-                            context.space_data.region_3d,
-                            v1)
-                        v2 = v.link_loops[0].link_loop_next.vert.co
-                        sv2 = view3d_utils.location_3d_to_region_2d(
-                            context.region,
-                            context.space_data.region_3d,
-                            v2)
-                        vres = sv2 - sv1
-                        va = vres.angle(Vector((0.0, 1.0)))
-
-                        uv1 = v.link_loops[0][active_uv].uv
-                        uv2 = v.link_loops[0].link_loop_next[active_uv].uv
-                        uvres = uv2 - uv1
-                        uva = uvres.angle(Vector((0.0,1.0)))
-                        diff = uva - va
-                        first = False
 
         return topology_dict, uvs
 
     @classmethod
     def poll(cls, context):
-        return (context.edit_object)
+        return context.edit_object
 
     def modal(self, context, event):
         if self.__first_time is True:

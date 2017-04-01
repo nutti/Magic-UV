@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 import bpy
@@ -31,7 +31,7 @@ from bpy.props import FloatProperty, EnumProperty, BoolProperty
 DEBUG = False
 
 
-def get_loaded_texture_name(scene, context):
+def get_loaded_texture_name(_, __):
     items = [(key, key, "") for key in bpy.data.images.keys()]
     items.append(("None", "None", ""))
     return items

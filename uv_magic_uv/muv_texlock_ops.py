@@ -20,15 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
+import math
+from math import atan2, cos, sqrt, sin, fabs
 
 import bpy
 import bmesh
 from mathutils import Vector
-import math
-from math import tan, atan2, cos, sqrt, sin, fabs
 from bpy.props import BoolProperty
 from . import muv_common
 
@@ -38,7 +38,7 @@ def get_vco(verts_orig, loop):
     Get vertex original coordinate from loop
     """
     for vo in verts_orig:
-        if vo["vidx"] == loop.vert.index and vo["moved"] == False:
+        if vo["vidx"] == loop.vert.index and vo["moved"] is False:
             return vo["vco"]
     return loop.vert.co
 
@@ -74,10 +74,8 @@ def get_ini_geom(link_loop, uv_layer, verts_orig, v_orig):
     u = link_loop["l"][uv_layer].uv
     v0 = get_vco(verts_orig, link_loop["l0"])
     u0 = link_loop["l0"][uv_layer].uv
-    lo0 = link_loop["l0"]
     v1 = get_vco(verts_orig, link_loop["l1"])
     u1 = link_loop["l1"][uv_layer].uv
-    lo1 = link_loop["l1"]
 
     # get interior angle of face in vertex space
     v0v1 = v1 - v0
@@ -118,10 +116,8 @@ def get_target_uv(link_loop, uv_layer, verts_orig, v, ini_geom):
     Get target UV coordinate
     """
     v0 = get_vco(verts_orig, link_loop["l0"])
-    u0 = link_loop["l0"][uv_layer].uv
     lo0 = link_loop["l0"]
     v1 = get_vco(verts_orig, link_loop["l1"])
-    u1 = link_loop["l1"][uv_layer].uv
     lo1 = link_loop["l1"]
 
     # get interior angle of face in vertex space
@@ -205,7 +201,6 @@ class MUV_TexLockStart(bpy.types.Operator):
             self.report(
                 {'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
-        uv_layer = bm.loops.layers.uv.verify()
 
         props.verts_orig = [
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
@@ -343,7 +338,6 @@ class MUV_TexLockUpdater(bpy.types.Operator):
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
             for v in bm.verts if v.select]
 
-
     def modal(self, context, event):
         props = context.scene.muv_props.texlock
         if context.area:
@@ -369,7 +363,7 @@ class MUV_TexLockUpdater(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.texlock
-        if props.intr_running == False:
+        if props.intr_running is False:
             self.__handle_add(context)
             props.intr_running = True
             return {'RUNNING_MODAL'}
@@ -406,7 +400,6 @@ class MUV_TexLockIntrStart(bpy.types.Operator):
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
-        uv_layer = bm.loops.layers.uv.verify()
 
         props.intr_verts_orig = [
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
@@ -415,6 +408,7 @@ class MUV_TexLockIntrStart(bpy.types.Operator):
         bpy.ops.uv.muv_texlock_updater()
 
         return {'FINISHED'}
+
 
 # Texture lock (Stop, Interactive mode)
 class MUV_TexLockIntrStop(bpy.types.Operator):
@@ -428,10 +422,10 @@ class MUV_TexLockIntrStop(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-       props = context.scene.muv_props.texlock
-       if props.intr_running is False:
-           return {'CANCELLED'}
+        props = context.scene.muv_props.texlock
+        if props.intr_running is False:
+            return {'CANCELLED'}
 
-       bpy.ops.uv.muv_texlock_updater()
+        bpy.ops.uv.muv_texlock_updater()
 
-       return {'FINISHED'}
+        return {'FINISHED'}

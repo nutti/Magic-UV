@@ -1,7 +1,11 @@
 require 'fileutils'
 require 'date'
 
-src_dir_path = 'uv_magic_uv'
+if ARGV.size != 1 then
+    puts "Usage: update_timestamp.rb <source>"
+end
+
+src_dir_path = ARGV[0]
 tmp_dir_path = 'tmp'
 
 filelist = []

@@ -20,12 +20,11 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
-import bpy
-from bpy.props import *
+from bpy.props import BoolProperty, FloatProperty, FloatVectorProperty
 from bpy.types import AddonPreferences
 
 
@@ -65,7 +64,7 @@ class MUV_Preferences(AddonPreferences):
         min=3.0,
         max=100.0)
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
 
         layout.label("Switch Enable/Disable and Configurate Features:")

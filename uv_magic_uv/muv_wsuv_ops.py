@@ -20,13 +20,12 @@
 
 __author__ = "McBuff, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
-__date__ = "4 Mar 2017"
+__version__ = "4.3"
+__date__ = "1 Apr 2017"
 
 
 import bpy
 import bmesh
-from mathutils import Vector
 from . import muv_common
 
 
