@@ -48,7 +48,8 @@ class MUV_MirrorUV(bpy.types.Operator):
         ),
         name="Axis",
         description="Mirror Axis",
-        default='X')
+        default='X'
+    )
     error = FloatProperty(
         name="Error",
         description="Error threshold",
@@ -56,7 +57,8 @@ class MUV_MirrorUV(bpy.types.Operator):
         min=0.0,
         max=100.0,
         soft_min=0.0,
-        soft_max=1.0)
+        soft_max=1.0
+    )
 
     def __is_vector_similar(self, v1, v2, error):
         """
@@ -100,7 +102,7 @@ class MUV_MirrorUV(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.active_object
-        return (obj and obj.type == 'MESH')
+        return obj and obj.type == 'MESH'
 
     def execute(self, context):
         obj = context.active_object

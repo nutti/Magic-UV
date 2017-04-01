@@ -31,7 +31,7 @@ from bpy.props import FloatProperty, EnumProperty, BoolProperty
 DEBUG = False
 
 
-def get_loaded_texture_name(scene, context):
+def get_loaded_texture_name(_, __):
     items = [(key, key, "") for key in bpy.data.images.keys()]
     items.append(("None", "None", ""))
     return items

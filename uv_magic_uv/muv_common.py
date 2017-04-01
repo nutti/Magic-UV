@@ -37,7 +37,7 @@ def debug_print(*s):
         print(s)
 
 
-def check_version(major, minor, unused):
+def check_version(major, minor, _):
     """
     Check blender version
     """
@@ -67,9 +67,15 @@ def get_space(area_type, region_type, space_type):
     Get current area/region/space
     """
 
+    area = None
+    region = None
+    space = None
+
     for area in bpy.context.screen.areas:
         if area.type == area_type:
             break
+    else:
+        return (None, None, None)
     for region in area.regions:
         if region.type == region_type:
             break

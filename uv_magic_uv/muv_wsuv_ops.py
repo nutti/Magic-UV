@@ -26,7 +26,6 @@ __date__ = "4 Mar 2017"
 
 import bpy
 import bmesh
-from mathutils import Vector
 from . import muv_common
 
 

@@ -208,7 +208,7 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
                 suvs_fr.reverse()
                 spuvs_fr.reverse()
             # rotate UVs
-            for n in range(self.rotate_copied_uv):
+            for _ in range(self.rotate_copied_uv):
                 uv = suvs_fr.pop()
                 pin_uv = spuvs_fr.pop()
                 suvs_fr.insert(0, uv)

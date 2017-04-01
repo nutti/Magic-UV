@@ -43,12 +43,14 @@ class MUV_FlipRot(bpy.types.Operator):
     flip = BoolProperty(
         name="Flip UV",
         description="Flip UV...",
-        default=False)
+        default=False
+    )
     rotate = IntProperty(
         default=0,
         name="Rotate UV",
         min=0,
-        max=30)
+        max=30
+    )
 
     def execute(self, context):
         self.report({'INFO'}, "Flip/Rotate UV")
@@ -88,7 +90,7 @@ class MUV_FlipRot(bpy.types.Operator):
                 duvs_fr.reverse()
                 dpuvs_fr.reverse()
             # rotate UVs
-            for n in range(self.rotate):
+            for _ in range(self.rotate):
                 uv = duvs_fr.pop()
                 pin_uv = dpuvs_fr.pop()
                 duvs_fr.insert(0, uv)
