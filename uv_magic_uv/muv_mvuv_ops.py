@@ -20,7 +20,7 @@
 
 __author__ = "kgeogeo, mem, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.2"
+__version__ = "4.3"
 __date__ = "1 Apr 2017"
 
 
