@@ -1,9 +1,9 @@
 # Blender Add-on: Magic UV (Copy/Paste UV)
 
-This is a blender add-on "Magic UV". (also known as Copy/Paste UV for older version)  
+This is a blender add-on "Magic UV". (a.k.a. Copy/Paste UV for older version)  
 "Magic UV" consists of many UV manipulation features.
 
-"Magic UV" is in **Contrib** support level.  
+"Magic UV" is in **Release** support level. (**Contrib** support level in Blender version <2.79)  
 So, stable version is included on **Blender Test Build**.  
 Of course, you can also download older version from below links.
 
@@ -14,6 +14,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|4.3|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.3)|
 |4.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.2)|
 |4.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.1)|
 |4.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.0)|
@@ -59,12 +60,13 @@ See [Wiki Pages](https://github.com/nutti/Magic-UV/wiki/Tutorial) .
 See the link below for further details.
 
 * [Blender Wiki page](http://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Copy_Paste_UVs)
-* [Blender Artist Thread](http://blenderartists.org/forum/showthread.php?391573-Add-on-Magic-UV-v4-0-%28Copy-Paste-UV%29)
+* [Blender Artist Thread](https://blenderartists.org/forum/showthread.php?391573-Add-on-Magic-UV-v4-1-(Copy-Paste-UV-Preserve-UVs-UV-Bounding-Box-and-so-on))
 * [Google+](https://plus.google.com/100058529622539760372/posts/82eS2tGE6Nc)
 
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
+|4.3|2017.4.1|Update for **Blender 2.79 release**<br>[1] Optimization/Refactoring|
 |4.2|2017.3.4|[1] **Add feature**<br> - Preserve UV Aspect<br>[2] Improve feature<br> - Texture Projection<br>(1) Add option: Texture rendering method<br>[3] Improve UI<br>[4] Optimization/Refactoring<br>[5] Fixed bug|
 |4.1|2016.11.13|[1] **Add feature**<br> - Copy/Paste UV Coordinates (Among same objects)<br> - Texture Lock<br> - Mirror UV<br> - World Scale UV<br> - Unwrap Constraint<br>[2] Improve feature - Pack UV  (with same UV island packing)<br>(1) Add option: Allowable center/size deviation option<br>[3] Fixed bug|
 |4.0|2016.5.14|[1] Rename this add-on<br>[2] **Add feature**<br> - Manipulate UV with Bounding Box in UV Editor<br> - Move UV from 3D View<br> - Texture Projection<br> - Pack UV (with same UV island packing)<br>[3] Improve feature - Copy/Paste UV<br>(1) N to M copy/paste UV<br>(2) Copy/Paste UV by selection sequence between specified UV maps<br>[4] Optimization/Refactoring<br>[5] Fixed bugs|
