@@ -33,8 +33,8 @@ bl_info = {
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "https://github.com/nutti/Magic-UV/wikil",
-    "tracker_url": "https://github.com/nutti/Copy-And-Paste-UV",
+    "wiki_url": "https://github.com/nutti/Magic-UV/wiki",
+    "tracker_url": "https://github.com/nutti/Magic-UV",
     "category": "UV"
 }
 

@@ -91,7 +91,7 @@ class MUV_Preferences(AddonPreferences):
         layout.label("Description:")
         column = layout.column(align=True)
         column.label("Magic UV is composed of many UV editing features.")
-        column.label("See tutorial page if you know about this add-on.")
+        column.label("See tutorial page if you are new to this add-on.")
         column.label("https://github.com/nutti/Magic-UV/wiki/Tutorial")
 
         layout.label("Location:")
