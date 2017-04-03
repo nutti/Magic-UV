@@ -33,7 +33,7 @@ bl_info = {
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "https://github.com/nutti/Magic-UV/wiki",
+    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Magic_UV",
     "tracker_url": "https://github.com/nutti/Magic-UV",
     "category": "UV"
 }
