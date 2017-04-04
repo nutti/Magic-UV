@@ -216,7 +216,7 @@ class MUV_TexLockStop(bpy.types.Operator):
 
     bl_idname = "uv.muv_texlock_stop"
     bl_label = "Stop"
-    bl_description = "Start Texture Lock"
+    bl_description = "Stop Texture Lock"
     bl_options = {'REGISTER', 'UNDO'}
 
     connect = BoolProperty(
