@@ -91,6 +91,9 @@ def get_ini_geom(link_loop, uv_layer, verts_orig, v_orig):
     u0u1 = u1 - u0
     u0u = u - u0
     u1u = u - u1
+    if u0u1.length < muv_common.EPSILON or u0u.length < muv_common.EPSILON or u1u.length < muv_common.EPSILON:
+        return {}
+
     phi0 = u0u1.angle(u0u)
     phi1 = u0u1.angle(-u1u)
     if (phi0 + phi1) > math.pi:
@@ -169,7 +172,10 @@ def calc_tri_vert(v0, v1, angle0, angle1):
         yd = 0
     else:
         xd = (b * b - a * a + d * d) / (2 * d)
-        yd = 2 * sqrt(s * (s - a) * (s - b) * (s - d)) / d
+        area = s * (s - a) * (s - b) * (s - d)
+        if area < 0:
+            area = -area;
+        yd = 2 * sqrt(area) / d
     x1 = xd * cos(alpha) - yd * sin(alpha) + v0.x
     y1 = xd * sin(alpha) + yd * cos(alpha) + v0.y
     x2 = xd * cos(alpha) + yd * sin(alpha) + v0.x
@@ -254,6 +260,8 @@ class MUV_TexLockStop(bpy.types.Operator):
 
             for ll in link_loops:
                 ini_geom = get_ini_geom(ll, uv_layer, verts_orig, v_orig)
+                if ini_geom == {}:
+                    continue
                 target_uv = get_target_uv(
                     ll, uv_layer, verts_orig, v, ini_geom)
                 result.append({"l": ll["l"], "uv": target_uv})
@@ -318,6 +326,8 @@ class MUV_TexLockUpdater(bpy.types.Operator):
             result = []
             for ll in link_loops:
                 ini_geom = get_ini_geom(ll, uv_layer, verts_orig, v_orig)
+                if ini_geom == {}:
+                    continue
                 target_uv = get_target_uv(
                     ll, uv_layer, verts_orig, v, ini_geom)
                 result.append({"l": ll["l"], "uv": target_uv})

@@ -27,6 +27,7 @@ __date__ = "1 Apr 2017"
 import bpy
 from . import muv_props
 
+EPSILON = 0.000000001
 
 def debug_print(*s):
     """
