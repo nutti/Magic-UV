@@ -127,6 +127,9 @@ class MUV_WSUVApply(bpy.types.Operator):
         orig_area = bpy.context.area.type
         bpy.context.area.type = 'IMAGE_EDITOR'
 
+        # select all UV related to the selected faces
+        bpy.ops.uv.select_all()
+
         # apply scaled UV
         bpy.ops.transform.resize(
             value=(ratio, ratio, ratio),
@@ -135,14 +138,7 @@ class MUV_WSUVApply(bpy.types.Operator):
             mirror=False,
             proportional='DISABLED',
             proportional_edit_falloff='SMOOTH',
-            proportional_size=1,
-            snap=False,
-            snap_target='CLOSEST',
-            snap_point=(0, 0, 0),
-            snap_align=False,
-            snap_normal=(0, 0, 0),
-            texture_space=False,
-            release_confirm=False)
+            proportional_size=1)
 
         bpy.context.area.type = orig_area
 
