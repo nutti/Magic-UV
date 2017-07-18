@@ -28,7 +28,7 @@ bl_info = {
     "name": "Magic UV",
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, "
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
-    "version": (4, 3, 1),
+    "version": (4, 4, 0),
     "blender": (2, 77, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",

@@ -67,6 +67,7 @@ class MUV_Properties():
 class MUV_CPUVProps():
     src_uvs = []
     src_pin_uvs = []
+    src_seams = []
 
 
 class MUV_CPUVSelSeqProps():
