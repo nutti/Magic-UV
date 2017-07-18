@@ -128,7 +128,7 @@ class MUV_WSUVApply(bpy.types.Operator):
         bpy.context.area.type = 'IMAGE_EDITOR'
 
         # select all UV related to the selected faces
-        bpy.ops.uv.select_all()
+        bpy.ops.uv.select_all(action='SELECT')
 
         # apply scaled UV
         bpy.ops.transform.resize(
