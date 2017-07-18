@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 from collections import namedtuple
 
@@ -229,12 +229,22 @@ class MUV_TexProjProject(bpy.types.Operator):
     bl_description = "Project Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and obj.type == "MESH"
+
     def execute(self, context):
         sc = context.scene
+
+        if context.mode != "EDIT_MESH":
+            self.report({'WARNING'}, "Mesh must be in Edit mode")
+            return {'CANCELLED'}
 
         if sc.muv_texproj_tex_image == "None":
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
+
         _, region, space = muv_common.get_space(
             'VIEW_3D', 'WINDOW', 'VIEW_3D')
 
@@ -249,6 +259,7 @@ class MUV_TexProjProject(bpy.types.Operator):
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
+
         uv_layer = bm.loops.layers.uv.verify()
         tex_layer = bm.faces.layers.tex.verify()
 
@@ -303,7 +314,7 @@ class OBJECT_PT_TP(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='PLUGIN')
+        layout.label(text="", icon='IMAGE_COL')
 
     def draw(self, context):
         sc = context.scene

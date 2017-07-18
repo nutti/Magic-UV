@@ -20,13 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 import bpy
 import bmesh
-from bpy.props import BoolProperty, IntProperty
+from bpy.props import (
+        BoolProperty,
+        IntProperty,
+        )
 from . import muv_common
 
 

@@ -20,11 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
-
-from bpy.props import BoolProperty, FloatProperty, FloatVectorProperty
+from bpy.props import (
+        BoolProperty,
+        FloatProperty,
+        FloatVectorProperty,
+        )
 from bpy.types import AddonPreferences
 
 
@@ -44,7 +47,7 @@ class MUV_Preferences(AddonPreferences):
     # for Texture Projection
     texproj_canvas_padding = FloatVectorProperty(
         name="Canvas Padding",
-        description="Canvas Padding.",
+        description="Canvas Padding",
         size=2,
         max=50.0,
         min=0.0,

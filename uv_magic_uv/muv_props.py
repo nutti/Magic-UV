@@ -20,12 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 import bpy
-from bpy.props import FloatProperty, EnumProperty, BoolProperty
+from bpy.props import (
+        FloatProperty,
+        EnumProperty,
+        BoolProperty,
+        )
 
 
 DEBUG = False
@@ -109,13 +112,13 @@ def init_props(scene):
         default=False)
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
-        description="Texture Magnitude.",
+        description="Texture Magnitude",
         default=0.5,
         min=0.0,
         max=100.0)
     scene.muv_texproj_tex_image = EnumProperty(
         name="Image",
-        description="Texture Image.",
+        description="Texture Image",
         items=get_loaded_texture_name)
     scene.muv_texproj_tex_transparency = FloatProperty(
         name="Transparency",
@@ -125,11 +128,11 @@ def init_props(scene):
         max=1.0)
     scene.muv_texproj_adjust_window = BoolProperty(
         name="Adjust Window",
-        description="Size of renderered texture is fitted to window.",
+        description="Size of renderered texture is fitted to window",
         default=True)
     scene.muv_texproj_apply_tex_aspect = BoolProperty(
         name="Texture Aspect Ratio",
-        description="Apply Texture Aspect ratio to displayed texture.",
+        description="Apply Texture Aspect ratio to displayed texture",
         default=True)
 
 

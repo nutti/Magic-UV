@@ -20,9 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 import bpy
 import bmesh
@@ -38,6 +37,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
 
     bl_idname = "uv.muv_preserve_uv_aspect"
     bl_label = "Preserve UV Aspect"
+    bl_description = "Choose Image"
     bl_options = {'REGISTER', 'UNDO'}
 
     dest_img_name = StringProperty(options={'HIDDEN'})
@@ -48,6 +48,9 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
         return obj and obj.type == 'MESH'
 
     def execute(self, context):
+        # Note: the current system only works if the
+        # f[tex_layer].image doesn't return None
+        # which will happen in certain cases
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
 
@@ -57,6 +60,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
+
         uv_layer = bm.loops.layers.uv.verify()
         tex_layer = bm.faces.layers.tex.verify()
 
@@ -72,6 +76,9 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
             info[f[tex_layer].image]['faces'].append(f)
 
         for img in info:
+            if img is None:
+                continue
+
             src_img = img
             ratio = Vector((
                 dest_img.size[0] / src_img.size[0],
@@ -86,6 +93,9 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
             info[img]['origin'] = origin
 
         for img in info:
+            if img is None:
+                continue
+
             for f in info[img]['faces']:
                 f[tex_layer].image = dest_img
                 for l in f.loops:
@@ -112,8 +122,9 @@ class MUV_PreserveUVAspectMenu(bpy.types.Menu):
 
     def draw(self, _):
         layout = self.layout
+
         # create sub menu
         for key in bpy.data.images.keys():
             layout.operator(
                 MUV_PreserveUVAspect.bl_idname,
-                text=key, icon="PLUGIN").dest_img_name = key
+                text=key, icon="IMAGE_COL").dest_img_name = key

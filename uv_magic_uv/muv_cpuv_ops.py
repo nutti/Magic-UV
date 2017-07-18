@@ -20,13 +20,17 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Jace Priester"
 __status__ = "production"
-__version__ = "4.3"
+__version__ = "4.3.1"
 __date__ = "1 Apr 2017"
-
 
 import bpy
 import bmesh
-from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
+from bpy.props import (
+        StringProperty,
+        BoolProperty,
+        IntProperty,
+        EnumProperty,
+        )
 from . import muv_common
 
 
@@ -108,13 +112,13 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
         layout.operator(
             MUV_CPUVCopyUV.bl_idname,
             text="[Default]",
-            icon="PLUGIN"
+            icon="IMAGE_COL"
         ).uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVCopyUV.bl_idname,
                 text=m,
-                icon="PLUGIN"
+                icon="IMAGE_COL"
             ).uv_map = m
 
 
@@ -253,11 +257,11 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         uv_maps = bm.loops.layers.uv.keys()
         layout.operator(
             MUV_CPUVPasteUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVPasteUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m
 
 
 class MUV_CPUVObjCopyUV(bpy.types.Operator):
@@ -327,11 +331,11 @@ class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
         layout.operator(
             MUV_CPUVObjCopyUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVObjCopyUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m
 
 
 class MUV_CPUVObjPasteUV(bpy.types.Operator):
@@ -399,8 +403,8 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             if len(props.src_uvs) != len(dest_uvs):
                 self.report(
                     {'WARNING'},
-                    "Number of faces is different from copied "
-                    + "(src:%d, dest:%d)"
+                    "Number of faces is different from copied " +
+                    "(src:%d, dest:%d)"
                     % (len(props.src_uvs), len(dest_uvs))
                 )
                 return {'CANCELLED'}
@@ -448,8 +452,8 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
         uv_maps = list(set(uv_maps))
         layout.operator(
             MUV_CPUVObjPasteUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVObjPasteUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m

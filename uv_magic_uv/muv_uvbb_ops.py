@@ -20,9 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 from enum import IntEnum
 import math
@@ -415,8 +414,8 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
                             arr = [1, 3, 6, 8]
                             if i in arr:
                                 return (
-                                    MUV_UVBBState.UNIFORM_SCALING_1
-                                    + arr.index(i)
+                                    MUV_UVBBState.UNIFORM_SCALING_1 +
+                                    arr.index(i)
                                 )
                         else:
                             return MUV_UVBBState.TRANSLATING + i
@@ -552,8 +551,8 @@ class MUV_UVBBStateMgr():
             obj = MUV_UVBBStateRotating(self.__cmd_exec, ctrl_points)
         elif next_state == MUV_UVBBState.NONE:
             obj = MUV_UVBBStateNone(self.__cmd_exec)
-        elif (MUV_UVBBState.UNIFORM_SCALING_1 <= next_state
-              <= MUV_UVBBState.UNIFORM_SCALING_4):
+        elif (MUV_UVBBState.UNIFORM_SCALING_1 <= next_state <=
+              MUV_UVBBState.UNIFORM_SCALING_4):
             obj = MUV_UVBBStateUniformScaling(
                 self.__cmd_exec, next_state, ctrl_points)
 
@@ -738,7 +737,7 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='PLUGIN')
+        layout.label(text="", icon='IMAGE_COL')
 
     def draw(self, context):
         sc = context.scene

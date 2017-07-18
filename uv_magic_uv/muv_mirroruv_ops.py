@@ -20,12 +20,14 @@
 
 __author__ = "Keith (Wahooney) Boshoff, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 import bpy
-from bpy.props import EnumProperty, FloatProperty
+from bpy.props import (
+        EnumProperty,
+        FloatProperty,
+        )
 import bmesh
 from mathutils import Vector
 from . import muv_common

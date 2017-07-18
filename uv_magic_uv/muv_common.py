@@ -20,14 +20,12 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.3.1"
+__date__ = "6 June 2017"
 
 import bpy
 from . import muv_props
 
-EPSILON = 0.000000001
 
 def debug_print(*s):
     """
