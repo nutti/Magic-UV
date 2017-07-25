@@ -325,11 +325,14 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
         # get selected face
         props.src_uvs = []
         props.src_pin_uvs = []
+        props.src_seams = []
         for face in bm.faces:
             uvs = [l[uv_layer].uv.copy() for l in face.loops]
             pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+            seams = [l.edge.seam  for l in face.loops]
             props.src_uvs.append(uvs)
             props.src_pin_uvs.append(pin_uvs)
+            props.src_seams.append(seams)
 
         self.report({'INFO'}, "%s's UV coordinates are copied" % (obj.name))
 
@@ -369,6 +372,11 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
+    copy_seams = BoolProperty(
+        name="Copy Seams",
+        description="Copy Seams",
+        default=True
+    )
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -413,13 +421,16 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             # get selected face
             dest_uvs = []
             dest_pin_uvs = []
+            dest_seams = []
             dest_face_indices = []
             for face in bm.faces:
                 dest_face_indices.append(face.index)
                 uvs = [l[uv_layer].uv.copy() for l in face.loops]
                 pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+                seams = [l.edge.seam for l in face.loops]
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
+                dest_seams.append(seams)
             if len(props.src_uvs) != len(dest_uvs):
                 self.report(
                     {'WARNING'},
@@ -433,17 +444,21 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             for i, idx in enumerate(dest_face_indices):
                 suv = props.src_uvs[i]
                 spuv = props.src_pin_uvs[i]
+                ss = props.src_seams[i]
                 duv = dest_uvs[i]
                 if len(suv) != len(duv):
                     self.report({'WARNING'}, "Some faces are different size")
                     return {'CANCELLED'}
                 suvs_fr = [uv for uv in suv]
                 spuvs_fr = [pin_uv for pin_uv in spuv]
+                ss_fr = [s for s in ss]
                 # paste UVs
-                for l, suv, spuv in zip(
-                        bm.faces[idx].loops, suvs_fr, spuvs_fr):
+                for l, suv, spuv, ss in zip(
+                        bm.faces[idx].loops, suvs_fr, spuvs_fr, ss_fr):
                     l[uv_layer].uv = suv
                     l[uv_layer].pin_uv = spuv
+                if self.copy_seams is True:
+                    l.edge.seam = ss
 
             bmesh.update_edit_mesh(obj.data)
 
