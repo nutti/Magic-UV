@@ -120,5 +120,7 @@ class MUV_FlipRot(bpy.types.Operator):
         self.report({'INFO'}, "%d face(s) are flipped/rotated" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
+        if self.seams is True:
+            obj.data.show_edge_seams = True
 
         return {'FINISHED'}

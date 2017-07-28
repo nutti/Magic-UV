@@ -256,6 +256,8 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
+        if self.copy_seams is True:
+            obj.data.show_edge_seams = True
 
         return {'FINISHED'}
 
@@ -461,6 +463,8 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
                     l.edge.seam = ss
 
             bmesh.update_edit_mesh(obj.data)
+            if self.copy_seams is True:
+                obj.data.show_edge_seams = True
 
             self.report(
                 {'INFO'}, "%s's UV coordinates are pasted" % (obj.name))

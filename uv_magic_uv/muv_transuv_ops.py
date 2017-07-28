@@ -176,6 +176,8 @@ class MUV_TransUVPaste(bpy.types.Operator):
                                 edge.seam = copied_data[2][j]
 
         bmesh.update_edit_mesh(active_obj.data)
+        if self.copy_seams:
+            active_obj.data.show_edge_seams = True
 
         return {'FINISHED'}
 
