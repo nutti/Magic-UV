@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ $# -ne 2 ]; then
-    echo "Usage: pylint_sample.sh <os> <version>"
+    echo "Usage: tools/install.sh <os> <version>"
 fi
 
 os=${1}
