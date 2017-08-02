@@ -20,13 +20,17 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Jace Priester"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
-
+__version__ = "4.4"
+__date__ = "2 Aug 2017"
 
 import bpy
 import bmesh
-from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
+from bpy.props import (
+        StringProperty,
+        BoolProperty,
+        IntProperty,
+        EnumProperty,
+        )
 from . import muv_common
 
 
@@ -76,12 +80,15 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
         # get selected face
         props.src_uvs = []
         props.src_pin_uvs = []
+        props.src_seams = []
         for face in bm.faces:
             if face.select:
                 uvs = [l[uv_layer].uv.copy() for l in face.loops]
                 pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+                seams = [l.edge.seam  for l in face.loops]
                 props.src_uvs.append(uvs)
                 props.src_pin_uvs.append(pin_uvs)
+                props.src_seams.append(seams)
         if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
             self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
@@ -108,13 +115,13 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
         layout.operator(
             MUV_CPUVCopyUV.bl_idname,
             text="[Default]",
-            icon="PLUGIN"
+            icon="IMAGE_COL"
         ).uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVCopyUV.bl_idname,
                 text=m,
-                icon="PLUGIN"
+                icon="IMAGE_COL"
             ).uv_map = m
 
 
@@ -149,6 +156,11 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         min=0,
         max=30
     )
+    copy_seams = BoolProperty(
+        name="Copy Seams",
+        description="Copy Seams",
+        default=True
+    )
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
@@ -178,14 +190,17 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         # get selected face
         dest_uvs = []
         dest_pin_uvs = []
+        dest_seams = []
         dest_face_indices = []
         for face in bm.faces:
             if face.select:
                 dest_face_indices.append(face.index)
                 uvs = [l[uv_layer].uv.copy() for l in face.loops]
                 pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+                seams = [l.edge.seam for l in face.loops]
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
+                dest_seams.append(seams)
         if len(dest_uvs) == 0 or len(dest_pin_uvs) == 0:
             self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
@@ -201,37 +216,48 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         for i, idx in enumerate(dest_face_indices):
             suv = None
             spuv = None
+            ss = None
             duv = None
             if self.strategy == 'N_N':
                 suv = props.src_uvs[i]
                 spuv = props.src_pin_uvs[i]
+                ss = props.src_seams[i]
                 duv = dest_uvs[i]
             elif self.strategy == 'N_M':
                 suv = props.src_uvs[i % len(props.src_uvs)]
                 spuv = props.src_pin_uvs[i % len(props.src_pin_uvs)]
+                ss = props.src_seams[i % len(props.src_seams)]
                 duv = dest_uvs[i]
             if len(suv) != len(duv):
                 self.report({'WARNING'}, "Some faces are different size")
                 return {'CANCELLED'}
             suvs_fr = [uv for uv in suv]
             spuvs_fr = [pin_uv for pin_uv in spuv]
+            ss_fr = [s for s in ss]
             # flip UVs
             if self.flip_copied_uv is True:
                 suvs_fr.reverse()
                 spuvs_fr.reverse()
+                ss_fr.reverse()
             # rotate UVs
             for _ in range(self.rotate_copied_uv):
                 uv = suvs_fr.pop()
                 pin_uv = spuvs_fr.pop()
+                s = ss_fr.pop()
                 suvs_fr.insert(0, uv)
                 spuvs_fr.insert(0, pin_uv)
+                ss_fr.insert(0, s)
             # paste UVs
-            for l, suv, spuv in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr):
+            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr, ss_fr):
                 l[uv_layer].uv = suv
                 l[uv_layer].pin_uv = spuv
+                if self.copy_seams is True:
+                    l.edge.seam = ss
         self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
 
         bmesh.update_edit_mesh(obj.data)
+        if self.copy_seams is True:
+            obj.data.show_edge_seams = True
 
         return {'FINISHED'}
 
@@ -253,11 +279,11 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         uv_maps = bm.loops.layers.uv.keys()
         layout.operator(
             MUV_CPUVPasteUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVPasteUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m
 
 
 class MUV_CPUVObjCopyUV(bpy.types.Operator):
@@ -301,11 +327,14 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
         # get selected face
         props.src_uvs = []
         props.src_pin_uvs = []
+        props.src_seams = []
         for face in bm.faces:
             uvs = [l[uv_layer].uv.copy() for l in face.loops]
             pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+            seams = [l.edge.seam  for l in face.loops]
             props.src_uvs.append(uvs)
             props.src_pin_uvs.append(pin_uvs)
+            props.src_seams.append(seams)
 
         self.report({'INFO'}, "%s's UV coordinates are copied" % (obj.name))
 
@@ -327,11 +356,11 @@ class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
         layout.operator(
             MUV_CPUVObjCopyUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVObjCopyUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m
 
 
 class MUV_CPUVObjPasteUV(bpy.types.Operator):
@@ -345,6 +374,11 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
+    copy_seams = BoolProperty(
+        name="Copy Seams",
+        description="Copy Seams",
+        default=True
+    )
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -389,18 +423,21 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             # get selected face
             dest_uvs = []
             dest_pin_uvs = []
+            dest_seams = []
             dest_face_indices = []
             for face in bm.faces:
                 dest_face_indices.append(face.index)
                 uvs = [l[uv_layer].uv.copy() for l in face.loops]
                 pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
+                seams = [l.edge.seam for l in face.loops]
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
+                dest_seams.append(seams)
             if len(props.src_uvs) != len(dest_uvs):
                 self.report(
                     {'WARNING'},
-                    "Number of faces is different from copied "
-                    + "(src:%d, dest:%d)"
+                    "Number of faces is different from copied " +
+                    "(src:%d, dest:%d)"
                     % (len(props.src_uvs), len(dest_uvs))
                 )
                 return {'CANCELLED'}
@@ -409,19 +446,25 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             for i, idx in enumerate(dest_face_indices):
                 suv = props.src_uvs[i]
                 spuv = props.src_pin_uvs[i]
+                ss = props.src_seams[i]
                 duv = dest_uvs[i]
                 if len(suv) != len(duv):
                     self.report({'WARNING'}, "Some faces are different size")
                     return {'CANCELLED'}
                 suvs_fr = [uv for uv in suv]
                 spuvs_fr = [pin_uv for pin_uv in spuv]
+                ss_fr = [s for s in ss]
                 # paste UVs
-                for l, suv, spuv in zip(
-                        bm.faces[idx].loops, suvs_fr, spuvs_fr):
+                for l, suv, spuv, ss in zip(
+                        bm.faces[idx].loops, suvs_fr, spuvs_fr, ss_fr):
                     l[uv_layer].uv = suv
                     l[uv_layer].pin_uv = spuv
+                if self.copy_seams is True:
+                    l.edge.seam = ss
 
             bmesh.update_edit_mesh(obj.data)
+            if self.copy_seams is True:
+                obj.data.show_edge_seams = True
 
             self.report(
                 {'INFO'}, "%s's UV coordinates are pasted" % (obj.name))
@@ -448,8 +491,8 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
         uv_maps = list(set(uv_maps))
         layout.operator(
             MUV_CPUVObjPasteUV.bl_idname,
-            text="[Default]", icon="PLUGIN").uv_map = ""
+            text="[Default]", icon="IMAGE_COL").uv_map = ""
         for m in uv_maps:
             layout.operator(
                 MUV_CPUVObjPasteUV.bl_idname,
-                text=m, icon="PLUGIN").uv_map = m
+                text=m, icon="IMAGE_COL").uv_map = m

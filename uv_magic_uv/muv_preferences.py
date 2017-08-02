@@ -20,11 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
+__version__ = "4.4"
+__date__ = "2 Aug 2017"
 
-
-from bpy.props import BoolProperty, FloatProperty, FloatVectorProperty
+from bpy.props import (
+        BoolProperty,
+        FloatProperty,
+        FloatVectorProperty,
+        )
 from bpy.types import AddonPreferences
 
 
@@ -44,7 +47,7 @@ class MUV_Preferences(AddonPreferences):
     # for Texture Projection
     texproj_canvas_padding = FloatVectorProperty(
         name="Canvas Padding",
-        description="Canvas Padding.",
+        description="Canvas Padding",
         size=2,
         max=50.0,
         min=0.0,
@@ -91,7 +94,7 @@ class MUV_Preferences(AddonPreferences):
         layout.label("Description:")
         column = layout.column(align=True)
         column.label("Magic UV is composed of many UV editing features.")
-        column.label("See tutorial page if you know about this add-on.")
+        column.label("See tutorial page if you are new to this add-on.")
         column.label("https://github.com/nutti/Magic-UV/wiki/Tutorial")
 
         layout.label("Location:")

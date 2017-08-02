@@ -20,43 +20,45 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
+__version__ = "4.4"
+__date__ = "2 Aug 2017"
 
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
-    "version": (4, 3),
-    "blender": (2, 77, 0),
+    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, "
+              "Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
+    "version": (4, 4, 0),
+    "blender": (2, 79, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "https://github.com/nutti/Magic-UV/wikil",
-    "tracker_url": "https://github.com/nutti/Copy-And-Paste-UV",
+    "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
+                "Py/Scripts/UV/Magic_UV",
+    "tracker_url": "https://github.com/nutti/Magic-UV",
     "category": "UV"
 }
 
 if "bpy" in locals():
-    import imp
-    imp.reload(muv_preferences)
-    imp.reload(muv_menu)
-    imp.reload(muv_common)
-    imp.reload(muv_props)
-    imp.reload(muv_cpuv_ops)
-    imp.reload(muv_cpuv_selseq_ops)
-    imp.reload(muv_fliprot_ops)
-    imp.reload(muv_transuv_ops)
-    imp.reload(muv_uvbb_ops)
-    imp.reload(muv_mvuv_ops)
-    imp.reload(muv_texproj_ops)
-    imp.reload(muv_packuv_ops)
-    imp.reload(muv_texlock_ops)
-    imp.reload(muv_mirroruv_ops)
-    imp.reload(muv_wsuv_ops)
-    imp.reload(muv_unwrapconst_ops)
-    imp.reload(muv_preserve_uv_aspect)
+    import importlib
+    importlib.reload(muv_preferences)
+    importlib.reload(muv_menu)
+    importlib.reload(muv_common)
+    importlib.reload(muv_props)
+    importlib.reload(muv_cpuv_ops)
+    importlib.reload(muv_cpuv_selseq_ops)
+    importlib.reload(muv_fliprot_ops)
+    importlib.reload(muv_transuv_ops)
+    importlib.reload(muv_uvbb_ops)
+    importlib.reload(muv_mvuv_ops)
+    importlib.reload(muv_texproj_ops)
+    importlib.reload(muv_packuv_ops)
+    importlib.reload(muv_texlock_ops)
+    importlib.reload(muv_mirroruv_ops)
+    importlib.reload(muv_wsuv_ops)
+    importlib.reload(muv_unwrapconst_ops)
+    importlib.reload(muv_preserve_uv_aspect)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -81,29 +83,29 @@ import bpy
 
 def view3d_uvmap_menu_fn(self, context):
     self.layout.separator()
-    self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="PLUGIN")
-    self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="PLUGIN")
-    self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="PLUGIN")
+    self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="IMAGE_COL")
+    self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
+    self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="IMAGE_COL")
+    self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="IMAGE_COL")
+    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="IMAGE_COL")
     self.layout.operator(
-        muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="PLUGIN")
-    self.layout.menu(muv_menu.MUV_WSUVMenu.bl_idname, icon="PLUGIN")
+        muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="IMAGE_COL")
+    self.layout.menu(muv_menu.MUV_WSUVMenu.bl_idname, icon="IMAGE_COL")
     self.layout.operator(
-        muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='PLUGIN')
+        muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='IMAGE_COL')
     self.layout.menu(
         muv_preserve_uv_aspect.MUV_PreserveUVAspectMenu.bl_idname,
-        icon='PLUGIN')
+        icon='IMAGE_COL')
 
 
 def image_uvs_menu_fn(self, context):
     self.layout.separator()
-    self.layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname, icon="PLUGIN")
+    self.layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname, icon="IMAGE_COL")
 
 
 def view3d_object_menu_fn(self, context):
     self.layout.separator()
-    self.layout.menu(muv_menu.MUV_CPUVObjMenu.bl_idname, icon="PLUGIN")
+    self.layout.menu(muv_menu.MUV_CPUVObjMenu.bl_idname, icon="IMAGE_COL")
 
 
 def register():
@@ -111,6 +113,10 @@ def register():
     bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
     bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
     bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
+    try:
+        bpy.types.VIEW3D_MT_Object.append(view3d_object_menu_fn)
+    except:
+        pass
     muv_props.init_props(bpy.types.Scene)
 
 
@@ -119,6 +125,10 @@ def unregister():
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
     bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
     bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
+    try:
+        bpy.types.VIEW3D_MT_Object.remove(view3d_object_menu_fn)
+    except:
+        pass
     muv_props.clear_props(bpy.types.Scene)
 
 

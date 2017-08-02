@@ -14,6 +14,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|4.4|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.4)|
 |4.3|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.3)|
 |4.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.2)|
 |4.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.1)|
@@ -66,6 +67,7 @@ See the link below for further details.
 ## Change Log
 |Version|Release Date|Change Log|
 |---|---|---|
+|4.4|2017.8.2|[1] Improve feature Copy/Paste UV, Transfer UV<br>(1) Add option: Copy/Paste seams<br>[2] Fixed bugs<br> [3] Merge change set of Blender's official repository|
 |4.3|2017.4.1|Update for **Blender 2.79 release**<br>[1] Optimization/Refactoring|
 |4.2|2017.3.4|[1] **Add feature**<br> - Preserve UV Aspect<br>[2] Improve feature<br> - Texture Projection<br>(1) Add option: Texture rendering method<br>[3] Improve UI<br>[4] Optimization/Refactoring<br>[5] Fixed bug|
 |4.1|2016.11.13|[1] **Add feature**<br> - Copy/Paste UV Coordinates (Among same objects)<br> - Texture Lock<br> - Mirror UV<br> - World Scale UV<br> - Unwrap Constraint<br>[2] Improve feature - Pack UV  (with same UV island packing)<br>(1) Add option: Allowable center/size deviation option<br>[3] Fixed bug|

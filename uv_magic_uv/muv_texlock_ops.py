@@ -20,11 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.3"
-__date__ = "1 Apr 2017"
+__version__ = "4.4"
+__date__ = "2 Aug 2017"
 
 import math
-from math import atan2, cos, sqrt, sin, fabs
+from math import (
+        atan2, cos,
+        sqrt, sin, fabs,
+        )
 
 import bpy
 import bmesh
@@ -216,7 +219,7 @@ class MUV_TexLockStop(bpy.types.Operator):
 
     bl_idname = "uv.muv_texlock_stop"
     bl_label = "Stop"
-    bl_description = "Start Texture Lock"
+    bl_description = "Stop Texture Lock"
     bl_options = {'REGISTER', 'UNDO'}
 
     connect = BoolProperty(
