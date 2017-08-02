@@ -21,7 +21,7 @@ bl_ver = nil
 
 src_file = File.open(src_dir_path + '/__init__.py', 'r')
 src_file.each_line do |line|
-    if /\s*"version"\s*:\s*\(\s*(\d+)\s*,\s*(\d+)\s*\),\s*/ =~ line
+    if /\s*"version"\s*:\s*\(\s*(\d+)\s*,\s*(\d+)\s*\,\s*(\d+)\s*\),\s*/ =~ line
         bl_ver = $1 + '.' + $2
     end
 end
