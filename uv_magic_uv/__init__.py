@@ -27,7 +27,7 @@ __date__ = "2 Aug 2017"
 bl_info = {
     "name": "Magic UV",
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, "
-              "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, hp9000",
+              "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, Alexander Milovsky",
     "version": (4, 5, 0),
     "blender": (2, 79, 0),
     "location": "See Add-ons Preferences",

@@ -26,6 +26,10 @@ __date__ = "2 Aug 2017"
 
 import bpy
 import bmesh
+from bpy.props import (
+    FloatProperty,
+    BoolProperty
+)
 from . import muv_common
 
 
@@ -86,6 +90,9 @@ class MUV_WSUVMeasure(bpy.types.Operator):
 
         props.ref_scale = scale / len(sel_faces)
 
+        self.report(
+            {'INFO'}, "Average face size: {0}".format(props.ref_scale))
+
         return {'FINISHED'}
 
 
@@ -98,6 +105,27 @@ class MUV_WSUVApply(bpy.types.Operator):
     bl_label = "Apply"
     bl_description = "Apply scaled UV based on scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
+
+    proportional_scaling = BoolProperty(
+        name="Proportional Scaling",
+        default=True
+    )
+    scaling_factor = FloatProperty(
+        name="Scaling Factor",
+        default=1.0,
+        max=1000.0,
+        min=0.00001
+    )
+
+    def draw(self, _):
+        layout = self.layout
+
+        row = layout.row()
+        row.prop(self, "proportional_scaling")
+        row = layout.row()
+        row.prop(self, "scaling_factor")
+        if self.proportional_scaling:
+            row.enabled = False
 
     def execute(self, context):
         props = context.scene.muv_props.wsuv
@@ -122,7 +150,13 @@ class MUV_WSUVApply(bpy.types.Operator):
             scale = scale + calc_face_scale(uv_layer, f)
         scale = scale / len(sel_faces)
 
-        ratio = props.ref_scale / scale
+        self.report(
+            {'INFO'}, "Average face size: {0}".format(scale))
+
+        if self.proportional_scaling:
+            factor = props.ref_scale / scale
+        else:
+            factor = self.scaling_factor
 
         orig_area = bpy.context.area.type
         bpy.context.area.type = 'IMAGE_EDITOR'
@@ -132,7 +166,7 @@ class MUV_WSUVApply(bpy.types.Operator):
 
         # apply scaled UV
         bpy.ops.transform.resize(
-            value=(ratio, ratio, ratio),
+            value=(factor, factor, 1.0),
             constraint_axis=(False, False, False),
             constraint_orientation='GLOBAL',
             mirror=False,
@@ -143,5 +177,8 @@ class MUV_WSUVApply(bpy.types.Operator):
         bpy.context.area.type = orig_area
 
         bmesh.update_edit_mesh(obj.data)
+
+        self.report(
+            {'INFO'}, "Scaling factor: {0}".format(factor))
 
         return {'FINISHED'}
