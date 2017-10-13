@@ -26,9 +26,11 @@ __date__ = "2 Aug 2017"
 
 import bpy
 import bmesh
+from mathutils import Vector
 from bpy.props import (
     FloatProperty,
-    BoolProperty
+    BoolProperty,
+    EnumProperty
 )
 from . import muv_common
 
@@ -116,6 +118,23 @@ class MUV_WSUVApply(bpy.types.Operator):
         max=1000.0,
         min=0.00001
     )
+    origin = EnumProperty(
+        name="Origin",
+        description="Aspect Origin",
+        items=[
+            ('CENTER', 'Center', 'Center'),
+            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
+            ('LEFT_CENTER', 'Left Center', 'Left Center'),
+            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
+            ('CENTER_TOP', 'Center Top', 'Center Top'),
+            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
+            ('RIGHT_TOP', 'Right Top', 'Right Top'),
+            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
+            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+
+        ],
+        default="CENTER"
+    )
 
     def draw(self, _):
         layout = self.layout
@@ -158,27 +177,94 @@ class MUV_WSUVApply(bpy.types.Operator):
         else:
             factor = self.scaling_factor
 
-        orig_area = bpy.context.area.type
-        bpy.context.area.type = 'IMAGE_EDITOR'
+        # calculate origin
+        if self.origin == 'CENTER':
+            origin = Vector((0.0, 0.0))
+            num = 0
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin = origin + uv
+                    num = num + 1
+            origin = origin / num
+        elif self.origin == 'LEFT_TOP':
+            origin = Vector((100000.0, -100000.0))
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = min(origin.x, uv.x)
+                    origin.y = max(origin.y, uv.y)
+        elif self.origin == 'LEFT_CENTER':
+            origin = Vector((100000.0, 0.0))
+            num = 0
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = min(origin.x, uv.x)
+                    origin.y = origin.y + uv.y
+                    num = num + 1
+            origin.y = origin.y / num
+        elif self.origin == 'LEFT_BOTTOM':
+            origin = Vector((100000.0, 100000.0))
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = min(origin.x, uv.x)
+                    origin.y = min(origin.y, uv.y)
+        elif self.origin == 'CENTER_TOP':
+            origin = Vector((0.0, -100000.0))
+            num = 0
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = origin.x + uv.x
+                    origin.y = max(origin.y, uv.y)
+                    num = num + 1
+            origin.x = origin.x / num
+        elif self.origin == 'CENTER_BOTTOM':
+            origin = Vector((0.0, 100000.0))
+            num = 0
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = origin.x + uv.x
+                    origin.y = min(origin.y, uv.y)
+                    num = num + 1
+            origin.x = origin.x / num
+        elif self.origin == 'RIGHT_TOP':
+            origin = Vector((-100000.0, -100000.0))
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = max(origin.x, uv.x)
+                    origin.y = max(origin.y, uv.y)
+        elif self.origin == 'RIGHT_CENTER':
+            origin = Vector((-100000.0, 0.0))
+            num = 0
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = max(origin.x, uv.x)
+                    origin.y = origin.y + uv.y
+                    num = num + 1
+            origin.y = origin.y / num
+        elif self.origin == 'RIGHT_BOTTOM':
+            origin = Vector((-100000.0, 100000.0))
+            for f in sel_faces:
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin.x = max(origin.x, uv.x)
+                    origin.y = min(origin.y, uv.y)
 
-        # select all UV related to the selected faces
-        bpy.ops.uv.select_all(action='SELECT')
-
-        # apply scaled UV
-        bpy.ops.transform.resize(
-            value=(factor, factor, 1.0),
-            constraint_axis=(False, False, False),
-            constraint_orientation='GLOBAL',
-            mirror=False,
-            proportional='DISABLED',
-            proportional_edit_falloff='SMOOTH',
-            proportional_size=1)
-
-        bpy.context.area.type = orig_area
+        # update UV coordinate
+        for f in sel_faces:
+            for l in f.loops:
+                uv = l[uv_layer].uv
+                diff = uv - origin
+                l[uv_layer].uv = origin + diff * factor
 
         bmesh.update_edit_mesh(obj.data)
 
-        self.report(
-            {'INFO'}, "Scaling factor: {0}".format(factor))
+        self.report({'INFO'}, "Scaling factor: {0}".format(factor))
 
         return {'FINISHED'}

@@ -197,6 +197,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
                     diff.y = diff.y / ratio.y
                     uv.x = origin.x + diff.x
                     uv.y = origin.y + diff.y
+                    l[uv_layer].uv = uv
 
         bmesh.update_edit_mesh(obj.data)
 

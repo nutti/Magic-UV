@@ -86,7 +86,8 @@ import bpy
 def view3d_uvmap_menu_fn(self, context):
     self.layout.separator()
     self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
+    self.layout.operator(
+        muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
     self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="IMAGE_COL")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="IMAGE_COL")
     self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="IMAGE_COL")
