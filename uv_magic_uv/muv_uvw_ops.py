@@ -108,7 +108,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
                 z = co.z * sz
 
                 # X-plane
-                if abs(n[0]) > abs(n[1]) and abs(n[0]) > abs(n[2]):
+                if abs(n[0]) >= abs(n[1]) and abs(n[0]) >= abs(n[2]):
                     if n[0] >= 0.0:
                         u = (y - ofy) * cos(rx) + (z - ofz) * sin(rx)
                         v = -(y * aspect - ofy) * sin(rx) +\
@@ -118,7 +118,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
                         v = (y * aspect - ofy) * sin(rx) +\
                             (z * aspect - ofz) * cos(rx)
                 # Y-plane
-                elif abs(n[1]) > abs(n[0]) and abs(n[1]) > abs(n[2]):
+                elif abs(n[1]) >= abs(n[0]) and abs(n[1]) >= abs(n[2]):
                     if n[1] >= 0.0:
                         u = -(x - ofx) * cos(ry) + (z - ofz) * sin(ry)
                         v = (x * aspect - ofx) * sin(ry) +\
