@@ -124,7 +124,7 @@ def init_props(scene):
         items=get_loaded_texture_name)
     scene.muv_texproj_tex_transparency = FloatProperty(
         name="Transparency",
-        description="Texture Transparency.",
+        description="Texture Transparency",
         default=0.2,
         min=0.0,
         max=1.0)
