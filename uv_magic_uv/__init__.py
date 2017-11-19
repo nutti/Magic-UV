@@ -20,15 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 
 bl_info = {
     "name": "Magic UV",
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, "
-              "Keith (Wahooney) Boshoff, McBuff, MaxRobinot",
-    "version": (4, 4, 0),
+              "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, Alexander Milovsky",
+    "version": (4, 5, 0),
     "blender": (2, 79, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",
@@ -59,6 +59,7 @@ if "bpy" in locals():
     importlib.reload(muv_wsuv_ops)
     importlib.reload(muv_unwrapconst_ops)
     importlib.reload(muv_preserve_uv_aspect)
+    importlib.reload(muv_uvw_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -77,6 +78,7 @@ else:
     from . import muv_wsuv_ops
     from . import muv_unwrapconst_ops
     from . import muv_preserve_uv_aspect
+    from . import muv_uvw_ops
 
 import bpy
 
@@ -84,7 +86,8 @@ import bpy
 def view3d_uvmap_menu_fn(self, context):
     self.layout.separator()
     self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
+    self.layout.operator(
+        muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
     self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="IMAGE_COL")
     self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="IMAGE_COL")
     self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="IMAGE_COL")
@@ -96,6 +99,7 @@ def view3d_uvmap_menu_fn(self, context):
     self.layout.menu(
         muv_preserve_uv_aspect.MUV_PreserveUVAspectMenu.bl_idname,
         icon='IMAGE_COL')
+    self.layout.menu(muv_menu.MUV_UVWMenu.bl_idname, icon="IMAGE_COL")
 
 
 def image_uvs_menu_fn(self, context):

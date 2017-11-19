@@ -20,15 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 import bpy
 import bmesh
 from bpy.props import (
-        BoolProperty,
-        IntProperty,
-        )
+    BoolProperty,
+    IntProperty,
+)
 from . import muv_common
 
 
@@ -86,13 +86,14 @@ class MUV_FlipRot(bpy.types.Operator):
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
                 dest_seams.append(seams)
-        if len(dest_uvs) == 0 or len(dest_pin_uvs) == 0:
+        if not dest_uvs or not dest_pin_uvs:
             self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         self.report({'INFO'}, "%d face(s) are selected" % len(dest_uvs))
 
         # paste
-        for idx, duvs, dpuvs, dss in zip(dest_face_indices, dest_uvs, dest_pin_uvs, dest_seams):
+        for idx, duvs, dpuvs, dss in zip(dest_face_indices, dest_uvs,
+                                         dest_pin_uvs, dest_seams):
             duvs_fr = [uv for uv in duvs]
             dpuvs_fr = [pin_uv for pin_uv in dpuvs]
             dss_fr = [s for s in dss]

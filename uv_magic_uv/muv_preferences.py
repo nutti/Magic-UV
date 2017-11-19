@@ -20,14 +20,14 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 from bpy.props import (
-        BoolProperty,
-        FloatProperty,
-        FloatVectorProperty,
-        )
+    BoolProperty,
+    FloatProperty,
+    FloatVectorProperty,
+)
 from bpy.types import AddonPreferences
 
 

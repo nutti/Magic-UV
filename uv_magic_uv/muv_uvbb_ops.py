@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 from enum import IntEnum
 import math
@@ -399,26 +399,25 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
         cp_react_size = prefs.uvbb_cp_react_size
         is_uscaling = context.scene.muv_uvbb_uniform_scaling
-        if event.type == 'LEFTMOUSE':
-            if event.value == 'PRESS':
-                x, y = context.region.view2d.view_to_region(
-                    mouse_view.x, mouse_view.y)
-                for i, p in enumerate(ctrl_points):
-                    px, py = context.region.view2d.view_to_region(p.x, p.y)
-                    in_cp_x = (px + cp_react_size > x and
-                               px - cp_react_size < x)
-                    in_cp_y = (py + cp_react_size > y and
-                               py - cp_react_size < y)
-                    if in_cp_x and in_cp_y:
-                        if is_uscaling:
-                            arr = [1, 3, 6, 8]
-                            if i in arr:
-                                return (
-                                    MUV_UVBBState.UNIFORM_SCALING_1 +
-                                    arr.index(i)
-                                )
-                        else:
-                            return MUV_UVBBState.TRANSLATING + i
+        if (event.type == 'LEFTMOUSE') and (event.value == 'PRESS'):
+            x, y = context.region.view2d.view_to_region(
+                mouse_view.x, mouse_view.y)
+            for i, p in enumerate(ctrl_points):
+                px, py = context.region.view2d.view_to_region(p.x, p.y)
+                in_cp_x = (px + cp_react_size > x and
+                           px - cp_react_size < x)
+                in_cp_y = (py + cp_react_size > y and
+                           py - cp_react_size < y)
+                if in_cp_x and in_cp_y:
+                    if is_uscaling:
+                        arr = [1, 3, 6, 8]
+                        if i in arr:
+                            return (
+                                MUV_UVBBState.UNIFORM_SCALING_1 +
+                                arr.index(i)
+                            )
+                    else:
+                        return MUV_UVBBState.TRANSLATING + i
 
         return MUV_UVBBState.NONE
 
@@ -615,7 +614,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
             if f.select:
                 for i, l in enumerate(f.loops):
                     uv_info.append((f.index, i, l[uv_layer].uv.copy()))
-        if len(uv_info) == 0:
+        if not uv_info:
             return None
         return uv_info
 

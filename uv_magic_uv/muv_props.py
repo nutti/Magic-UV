@@ -20,15 +20,15 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 import bpy
 from bpy.props import (
-        FloatProperty,
-        EnumProperty,
-        BoolProperty,
-        )
+    FloatProperty,
+    EnumProperty,
+    BoolProperty,
+)
 
 
 DEBUG = False
@@ -124,7 +124,7 @@ def init_props(scene):
         items=get_loaded_texture_name)
     scene.muv_texproj_tex_transparency = FloatProperty(
         name="Transparency",
-        description="Texture Transparency.",
+        description="Texture Transparency",
         default=0.2,
         min=0.0,
         max=1.0)

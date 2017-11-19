@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 import bpy
 from . import muv_cpuv_ops
@@ -29,6 +29,7 @@ from . import muv_cpuv_selseq_ops
 from . import muv_transuv_ops
 from . import muv_texlock_ops
 from . import muv_wsuv_ops
+from . import muv_uvw_ops
 
 
 class MUV_CPUVMenu(bpy.types.Menu):
@@ -119,3 +120,19 @@ class MUV_WSUVMenu(bpy.types.Menu):
             muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, icon="IMAGE_COL")
         self.layout.operator(
             muv_wsuv_ops.MUV_WSUVApply.bl_idname, icon="IMAGE_COL")
+
+
+class MUV_UVWMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of UVW
+    """
+
+    bl_idname = "uv.muv_uvw_menu"
+    bl_label = "UVW"
+    bl_description = ""
+
+    def draw(self, _):
+        self.layout.operator(
+            muv_uvw_ops.MUV_UVWBoxMap.bl_idname, icon="IMAGE_COL")
+        self.layout.operator(
+            muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname, icon="IMAGE_COL")

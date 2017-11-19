@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 from math import fabs
 from collections import defaultdict
@@ -30,10 +30,10 @@ import bpy
 import bmesh
 import mathutils
 from bpy.props import (
-        FloatProperty,
-        FloatVectorProperty,
-        BoolProperty,
-        )
+    FloatProperty,
+    FloatVectorProperty,
+    BoolProperty,
+)
 from mathutils import Vector
 
 from . import muv_common
@@ -279,7 +279,7 @@ class MUV_PackUV(bpy.types.Operator):
 
         uv_island_lists = []
         faces_left = set(self.__face_to_verts.keys())
-        while len(faces_left) > 0:
+        while faces_left:
             current_island = []
             face_idx = list(faces_left)[0]
             self.__parse_island(bm, face_idx, faces_left, current_island)

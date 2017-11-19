@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 from collections import OrderedDict
 
@@ -134,46 +134,48 @@ class MUV_TransUVPaste(bpy.types.Operator):
 
         # parse selection history
         for i, _ in enumerate(all_sel_faces):
-            if i > 0 and i % 2 != 0:
-                sel_faces = [all_sel_faces[i - 1], all_sel_faces[i]]
-                active_face = all_sel_faces[i]
+            if (i == 0) or (i % 2 == 0):
+                continue
+            sel_faces = [all_sel_faces[i - 1], all_sel_faces[i]]
+            active_face = all_sel_faces[i]
 
-                # parse all faces according to selection history
-                active_face_nor = active_face.normal.copy()
-                if self.invert_normals:
-                    active_face_nor.negate()
-                all_sorted_faces = main_parse(
-                    self, uv_layer, sel_faces, active_face,
-                    active_face_nor)
+            # parse all faces according to selection history
+            active_face_nor = active_face.normal.copy()
+            if self.invert_normals:
+                active_face_nor.negate()
+            all_sorted_faces = main_parse(
+                self, uv_layer, sel_faces, active_face,
+                active_face_nor)
 
-                if all_sorted_faces:
-                    # check amount of copied/pasted faces
-                    if len(all_sorted_faces) != len(props.topology_copied):
+            if all_sorted_faces:
+                # check amount of copied/pasted faces
+                if len(all_sorted_faces) != len(props.topology_copied):
+                    self.report(
+                        {'WARNING'},
+                        "Mesh has different amount of faces"
+                    )
+                    return {'FINISHED'}
+
+                for j, face_data in enumerate(all_sorted_faces.values()):
+                    copied_data = props.topology_copied[j]
+
+                    # check amount of copied/pasted verts
+                    if len(copied_data[0]) != len(face_data[2]):
+                        bpy.ops.mesh.select_all(action='DESELECT')
+                        # select problematic face
+                        list(all_sorted_faces.keys())[j].select = True
                         self.report(
                             {'WARNING'},
-                            "Mesh has different amount of faces"
+                            "Face have different amount of vertices"
                         )
                         return {'FINISHED'}
 
-                    for i, face_data in enumerate(all_sorted_faces.values()):
-                        copied_data = props.topology_copied[i]
-
-                        # check amount of copied/pasted verts
-                        if len(copied_data[0]) != len(face_data[2]):
-                            bpy.ops.mesh.select_all(action='DESELECT')
-                            # select problematic face
-                            list(all_sorted_faces.keys())[i].select = True
-                            self.report(
-                                {'WARNING'},
-                                "Face have different amount of vertices"
-                            )
-                            return {'FINISHED'}
-
-                        for j, (edge, uvloop) in enumerate(zip(face_data[1], face_data[2])):
-                            uvloop.uv = copied_data[0][j]
-                            uvloop.pin_uv = copied_data[1][j]
-                            if self.copy_seams:
-                                edge.seam = copied_data[2][j]
+                    for k, (edge, uvloop) in enumerate(zip(face_data[1],
+                                                           face_data[2])):
+                        uvloop.uv = copied_data[0][k]
+                        uvloop.pin_uv = copied_data[1][k]
+                        if self.copy_seams:
+                            edge.seam = copied_data[2][k]
 
         bmesh.update_edit_mesh(active_obj.data)
         if self.copy_seams:

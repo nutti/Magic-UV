@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 import bpy
 from . import muv_props
@@ -45,11 +45,9 @@ def check_version(major, minor, _):
         return 0
     if bpy.app.version[0] > major:
         return 1
-    else:
-        if bpy.app.version[1] > minor:
-            return 1
-        else:
-            return -1
+    if bpy.app.version[1] > minor:
+        return 1
+    return -1
 
 
 def redraw_all_areas():

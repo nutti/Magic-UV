@@ -20,12 +20,12 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.4"
-__date__ = "2 Aug 2017"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
 
 import bpy
 import bmesh
-from bpy.props import StringProperty
+from bpy.props import StringProperty, EnumProperty
 from mathutils import Vector
 from . import muv_common
 
@@ -41,6 +41,23 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     dest_img_name = StringProperty(options={'HIDDEN'})
+    origin = EnumProperty(
+        name="Origin",
+        description="Aspect Origin",
+        items=[
+            ('CENTER', 'Center', 'Center'),
+            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
+            ('LEFT_CENTER', 'Left Center', 'Left Center'),
+            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
+            ('CENTER_TOP', 'Center Top', 'Center Top'),
+            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
+            ('RIGHT_TOP', 'Right Top', 'Right Top'),
+            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
+            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+
+        ],
+        default="CENTER"
+    )
 
     @classmethod
     def poll(cls, context):
@@ -83,12 +100,85 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
             ratio = Vector((
                 dest_img.size[0] / src_img.size[0],
                 dest_img.size[1] / src_img.size[1]))
-            origin = Vector((100000.0, 100000.0))
-            for f in info[img]['faces']:
-                for l in f.loops:
-                    uv = l[uv_layer].uv
-                    origin.x = min(uv.x, origin.x)
-                    origin.y = min(uv.y, origin.y)
+
+            if self.origin == 'CENTER':
+                origin = Vector((0.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin = origin + uv
+                        num = num + 1
+                origin = origin / num
+            elif self.origin == 'LEFT_TOP':
+                origin = Vector((100000.0, -100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = max(origin.y, uv.y)
+            elif self.origin == 'LEFT_CENTER':
+                origin = Vector((100000.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = origin.y + uv.y
+                        num = num + 1
+                origin.y = origin.y / num
+            elif self.origin == 'LEFT_BOTTOM':
+                origin = Vector((100000.0, 100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = min(origin.y, uv.y)
+            elif self.origin == 'CENTER_TOP':
+                origin = Vector((0.0, -100000.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = origin.x + uv.x
+                        origin.y = max(origin.y, uv.y)
+                        num = num + 1
+                origin.x = origin.x / num
+            elif self.origin == 'CENTER_BOTTOM':
+                origin = Vector((0.0, 100000.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = origin.x + uv.x
+                        origin.y = min(origin.y, uv.y)
+                        num = num + 1
+                origin.x = origin.x / num
+            elif self.origin == 'RIGHT_TOP':
+                origin = Vector((-100000.0, -100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = max(origin.y, uv.y)
+            elif self.origin == 'RIGHT_CENTER':
+                origin = Vector((-100000.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = origin.y + uv.y
+                        num = num + 1
+                origin.y = origin.y / num
+            elif self.origin == 'RIGHT_BOTTOM':
+                origin = Vector((-100000.0, 100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = min(origin.y, uv.y)
+
             info[img]['ratio'] = ratio
             info[img]['origin'] = origin
 
@@ -100,11 +190,14 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
                 f[tex_layer].image = dest_img
                 for l in f.loops:
                     uv = l[uv_layer].uv
-                    diff = uv - info[img]['origin']
-                    diff.x = diff.x / info[img]['ratio'].x
-                    diff.y = diff.y / info[img]['ratio'].y
+                    origin = info[img]['origin']
+                    ratio = info[img]['ratio']
+                    diff = uv - origin
+                    diff.x = diff.x / ratio.x
+                    diff.y = diff.y / ratio.y
                     uv.x = origin.x + diff.x
                     uv.y = origin.y + diff.y
+                    l[uv_layer].uv = uv
 
         bmesh.update_edit_mesh(obj.data)
 
