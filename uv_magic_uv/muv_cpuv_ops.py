@@ -26,11 +26,11 @@ __date__ = "2 Aug 2017"
 import bpy
 import bmesh
 from bpy.props import (
-        StringProperty,
-        BoolProperty,
-        IntProperty,
-        EnumProperty,
-        )
+    StringProperty,
+    BoolProperty,
+    IntProperty,
+    EnumProperty,
+)
 from . import muv_common
 
 
@@ -85,11 +85,11 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
             if face.select:
                 uvs = [l[uv_layer].uv.copy() for l in face.loops]
                 pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
-                seams = [l.edge.seam  for l in face.loops]
+                seams = [l.edge.seam for l in face.loops]
                 props.src_uvs.append(uvs)
                 props.src_pin_uvs.append(pin_uvs)
                 props.src_seams.append(seams)
-        if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
+        if not props.src_uvs or not props.src_pin_uvs:
             self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         self.report({'INFO'}, "%d face(s) are selected" % len(props.src_uvs))
@@ -164,7 +164,7 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
-        if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
+        if not props.src_uvs or not props.src_pin_uvs:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
         if self.uv_map == "":
@@ -201,7 +201,7 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
                 dest_uvs.append(uvs)
                 dest_pin_uvs.append(pin_uvs)
                 dest_seams.append(seams)
-        if len(dest_uvs) == 0 or len(dest_pin_uvs) == 0:
+        if not dest_uvs or not dest_pin_uvs:
             self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
@@ -248,7 +248,8 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
                 spuvs_fr.insert(0, pin_uv)
                 ss_fr.insert(0, s)
             # paste UVs
-            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr, spuvs_fr, ss_fr):
+            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr,
+                                        spuvs_fr, ss_fr):
                 l[uv_layer].uv = suv
                 l[uv_layer].pin_uv = spuv
                 if self.copy_seams is True:
@@ -331,7 +332,7 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
         for face in bm.faces:
             uvs = [l[uv_layer].uv.copy() for l in face.loops]
             pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
-            seams = [l.edge.seam  for l in face.loops]
+            seams = [l.edge.seam for l in face.loops]
             props.src_uvs.append(uvs)
             props.src_pin_uvs.append(pin_uvs)
             props.src_seams.append(seams)
@@ -383,7 +384,7 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
     @memorize_view_3d_mode
     def execute(self, context):
         props = context.scene.muv_props.cpuv_obj
-        if len(props.src_uvs) == 0 or len(props.src_pin_uvs) == 0:
+        if not props.src_uvs or not props.src_pin_uvs:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
 

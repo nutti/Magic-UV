@@ -66,7 +66,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.active_object
-        return (obj and obj.type == 'MESH')
+        return obj and obj.type == 'MESH'
 
     def execute(self, context):
         obj = context.active_object
@@ -81,7 +81,6 @@ class MUV_UVWBoxMap(bpy.types.Operator):
             return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
-        tex_layer = bm.faces.layers.tex.verify()
 
         scale = 1.0 / self.size
 
@@ -173,7 +172,7 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         obj = context.active_object
-        return (obj and obj.type == 'MESH')
+        return obj and obj.type == 'MESH'
 
     def execute(self, context):
         obj = context.active_object
@@ -188,7 +187,6 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
             return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
-        tex_layer = bm.faces.layers.tex.verify()
 
         scale = 1.0 / self.size
 

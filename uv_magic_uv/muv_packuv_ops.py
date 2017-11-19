@@ -30,10 +30,10 @@ import bpy
 import bmesh
 import mathutils
 from bpy.props import (
-        FloatProperty,
-        FloatVectorProperty,
-        BoolProperty,
-        )
+    FloatProperty,
+    FloatVectorProperty,
+    BoolProperty,
+)
 from mathutils import Vector
 
 from . import muv_common
@@ -279,7 +279,7 @@ class MUV_PackUV(bpy.types.Operator):
 
         uv_island_lists = []
         faces_left = set(self.__face_to_verts.keys())
-        while len(faces_left) > 0:
+        while faces_left:
             current_island = []
             face_idx = list(faces_left)[0]
             self.__parse_island(bm, face_idx, faces_left, current_island)

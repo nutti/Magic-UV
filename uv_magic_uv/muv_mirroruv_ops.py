@@ -25,9 +25,9 @@ __date__ = "2 Aug 2017"
 
 import bpy
 from bpy.props import (
-        EnumProperty,
-        FloatProperty,
-        )
+    EnumProperty,
+    FloatProperty,
+)
 import bmesh
 from mathutils import Vector
 from . import muv_common

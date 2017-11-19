@@ -24,10 +24,10 @@ __version__ = "4.4"
 __date__ = "2 Aug 2017"
 
 from bpy.props import (
-        BoolProperty,
-        FloatProperty,
-        FloatVectorProperty,
-        )
+    BoolProperty,
+    FloatProperty,
+    FloatVectorProperty,
+)
 from bpy.types import AddonPreferences
 
 

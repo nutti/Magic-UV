@@ -25,10 +25,10 @@ __date__ = "2 Aug 2017"
 
 import bpy
 from bpy.props import (
-        FloatProperty,
-        EnumProperty,
-        BoolProperty,
-        )
+    FloatProperty,
+    EnumProperty,
+    BoolProperty,
+)
 
 
 DEBUG = False

@@ -24,10 +24,10 @@ __date__ = "2 Aug 2017"
 import bpy
 import bmesh
 from bpy.props import (
-        BoolProperty,
-        EnumProperty,
-        FloatProperty,
-        )
+    BoolProperty,
+    EnumProperty,
+    FloatProperty,
+)
 from . import muv_common
 
 

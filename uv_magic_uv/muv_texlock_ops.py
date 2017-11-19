@@ -25,9 +25,9 @@ __date__ = "2 Aug 2017"
 
 import math
 from math import (
-        atan2, cos,
-        sqrt, sin, fabs,
-        )
+    atan2, cos,
+    sqrt, sin, fabs,
+)
 
 import bpy
 import bmesh
