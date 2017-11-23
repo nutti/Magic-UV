@@ -24,7 +24,6 @@ __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
 from math import fabs
-from collections import defaultdict
 
 import bpy
 import bmesh
@@ -78,10 +77,6 @@ class MUV_PackUV(bpy.types.Operator):
         default=(0.001, 0.001),
         size=2)
 
-    def __init__(self):
-        self.__face_to_verts = defaultdict(set)
-        self.__vert_to_faces = defaultdict(set)
-
     def execute(self, _):
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
@@ -93,17 +88,7 @@ class MUV_PackUV(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
 
         selected_faces = [f for f in bm.faces if f.select]
-
-        # create mesh database
-        for f in selected_faces:
-            for l in f.loops:
-                id_ = l[uv_layer].uv.to_tuple(5), l.vert.index
-                self.__face_to_verts[f.index].add(id_)
-                self.__vert_to_faces[id_].add(f.index)
-
-        # Group island
-        uv_island_lists = self.__get_island(bm)
-        island_info = self.__get_island_info(uv_layer, uv_island_lists)
+        island_info = muv_common.get_island_info(obj)
         num_group = self.__group_island(island_info)
 
         loop_lists = [l for f in bm.faces for l in f.loops]
@@ -214,75 +199,3 @@ class MUV_PackUV(bpy.types.Operator):
             num_group = num_group + 1
 
         return num_group
-
-    def __get_island_info(self, uv_layer, islands):
-        """
-        get information about each island
-        """
-
-        island_info = []
-        for isl in islands:
-            info = {}
-            max_uv = Vector((-10000000.0, -10000000.0))
-            min_uv = Vector((10000000.0, 10000000.0))
-            ave_uv = Vector((0.0, 0.0))
-            num_uv = 0
-            for face in isl:
-                n = 0
-                a = Vector((0.0, 0.0))
-                for l in face['face'].loops:
-                    uv = l[uv_layer].uv
-                    if uv.x > max_uv.x:
-                        max_uv.x = uv.x
-                    if uv.y > max_uv.y:
-                        max_uv.y = uv.y
-                    if uv.x < min_uv.x:
-                        min_uv.x = uv.x
-                    if uv.y < min_uv.y:
-                        min_uv.y = uv.y
-                    a = a + uv
-                    n = n + 1
-                ave_uv = ave_uv + a
-                num_uv = num_uv + n
-                a = a / n
-                face['ave_uv'] = a
-            ave_uv = ave_uv / num_uv
-
-            info['center'] = ave_uv
-            info['size'] = max_uv - min_uv
-            info['num_uv'] = num_uv
-            info['group'] = -1
-            info['faces'] = isl
-
-            island_info.append(info)
-
-        return island_info
-
-    def __parse_island(self, bm, face_idx, faces_left, island):
-        """
-        Parse island
-        """
-
-        if face_idx in faces_left:
-            faces_left.remove(face_idx)
-            island.append({'face': bm.faces[face_idx]})
-            for v in self.__face_to_verts[face_idx]:
-                connected_faces = self.__vert_to_faces[v]
-                if connected_faces:
-                    for cf in connected_faces:
-                        self.__parse_island(bm, cf, faces_left, island)
-
-    def __get_island(self, bm):
-        """
-        Get island list
-        """
-
-        uv_island_lists = []
-        faces_left = set(self.__face_to_verts.keys())
-        while faces_left:
-            current_island = []
-            face_idx = list(faces_left)[0]
-            self.__parse_island(bm, face_idx, faces_left, current_island)
-            uv_island_lists.append(current_island)
-
-        return uv_island_lists

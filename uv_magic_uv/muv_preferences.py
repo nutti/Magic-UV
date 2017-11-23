@@ -43,6 +43,9 @@ class MUV_Preferences(AddonPreferences):
     enable_uvbb = BoolProperty(
         name="Bounding Box",
         default=True)
+    enable_auvc = BoolProperty(
+        name="Align UV Cursor",
+        default=True)
 
     # for Texture Projection
     texproj_canvas_padding = FloatVectorProperty(
@@ -91,6 +94,8 @@ class MUV_Preferences(AddonPreferences):
             col.prop(self, "uvbb_cp_size")
             col.prop(self, "uvbb_cp_react_size")
 
+        layout.prop(self, "enable_auvc")
+
         layout.label("Description:")
         column = layout.column(align=True)
         column.label("Magic UV is composed of many UV editing features.")
@@ -114,6 +119,7 @@ class MUV_Preferences(AddonPreferences):
         col.label("World Scale UV")
         col.label("Unwrap Constraint")
         col.label("Preserve UV Aspect")
+        col.label("UVW")
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.3)
@@ -128,6 +134,7 @@ class MUV_Preferences(AddonPreferences):
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
         col.label("Manipulate UV with Bounding Box in UV Editor")
+        col.label("Align UV Cursor")
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.3)

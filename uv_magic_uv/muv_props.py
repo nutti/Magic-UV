@@ -28,7 +28,9 @@ from bpy.props import (
     FloatProperty,
     EnumProperty,
     BoolProperty,
+    FloatVectorProperty,
 )
+from mathutils import Vector
 
 
 DEBUG = False
@@ -137,6 +139,38 @@ def init_props(scene):
         description="Apply Texture Aspect ratio to displayed texture",
         default=True)
 
+    def auvc_get_cursor_loc(self):
+        from . import muv_common
+        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                              'IMAGE_EDITOR')
+        tex_size = area.spaces.active.image.size
+        loc = space.cursor_location
+        cx = loc[0] / tex_size[0]
+        cy = loc[1] / tex_size[1]
+        self['muv_auvc_cursor_loc'] = Vector((cx, cy))
+        return self.get('muv_auvc_cursor_loc', (0.0, 0.0))
+
+    def auvc_set_cursor_loc(self, value):
+        from . import muv_common
+        self['muv_auvc_cursor_loc'] = value
+        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                              'IMAGE_EDITOR')
+        tex_size = area.spaces.active.image.size
+        cx = tex_size[0] * value[0]
+        cy = tex_size[1] * value[1]
+        space.cursor_location = Vector((cx, cy))
+
+    scene.muv_auvc_cursor_loc = FloatVectorProperty(
+        name="UV Cursor Location",
+        size=2,
+        precision=4,
+        soft_min=-1.0,
+        soft_max=1.0,
+        step=1,
+        default=(0.000, 0.000),
+        get=auvc_get_cursor_loc,
+        set=auvc_set_cursor_loc)
+
 
 def clear_props(scene):
     del scene.muv_props
@@ -146,3 +180,4 @@ def clear_props(scene):
     del scene.muv_texproj_tex_transparency
     del scene.muv_texproj_adjust_window
     del scene.muv_texproj_apply_tex_aspect
+    del scene.muv_auvc_cursor_loc

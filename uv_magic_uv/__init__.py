@@ -60,6 +60,7 @@ if "bpy" in locals():
     importlib.reload(muv_unwrapconst_ops)
     importlib.reload(muv_preserve_uv_aspect)
     importlib.reload(muv_uvw_ops)
+    importlib.reload(muv_cursor_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -79,6 +80,7 @@ else:
     from . import muv_unwrapconst_ops
     from . import muv_preserve_uv_aspect
     from . import muv_uvw_ops
+    from . import muv_auvc_ops
 
 import bpy
 
