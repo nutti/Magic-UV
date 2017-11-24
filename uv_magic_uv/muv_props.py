@@ -113,40 +113,46 @@ def init_props(scene):
     scene.muv_uvbb_uniform_scaling = BoolProperty(
         name="Uniform Scaling",
         description="Enable Uniform Scaling",
-        default=False)
+        default=False
+    )
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude",
         default=0.5,
         min=0.0,
-        max=100.0)
+        max=100.0
+    )
     scene.muv_texproj_tex_image = EnumProperty(
         name="Image",
         description="Texture Image",
-        items=get_loaded_texture_name)
+        items=get_loaded_texture_name
+    )
     scene.muv_texproj_tex_transparency = FloatProperty(
         name="Transparency",
         description="Texture Transparency",
         default=0.2,
         min=0.0,
-        max=1.0)
+        max=1.0
+    )
     scene.muv_texproj_adjust_window = BoolProperty(
         name="Adjust Window",
         description="Size of renderered texture is fitted to window",
-        default=True)
+        default=True
+    )
     scene.muv_texproj_apply_tex_aspect = BoolProperty(
         name="Texture Aspect Ratio",
         description="Apply Texture Aspect ratio to displayed texture",
-        default=True)
+        default=True
+    )
 
     def auvc_get_cursor_loc(self):
         from . import muv_common
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
         loc = space.cursor_location
-        cx = loc[0] / tex_size[0]
-        cy = loc[1] / tex_size[1]
+        cx = loc[0] / bd_size[0]
+        cy = loc[1] / bd_size[1]
         self['muv_auvc_cursor_loc'] = Vector((cx, cy))
         return self.get('muv_auvc_cursor_loc', (0.0, 0.0))
 
@@ -155,9 +161,9 @@ def init_props(scene):
         self['muv_auvc_cursor_loc'] = value
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0] * value[0]
-        cy = tex_size[1] * value[1]
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0] * value[0]
+        cy = bd_size[1] * value[1]
         space.cursor_location = Vector((cx, cy))
 
     scene.muv_auvc_cursor_loc = FloatVectorProperty(
@@ -169,7 +175,17 @@ def init_props(scene):
         step=1,
         default=(0.000, 0.000),
         get=auvc_get_cursor_loc,
-        set=auvc_set_cursor_loc)
+        set=auvc_set_cursor_loc
+    )
+    scene.muv_auvc_align_menu = EnumProperty(
+        name="Align Method",
+        description="Align Method",
+        default='TEXTURE',
+        items=[
+            ('TEXTURE', "Texture", "Align to texture"),
+            ('UV_ISLAND', "UV Island", "Align to UV island")
+        ]
+    )
 
 
 def clear_props(scene):
@@ -181,3 +197,4 @@ def clear_props(scene):
     del scene.muv_texproj_adjust_window
     del scene.muv_texproj_apply_tex_aspect
     del scene.muv_auvc_cursor_loc
+    del scene.muv_auvc_align_menu

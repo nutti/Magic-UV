@@ -203,3 +203,10 @@ def get_island_info(obj, only_selected=True):
     island_info = __get_island_info(uv_layer, uv_island_lists)
 
     return island_info
+
+
+def get_uvimg_editor_board_size(area):
+    if area.spaces.active.image:
+        return area.spaces.active.image.size
+
+    return (255.0, 255.0)

@@ -43,9 +43,9 @@ class MUV_AUVCUVICOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['center'][0] * tex_size[0]
-            cy = isl['center'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['center'][0] * bd_size[0]
+            cy = isl['center'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -64,9 +64,9 @@ class MUV_AUVCUVILTOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['min'][0] * tex_size[0]
-            cy = isl['max'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['min'][0] * bd_size[0]
+            cy = isl['max'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -85,9 +85,9 @@ class MUV_AUVCUVILMOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['min'][0] * tex_size[0]
-            cy = isl['center'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['min'][0] * bd_size[0]
+            cy = isl['center'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -106,9 +106,9 @@ class MUV_AUVCUVILBOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['min'][0] * tex_size[0]
-            cy = isl['min'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['min'][0] * bd_size[0]
+            cy = isl['min'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -127,9 +127,9 @@ class MUV_AUVCUVIMTOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['center'][0] * tex_size[0]
-            cy = isl['max'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['center'][0] * bd_size[0]
+            cy = isl['max'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -148,9 +148,9 @@ class MUV_AUVCUVIMBOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['center'][0] * tex_size[0]
-            cy = isl['min'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['center'][0] * bd_size[0]
+            cy = isl['min'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -169,9 +169,9 @@ class MUV_AUVCUVIRTOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['max'][0] * tex_size[0]
-            cy = isl['max'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['max'][0] * bd_size[0]
+            cy = isl['max'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -190,9 +190,9 @@ class MUV_AUVCUVIRMOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['max'][0] * tex_size[0]
-            cy = isl['center'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['max'][0] * bd_size[0]
+            cy = isl['center'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -211,9 +211,9 @@ class MUV_AUVCUVIRBOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['max'][0] * tex_size[0]
-            cy = isl['min'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['max'][0] * bd_size[0]
+            cy = isl['min'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -232,9 +232,9 @@ class MUV_AUVCCOps(bpy.types.Operator):
         for isl in island_info:
             area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                                   'IMAGE_EDITOR')
-            tex_size = area.spaces.active.image.size
-            cx = isl['center'][0] * tex_size[0]
-            cy = isl['center'][1] * tex_size[1]
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            cx = isl['center'][0] * bd_size[0]
+            cy = isl['center'][1] * bd_size[1]
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -250,9 +250,9 @@ class MUV_AUVCTexLTOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
         cx = 0
-        cy = tex_size[1]
+        cy = bd_size[1]
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -268,9 +268,9 @@ class MUV_AUVCTexLMOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
         cx = 0
-        cy = tex_size[1] / 2.0
+        cy = bd_size[1] / 2.0
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -303,9 +303,9 @@ class MUV_AUVCTexMTOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0] / 2.0
-        cy = tex_size[1]
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0] / 2.0
+        cy = bd_size[1]
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -321,9 +321,9 @@ class MUV_AUVCTexCOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0] / 2.0
-        cy = tex_size[1] / 2.0
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0] / 2.0
+        cy = bd_size[1] / 2.0
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -339,8 +339,8 @@ class MUV_AUVCTexMBOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0] / 2.0
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0] / 2.0
         cy = 0
         space.cursor_location = Vector((cx, cy))
 
@@ -357,9 +357,9 @@ class MUV_AUVCTexRTOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0]
-        cy = tex_size[1]
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0]
+        cy = bd_size[1]
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -375,9 +375,9 @@ class MUV_AUVCTexRMOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0]
-        cy = tex_size[1] / 2.0
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0]
+        cy = bd_size[1] / 2.0
         space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}
@@ -393,8 +393,8 @@ class MUV_AUVCTexRBOps(bpy.types.Operator):
     def execute(self, _):
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        tex_size = area.spaces.active.image.size
-        cx = tex_size[0]
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        cx = bd_size[0]
         cy = 0
         space.cursor_location = Vector((cx, cy))
 
@@ -424,41 +424,43 @@ class IMAGE_PT_MUV_AUVC(bpy.types.Panel):
         layout = self.layout
         sc = context.scene
 
-        layout.label("UV Island:")
-        col = layout.column(align=True)
+        layout.prop(sc, "muv_auvc_align_menu", expand=True)
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCUVILTOps.bl_idname, text="Left Top")
-        row.operator(MUV_AUVCUVIMTOps.bl_idname, text="Middle Top")
-        row.operator(MUV_AUVCUVIRTOps.bl_idname, text="Right Top")
+        if sc.muv_auvc_align_menu == 'UV_ISLAND':
+            col = layout.column(align=True)
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCUVILMOps.bl_idname, text="Left Middle")
-        row.operator(MUV_AUVCUVICOps.bl_idname, text="Center")
-        row.operator(MUV_AUVCUVIRMOps.bl_idname, text="Right Middle")
+            row = col.row(align=True)
+            row.operator(MUV_AUVCUVILTOps.bl_idname, text="Left Top")
+            row.operator(MUV_AUVCUVIMTOps.bl_idname, text="Middle Top")
+            row.operator(MUV_AUVCUVIRTOps.bl_idname, text="Right Top")
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCUVILBOps.bl_idname, text="Left Bottom")
-        row.operator(MUV_AUVCUVIMBOps.bl_idname, text="Middle Bottom")
-        row.operator(MUV_AUVCUVIRBOps.bl_idname, text="Right Bottom")
+            row = col.row(align=True)
+            row.operator(MUV_AUVCUVILMOps.bl_idname, text="Left Middle")
+            row.operator(MUV_AUVCUVICOps.bl_idname, text="Center")
+            row.operator(MUV_AUVCUVIRMOps.bl_idname, text="Right Middle")
 
-        layout.label("Texture:")
-        col = layout.column(align=True)
+            row = col.row(align=True)
+            row.operator(MUV_AUVCUVILBOps.bl_idname, text="Left Bottom")
+            row.operator(MUV_AUVCUVIMBOps.bl_idname, text="Middle Bottom")
+            row.operator(MUV_AUVCUVIRBOps.bl_idname, text="Right Bottom")
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCTexLTOps.bl_idname, text="Left Top")
-        row.operator(MUV_AUVCTexMTOps.bl_idname, text="Middle Top")
-        row.operator(MUV_AUVCTexRTOps.bl_idname, text="Right Top")
+        elif sc.muv_auvc_align_menu == 'TEXTURE':
+            col = layout.column(align=True)
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCTexLMOps.bl_idname, text="Left Middle")
-        row.operator(MUV_AUVCTexCOps.bl_idname, text="Center")
-        row.operator(MUV_AUVCTexRMOps.bl_idname, text="Right Middle")
+            row = col.row(align=True)
+            row.operator(MUV_AUVCTexLTOps.bl_idname, text="Left Top")
+            row.operator(MUV_AUVCTexMTOps.bl_idname, text="Middle Top")
+            row.operator(MUV_AUVCTexRTOps.bl_idname, text="Right Top")
 
-        row = col.row(align=True)
-        row.operator(MUV_AUVCTexLBOps.bl_idname, text="Left Bottom")
-        row.operator(MUV_AUVCTexMBOps.bl_idname, text="Middle Bottom")
-        row.operator(MUV_AUVCTexRBOps.bl_idname, text="Right Bottom")
+            row = col.row(align=True)
+            row.operator(MUV_AUVCTexLMOps.bl_idname, text="Left Middle")
+            row.operator(MUV_AUVCTexCOps.bl_idname, text="Center")
+            row.operator(MUV_AUVCTexRMOps.bl_idname, text="Right Middle")
+
+            row = col.row(align=True)
+            row.operator(MUV_AUVCTexLBOps.bl_idname, text="Left Bottom")
+            row.operator(MUV_AUVCTexMBOps.bl_idname, text="Middle Bottom")
+            row.operator(MUV_AUVCTexRBOps.bl_idname, text="Right Bottom")
 
         layout.label("UV Cursor Location:")
         layout.prop(sc, "muv_auvc_cursor_loc", text="")
