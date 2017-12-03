@@ -23,6 +23,9 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
+import math
+from math import atan2, sin, cos
+
 import bpy
 import bmesh
 from bpy.props import (
@@ -32,6 +35,7 @@ from bpy.props import (
     EnumProperty,
 )
 from . import muv_common
+from mathutils import Vector
 
 
 def memorize_view_3d_mode(fn):
@@ -497,3 +501,92 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
             layout.operator(
                 MUV_CPUVObjPasteUV.bl_idname,
                 text=m, icon="IMAGE_COL").uv_map = m
+
+
+class MUV_CPUVIECopyUV(bpy.types.Operator):
+    """
+    Operation class: Copy UV coordinate on UV/Image Editor
+    """
+
+    bl_idname = "object.muv_cpuv_ie_copy_uv"
+    bl_label = "Copy UV"
+    bl_description = "Copy UV coordinate (only selected in UV/Image Editor)"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'EDIT_MESH'
+
+    def execute(self, context):
+        props = context.scene.muv_props.cpuv
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        for face in bm.faces:
+            if face.select:
+                props.src_uvs.append([l[uv_layer].uv.copy() for l in face.loops])
+
+        return {'FINISHED'}
+
+
+class MUV_CPUVIEPasteUV(bpy.types.Operator):
+    """
+    Operation class: Paste UV coordinate on UV/Image Editor
+    """
+
+    bl_idname = "object.muv_cpuv_ie_paste_uv"
+    bl_label = "Paste UV"
+    bl_description = "Paste UV coordinate (only selected in UV/Image Editor)"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'EDIT_MESH'
+
+    def execute(self, context):
+        props = context.scene.muv_props.cpuv
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        dest_uvs = []
+        dest_face_indices = []
+        for face in bm.faces:
+            dest_face_indices.append(face.index)
+            if face.select:
+                uvs = [l[uv_layer].uv.copy() for l in face.loops]
+                dest_uvs.append(uvs)
+
+        for suvs, duvs in zip(props.src_uvs, dest_uvs):
+            src_diff = suvs[1] - suvs[0]
+            dest_diff = duvs[1] - duvs[0]
+
+            src_base = suvs[0]
+            dest_base = duvs[0]
+
+            src_rad = atan2(src_diff.y, src_diff.x)
+            dest_rad = atan2(dest_diff.y, dest_diff.x)
+            if src_rad < dest_rad:
+                radian = dest_rad - src_rad
+            elif src_rad > dest_rad:
+                radian = math.pi * 2 - (src_rad - dest_rad)
+            else:       # src_rad == dest_rad
+                radian = 0.0
+
+            ratio = dest_diff.length / src_diff.length
+            break
+
+        for suvs, duvs, fidx in zip(props.src_uvs, dest_uvs, dest_face_indices):
+            for l, suv, duv in zip(bm.faces[fidx].loops, suvs, duvs):
+                base = suv - src_base
+                radian_ref = atan2(base.y, base.x)
+                radian_fin = (radian + radian_ref)
+                length = base.length
+                turn = Vector((length * cos(radian_fin), length * sin(radian_fin)))
+                target_uv = Vector((turn.x * ratio, turn.y * ratio)) + dest_base
+                l[uv_layer].uv = target_uv
+
+        bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}

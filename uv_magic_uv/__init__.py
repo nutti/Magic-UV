@@ -26,9 +26,9 @@ __date__ = "19 Nov 2017"
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, "
+    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs"
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, Alexander Milovsky",
-    "version": (4, 5, 0),
+    "version": (5, 0, 0),
     "blender": (2, 79, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Manipulator Tools. See Add-ons Preferences for details",
@@ -61,6 +61,7 @@ if "bpy" in locals():
     importlib.reload(muv_preserve_uv_aspect)
     importlib.reload(muv_uvw_ops)
     importlib.reload(muv_auvc_ops)
+    importlib.reload(muv_auv_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -81,6 +82,7 @@ else:
     from . import muv_preserve_uv_aspect
     from . import muv_uvw_ops
     from . import muv_auvc_ops
+    from . import muv_auv_ops
 
 import bpy
 

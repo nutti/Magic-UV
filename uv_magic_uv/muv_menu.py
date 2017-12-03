@@ -30,6 +30,7 @@ from . import muv_transuv_ops
 from . import muv_texlock_ops
 from . import muv_wsuv_ops
 from . import muv_uvw_ops
+from . import muv_auv_ops
 
 
 class MUV_CPUVMenu(bpy.types.Menu):
@@ -136,3 +137,40 @@ class MUV_UVWMenu(bpy.types.Menu):
             muv_uvw_ops.MUV_UVWBoxMap.bl_idname, icon="IMAGE_COL")
         self.layout.operator(
             muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname, icon="IMAGE_COL")
+
+
+class IMAGE_PT_MUV(bpy.types.Panel):
+    """
+    Panel class: Magic UV on Property Panel on UV/ImageEditor
+    """
+
+    bl_space_type = 'IMAGE_EDITOR'
+    bl_region_type = 'TOOLS'
+    bl_label = "Magic UV"
+    bl_category = "Magic UV"
+    bl_context = 'mesh_edit'
+
+    def draw_header(self, _):
+        layout = self.layout
+        layout.label(text="", icon='IMAGE_COL')
+
+    def draw(self, _):
+        layout = self.layout
+
+        layout.label("Align UV")
+
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        row.operator(muv_auv_ops.MUV_AUVCircle.bl_idname, text="Circle")
+        row.operator(muv_auv_ops.MUV_AUVSmooth.bl_idname, text="Smooth")
+
+        row = col.row(align=True)
+        row.operator(muv_auv_ops.MUV_AUVStraighten.bl_idname, text="Straighten")
+        row.operator(muv_auv_ops.MUV_AUVAxis.bl_idname, text="XY-axis")
+
+        layout.label("Copy/Paste UV")
+
+        row = layout.row(align=True)
+        row.operator(muv_cpuv_ops.MUV_CPUVIECopyUV.bl_idname, text="Copy UV")
+        row.operator(muv_cpuv_ops.MUV_CPUVIEPasteUV.bl_idname, text="Paste UV")
+

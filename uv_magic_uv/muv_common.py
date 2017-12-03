@@ -187,6 +187,11 @@ def get_island_info(obj, only_selected=True):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:
         bm.faces.ensure_lookup_table()
+
+    return get_island_info_from_bmesh(bm, only_selected)
+
+
+def get_island_info_from_bmesh(bm, only_selected=True):
     if not bm.loops.layers.uv:
         return None
     uv_layer = bm.loops.layers.uv.verify()
