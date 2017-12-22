@@ -193,14 +193,14 @@ def get_closed_loop_sequences(bm, uv_layer):
         return [lp, ln]
 
     # get loop sequence in the same island
-    def get_loop_sequence(pairs, island_info):
+    def get_loop_sequence(uv_layer, pairs, island_info):
         loop_sequences = []
         for pair in pairs:
             seqs = [pair]
             p = pair
             isl_grp = get_island_group_include_pair(pair, island_info)
             if isl_grp == -1:
-                return None     # error
+                return None, "Can not find the island or invalid island"
 
             while True:
                 nlp = get_next_loop_pair(p)
@@ -209,6 +209,11 @@ def get_closed_loop_sequences(bm, uv_layer):
                 nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
                 if nlp_isl_grp != isl_grp:
                     break       # another island
+                for nlpl in nlp:
+                    if nlpl[uv_layer].select:
+                        return None, \
+                               "Do not select UV which does not belong to " \
+                               "the end edge"
 
                 seqs.append(nlp)
 
@@ -222,13 +227,18 @@ def get_closed_loop_sequences(bm, uv_layer):
                 nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
                 if nplp_isl_grp != isl_grp:
                     break       # another island
+                for nlpl in nlp:
+                    if nlpl[uv_layer].select:
+                        return None, \
+                               "Do not select UV which does not belong to " \
+                               "the end edge"
 
                 seqs.append(nplp)
 
                 p = nplp
 
             loop_sequences.append(seqs)
-        return loop_sequences
+        return loop_sequences, ""
 
     sel_faces = [f for f in bm.faces if f.select]
 
@@ -246,9 +256,9 @@ def get_closed_loop_sequences(bm, uv_layer):
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
     loop_pairs = sort_loop_pairs(loop_pairs)
-    loop_seqs = get_loop_sequence(loop_pairs, isl_info)
+    loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
     if not loop_seqs:
-        return None, "Failed to get loop sequence"
+        return None, err
 
     return loop_seqs, ""
 
@@ -274,14 +284,14 @@ def get_loop_sequences(bm, uv_layer):
         return [lp, ln]
 
     # get loop sequence in the same island
-    def get_loop_sequence(pairs, island_info):
+    def get_loop_sequence(uv_layer, pairs, island_info):
         loop_sequences = []
         for pair in pairs:
             seqs = [pair]
             p = pair
             isl_grp = get_island_group_include_pair(pair, island_info)
             if isl_grp == -1:
-                return None     # error
+                return None, "Can not find the island or invalid island"
 
             while True:
                 nlp = get_next_loop_pair(p)
@@ -290,6 +300,11 @@ def get_loop_sequences(bm, uv_layer):
                 nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
                 if nlp_isl_grp != isl_grp:
                     break       # another island
+                for nlpl in nlp:
+                    if nlpl[uv_layer].select:
+                        return None, \
+                               "Do not select UV which does not belong to " \
+                               "the end edge"
 
                 seqs.append(nlp)
 
@@ -299,13 +314,18 @@ def get_loop_sequences(bm, uv_layer):
                 nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
                 if nplp_isl_grp != isl_grp:
                     break       # another island
+                for nlpl in nlp:
+                    if nlpl[uv_layer].select:
+                        return None, \
+                               "Do not select UV which does not belong to " \
+                               "the end edge"
 
                 seqs.append(nplp)
 
                 p = nplp
 
             loop_sequences.append(seqs)
-        return loop_sequences
+        return loop_sequences, ""
 
     sel_faces = [f for f in bm.faces if f.select]
 
@@ -323,9 +343,9 @@ def get_loop_sequences(bm, uv_layer):
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
     loop_pairs = sort_loop_pairs(loop_pairs)
-    loop_seqs = get_loop_sequence(loop_pairs, isl_info)
+    loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
     if not loop_seqs:
-        return None, "Failed to get loop sequence"
+        return None, err
 
     return loop_seqs, ""
 
