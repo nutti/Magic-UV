@@ -151,8 +151,14 @@ def init_props(scene):
                                               'IMAGE_EDITOR')
         bd_size = muv_common.get_uvimg_editor_board_size(area)
         loc = space.cursor_location
-        cx = loc[0] / bd_size[0]
-        cy = loc[1] / bd_size[1]
+        if bd_size[0] < 0.000001:
+            cx = 0.0
+        else:
+            cx = loc[0] / bd_size[0]
+        if bd_size[1] < 0.000001:
+            cy = 0.0
+        else:
+            cy = loc[1] / bd_size[1]
         self['muv_auvc_cursor_loc'] = Vector((cx, cy))
         return self.get('muv_auvc_cursor_loc', (0.0, 0.0))
 
