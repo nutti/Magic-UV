@@ -79,7 +79,7 @@ def get_loop_pairs(l, uv_layer):
 
 # sort pair by vertex
 # (v0, v1) - (v1, v2) - (v2, v3) ....
-def sort_loop_pairs(uv_layer, pairs):
+def sort_loop_pairs(uv_layer, pairs, closed):
     rest = pairs
     sorted_pairs = [rest[0]]
     rest.remove(rest[0])
@@ -118,6 +118,9 @@ def sort_loop_pairs(uv_layer, pairs):
     end_vert = sorted_pairs[-1][-1].vert
     if begin_vert != end_vert:
         return sorted_pairs, ""
+    if closed and (begin_vert == end_vert):
+        # if the sequence of UV is circular, it is ok
+        return sorted_pairs, ""
 
     # if the begin vertex and the end vertex are same, search the UVs which
     # are separated each other
@@ -138,6 +141,32 @@ def sort_loop_pairs(uv_layer, pairs):
             return None, "All UVs are not separted"
 
     return sorted_pairs, ""
+
+
+# x ---- x   <- next_loop_pair
+# |      |
+# o ---- o   <- pair
+def get_next_loop_pair(pair):
+    lp = pair[0].link_loop_prev
+    if lp.vert == pair[1].vert:
+        lp = pair[0].link_loop_next
+        if lp.vert == pair[1].vert:
+            # no loop is found
+            return None
+
+    ln = pair[1].link_loop_next
+    if ln.vert == pair[0].vert:
+        ln = pair[1].link_loop_prev
+        if ln.vert == pair[0].vert:
+            # no loop is found
+            return None
+
+    # tri-face
+    if lp == ln:
+        return [lp]
+
+    # quad-face
+    return [lp, ln]
 
 
 # | ---- |
@@ -189,93 +218,70 @@ def get_island_group_include_pair(pair, island_info):
     return l1_grp
 
 
+# get loop sequence in the same island
+def get_loop_sequence_internal(uv_layer, pairs, island_info, closed):
+    loop_sequences = []
+    for i, pair in enumerate(pairs):
+        seqs = [pair]
+        p = pair
+        isl_grp = get_island_group_include_pair(pair, island_info)
+        if isl_grp == -1:
+            return None, "Can not find the island or invalid island"
+
+        while True:
+            nlp = get_next_loop_pair(p)
+            if not nlp:
+                break       # no more loop pair
+            nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
+            if nlp_isl_grp != isl_grp:
+                break       # another island
+            for nlpl in nlp:
+                if nlpl[uv_layer].select:
+                    return None, \
+                           "Do not select UV which does not belong to " \
+                           "the end edge"
+
+            seqs.append(nlp)
+
+            # when face is triangle, it indicates CLOSED
+            if (len(nlp) == 1) and closed:
+                break
+
+            nplp = get_next_poly_loop_pair(nlp)
+            if not nplp:
+                break       # no more loop pair
+            nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
+            if nplp_isl_grp != isl_grp:
+                break       # another island
+
+            # check if the UVs are already parsed.
+            # this check is needed for the mesh which has the circular
+            # sequence of the verticies
+            matched = False
+            for p1 in seqs:
+                p2 = nplp
+                if ((p1[0] == p2[0]) and (p1[1] == p2[1])) or \
+                   ((p1[0] == p2[1]) and (p1[1] == p2[0])):
+                    matched = True
+            if matched:
+                muv_common.debug_print("This is a circular sequence")
+                break
+
+            for nlpl in nplp:
+                if nlpl[uv_layer].select:
+                    return None, \
+                           "Do not select UV which does not belong to " \
+                           "the end edge"
+
+            seqs.append(nplp)
+
+            p = nplp
+
+        loop_sequences.append(seqs)
+    return loop_sequences, ""
+
+
 def get_closed_loop_sequences(bm, uv_layer):
-    # x ---- x   <- next_loop_pair
-    # |      |
-    # o ---- o   <- pair
-    def get_next_loop_pair(pair):
-        lp = pair[0].link_loop_prev
-        if lp.vert == pair[1].vert:
-            lp = pair[0].link_loop_next
-            if lp.vert == pair[1].vert:
-                # no loop is found
-                return None
-
-        ln = pair[1].link_loop_next
-        if ln.vert == pair[0].vert:
-            ln = pair[1].link_loop_prev
-            if ln.vert == pair[0].vert:
-                # no loop is found
-                return None
-
-        # tri-face
-        if lp == ln:
-            return [lp]
-
-        # quad-face
-        return [lp, ln]
-
-    # get loop sequence in the same island
-    def get_loop_sequence(uv_layer, pairs, island_info):
-        loop_sequences = []
-        for pair in pairs:
-            seqs = [pair]
-            p = pair
-            isl_grp = get_island_group_include_pair(pair, island_info)
-            if isl_grp == -1:
-                return None, "Can not find the island or invalid island"
-
-            while True:
-                nlp = get_next_loop_pair(p)
-                if not nlp:
-                    break       # no more loop pair
-                nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
-                if nlp_isl_grp != isl_grp:
-                    break       # another island
-                for tmp_pair in nlp:
-                    if tmp_pair[uv_layer].select:
-                        return None, \
-                               "Do not select UV which does not belong to " \
-                               "the end edge"
-
-                seqs.append(nlp)
-
-                # last face is triangle
-                if len(nlp) == 1:
-                    break
-
-                nplp = get_next_poly_loop_pair(nlp)
-                if not nplp:
-                    break       # no more loop pair
-                nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
-                if nplp_isl_grp != isl_grp:
-                    break       # another island
-                for tmp_pair in nplp:
-                    if tmp_pair[uv_layer].select:
-                        return None, \
-                               "Do not select UV which does not belong to " \
-                               "the end edge"
-
-                # check if the UVs are already parsed.
-                # this check is needed for the mesh which has the circular
-                # sequence of the verticies
-                matched = False
-                for p1 in seqs:
-                    p2 = nplp
-                    if ((p1[0] == p2[0]) and (p1[1] == p2[1])) or \
-                       ((p1[0] == p2[1]) and (p1[1] == p2[0])):
-                        matched = True
-                if matched:
-                    muv_common.debug_print("This is a circular sequence")
-                    break
-
-                seqs.append(nplp)
-
-                p = nplp
-
-            loop_sequences.append(seqs)
-        return loop_sequences, ""
-
     sel_faces = [f for f in bm.faces if f.select]
 
     # get candidate loops
@@ -291,10 +297,11 @@ def get_closed_loop_sequences(bm, uv_layer):
     first_loop = cand_loops[0]
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
-    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs)
+    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs, True)
     if not loop_pairs:
         return None, err
-    loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
+    loop_seqs, err = get_loop_sequence_internal(uv_layer, loop_pairs, isl_info,
+                                                True)
     if not loop_seqs:
         return None, err
 
@@ -302,83 +309,6 @@ def get_closed_loop_sequences(bm, uv_layer):
 
 
 def get_loop_sequences(bm, uv_layer):
-    # x ---- x   <- next_loop_pair
-    # |      |
-    # o ---- o   <- pair
-    def get_next_loop_pair(pair):
-        lp = pair[0].link_loop_prev
-        if lp.vert == pair[1].vert:
-            lp = pair[0].link_loop_next
-            if lp.vert == pair[1].vert:
-                # no loop is found
-                return None
-
-        ln = pair[1].link_loop_next
-        if ln.vert == pair[0].vert:
-            ln = pair[1].link_loop_prev
-            if ln.vert == pair[0].vert:
-                # no loop is found
-                return None
-        return [lp, ln]
-
-    # get loop sequence in the same island
-    def get_loop_sequence(uv_layer, pairs, island_info):
-        loop_sequences = []
-        for i, pair in enumerate(pairs):
-            seqs = [pair]
-            p = pair
-            isl_grp = get_island_group_include_pair(pair, island_info)
-            if isl_grp == -1:
-                return None, "Can not find the island or invalid island"
-
-            while True:
-                nlp = get_next_loop_pair(p)
-                if not nlp:
-                    break       # no more loop pair
-                nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
-                if nlp_isl_grp != isl_grp:
-                    break       # another island
-                for nlpl in nlp:
-                    if nlpl[uv_layer].select:
-                        return None, \
-                               "Do not select UV which does not belong to " \
-                               "the end edge"
-
-                seqs.append(nlp)
-
-                nplp = get_next_poly_loop_pair(nlp)
-                if not nplp:
-                    break       # no more loop pair
-                nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
-                if nplp_isl_grp != isl_grp:
-                    break       # another island
-
-                # check if the UVs are already parsed.
-                # this check is needed for the mesh which has the circular
-                # sequence of the verticies
-                matched = False
-                for p1 in seqs:
-                    p2 = nplp
-                    if ((p1[0] == p2[0]) and (p1[1] == p2[1])) or \
-                       ((p1[0] == p2[1]) and (p1[1] == p2[0])):
-                        matched = True
-                if matched:
-                    muv_common.debug_print("This is a circular sequence")
-                    break
-
-                for nlpl in nplp:
-                    if nlpl[uv_layer].select:
-                        return None, \
-                               "Do not select UV which does not belong to " \
-                               "the end edge"
-
-                seqs.append(nplp)
-
-                p = nplp
-
-            loop_sequences.append(seqs)
-        return loop_sequences, ""
-
     sel_faces = [f for f in bm.faces if f.select]
 
     # get candidate loops
@@ -394,10 +324,11 @@ def get_loop_sequences(bm, uv_layer):
     first_loop = cand_loops[0]
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
-    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs)
+    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs, False)
     if not loop_pairs:
         return None, err
-    loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
+    loop_seqs, err = get_loop_sequence_internal(uv_layer, loop_pairs, isl_info,
+                                                False)
     if not loop_seqs:
         return None, err
 
