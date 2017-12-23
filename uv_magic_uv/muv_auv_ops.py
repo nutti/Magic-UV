@@ -232,8 +232,8 @@ def get_closed_loop_sequences(bm, uv_layer):
                 nlp_isl_grp = get_island_group_include_pair(nlp, island_info)
                 if nlp_isl_grp != isl_grp:
                     break       # another island
-                for nlpl in nlp:
-                    if nlpl[uv_layer].select:
+                for tmp_pair in nlp:
+                    if tmp_pair[uv_layer].select:
                         return None, \
                                "Do not select UV which does not belong to " \
                                "the end edge"
@@ -250,11 +250,24 @@ def get_closed_loop_sequences(bm, uv_layer):
                 nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
                 if nplp_isl_grp != isl_grp:
                     break       # another island
-                for nlpl in nlp:
-                    if nlpl[uv_layer].select:
+                for tmp_pair in nplp:
+                    if tmp_pair[uv_layer].select:
                         return None, \
                                "Do not select UV which does not belong to " \
                                "the end edge"
+
+                # check if the UVs are already parsed.
+                # this check is needed for the mesh which has the circular
+                # sequence of the verticies
+                matched = False
+                for p1 in seqs:
+                    p2 = nplp
+                    if ((p1[0] == p2[0]) and (p1[1] == p2[1])) or \
+                       ((p1[0] == p2[1]) and (p1[1] == p2[0])):
+                        matched = True
+                if matched:
+                    muv_common.debug_print("This is a circular sequence")
+                    break
 
                 seqs.append(nplp)
 
@@ -311,7 +324,7 @@ def get_loop_sequences(bm, uv_layer):
     # get loop sequence in the same island
     def get_loop_sequence(uv_layer, pairs, island_info):
         loop_sequences = []
-        for pair in pairs:
+        for i, pair in enumerate(pairs):
             seqs = [pair]
             p = pair
             isl_grp = get_island_group_include_pair(pair, island_info)
@@ -339,7 +352,21 @@ def get_loop_sequences(bm, uv_layer):
                 nplp_isl_grp = get_island_group_include_pair(nplp, island_info)
                 if nplp_isl_grp != isl_grp:
                     break       # another island
-                for nlpl in nlp:
+
+                # check if the UVs are already parsed.
+                # this check is needed for the mesh which has the circular
+                # sequence of the verticies
+                matched = False
+                for p1 in seqs:
+                    p2 = nplp
+                    if ((p1[0] == p2[0]) and (p1[1] == p2[1])) or \
+                       ((p1[0] == p2[1]) and (p1[1] == p2[0])):
+                        matched = True
+                if matched:
+                    muv_common.debug_print("This is a circular sequence")
+                    break
+
+                for nlpl in nplp:
                     if nlpl[uv_layer].select:
                         return None, \
                                "Do not select UV which does not belong to " \
