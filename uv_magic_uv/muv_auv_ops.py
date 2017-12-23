@@ -79,7 +79,7 @@ def get_loop_pairs(l, uv_layer):
 
 # sort pair by vertex
 # (v0, v1) - (v1, v2) - (v2, v3) ....
-def sort_loop_pairs(pairs):
+def sort_loop_pairs(uv_layer, pairs):
     rest = pairs
     sorted_pairs = [rest[0]]
     rest.remove(rest[0])
@@ -114,7 +114,30 @@ def sort_loop_pairs(pairs):
         else:
             break
 
-    return sorted_pairs
+    begin_vert = sorted_pairs[0][0].vert
+    end_vert = sorted_pairs[-1][-1].vert
+    if begin_vert != end_vert:
+        return sorted_pairs, ""
+
+    # if the begin vertex and the end vertex are same, search the UVs which
+    # are separated each other
+    tmp_pairs = sorted_pairs
+    for i, (p1, p2) in enumerate(zip(tmp_pairs[:-1], tmp_pairs[1:])):
+        diff = p2[0][uv_layer].uv - p1[-1][uv_layer].uv
+        if diff.length > 0.000000001:
+            # UVs are separated
+            sorted_pairs = tmp_pairs[i+1:]
+            sorted_pairs.extend(tmp_pairs[:i+1])
+            break
+    else:
+        p1 = tmp_pairs[0]
+        p2 = tmp_pairs[-1]
+        diff = p2[-1][uv_layer].uv - p1[0][uv_layer].uv
+        if diff.length < 0.000000001:
+            # all UVs are not separated
+            return None, "All UVs are not separted"
+
+    return sorted_pairs, ""
 
 
 # | ---- |
@@ -255,7 +278,9 @@ def get_closed_loop_sequences(bm, uv_layer):
     first_loop = cand_loops[0]
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
-    loop_pairs = sort_loop_pairs(loop_pairs)
+    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs)
+    if not loop_pairs:
+        return None, err
     loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
     if not loop_seqs:
         return None, err
@@ -342,7 +367,9 @@ def get_loop_sequences(bm, uv_layer):
     first_loop = cand_loops[0]
     isl_info = muv_common.get_island_info_from_bmesh(bm, False)
     loop_pairs = get_loop_pairs(first_loop, uv_layer)
-    loop_pairs = sort_loop_pairs(loop_pairs)
+    loop_pairs, err = sort_loop_pairs(uv_layer, loop_pairs)
+    if not loop_pairs:
+        return None, err
     loop_seqs, err = get_loop_sequence(uv_layer, loop_pairs, isl_info)
     if not loop_seqs:
         return None, err
