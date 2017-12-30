@@ -224,10 +224,12 @@ class MUV_TexLockStop(bpy.types.Operator):
 
     connect = BoolProperty(
         name="Connect UV",
-        default=True)
+        default=True
+    )
 
     def execute(self, context):
-        props = context.scene.muv_props.texlock
+        sc = context.scene
+        props = sc.muv_props.texlock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:

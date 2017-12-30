@@ -202,22 +202,3 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
-
-
-class MUV_PreserveUVAspectMenu(bpy.types.Menu):
-    """
-    Menu class: Preserve UV Aspect
-    """
-
-    bl_idname = "uv.muv_preserve_uv_aspect_menu"
-    bl_label = "Preserve UV Aspect"
-    bl_description = "Preserve UV Aspect"
-
-    def draw(self, _):
-        layout = self.layout
-
-        # create sub menu
-        for key in bpy.data.images.keys():
-            layout.operator(
-                MUV_PreserveUVAspect.bl_idname,
-                text=key, icon="IMAGE_COL").dest_img_name = key

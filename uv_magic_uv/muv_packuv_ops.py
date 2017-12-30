@@ -68,16 +68,18 @@ class MUV_PackUV(bpy.types.Operator):
         min=0.000001,
         max=0.1,
         default=(0.001, 0.001),
-        size=2)
+        size=2
+    )
     allowable_size_deviation = FloatVectorProperty(
         name="Allowable Size Deviation",
         description="Allowable sizse deviation to judge same UV island",
         min=0.000001,
         max=0.1,
         default=(0.001, 0.001),
-        size=2)
+        size=2
+    )
 
-    def execute(self, _):
+    def execute(self, context):
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -168,13 +170,17 @@ class MUV_PackUV(bpy.types.Operator):
                     dsx = isl_2['size'].x - isl_1['size'].x
                     dsy = isl_2['size'].y - isl_1['size'].y
                     center_x_matched = (
-                        fabs(dcx) < self.allowable_center_deviation[0])
+                        fabs(dcx) < self.allowable_center_deviation[0]
+                    )
                     center_y_matched = (
-                        fabs(dcy) < self.allowable_center_deviation[1])
+                        fabs(dcy) < self.allowable_center_deviation[1]
+                    )
                     size_x_matched = (
-                        fabs(dsx) < self.allowable_size_deviation[0])
+                        fabs(dsx) < self.allowable_size_deviation[0]
+                    )
                     size_y_matched = (
-                        fabs(dsy) < self.allowable_size_deviation[1])
+                        fabs(dsy) < self.allowable_size_deviation[1]
+                    )
                     center_matched = center_x_matched and center_y_matched
                     size_matched = size_x_matched and size_y_matched
                     num_uv_matched = (isl_2['num_uv'] == isl_1['num_uv'])

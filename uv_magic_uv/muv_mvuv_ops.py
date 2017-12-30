@@ -64,6 +64,7 @@ class MUV_MVUV(bpy.types.Operator):
         return context.edit_object
 
     def modal(self, context, event):
+        props = context.scene.muv_props.mvuv
         if self.__first_time is True:
             self.__prev_mouse = Vector((
                 event.mouse_region_x, event.mouse_region_y))
@@ -84,7 +85,7 @@ class MUV_MVUV(bpy.types.Operator):
             event.mouse_region_x, event.mouse_region_y))
 
         # check if operation is started
-        if self.__running is True:
+        if self.__running:
             if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
                 self.__running = False
             return {'RUNNING_MODAL'}
@@ -110,16 +111,20 @@ class MUV_MVUV(bpy.types.Operator):
         if event.type == cancel_btn and event.value == 'PRESS':
             for (fidx, vidx), uv in zip(self.__topology_dict, self.__ini_uvs):
                 bm.faces[fidx].loops[vidx][active_uv].uv = uv
+            props.running = False
             return {'FINISHED'}
         # confirmed
         if event.type == confirm_btn and event.value == 'PRESS':
+            props.running = False
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
-        self.__first_time = True
+        props = context.scene.muv_props.mvuv
+        props.running = True
         self.__running = True
+        self.__first_time = True
         context.window_manager.modal_handler_add(self)
         self.__topology_dict, self.__ini_uvs = self.__find_uv(context)
         return {'RUNNING_MODAL'}

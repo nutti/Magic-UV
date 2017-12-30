@@ -36,17 +36,6 @@ class MUV_Preferences(AddonPreferences):
 
     bl_idname = __package__
 
-    # enable/disable switcher
-    enable_texproj = BoolProperty(
-        name="Texture Projection",
-        default=True)
-    enable_uvbb = BoolProperty(
-        name="Bounding Box",
-        default=True)
-    enable_auvc = BoolProperty(
-        name="Align UV Cursor",
-        default=True)
-
     # for Texture Projection
     texproj_canvas_padding = FloatVectorProperty(
         name="Canvas Padding",
@@ -75,26 +64,22 @@ class MUV_Preferences(AddonPreferences):
 
         layout.label("Switch Enable/Disable and Configurate Features:")
 
-        layout.prop(self, "enable_texproj")
-        if self.enable_texproj:
-            sp = layout.split(percentage=0.05)
-            col = sp.column()       # spacer
-            sp = sp.split(percentage=0.3)
-            col = sp.column()
-            col.label("Texture Display: ")
-            col.prop(self, "texproj_canvas_padding")
+        layout.label("Texture Projection:")
+        sp = layout.split(percentage=0.05)
+        col = sp.column()       # spacer
+        sp = sp.split(percentage=0.3)
+        col = sp.column()
+        col.label("Texture Display: ")
+        col.prop(self, "texproj_canvas_padding")
 
-        layout.prop(self, "enable_uvbb")
-        if self.enable_uvbb:
-            sp = layout.split(percentage=0.05)
-            col = sp.column()       # spacer
-            sp = sp.split(percentage=0.3)
-            col = sp.column()
-            col.label("Control Point: ")
-            col.prop(self, "uvbb_cp_size")
-            col.prop(self, "uvbb_cp_react_size")
-
-        layout.prop(self, "enable_auvc")
+        layout.label("UV Bounding Box:")
+        sp = layout.split(percentage=0.05)
+        col = sp.column()       # spacer
+        sp = sp.split(percentage=0.3)
+        col = sp.column()
+        col.label("Control Point: ")
+        col.prop(self, "uvbb_cp_size")
+        col.prop(self, "uvbb_cp_react_size")
 
         layout.label("Description:")
         column = layout.column(align=True)

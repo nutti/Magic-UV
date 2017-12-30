@@ -717,37 +717,3 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         props.running = True
 
         return {'RUNNING_MODAL'}
-
-
-class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
-    """
-    Panel class: UV Bounding Box Menu on Property Panel on UV/ImageEditor
-    """
-
-    bl_space_type = 'IMAGE_EDITOR'
-    bl_region_type = 'UI'
-    bl_label = "UV Bounding Box"
-    bl_context = 'mesh_edit'
-
-    @classmethod
-    def poll(cls, context):
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        return prefs.enable_uvbb
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        props = sc.muv_props.uvbb
-        layout = self.layout
-        if props.running is False:
-            layout.operator(
-                MUV_UVBBUpdater.bl_idname, text="Display UV Bounding Box",
-                icon='PLAY')
-        else:
-            layout.operator(
-                MUV_UVBBUpdater.bl_idname, text="Hide UV Bounding Box",
-                icon='PAUSE')
-        layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")

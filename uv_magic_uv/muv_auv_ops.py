@@ -479,7 +479,7 @@ class MUV_AUVSmooth(bpy.types.Operator):
         description="Smooth linked UVs",
         default=False
     )
-    mesh_influence = FloatProperty(
+    mesh_infl = FloatProperty(
         name="Mesh Influence",
         description="Influence rate of mesh vertex",
         min=0.0,
@@ -530,8 +530,8 @@ class MUV_AUVSmooth(bpy.types.Operator):
                 # target = no influenced * (1 - infl) + influenced * infl
                 tgt_noinfl = full_uvlen * (hidx + pidx) / (len(loop_seqs))
                 tgt_infl = full_uvlen * accm_vlens[hidx*2 + pidx] / full_vlen
-                target_length = tgt_noinfl * (1 - self.mesh_influence) +\
-                                tgt_infl * self.mesh_influence
+                target_length = tgt_noinfl * (1 - self.mesh_infl) +\
+                                tgt_infl * self.mesh_infl
 
                 # get target UV
                 for i in range(len(accm_uvlens[:-1])):
@@ -603,8 +603,8 @@ class MUV_AUVSmooth(bpy.types.Operator):
                     # target = no influenced * (1 - infl) + influenced * infl
                     tgt_noinfl = full_uv * (hidx + pidx) / (len(loop_seqs))
                     tgt_infl = full_uv * accm_v[hidx * 2 + pidx] / full_v
-                    target_length = tgt_noinfl * (1 - self.mesh_influence) +\
-                                    tgt_infl * self.mesh_influence
+                    target_length = tgt_noinfl * (1 - self.mesh_infl) +\
+                                    tgt_infl * self.mesh_infl
 
                     # get target UV
                     for i in range(len(accm_uv[:-1])):
@@ -743,6 +743,11 @@ class MUV_AUVStraighten(bpy.types.Operator):
         description="Align linked UVs",
         default=False
     )
+    select = BoolProperty(
+        name="Select",
+        description="Select UVs which are aligned",
+        default=False
+    )
     vertical = BoolProperty(
         name="Vert-Infl (Vertical)",
         description="Align vertical direction influenced "
@@ -753,11 +758,6 @@ class MUV_AUVStraighten(bpy.types.Operator):
         name="Vert-Infl (Horizontal)",
         description="Align horizontal direction influenced "
                     "by mesh vertex proportion",
-        default=False
-    )
-    select = BoolProperty(
-        name="Select",
-        description="Select UVs which are aligned",
         default=False
     )
 
@@ -874,19 +874,14 @@ class MUV_AUVAxis(bpy.types.Operator):
     bl_description = "Align UV to XY-axis"
     bl_options = {'REGISTER', 'UNDO'}
 
-    align = EnumProperty(
-        name="Align",
-        description="Align to ...",
-        items=[
-            ('LEFT_TOP', "Left/Top", "Align to Left or Top"),
-            ('MIDDLE', "Middle", "Align to middle"),
-            ('RIGHT_BOTTOM', "Right/Bottom", "Align to Right or Bottom")
-        ],
-        default='MIDDLE'
-    )
     transmission = BoolProperty(
         name="Transmission",
         description="Align linked UVs",
+        default=False
+    )
+    select = BoolProperty(
+        name="Select",
+        description="Select UVs which are aligned",
         default=False
     )
     vertical = BoolProperty(
@@ -901,10 +896,15 @@ class MUV_AUVAxis(bpy.types.Operator):
                     "by mesh vertex proportion",
         default=False
     )
-    select = BoolProperty(
-        name="Select",
-        description="Select UVs which are aligned",
-        default=False
+    location = EnumProperty(
+        name="Location",
+        description="Align location",
+        items=[
+            ('LEFT_TOP', "Left/Top", "Align to Left or Top"),
+            ('MIDDLE', "Middle", "Align to middle"),
+            ('RIGHT_BOTTOM', "Right/Bottom", "Align to Right or Bottom")
+        ],
+        default='MIDDLE'
     )
 
     @classmethod
@@ -935,11 +935,11 @@ class MUV_AUVAxis(bpy.types.Operator):
             luv1 = pair[1][uv_layer]
             target_uv0 = Vector((0.0, 0.0))
             target_uv1 = Vector((0.0, 0.0))
-            if self.align == 'RIGHT_BOTTOM':
+            if self.location == 'RIGHT_BOTTOM':
                 target_uv0.y = target_uv1.y = uv_min.y
-            elif self.align == 'MIDDLE':
+            elif self.location == 'MIDDLE':
                 target_uv0.y = target_uv1.y = uv_min.y + height * 0.5
-            elif self.align == 'LEFT_TOP':
+            elif self.location == 'LEFT_TOP':
                 target_uv0.y = target_uv1.y = uv_min.y + height
             if luv0.uv.x < luv1.uv.x:
                 target_uv0.x = uv_min.x + hidx * width / len(loop_seqs)
@@ -961,11 +961,11 @@ class MUV_AUVAxis(bpy.types.Operator):
             luv1 = pair[1][uv_layer]
             target_uv0 = Vector((0.0, 0.0))
             target_uv1 = Vector((0.0, 0.0))
-            if self.align == 'RIGHT_BOTTOM':
+            if self.location == 'RIGHT_BOTTOM':
                 target_uv0.x = target_uv1.x = uv_min.x + width
-            elif self.align == 'MIDDLE':
+            elif self.location == 'MIDDLE':
                 target_uv0.x = target_uv1.x = uv_min.x + width * 0.5
-            elif self.align == 'LEFT_TOP':
+            elif self.location == 'LEFT_TOP':
                 target_uv0.x = target_uv1.x = uv_min.x
             if luv0.uv.y < luv1.uv.y:
                 target_uv0.y = uv_min.y + hidx * height / len(loop_seqs)
@@ -978,8 +978,8 @@ class MUV_AUVAxis(bpy.types.Operator):
         return diff_uvs
 
     # only selected UV loop sequence will be aligned along to X-axis
-    def __align_to_x_axis_wo_transmission(self, loop_seqs, uv_layer, uv_min,
-                                          width, height):
+    def __align_to_x_axis_wo_transmission(self, loop_seqs, uv_layer,
+                                          uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
         need_revese = loop_seqs[0][0][0][uv_layer].uv.x\
                       > loop_seqs[-1][0][0][uv_layer].uv.x
@@ -1004,8 +1004,8 @@ class MUV_AUVAxis(bpy.types.Operator):
             luv1.uv = luv1.uv + duv[1]
 
     # only selected UV loop sequence will be aligned along to Y-axis
-    def __align_to_y_axis_wo_transmission(self, loop_seqs, uv_layer, uv_min,
-                                          width, height):
+    def __align_to_y_axis_wo_transmission(self, scene, loop_seqs, uv_layer,
+                                          uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
         need_revese = loop_seqs[0][0][0][uv_layer].uv.y\
                       > loop_seqs[-1][0][0][uv_layer].uv.y
@@ -1018,7 +1018,7 @@ class MUV_AUVAxis(bpy.types.Operator):
                     loop_seqs[hidx][vidx][1] = tmp
 
         # get UV differential
-        diff_uvs = self.__get_y_axis_align_diff_uvs(loop_seqs, uv_layer,
+        diff_uvs = self.__get_y_axis_align_diff_uvs(scene, loop_seqs, uv_layer,
                                                     uv_min, width, height)
 
         # update UV
@@ -1030,8 +1030,8 @@ class MUV_AUVAxis(bpy.types.Operator):
             luv1.uv = luv1.uv + duv[1]
 
     # selected and paralleled UV loop sequence will be aligned along to X-axis
-    def __align_to_x_axis_w_transmission(self, loop_seqs, uv_layer, uv_min,
-                                         width, height):
+    def __align_to_x_axis_w_transmission(self, loop_seqs, uv_layer,
+                                         uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
         need_revese = loop_seqs[0][0][0][uv_layer].uv.x\
                       > loop_seqs[-1][0][0][uv_layer].uv.x
@@ -1114,8 +1114,8 @@ class MUV_AUVAxis(bpy.types.Operator):
                         l[uv_layer].select = True
 
     # selected and paralleled UV loop sequence will be aligned along to Y-axis
-    def __align_to_y_axis_w_transmission(self, loop_seqs, uv_layer, uv_min,
-                                         width, height):
+    def __align_to_y_axis_w_transmission(self, loop_seqs, uv_layer,
+                                         uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
         need_revese = loop_seqs[0][0][0][uv_layer].uv.y\
                       > loop_seqs[-1][0][-1][uv_layer].uv.y

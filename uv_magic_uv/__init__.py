@@ -87,56 +87,13 @@ else:
 import bpy
 
 
-def view3d_uvmap_menu_fn(self, context):
-    self.layout.separator()
-    self.layout.menu(muv_menu.MUV_CPUVMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(
-        muv_fliprot_ops.MUV_FlipRot.bl_idname, icon="IMAGE_COL")
-    self.layout.menu(muv_menu.MUV_TransUVMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon="IMAGE_COL")
-    self.layout.menu(muv_menu.MUV_TexLockMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(
-        muv_mirroruv_ops.MUV_MirrorUV.bl_idname, icon="IMAGE_COL")
-    self.layout.menu(muv_menu.MUV_WSUVMenu.bl_idname, icon="IMAGE_COL")
-    self.layout.operator(
-        muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname, icon='IMAGE_COL')
-    self.layout.menu(
-        muv_preserve_uv_aspect.MUV_PreserveUVAspectMenu.bl_idname,
-        icon='IMAGE_COL')
-    self.layout.menu(muv_menu.MUV_UVWMenu.bl_idname, icon="IMAGE_COL")
-
-
-def image_uvs_menu_fn(self, context):
-    self.layout.separator()
-    self.layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname, icon="IMAGE_COL")
-
-
-def view3d_object_menu_fn(self, context):
-    self.layout.separator()
-    self.layout.menu(muv_menu.MUV_CPUVObjMenu.bl_idname, icon="IMAGE_COL")
-
-
 def register():
     bpy.utils.register_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
-    bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
-    bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
-    try:
-        bpy.types.VIEW3D_MT_Object.append(view3d_object_menu_fn)
-    except:
-        pass
     muv_props.init_props(bpy.types.Scene)
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
-    bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
-    bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
-    try:
-        bpy.types.VIEW3D_MT_Object.remove(view3d_object_menu_fn)
-    except:
-        pass
     muv_props.clear_props(bpy.types.Scene)
 
 

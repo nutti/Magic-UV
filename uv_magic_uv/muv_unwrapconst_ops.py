@@ -74,11 +74,13 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
     u_const = BoolProperty(
         name="U-Constraint",
         description="Keep UV U-axis coordinate",
-        default=False)
+        default=False
+    )
     v_const = BoolProperty(
         name="V-Constraint",
         description="Keep UV V-axis coordinate",
-        default=False)
+        default=False
+    )
 
     def execute(self, _):
         obj = bpy.context.active_object

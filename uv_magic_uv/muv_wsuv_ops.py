@@ -139,12 +139,10 @@ class MUV_WSUVApply(bpy.types.Operator):
     def draw(self, _):
         layout = self.layout
 
-        row = layout.row()
-        row.prop(self, "proportional_scaling")
-        row = layout.row()
-        row.prop(self, "scaling_factor")
-        if self.proportional_scaling:
-            row.enabled = False
+        layout.prop(self, "proportional_scaling")
+        if not self.proportional_scaling:
+            layout.prop(self, "scaling_factor")
+        layout.prop(self, "origin")
 
     def execute(self, context):
         props = context.scene.muv_props.wsuv

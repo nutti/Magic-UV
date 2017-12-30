@@ -265,15 +265,18 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
     bl_description = "Paste UV coordinate by selection sequence"
 
     def draw(self, context):
+        sc = context.scene
         layout = self.layout
         # create sub menu
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_maps = bm.loops.layers.uv.keys()
-        layout.operator(
-            MUV_CPUVSelSeqPasteUV.bl_idname,
-            text="[Default]", icon="IMAGE_COL").uv_map = ""
+        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[Default]")
+        ops.uv_map = ""
+        ops.copy_seams = sc.muv_cpuv_copy_seams
+        ops.strategy = sc.muv_cpuv_strategy
         for m in uv_maps:
-            layout.operator(
-                MUV_CPUVSelSeqPasteUV.bl_idname,
-                text=m, icon="IMAGE_COL").uv_map = m
+            ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text=m)
+            ops.uv_map = m
+            ops.copy_seams = sc.muv_cpuv_copy_seams
+            ops.strategy = sc.muv_cpuv_strategy
