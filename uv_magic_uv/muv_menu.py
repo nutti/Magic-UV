@@ -52,6 +52,7 @@ class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
     bl_label = "Copy/Paste UV"
     bl_category = "Magic UV"
     bl_context = 'objectmode'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -77,6 +78,7 @@ class IMAGE_PT_MUV_AUV(bpy.types.Panel):
     bl_label = "Align UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -125,6 +127,7 @@ class IMAGE_PT_MUV_SMUV(bpy.types.Panel):
     bl_label = "Smooth UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -156,6 +159,7 @@ class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
     bl_label = "Copy/Paste UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -179,6 +183,7 @@ class IMAGE_PT_MUV_AUVC(bpy.types.Panel):
     bl_label = "Align UV Cursor"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -248,6 +253,7 @@ class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
     bl_label = "UV Bounding Box"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -276,6 +282,7 @@ class IMAGE_PT_MUV_PackUV(bpy.types.Panel):
     bl_label = "Pack UV (Extension)"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -305,6 +312,7 @@ class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
     bl_label = "Copy/Paste UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -314,115 +322,48 @@ class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
         sc = context.scene
         layout = self.layout
 
-        layout.prop(sc, "muv_cpuv_mode", expand=True)
-        row = layout.row(align=True)
+        box = layout.box()
+        box.prop(sc, "muv_cpuv_enabled", text="Copy/Paste UV")
+        if sc.muv_cpuv_enabled:
+            row = box.row(align=True)
+            if sc.muv_cpuv_mode == 'DEFAULT':
+                row.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, text="Copy")
+                row.menu(muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname,
+                         text="Paste")
+            elif sc.muv_cpuv_mode == 'SEL_SEQ':
+                row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
+                         text="Copy")
+                row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
+                         text="Paste")
+            box.prop(sc, "muv_cpuv_mode", expand=True)
+            box.prop(sc, "muv_cpuv_copy_seams", text="Seams")
+            box.prop(sc, "muv_cpuv_strategy", text="Strategy")
 
-        if sc.muv_cpuv_mode == 'DEFAULT':
-            row.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, text="Copy")
-            row.menu(muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname, text="Paste")
-        elif sc.muv_cpuv_mode == 'SEL_SEQ':
-            row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
-                     text="Copy")
-            row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
-                     text="Paste")
+        box = layout.box()
+        box.prop(sc, "muv_transuv_enabled", text="Transfer UV")
+        if sc.muv_transuv_enabled:
+            row = box.row(align=True)
+            row.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, text="Copy")
+            ops = row.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname,
+                               text="Paste")
+            ops.invert_normals = sc.muv_transuv_invert_normals
+            ops.copy_seams = sc.muv_transuv_copy_seams
+            row = box.row()
+            row.prop(sc, "muv_transuv_invert_normals", text="Invert Normals")
+            row.prop(sc, "muv_transuv_copy_seams", text="Seams")
 
-        layout.prop(sc, "muv_cpuv_copy_seams", text="Seams")
-        layout.prop(sc, "muv_cpuv_strategy", text="Strategy")
 
-
-class OBJECT_PT_MUV_TransUV(bpy.types.Panel):
+class OBJECT_PT_MUV_ManipUV(bpy.types.Panel):
     """
-    Panel class: Transfer UV on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Transfer UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row(align=True)
-        row.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, text="Copy")
-        ops = row.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname,
-                           text="Paste")
-        ops.invert_normals = sc.muv_transuv_invert_normals
-        ops.copy_seams = sc.muv_transuv_copy_seams
-
-        row = layout.row()
-        row.prop(sc, "muv_transuv_invert_normals", text="Invert Normals")
-        row.prop(sc, "muv_transuv_copy_seams", text="Seams")
-
-
-class OBJECT_PT_MUV_FlipRot(bpy.types.Panel):
-    """
-    Panel class: Flip/Rotate UV on Property Panel on View3D
+    Panel class: Manipulate UV on Property Panel on View3D
     """
 
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
-    bl_label = "Flip/Rotate"
+    bl_label = "Manipulate UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row()
-        ops = row.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname,
-                           text="Flip/Rotate")
-        ops.seams = sc.muv_fliprot_seams
-        row.prop(sc, "muv_fliprot_seams", text="Seams")
-
-
-class OBJECT_PT_MUV_MirrorUV(bpy.types.Panel):
-    """
-    Panel class: Mirror UV on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Mirror UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row()
-        ops = row.operator(muv_mirroruv_ops.MUV_MirrorUV.bl_idname,
-                              text="Mirror")
-        ops.axis = sc.muv_mirroruv_axis
-        row.prop(sc, "muv_mirroruv_axis", text="")
-
-
-class OBJECT_PT_MUV_MVUV(bpy.types.Panel):
-    """
-    Panel class: Move UV on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Move UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -433,113 +374,99 @@ class OBJECT_PT_MUV_MVUV(bpy.types.Panel):
         props = sc.muv_props
         layout = self.layout
 
-        col = layout.column()
-        col.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon='PLAY',
-                        text="Start")
-        if props.mvuv.running:
-            col.enabled = False
-        else:
-            col.enabled = True
+        box = layout.box()
+        box.prop(sc, "muv_fliprot_enabled", text="Flip/Rotate UV")
+        if sc.muv_fliprot_enabled:
+            row = box.row()
+            ops = row.operator(muv_fliprot_ops.MUV_FlipRot.bl_idname,
+                               text="Flip/Rotate")
+            ops.seams = sc.muv_fliprot_seams
+            row.prop(sc, "muv_fliprot_seams", text="Seams")
+
+        box = layout.box()
+        box.prop(sc, "muv_mirroruv_enabled", text="Mirror UV")
+        if sc.muv_mirroruv_enabled:
+            row = box.row()
+            ops = row.operator(muv_mirroruv_ops.MUV_MirrorUV.bl_idname,
+                               text="Mirror")
+            ops.axis = sc.muv_mirroruv_axis
+            row.prop(sc, "muv_mirroruv_axis", text="")
+
+        box = layout.box()
+        box.prop(sc, "muv_mvuv_enabled", text="Move UV")
+        if sc.muv_mvuv_enabled:
+            col = box.column()
+            col.operator(muv_mvuv_ops.MUV_MVUV.bl_idname, icon='PLAY',
+                         text="Start")
+            if props.mvuv.running:
+                col.enabled = False
+            else:
+                col.enabled = True
+
+        box = layout.box()
+        box.prop(sc, "muv_wsuv_enabled", text="World Scale UV")
+        if sc.muv_wsuv_enabled:
+            row = box.row(align=True)
+            row.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, text="Measure")
+            ops = row.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname,
+                               text="Apply")
+            ops.proportional_scaling = sc.muv_wsuv_proportional_scaling
+            ops.scaling_factor = sc.muv_wsuv_scaling_factor
+            ops.origin = sc.muv_wsuv_origin
+            box.prop(sc, "muv_wsuv_proportional_scaling",
+                        text="Proportional Scaling")
+            if not sc.muv_wsuv_proportional_scaling:
+                box.prop(sc, "muv_wsuv_scaling_factor",
+                            text="Scaling Factor")
+            box.prop(sc, "muv_wsuv_origin", text="Origin")
+
+        box = layout.box()
+        box.prop(sc, "muv_preserve_uv_enabled", text="Preserve UV Aspect")
+        if sc.muv_preserve_uv_enabled:
+            row = box.row()
+            ops = row.operator(
+                muv_preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
+                text="Change Image")
+            ops.dest_img_name = sc.muv_preserve_uv_tex_image
+            ops.origin = sc.muv_preserve_uv_origin
+            row.prop(sc, "muv_preserve_uv_tex_image", text="")
+            box.prop(sc, "muv_preserve_uv_origin", text="Origin")
+
+        box = layout.box()
+        box.prop(sc, "muv_texlock_enabled", text="Texture Lock")
+        if sc.muv_texlock_enabled:
+            row = box.row(align=True)
+            col = row.column(align=True)
+            col.label("Normal Mode:")
+            col = row.column(align=True)
+            col.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname,
+                         text="Lock")
+            ops = col.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname,
+                               text="Unlock")
+            ops.connect = sc.muv_texlock_connect
+            col.prop(sc, "muv_texlock_connect", text="Connect")
+
+            row = box.row(align=True)
+            row.label("Interactive Mode:")
+            if not props.texlock.intr_running:
+                row.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname,
+                             icon='PLAY', text="Start")
+            else:
+                row.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname,
+                             icon="PAUSE", text="Stop")
 
 
-class OBJECT_PT_MUV_WSUV(bpy.types.Panel):
+class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
     """
-    Panel class: World Scale UV on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "World Scale UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row(align=True)
-        row.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, text="Measure")
-        ops = row.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname, text="Apply")
-        ops.proportional_scaling = sc.muv_wsuv_proportional_scaling
-        ops.scaling_factor = sc.muv_wsuv_scaling_factor
-        ops.origin = sc.muv_wsuv_origin
-        layout.prop(sc, "muv_wsuv_proportional_scaling",
-                    text="Proportional Scaling")
-        if not sc.muv_wsuv_proportional_scaling:
-            layout.prop(sc, "muv_wsuv_scaling_factor", text="Scaling Factor")
-        layout.prop(sc, "muv_wsuv_origin", text="Origin")
-
-
-class OBJECT_PT_MUV_PreserveUV(bpy.types.Panel):
-    """
-    Panel class: Preserve UV on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Preserve UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row()
-        ops = row.operator(muv_preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
-                           text="Change Image")
-        ops.dest_img_name = sc.muv_preserve_uv_tex_image
-        ops.origin = sc.muv_preserve_uv_origin
-        row.prop(sc, "muv_preserve_uv_tex_image", text="")
-        layout.prop(sc, "muv_preserve_uv_origin", text="Origin")
-
-
-class OBJECT_PT_MUV_UnwrapConst(bpy.types.Panel):
-    """
-    Panel class: Unwrap Constraint on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Unwrap Constraint"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        ops = layout.operator(muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname,
-                           text="Unwrap")
-        ops.u_const = sc.muv_unwrapconst_u_const
-        ops.v_const = sc.muv_unwrapconst_v_const
-        row = layout.row(align=True)
-        row.prop(sc, "muv_unwrapconst_u_const", text="U-Constraint")
-        row.prop(sc, "muv_unwrapconst_v_const", text="V-Constraint")
-
-
-class OBJECT_PT_MUV_TexProj(bpy.types.Panel):
-    """
-    Panel class: Texture Projection on Property Panel on View3D
+    Panel class: UV Mapping on Property Panel on View3D
     """
 
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
-    bl_label = "Texture Projection"
+    bl_label = "UV Mapping"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
         layout = self.layout
@@ -550,89 +477,46 @@ class OBJECT_PT_MUV_TexProj(bpy.types.Panel):
         props = sc.muv_props
         layout = self.layout
 
-        layout.label("Texture Projection:")
-        row = layout.row()
-        if not props.texproj.running:
-            row.operator(muv_texproj_ops.MUV_TexProjStart.bl_idname,
-                            text="Start", icon='PLAY')
-        else:
-            row.operator(muv_texproj_ops.MUV_TexProjStop.bl_idname,
-                            text="Stop", icon='PAUSE')
-        row.prop(sc, "muv_texproj_tex_image", text="")
-        layout.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
-        col = layout.column(align=True)
-        row = col.row()
-        row.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
-        if not sc.muv_texproj_adjust_window:
-            row.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
-        row = col.row()
-        row.prop(sc, "muv_texproj_apply_tex_aspect",
-                 text="Texture Aspect Ratio")
-        if props.texproj.running:
-            layout.operator(muv_texproj_ops.MUV_TexProjProject.bl_idname,
-                            text="Project")
+        box = layout.box()
+        box.prop(sc, "muv_unwrapconst_enabled", text="Unwrap Constraint")
+        if sc.muv_unwrapconst_enabled:
+            ops = box.operator(
+                muv_unwrapconst_ops.MUV_UnwrapConstraint.bl_idname,
+                text="Unwrap")
+            ops.u_const = sc.muv_unwrapconst_u_const
+            ops.v_const = sc.muv_unwrapconst_v_const
+            row = box.row(align=True)
+            row.prop(sc, "muv_unwrapconst_u_const", text="U-Constraint")
+            row.prop(sc, "muv_unwrapconst_v_const", text="V-Constraint")
 
+        box = layout.box()
+        box.prop(sc, "muv_texproj_enabled", text="Texture Projection")
+        if sc.muv_texproj_enabled:
+            row = box.row()
+            if not props.texproj.running:
+                row.operator(muv_texproj_ops.MUV_TexProjStart.bl_idname,
+                             text="Start", icon='PLAY')
+            else:
+                row.operator(muv_texproj_ops.MUV_TexProjStop.bl_idname,
+                             text="Stop", icon='PAUSE')
+            row.prop(sc, "muv_texproj_tex_image", text="")
+            box.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
+            col = box.column(align=True)
+            row = col.row()
+            row.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
+            if not sc.muv_texproj_adjust_window:
+                row.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
+            row = col.row()
+            row.prop(sc, "muv_texproj_apply_tex_aspect",
+                     text="Texture Aspect Ratio")
+            if props.texproj.running:
+                box.operator(muv_texproj_ops.MUV_TexProjProject.bl_idname,
+                             text="Project")
 
-class OBJECT_PT_MUV_UVW(bpy.types.Panel):
-    """
-    Panel class: UVW on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "UVW"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        row = layout.row(align=True)
-        row.operator(muv_uvw_ops.MUV_UVWBoxMap.bl_idname, text="Box")
-        row.operator(muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname,
-                     text="Best Planner")
-
-
-class OBJECT_PT_MUV_TexLock(bpy.types.Panel):
-    """
-    Panel class: Texture Lock on Property Panel on View3D
-    """
-
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_label = "Texture Lock"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        props = sc.muv_props
-        layout = self.layout
-
-        row = layout.row(align=True)
-        col = row.column(align=True)
-        col.label("Normal Mode:")
-        col = row.column(align=True)
-        col.operator(muv_texlock_ops.MUV_TexLockStart.bl_idname, text="Lock")
-        ops = col.operator(muv_texlock_ops.MUV_TexLockStop.bl_idname,
-                           text="Unlock")
-        ops.connect = sc.muv_texlock_connect
-        col.prop(sc, "muv_texlock_connect", text="Connect")
-
-        row = layout.row(align=True)
-        row.label("Interactive Mode:")
-        if not props.texlock.intr_running:
-            row.operator(muv_texlock_ops.MUV_TexLockIntrStart.bl_idname,
-                         icon='PLAY', text="Start")
-        else:
-            row.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname,
-                         icon="PAUSE", text="Stop")
+        box = layout.box()
+        box.prop(sc, "muv_uvw_enabled", text="UVW")
+        if sc.muv_uvw_enabled:
+            row = box.row(align=True)
+            row.operator(muv_uvw_ops.MUV_UVWBoxMap.bl_idname, text="Box")
+            row.operator(muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname,
+                         text="Best Planner")

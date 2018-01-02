@@ -196,7 +196,26 @@ def init_props(scene):
         size=2
     )
 
+    # Move UV
+    scene.muv_mvuv_enabled = BoolProperty(
+        name="Move UV Enabled",
+        description="Move UV is enabled",
+        default=False
+    )
+
+    # UVW
+    scene.muv_uvw_enabled = BoolProperty(
+        name="UVW Enabled",
+        description="UVW is enabled",
+        default=False
+    )
+
     # Texture Projection
+    scene.muv_texproj_enabled = BoolProperty(
+        name="Texture Projection Enabled",
+        description="Texture Projection is enabled",
+        default=False
+    )
     scene.muv_texproj_tex_magnitude = FloatProperty(
         name="Magnitude",
         description="Texture Magnitude",
@@ -228,12 +247,22 @@ def init_props(scene):
     )
 
     # Texture Lock
+    scene.muv_texlock_enabled = BoolProperty(
+        name="Texture Lock Enabled",
+        description="Texture Lock is enabled",
+        default=False
+    )
     scene.muv_texlock_connect = BoolProperty(
         name="Connect UV",
         default=True
     )
 
     # World Scale UV
+    scene.muv_wsuv_enabled = BoolProperty(
+        name="World Scale UV Enabled",
+        description="World Scale UV is enabled",
+        default=False
+    )
     scene.muv_wsuv_proportional_scaling = BoolProperty(
         name="Proportional Scaling",
         default=True
@@ -263,6 +292,11 @@ def init_props(scene):
     )
 
     # Unwrap Constraint
+    scene.muv_unwrapconst_enabled = BoolProperty(
+        name="Unwrap Constraint Enabled",
+        description="Unwrap Constraint is enabled",
+        default=False
+    )
     scene.muv_unwrapconst_u_const = BoolProperty(
         name="U-Constraint",
         description="Keep UV U-axis coordinate",
@@ -275,6 +309,11 @@ def init_props(scene):
     )
 
     # Preserve UV Aspect
+    scene.muv_preserve_uv_enabled = BoolProperty(
+        name="Preserve UV Aspect Enabled",
+        description="Preserve UV Aspect is enabled",
+        default=False
+    )
     scene.muv_preserve_uv_tex_image = EnumProperty(
         name="Image",
         description="Texture Image",
@@ -299,6 +338,11 @@ def init_props(scene):
     )
 
     # Flip/Rotate UV
+    scene.muv_fliprot_enabled = BoolProperty(
+        name="Flip/Rotate UV Enabled",
+        description="Flip/Rotate UV is enabled",
+        default=False
+    )
     scene.muv_fliprot_seams = BoolProperty(
         name="Seams",
         description="Seams",
@@ -306,6 +350,11 @@ def init_props(scene):
     )
 
     # Mirror UV
+    scene.muv_mirroruv_enabled = BoolProperty(
+        name="Mirror UV Enabled",
+        description="Mirror UV is enabled",
+        default=False
+    )
     scene.muv_mirroruv_axis = EnumProperty(
         items=[
             ('X', "X", "Mirror Along X axis"),
@@ -318,6 +367,11 @@ def init_props(scene):
     )
 
     # Copy/Paste UV
+    scene.muv_cpuv_enabled = BoolProperty(
+        name="Copy/Paste UV Enabled",
+        description="Copy/Paste UV is enabled",
+        default=False
+    )
     scene.muv_cpuv_copy_seams = BoolProperty(
         name="Copy Seams",
         description="Copy Seams",
@@ -343,6 +397,11 @@ def init_props(scene):
     )
 
     # Transfer UV
+    scene.muv_transuv_enabled = BoolProperty(
+        name="Transfer UV Enabled",
+        description="Transfer UV is enabled",
+        default=False
+    )
     scene.muv_transuv_invert_normals = BoolProperty(
         name="Invert Normals",
         description="Invert Normals",
