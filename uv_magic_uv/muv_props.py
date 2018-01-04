@@ -55,6 +55,7 @@ class MUV_Properties():
     texwrap = None
     wsuv = None
     mvuv = None
+    ovlpuv = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -67,6 +68,7 @@ class MUV_Properties():
         self.texwrap = MUV_TexWrapProps()
         self.wsuv = MUV_WSUVProps()
         self.mvuv = MUV_MVUVProps()
+        self.ovlpuv = MUV_OVLPUVProps()
 
 
 class MUV_CPUVProps():
@@ -113,6 +115,11 @@ class MUV_WSUVProps():
 
 class MUV_MVUVProps():
     running = False
+
+
+class MUV_OVLPUVProps():
+    running = False
+    overlapped_uvs = []
 
 
 def init_props(scene):

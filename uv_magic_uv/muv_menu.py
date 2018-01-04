@@ -40,6 +40,7 @@ from . import muv_mvuv_ops
 from . import muv_mirroruv_ops
 from . import muv_unwrapconst_ops
 from . import muv_preserve_uv_aspect
+from . import muv_ovlpuv_ops
 
 
 class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
@@ -300,6 +301,34 @@ class IMAGE_PT_MUV_PackUV(bpy.types.Panel):
         layout.prop(sc, "muv_packuv_allowable_center_deviation", text="")
         layout.label("Allowable Size Deviation:")
         layout.prop(sc, "muv_packuv_allowable_size_deviation", text="")
+
+
+class IMAGE_PT_MUV_OVLPUV(bpy.types.Panel):
+    """
+    Panel class: Overlapped UV on Property Panel on UV/ImageEditor
+    """
+
+    bl_space_type = 'IMAGE_EDITOR'
+    bl_region_type = 'TOOLS'
+    bl_label = "Overlapped UV"
+    bl_category = "Magic UV"
+    bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, _):
+        layout = self.layout
+        layout.label(text="", icon='IMAGE_COL')
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        if not sc.muv_props.ovlpuv.running:
+            ops = layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
+                                  text="Start", icon='PLAY')
+        else:
+            layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
+                            text="Stop", icon='PAUSE')
 
 
 class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
