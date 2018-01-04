@@ -47,6 +47,17 @@ class MUV_Preferences(AddonPreferences):
         subtype='COLOR'
     )
 
+    # for Flipped UV
+    flpuv_flipped_color = FloatVectorProperty(
+        name="Color",
+        description="Color",
+        default=(1.0, 0.0, 0.0, 0.3),
+        min=0.0,
+        max=1.0,
+        size=4,
+        subtype='COLOR'
+    )
+
     # for Texture Projection
     texproj_canvas_padding = FloatVectorProperty(
         name="Canvas Padding",
@@ -81,6 +92,13 @@ class MUV_Preferences(AddonPreferences):
         sp = sp.split(percentage=0.3)
         col = sp.column()
         col.prop(self, "ovlpuv_overlapped_color")
+
+        layout.label("Flipped UV:")
+        sp = layout.split(percentage=0.05)
+        col = sp.column()  # spacer
+        sp = sp.split(percentage=0.3)
+        col = sp.column()
+        col.prop(self, "flpuv_flipped_color")
 
 
         layout.label("Texture Projection:")

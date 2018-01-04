@@ -323,11 +323,20 @@ class IMAGE_PT_MUV_OVLPUV(bpy.types.Panel):
         layout = self.layout
         sc = context.scene
 
+        layout.label("Emphasize Overlapped UV:")
         if not sc.muv_props.ovlpuv.running:
-            ops = layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
-                                  text="Start", icon='PLAY')
+            layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
+                            text="Start", icon='PLAY')
         else:
             layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
+                            text="Stop", icon='PAUSE')
+
+        layout.label("Emphasize Flipped UV:")
+        if not sc.muv_props.flpuv.running:
+            layout.operator(muv_ovlpuv_ops.MUV_FLPUVOps.bl_idname,
+                            text="Start", icon='PLAY')
+        else:
+            layout.operator(muv_ovlpuv_ops.MUV_FLPUVOps.bl_idname,
                             text="Stop", icon='PAUSE')
 
 

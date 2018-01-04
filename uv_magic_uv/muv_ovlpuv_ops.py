@@ -120,6 +120,9 @@ class RingBuffer:
         idx = self.__buffer.index(obj)
         self.__pointer = (idx + 1) % size
 
+    def as_list(self):
+        return self.__buffer.copy()
+
 
 def do_weiler_atherton_cliping(clip, subject, uv_layer):
 
@@ -290,7 +293,7 @@ class MUV_OVLPUVRenderer(bpy.types.Operator):
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
 
-        # render texture
+        # render
         color = prefs.ovlpuv_overlapped_color
         for poly in props.overlapped_uvs:
             bgl.glBegin(bgl.GL_TRIANGLE_FAN)
@@ -303,7 +306,7 @@ class MUV_OVLPUVRenderer(bpy.types.Operator):
 
 class MUV_OVLPUVOps(bpy.types.Operator):
     """
-    Operation class: Overlapped UV
+    Operation class: Emphasize Overlapped UV
     """
 
     bl_idname = "uv.muv_ovlpuv_ops"
@@ -331,6 +334,94 @@ class MUV_OVLPUVOps(bpy.types.Operator):
             props.running = True
         else:
             MUV_OVLPUVRenderer.handle_remove()
+            props.running = False
+        if context.area:
+            context.area.tag_redraw()
+
+        return {'FINISHED'}
+
+
+class MUV_FLPUVRenderer(bpy.types.Operator):
+    """
+    Operation class: Render flipped UVs
+    No operation (only rendering texture)
+    """
+
+    bl_idname = "uv.muv_flpuv_renderer"
+    bl_description = "Render flipped UVs"
+    bl_label = "Flipped UV renderer"
+
+    __handle = None
+
+    @staticmethod
+    def handle_add(obj, context):
+        MUV_FLPUVRenderer.__handle = bpy.types.SpaceImageEditor.draw_handler_add(
+            MUV_FLPUVRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
+
+    @staticmethod
+    def handle_remove():
+        if MUV_FLPUVRenderer.__handle is not None:
+            bpy.types.SpaceImageEditor.draw_handler_remove(
+                MUV_FLPUVRenderer.__handle, 'WINDOW')
+            MUV_FLPUVRenderer.__handle = None
+
+    @staticmethod
+    def draw(_, context):
+        sc = context.scene
+        props = sc.muv_props.flpuv
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+
+        # OpenGL configuration
+        bgl.glEnable(bgl.GL_BLEND)
+
+        # render
+        color = prefs.flpuv_flipped_color
+        for poly in props.flipped_uvs:
+            bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+            bgl.glColor4f(color[0], color[1], color[2], color[3])
+            for uv in poly:
+                x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                bgl.glVertex2f(x, y)
+            bgl.glEnd()
+
+
+class MUV_FLPUVOps(bpy.types.Operator):
+    """
+    Operation class: Emphasize Fliped UV
+    """
+
+    bl_idname = "uv.muv_flpuv_ops"
+    bl_label = "Fliped UV"
+    bl_description = "Fliped UV launcher"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        props = context.scene.muv_props.flpuv
+        if not props.running:
+            obj = context.active_object
+            bm = bmesh.from_edit_mesh(obj.data)
+            uv_layer = bm.loops.layers.uv.verify()
+
+            sel_faces = [f for f in bm.faces if f.select]
+            flipped_uvs = []
+            for f in sel_faces:
+                area = 0.0
+                uvs = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
+                for i in range(len(uvs)):
+                    uv1 = uvs.get(i)
+                    uv2 = uvs.get(i + 1)
+                    a = uv1.x * uv2.y - uv1.y * uv2.x
+                    area = area + a
+                if area < 0:
+                    # clock-wise
+                    flipped_uvs.append(uvs.as_list())
+
+            props.flipped_uvs = flipped_uvs
+
+            MUV_FLPUVRenderer.handle_add(self, context)
+            props.running = True
+        else:
+            MUV_FLPUVRenderer.handle_remove()
             props.running = False
         if context.area:
             context.area.tag_redraw()

@@ -56,6 +56,7 @@ class MUV_Properties():
     wsuv = None
     mvuv = None
     ovlpuv = None
+    flpuv = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -69,6 +70,7 @@ class MUV_Properties():
         self.wsuv = MUV_WSUVProps()
         self.mvuv = MUV_MVUVProps()
         self.ovlpuv = MUV_OVLPUVProps()
+        self.flpuv = MUV_FLPUVProps()
 
 
 class MUV_CPUVProps():
@@ -120,6 +122,11 @@ class MUV_MVUVProps():
 class MUV_OVLPUVProps():
     running = False
     overlapped_uvs = []
+
+
+class MUV_FLPUVProps():
+    running = False
+    flipped_uvs = []
 
 
 def init_props(scene):
