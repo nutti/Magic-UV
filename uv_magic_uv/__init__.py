@@ -62,7 +62,7 @@ if "bpy" in locals():
     importlib.reload(muv_uvw_ops)
     importlib.reload(muv_auvc_ops)
     importlib.reload(muv_auv_ops)
-    importlib.reload(muv_ovlpuv_ops)
+    importlib.reload(muv_uvinsp_ops)
 else:
     from . import muv_preferences
     from . import muv_menu
@@ -84,7 +84,7 @@ else:
     from . import muv_uvw_ops
     from . import muv_auvc_ops
     from . import muv_auv_ops
-    from . import muv_ovlpuv_ops
+    from . import muv_uvinsp_ops
 
 import bpy
 

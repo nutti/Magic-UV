@@ -37,7 +37,7 @@ class MUV_Preferences(AddonPreferences):
     bl_idname = __package__
 
     # for Overlapped UV
-    ovlpuv_overlapped_color = FloatVectorProperty(
+    uvinsp_overlapped_color = FloatVectorProperty(
         name="Color",
         description="Color",
         default=(0.0, 0.0, 1.0, 0.3),
@@ -48,7 +48,7 @@ class MUV_Preferences(AddonPreferences):
     )
 
     # for Flipped UV
-    flpuv_flipped_color = FloatVectorProperty(
+    uvinsp_flipped_color = FloatVectorProperty(
         name="Color",
         description="Color",
         default=(1.0, 0.0, 0.0, 0.3),
@@ -86,20 +86,17 @@ class MUV_Preferences(AddonPreferences):
 
         layout.label("Switch Enable/Disable and Configurate Features:")
 
-        layout.label("Overlapped UV:")
+        layout.label("UV Inspection:")
         sp = layout.split(percentage=0.05)
         col = sp.column()  # spacer
         sp = sp.split(percentage=0.3)
         col = sp.column()
-        col.prop(self, "ovlpuv_overlapped_color")
-
-        layout.label("Flipped UV:")
-        sp = layout.split(percentage=0.05)
-        col = sp.column()  # spacer
-        sp = sp.split(percentage=0.3)
+        col.label("Overlapped UV:")
+        col.prop(self, "uvinsp_overlapped_color")
+        sp = sp.split(percentage=1.0)
         col = sp.column()
-        col.prop(self, "flpuv_flipped_color")
-
+        col.label("Flipped UV:")
+        col.prop(self, "uvinsp_flipped_color")
 
         layout.label("Texture Projection:")
         sp = layout.split(percentage=0.05)

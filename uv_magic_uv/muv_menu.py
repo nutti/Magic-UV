@@ -40,7 +40,7 @@ from . import muv_mvuv_ops
 from . import muv_mirroruv_ops
 from . import muv_unwrapconst_ops
 from . import muv_preserve_uv_aspect
-from . import muv_ovlpuv_ops
+from . import muv_uvinsp_ops
 
 
 class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
@@ -303,14 +303,14 @@ class IMAGE_PT_MUV_PackUV(bpy.types.Panel):
         layout.prop(sc, "muv_packuv_allowable_size_deviation", text="")
 
 
-class IMAGE_PT_MUV_OVLPUV(bpy.types.Panel):
+class IMAGE_PT_MUV_UVInspection(bpy.types.Panel):
     """
-    Panel class: Overlapped UV on Property Panel on UV/ImageEditor
+    Panel class: UV Inspection on Property Panel on UV/ImageEditor
     """
 
     bl_space_type = 'IMAGE_EDITOR'
     bl_region_type = 'TOOLS'
-    bl_label = "Overlapped UV"
+    bl_label = "UV Inspection"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
     bl_options = {'DEFAULT_CLOSED'}
@@ -323,21 +323,24 @@ class IMAGE_PT_MUV_OVLPUV(bpy.types.Panel):
         layout = self.layout
         sc = context.scene
 
-        layout.label("Emphasize Overlapped UV:")
-        if not sc.muv_props.ovlpuv.running:
-            layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
-                            text="Start", icon='PLAY')
+        layout.label("Emphasize:")
+        row = layout.row()
+        if not sc.muv_props.uvinsp.display_running:
+            row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
+                         text="Display", icon='PLAY')
         else:
-            layout.operator(muv_ovlpuv_ops.MUV_OVLPUVOps.bl_idname,
-                            text="Stop", icon='PAUSE')
+            row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
+                         text="Hide", icon='PAUSE')
+            row.operator(muv_uvinsp_ops.MUV_UVInspUpdate.bl_idname,
+                         text="Update")
+        row = layout.row()
+        row.prop(sc, "muv_uvinsp_show_overlapped")
+        row.prop(sc, "muv_uvinsp_show_flipped")
 
-        layout.label("Emphasize Flipped UV:")
-        if not sc.muv_props.flpuv.running:
-            layout.operator(muv_ovlpuv_ops.MUV_FLPUVOps.bl_idname,
-                            text="Start", icon='PLAY')
-        else:
-            layout.operator(muv_ovlpuv_ops.MUV_FLPUVOps.bl_idname,
-                            text="Stop", icon='PAUSE')
+        layout.label("Select Face:")
+        row = layout.row()
+        row.operator(muv_uvinsp_ops.MUV_UVInspSelectOverlapped.bl_idname)
+        row.operator(muv_uvinsp_ops.MUV_UVInspSelectFlipped.bl_idname)
 
 
 class OBJECT_PT_MUV_CPUV(bpy.types.Panel):

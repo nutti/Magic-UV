@@ -260,170 +260,204 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer):
     return polygons
 
 
-class MUV_OVLPUVRenderer(bpy.types.Operator):
+class MUV_UVInspRenderer(bpy.types.Operator):
     """
-    Operation class: Render overlapped UVs
+    Operation class: Render UV Inspection
     No operation (only rendering texture)
     """
 
-    bl_idname = "uv.muv_ovlpuv_renderer"
-    bl_description = "Render overlapped UVs"
-    bl_label = "Overlapped UV renderer"
+    bl_idname = "uv.muv_uvinsp_renderer"
+    bl_description = "Render overlapped/flipped UVs"
+    bl_label = "Overlapped/Flipped UV renderer"
 
     __handle = None
 
     @staticmethod
     def handle_add(obj, context):
-        MUV_OVLPUVRenderer.__handle = bpy.types.SpaceImageEditor.draw_handler_add(
-            MUV_OVLPUVRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
+        MUV_UVInspRenderer.__handle = bpy.types.SpaceImageEditor.draw_handler_add(
+            MUV_UVInspRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
 
     @staticmethod
     def handle_remove():
-        if MUV_OVLPUVRenderer.__handle is not None:
+        if MUV_UVInspRenderer.__handle is not None:
             bpy.types.SpaceImageEditor.draw_handler_remove(
-                MUV_OVLPUVRenderer.__handle, 'WINDOW')
-            MUV_OVLPUVRenderer.__handle = None
+                MUV_UVInspRenderer.__handle, 'WINDOW')
+            MUV_UVInspRenderer.__handle = None
 
     @staticmethod
     def draw(_, context):
         sc = context.scene
-        props = sc.muv_props.ovlpuv
+        props = sc.muv_props.uvinsp
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
 
-        # render
-        color = prefs.ovlpuv_overlapped_color
-        for poly in props.overlapped_uvs:
-            bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-            bgl.glColor4f(color[0], color[1], color[2], color[3])
-            for uv in poly:
-                x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                bgl.glVertex2f(x, y)
-            bgl.glEnd()
+        # render overlapped UV
+        if sc.muv_uvinsp_show_overlapped:
+            color = prefs.uvinsp_overlapped_color
+            for info in props.overlapped_info:
+                for poly in info["polygons"]:
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    for uv in poly:
+                        x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                        bgl.glVertex2f(x, y)
+                    bgl.glEnd()
+
+        # render flipped UV
+        if sc.muv_uvinsp_show_flipped:
+            color = prefs.uvinsp_flipped_color
+            for info in props.flipped_info:
+                for poly in info["polygons"]:
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    for uv in poly:
+                        x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                        bgl.glVertex2f(x, y)
+                    bgl.glEnd()
 
 
-class MUV_OVLPUVOps(bpy.types.Operator):
+def get_overlapped_uv_info(faces, uv_layer):
+    overlapped_uvs = []
+    for i, f_clip in enumerate(faces):
+        for f_subject in faces[i + 1:]:
+            result = do_weiler_atherton_cliping(f_clip, f_subject,
+                                                uv_layer)
+            overlapped_uvs.append({"clip_face": f_clip,
+                                   "subject_face": f_subject,
+                                   "polygons": result})
+
+    return overlapped_uvs
+
+
+def get_flipped_uv_info(faces, uv_layer):
+    flipped_uvs = []
+    for f in faces:
+        area = 0.0
+        uvs = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
+        for i in range(len(uvs)):
+            uv1 = uvs.get(i)
+            uv2 = uvs.get(i + 1)
+            a = uv1.x * uv2.y - uv1.y * uv2.x
+            area = area + a
+        if area < 0:
+            # clock-wise
+            flipped_uvs.append({"face": f, "polygons": [uvs.as_list()]})
+
+    return flipped_uvs
+
+
+def update_uvinsp_info(context):
+    sc = context.scene
+    props = sc.muv_props.uvinsp
+
+    obj = context.active_object
+    bm = bmesh.from_edit_mesh(obj.data)
+    uv_layer = bm.loops.layers.uv.verify()
+
+    sel_faces = [f for f in bm.faces if f.select]
+    props.overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
+    props.flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
+
+
+class MUV_UVInspUpdate(bpy.types.Operator):
     """
-    Operation class: Emphasize Overlapped UV
+    Operation class: Update
     """
 
-    bl_idname = "uv.muv_ovlpuv_ops"
-    bl_label = "Overlapped UV"
-    bl_description = "Overlapped UV launcher"
+    bl_idname = "uv.muv_uvinsp_update"
+    bl_label = "Update"
+    bl_description = "Update Overlapped/Flipped UV"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.muv_props.ovlpuv
-        if not props.running:
-            obj = context.active_object
-            bm = bmesh.from_edit_mesh(obj.data)
-            uv_layer = bm.loops.layers.uv.verify()
+        update_uvinsp_info(context)
 
-            sel_faces = [f for f in bm.faces if f.select]
-            overlapped_uvs = []
-            for i, f_clip in enumerate(sel_faces):
-                for f_subject in sel_faces[i + 1:]:
-                    result = do_weiler_atherton_cliping(f_clip, f_subject,
-                                                        uv_layer)
-                    overlapped_uvs.extend(result)
-            props.overlapped_uvs = overlapped_uvs
-
-            MUV_OVLPUVRenderer.handle_add(self, context)
-            props.running = True
-        else:
-            MUV_OVLPUVRenderer.handle_remove()
-            props.running = False
         if context.area:
             context.area.tag_redraw()
 
         return {'FINISHED'}
 
 
-class MUV_FLPUVRenderer(bpy.types.Operator):
+class MUV_UVInspDisplay(bpy.types.Operator):
     """
-    Operation class: Render flipped UVs
-    No operation (only rendering texture)
-    """
-
-    bl_idname = "uv.muv_flpuv_renderer"
-    bl_description = "Render flipped UVs"
-    bl_label = "Flipped UV renderer"
-
-    __handle = None
-
-    @staticmethod
-    def handle_add(obj, context):
-        MUV_FLPUVRenderer.__handle = bpy.types.SpaceImageEditor.draw_handler_add(
-            MUV_FLPUVRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
-
-    @staticmethod
-    def handle_remove():
-        if MUV_FLPUVRenderer.__handle is not None:
-            bpy.types.SpaceImageEditor.draw_handler_remove(
-                MUV_FLPUVRenderer.__handle, 'WINDOW')
-            MUV_FLPUVRenderer.__handle = None
-
-    @staticmethod
-    def draw(_, context):
-        sc = context.scene
-        props = sc.muv_props.flpuv
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-
-        # OpenGL configuration
-        bgl.glEnable(bgl.GL_BLEND)
-
-        # render
-        color = prefs.flpuv_flipped_color
-        for poly in props.flipped_uvs:
-            bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-            bgl.glColor4f(color[0], color[1], color[2], color[3])
-            for uv in poly:
-                x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                bgl.glVertex2f(x, y)
-            bgl.glEnd()
-
-
-class MUV_FLPUVOps(bpy.types.Operator):
-    """
-    Operation class: Emphasize Fliped UV
+    Operation class: Display
     """
 
-    bl_idname = "uv.muv_flpuv_ops"
-    bl_label = "Fliped UV"
-    bl_description = "Fliped UV launcher"
+    bl_idname = "uv.muv_uvinsp_display"
+    bl_label = "Display"
+    bl_description = "Display Overlapped/Flipped UV"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.muv_props.flpuv
-        if not props.running:
-            obj = context.active_object
-            bm = bmesh.from_edit_mesh(obj.data)
-            uv_layer = bm.loops.layers.uv.verify()
-
-            sel_faces = [f for f in bm.faces if f.select]
-            flipped_uvs = []
-            for f in sel_faces:
-                area = 0.0
-                uvs = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
-                for i in range(len(uvs)):
-                    uv1 = uvs.get(i)
-                    uv2 = uvs.get(i + 1)
-                    a = uv1.x * uv2.y - uv1.y * uv2.x
-                    area = area + a
-                if area < 0:
-                    # clock-wise
-                    flipped_uvs.append(uvs.as_list())
-
-            props.flipped_uvs = flipped_uvs
-
-            MUV_FLPUVRenderer.handle_add(self, context)
-            props.running = True
+        sc = context.scene
+        props = sc.muv_props.uvinsp
+        if not props.display_running:
+            update_uvinsp_info(context)
+            MUV_UVInspRenderer.handle_add(self, context)
+            props.display_running = True
         else:
-            MUV_FLPUVRenderer.handle_remove()
-            props.running = False
+            MUV_UVInspRenderer.handle_remove()
+            props.display_running = False
+
         if context.area:
             context.area.tag_redraw()
+
+        return {'FINISHED'}
+
+
+class MUV_UVInspSelectOverlapped(bpy.types.Operator):
+    """
+    Operation class: Select faces which have overlapped UVs
+    """
+
+    bl_idname = "uv.muv_uvinsp_select_overlapped"
+    bl_label = "Overlapped"
+    bl_description = "Select faces which have overlapped UVs"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        sel_faces = [f for f in bm.faces if f.select]
+
+        overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
+
+        for info in overlapped_info:
+            for l in info["subject_face"].loops:
+                l[uv_layer].select = True
+
+        bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}
+
+
+class MUV_UVInspSelectFlipped(bpy.types.Operator):
+    """
+    Operation class: Select faces which have flipped UVs
+    """
+
+    bl_idname = "uv.muv_uvinsp_select_flipped"
+    bl_label = "Flipped"
+    bl_description = "Select faces which have flipped UVs"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        sel_faces = [f for f in bm.faces if f.select]
+
+        flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
+
+        for info in flipped_info:
+            for l in info["face"].loops:
+                l[uv_layer].select = True
+
+        bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}

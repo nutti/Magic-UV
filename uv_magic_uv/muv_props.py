@@ -55,8 +55,7 @@ class MUV_Properties():
     texwrap = None
     wsuv = None
     mvuv = None
-    ovlpuv = None
-    flpuv = None
+    uvinsp = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -69,8 +68,7 @@ class MUV_Properties():
         self.texwrap = MUV_TexWrapProps()
         self.wsuv = MUV_WSUVProps()
         self.mvuv = MUV_MVUVProps()
-        self.ovlpuv = MUV_OVLPUVProps()
-        self.flpuv = MUV_FLPUVProps()
+        self.uvinsp = MUV_UVInspProps()
 
 
 class MUV_CPUVProps():
@@ -119,18 +117,26 @@ class MUV_MVUVProps():
     running = False
 
 
-class MUV_OVLPUVProps():
-    running = False
-    overlapped_uvs = []
-
-
-class MUV_FLPUVProps():
-    running = False
-    flipped_uvs = []
+class MUV_UVInspProps():
+    display_running = False
+    overlapped_info = []
+    flipped_info = []
 
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
+
+    # UV inspection
+    scene.muv_uvinsp_show_overlapped = BoolProperty(
+        name="Overlapped",
+        description="Show overlapped UVs",
+        default=False
+    )
+    scene.muv_uvinsp_show_flipped = BoolProperty(
+        name="Flipped",
+        description="Show flipped UVs",
+        default=False
+    )
 
     # Align UV
     scene.muv_auv_transmission = BoolProperty(
