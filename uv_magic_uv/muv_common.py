@@ -25,6 +25,7 @@ __date__ = "19 Nov 2017"
 
 
 from collections import defaultdict
+from pprint import pprint
 
 import bpy
 from mathutils import Vector
@@ -40,7 +41,7 @@ def debug_print(*s):
     """
 
     if muv_props.DEBUG:
-        print(s)
+        pprint(s)
 
 
 def check_version(major, minor, _):
