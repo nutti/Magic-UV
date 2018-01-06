@@ -457,7 +457,10 @@ def update_uvinsp_info(context):
     bm = bmesh.from_edit_mesh(obj.data)
     uv_layer = bm.loops.layers.uv.verify()
 
-    sel_faces = [f for f in bm.faces if f.select]
+    if context.tool_settings.use_uv_select_sync:
+        sel_faces = [f for f in bm.faces]
+    else:
+        sel_faces = [f for f in bm.faces if f.select]
     props.overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
     props.flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
 
@@ -523,13 +526,19 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
 
-        sel_faces = [f for f in bm.faces if f.select]
+        if context.tool_settings.use_uv_select_sync:
+            sel_faces = [f for f in bm.faces]
+        else:
+            sel_faces = [f for f in bm.faces if f.select]
 
         overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
 
         for info in overlapped_info:
-            for l in info["subject_face"].loops:
-                l[uv_layer].select = True
+            if context.tool_settings.use_uv_select_sync:
+                info["subject_face"].select = True
+            else:
+                for l in info["subject_face"].loops:
+                    l[uv_layer].select = True
 
         bmesh.update_edit_mesh(obj.data)
 
@@ -551,13 +560,19 @@ class MUV_UVInspSelectFlipped(bpy.types.Operator):
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
 
-        sel_faces = [f for f in bm.faces if f.select]
+        if context.tool_settings.use_uv_select_sync:
+            sel_faces = [f for f in bm.faces]
+        else:
+            sel_faces = [f for f in bm.faces if f.select]
 
         flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
 
         for info in flipped_info:
-            for l in info["face"].loops:
-                l[uv_layer].select = True
+            if context.tool_settings.use_uv_select_sync:
+                info["face"].select = True
+            else:
+                for l in info["face"].loops:
+                    l[uv_layer].select = True
 
         bmesh.update_edit_mesh(obj.data)
 
