@@ -347,10 +347,18 @@ class MUV_UVInspRenderer(bpy.types.Operator):
         if sc.muv_uvinsp_show_overlapped:
             color = prefs.uvinsp_overlapped_color
             for info in props.overlapped_info:
-                for poly in info["polygons"]:
+                if sc.muv_uvinsp_show_mode == 'PART':
+                    for poly in info["polygons"]:
+                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                        bgl.glColor4f(color[0], color[1], color[2], color[3])
+                        for uv in poly:
+                            x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                            bgl.glVertex2f(x, y)
+                        bgl.glEnd()
+                elif sc.muv_uvinsp_show_mode == 'FACE':
                     bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                     bgl.glColor4f(color[0], color[1], color[2], color[3])
-                    for uv in poly:
+                    for uv in info["subject_uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
                         bgl.glVertex2f(x, y)
                     bgl.glEnd()
@@ -359,10 +367,18 @@ class MUV_UVInspRenderer(bpy.types.Operator):
         if sc.muv_uvinsp_show_flipped:
             color = prefs.uvinsp_flipped_color
             for info in props.flipped_info:
-                for poly in info["polygons"]:
+                if sc.muv_uvinsp_show_mode == 'PART':
+                    for poly in info["polygons"]:
+                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                        bgl.glColor4f(color[0], color[1], color[2], color[3])
+                        for uv in poly:
+                            x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                            bgl.glVertex2f(x, y)
+                        bgl.glEnd()
+                elif sc.muv_uvinsp_show_mode == 'FACE':
                     bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                     bgl.glColor4f(color[0], color[1], color[2], color[3])
-                    for uv in poly:
+                    for uv in info["uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
                         bgl.glVertex2f(x, y)
                     bgl.glEnd()
@@ -412,8 +428,10 @@ def get_overlapped_uv_info(faces, uv_layer):
             result, polygons = do_weiler_atherton_cliping(f_clip, f_subject,
                                                           uv_layer)
             if result:
+                subject_uvs = [l[uv_layer].uv.copy() for l in f_subject.loops]
                 overlapped_uvs.append({"clip_face": f_clip,
                                        "subject_face": f_subject,
+                                       "subject_uvs": subject_uvs,
                                        "polygons": polygons})
 
     return overlapped_uvs
@@ -422,9 +440,11 @@ def get_overlapped_uv_info(faces, uv_layer):
 def get_flipped_uv_info(faces, uv_layer):
     flipped_uvs = []
     for f in faces:
-        uvs = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
-        if is_polygon_flipped(uvs):
-            flipped_uvs.append({"face": f, "polygons": [uvs.as_list()]})
+        polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
+        if is_polygon_flipped(polygon):
+            uvs = [l[uv_layer].uv.copy() for l in f.loops]
+            flipped_uvs.append({"face": f, "uvs": uvs,
+                                "polygons": [polygon.as_list()]})
 
     return flipped_uvs
 

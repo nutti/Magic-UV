@@ -29,7 +29,6 @@ from bpy.props import (
     EnumProperty,
     BoolProperty,
     FloatVectorProperty,
-    StringProperty,
 )
 from mathutils import Vector
 
@@ -136,6 +135,15 @@ def init_props(scene):
         name="Flipped",
         description="Show flipped UVs",
         default=False
+    )
+    scene.muv_uvinsp_show_mode = EnumProperty(
+        name="Mode",
+        description="Show mode",
+        items=[
+            ('PART', "Part", "Show only overlapped/flipped part"),
+            ('FACE', "Face", "Show overlapped/flipped face")
+        ],
+        default='PART'
     )
 
     # Align UV

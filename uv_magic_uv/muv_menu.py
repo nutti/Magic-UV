@@ -336,6 +336,8 @@ class IMAGE_PT_MUV_UVInspection(bpy.types.Panel):
         row = layout.row()
         row.prop(sc, "muv_uvinsp_show_overlapped")
         row.prop(sc, "muv_uvinsp_show_flipped")
+        row = layout.row()
+        row.prop(sc, "muv_uvinsp_show_mode")
 
         layout.label("Select Face:")
         row = layout.row(align=True)
