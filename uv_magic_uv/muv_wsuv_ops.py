@@ -157,16 +157,6 @@ class MUV_WSUVApply(bpy.types.Operator):
     bl_description = "Apply scaled UV based on scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
 
-    proportional_scaling = BoolProperty(
-        name="Proportional Scaling",
-        default=True
-    )
-    scaling_factor = FloatProperty(
-        name="Scaling Factor",
-        default=1.0,
-        max=1000.0,
-        min=0.00001
-    )
     origin = EnumProperty(
         name="Origin",
         description="Aspect Origin",
@@ -188,9 +178,6 @@ class MUV_WSUVApply(bpy.types.Operator):
     def draw(self, _):
         layout = self.layout
 
-        layout.prop(self, "proportional_scaling")
-        if not self.proportional_scaling:
-            layout.prop(self, "scaling_factor")
         layout.prop(self, "origin")
 
     def execute(self, context):

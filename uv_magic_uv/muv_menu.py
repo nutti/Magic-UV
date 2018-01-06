@@ -393,8 +393,6 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             row.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, text="Measure")
             ops = row.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname,
                                text="Apply")
-            ops.proportional_scaling = sc.muv_wsuv_proportional_scaling
-            ops.scaling_factor = sc.muv_wsuv_scaling_factor
             ops.origin = sc.muv_wsuv_origin
             box.label("Source:")
             sp = box.split(percentage=0.7)
