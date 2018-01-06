@@ -69,6 +69,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
         return obj and obj.type == 'MESH'
 
     def execute(self, context):
+        sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -76,10 +77,12 @@ class MUV_UVWBoxMap(bpy.types.Operator):
 
         # get UV layer
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
-
+            if sc.muv_uvw_assign_uvmap:
+                bm.loops.layers.uv.new()
+            else:
+                self.report(
+                    {'WARNING'}, "Object must have more than one UV map")
+                return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 
         scale = 1.0 / self.size
@@ -175,6 +178,7 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
         return obj and obj.type == 'MESH'
 
     def execute(self, context):
+        sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -182,9 +186,12 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
 
         # get UV layer
         if not bm.loops.layers.uv:
-            self.report(
-                {'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
+            if sc.muv_uvw_assign_uvmap:
+                bm.loops.layers.uv.new()
+            else:
+                self.report(
+                    {'WARNING'}, "Object must have more than one UV map")
+                return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
 

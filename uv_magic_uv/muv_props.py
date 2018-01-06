@@ -237,6 +237,11 @@ def init_props(scene):
         description="UVW is enabled",
         default=False
     )
+    scene.muv_uvw_assign_uvmap = BoolProperty(
+        name="Assign UVMap",
+        description="Assign UVMap when no UVmaps are available",
+        default=True
+    )
 
     # Texture Projection
     scene.muv_texproj_enabled = BoolProperty(
@@ -271,6 +276,11 @@ def init_props(scene):
     scene.muv_texproj_apply_tex_aspect = BoolProperty(
         name="Texture Aspect Ratio",
         description="Apply Texture Aspect ratio to displayed texture",
+        default=True
+    )
+    scene.muv_texproj_assign_uvmap = BoolProperty(
+        name="Assign UVMap",
+        description="Assign UVMap when no UVmaps are available",
         default=True
     )
 

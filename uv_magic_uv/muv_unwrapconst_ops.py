@@ -82,12 +82,23 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         default=False
     )
 
-    def execute(self, _):
+    def execute(self, context):
+        sc = context.scene
         obj = bpy.context.active_object
+
+        # unwrap
+        bpy.ops.uv.unwrap(
+            method=self.method,
+            fill_holes=self.fill_holes,
+            correct_aspect=self.correct_aspect,
+            use_subsurf_data=self.use_subsurf_data,
+            margin=self.margin)
+
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
+        # bpy.ops.uv.unwrap() makes one UV map at least
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
             return {'CANCELLED'}
@@ -99,14 +110,6 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         for f in faces:
             uvs = [l[uv_layer].uv.copy() for l in f.loops]
             uv_list.append(uvs)
-
-        # unwrap
-        bpy.ops.uv.unwrap(
-            method=self.method,
-            fill_holes=self.fill_holes,
-            correct_aspect=self.correct_aspect,
-            use_subsurf_data=self.use_subsurf_data,
-            margin=self.margin)
 
         # when U/V-Constraint is checked, revert original coordinate
         for f, uvs in zip(faces, uv_list):

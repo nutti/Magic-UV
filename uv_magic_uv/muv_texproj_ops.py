@@ -257,8 +257,12 @@ class MUV_TexProjProject(bpy.types.Operator):
 
         # get UV and texture layer
         if not bm.loops.layers.uv:
-            self.report({'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
+            if sc.muv_texproj_assign_uvmap:
+                bm.loops.layers.uv.new()
+            else:
+                self.report({'WARNING'},
+                            "Object must have more than one UV map")
+                return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
         tex_layer = bm.faces.layers.tex.verify()

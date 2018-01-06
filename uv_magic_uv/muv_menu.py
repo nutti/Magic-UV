@@ -549,9 +549,9 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
             row.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
             if not sc.muv_texproj_adjust_window:
                 row.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
-            row = col.row()
-            row.prop(sc, "muv_texproj_apply_tex_aspect",
+            col.prop(sc, "muv_texproj_apply_tex_aspect",
                      text="Texture Aspect Ratio")
+            col.prop(sc, "muv_texproj_assign_uvmap", text="Assign UVMap")
             if props.texproj.running:
                 box.operator(muv_texproj_ops.MUV_TexProjProject.bl_idname,
                              text="Project")
@@ -563,3 +563,4 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
             row.operator(muv_uvw_ops.MUV_UVWBoxMap.bl_idname, text="Box")
             row.operator(muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname,
                          text="Best Planner")
+            box.prop(sc, "muv_uvw_assign_uvmap", text="Assign UVMap")
