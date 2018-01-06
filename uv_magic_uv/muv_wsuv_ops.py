@@ -24,6 +24,8 @@ __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
 
+from math import fabs, sqrt
+
 import bpy
 import bmesh
 from mathutils import Vector
@@ -59,6 +61,65 @@ def calc_face_scale(uv_layer, face):
     return es
 
 
+def calc_polygon_2d_area(points):
+    area = 0.0
+    for i, p1 in enumerate(points):
+        p2 = points[(i + 1) % len(points)]
+        a = p1.x * p2.y - p1.y * p2.x
+        area = area + a
+
+    return fabs(0.5 * area)
+
+
+def calc_polygon_3d_area(points):
+    area = 0.0
+    for i, p1 in enumerate(points):
+        p2 = points[(i + 1) % len(points)]
+        cx = p1.y * p2.z - p1.z * p2.y
+        cy = p1.z * p2.x - p1.x * p2.z
+        cz = p1.x * p2.y - p1.y * p2.x
+        a = sqrt(cx * cx + cy * cy + cz * cz)
+        area = area + a
+
+    return 0.5 * area
+
+
+def measure_wsuv_info(obj):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if muv_common.check_version(2, 73, 0) >= 0:
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+    if not bm.loops.layers.uv:
+        return None, None, None
+    uv_layer = bm.loops.layers.uv.verify()
+
+    tex_layer = None
+    if bm.faces.layers.tex:
+        tex_layer = bm.faces.layers.tex.verify()
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # measure average face size
+    uv_area = 0.0
+    mesh_area = 0.0
+    for f in sel_faces:
+        uvs = [l[uv_layer].uv for l in f.loops]
+        verts = [l.vert.co for l in f.loops]
+        uv_area = uv_area + calc_polygon_2d_area(uvs)
+        if tex_layer:
+            img = f[tex_layer].image
+            uv_area = uv_area * img.size[0] * img.size[1]
+        mesh_area = mesh_area + calc_polygon_3d_area(verts)
+    if mesh_area == 0.0:
+        density = 0.0
+    else:
+        density = sqrt(uv_area / mesh_area)
+
+    return uv_area, mesh_area, density
+
+
 class MUV_WSUVMeasure(bpy.types.Operator):
     """
     Operation class: Measure face size
@@ -70,30 +131,18 @@ class MUV_WSUVMeasure(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        props = context.scene.muv_props.wsuv
-        obj = bpy.context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
-            bm.verts.ensure_lookup_table()
-            bm.edges.ensure_lookup_table()
-            bm.faces.ensure_lookup_table()
+        sc = context.scene
+        obj = context.active_object
 
-        if not bm.loops.layers.uv:
-            self.report({'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
-        uv_layer = bm.loops.layers.uv.verify()
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
 
-        sel_faces = [f for f in bm.faces if f.select]
+        sc.muv_wsuv_src_uv_area = uv_area
+        sc.muv_wsuv_src_mesh_area = mesh_area
+        sc.muv_wsuv_src_density = density
 
-        # measure average face size
-        scale = 0.0
-        for f in sel_faces:
-            scale = scale + calc_face_scale(uv_layer, f)
-
-        props.ref_scale = scale / len(sel_faces)
-
-        self.report(
-            {'INFO'}, "Average face size: {0}".format(props.ref_scale))
+        self.report({'INFO'},
+                    "UV Area: {0}, Mesh Area: {1}, Texel Density: {2}"
+                    .format(uv_area, mesh_area, density))
 
         return {'FINISHED'}
 
@@ -145,8 +194,8 @@ class MUV_WSUVApply(bpy.types.Operator):
         layout.prop(self, "origin")
 
     def execute(self, context):
-        props = context.scene.muv_props.wsuv
-        obj = bpy.context.active_object
+        sc = context.scene
+        obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
@@ -161,19 +210,7 @@ class MUV_WSUVApply(bpy.types.Operator):
 
         sel_faces = [f for f in bm.faces if f.select]
 
-        # measure average face size
-        scale = 0.0
-        for f in sel_faces:
-            scale = scale + calc_face_scale(uv_layer, f)
-        scale = scale / len(sel_faces)
-
-        self.report(
-            {'INFO'}, "Average face size: {0}".format(scale))
-
-        if self.proportional_scaling:
-            factor = props.ref_scale / scale
-        else:
-            factor = self.scaling_factor
+        factor = sc.muv_wsuv_src_density / sc.muv_wsuv_tgt_density
 
         # calculate origin
         if self.origin == 'CENTER':

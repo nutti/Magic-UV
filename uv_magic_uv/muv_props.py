@@ -52,7 +52,6 @@ class MUV_Properties():
     texlock = None
     texproj = None
     texwrap = None
-    wsuv = None
     mvuv = None
     uvinsp = None
 
@@ -65,7 +64,6 @@ class MUV_Properties():
         self.texlock = MUV_TexLockProps()
         self.texproj = MUV_TexProjProps()
         self.texwrap = MUV_TexWrapProps()
-        self.wsuv = MUV_WSUVProps()
         self.mvuv = MUV_MVUVProps()
         self.uvinsp = MUV_UVInspProps()
 
@@ -105,11 +103,6 @@ class MUV_TexLockProps():
 
 class MUV_TexWrapProps():
     src_face_index = -1
-
-
-class MUV_WSUVProps():
-    ref_sv = None
-    ref_suv = None
 
 
 class MUV_MVUVProps():
@@ -325,21 +318,136 @@ def init_props(scene):
         default=True
     )
 
+    def wsuv_set_mode(self, value):
+        src_density = self.get("muv_wsuv_src_density", 0.0)
+        factor = self.get("muv_wsuv_scaling_factor", 1.0)
+
+        from .muv_wsuv_ops import measure_wsuv_info
+        obj = bpy.context.active_object
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        self["muv_wsuv_tgt_mesh_area"] = mesh_area
+        self["muv_wsuv_tgt_uv_area"] = uv_area
+
+        # PROPORTIONAL
+        if value == 0:
+            self["muv_wsuv_tgt_density"] = density
+        # SCALING
+        elif value == 1:
+            self["muv_wsuv_tgt_density"] = src_density * factor
+
+        self["muv_wsuv_mode"] = value
+
+    def wsuv_get_mode(self):
+        mode = self.get("muv_wsuv_mode", 1)
+
+        from .muv_wsuv_ops import measure_wsuv_info
+        obj = bpy.context.active_object
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        self["muv_wsuv_tgt_mesh_area"] = mesh_area
+        self["muv_wsuv_tgt_uv_area"] = uv_area
+
+        # PROPORTIONAL
+        if mode == 0:
+            self["muv_wsuv_tgt_density"] = density
+
+        return self.get("muv_wsuv_mode", 1)
+
+    def wsuv_set_scaling_factor(self, value):
+        mode = self.get("muv_wsuv_mode", 1)
+        src_density = self.get("muv_wsuv_src_density", 0.0)
+        factor = self.get("muv_wsuv_scaling_factor", 1.0)
+
+        from .muv_wsuv_ops import measure_wsuv_info
+        obj = bpy.context.active_object
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        self["muv_wsuv_tgt_mesh_area"] = mesh_area
+        self["muv_wsuv_tgt_uv_area"] = uv_area
+
+        # PROPORTIONAL
+        if mode == 0:
+            self["muv_wsuv_tgt_density"] = density
+        # SCALING
+        elif mode == 1:
+            self["muv_wsuv_tgt_density"] = src_density * factor
+
+        self["muv_wsuv_scaling_factor"] = value
+
+    def wsuv_get_scaling_factor(self):
+        mode = self.get("muv_wsuv_mode", 1)
+
+        from .muv_wsuv_ops import measure_wsuv_info
+        obj = bpy.context.active_object
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        self["muv_wsuv_tgt_mesh_area"] = mesh_area
+        self["muv_wsuv_tgt_uv_area"] = uv_area
+
+        # PROPORTIONAL
+        if mode == 0:
+            self["muv_wsuv_tgt_density"] = density
+
+        return self.get("muv_wsuv_scaling_factor", 1.0)
+
     # World Scale UV
     scene.muv_wsuv_enabled = BoolProperty(
         name="World Scale UV Enabled",
         description="World Scale UV is enabled",
         default=False
     )
-    scene.muv_wsuv_proportional_scaling = BoolProperty(
-        name="Proportional Scaling",
-        default=True
+    scene.muv_wsuv_src_mesh_area = FloatProperty(
+        name="Mesh Area",
+        description="Source Mesh Area",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_src_uv_area = FloatProperty(
+        name="UV Area",
+        description="Source UV Area",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_src_density = FloatProperty(
+        name="Density",
+        description="Source Texel Density",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_tgt_mesh_area = FloatProperty(
+        name="Mesh Area",
+        description="Target Mesh Area",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_tgt_uv_area = FloatProperty(
+        name="UV Area",
+        description="Target UV Area",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_tgt_density = FloatProperty(
+        name="Density",
+        description="Target Texel Density",
+        default=0.0,
+        min=0.0
+    )
+    scene.muv_wsuv_mode = EnumProperty(
+        name="Mode",
+        description="Density calculation mode",
+        items=[
+            ('PROPORTIONAL', 'Proportional', 'Scale proportionally by mesh'),
+            ('SCALING', 'Scaling', 'Specify scale factor'),
+            ('USER', 'User', 'Specify density')
+        ],
+        default='PROPORTIONAL',
+        set=wsuv_set_mode,
+        get=wsuv_get_mode
     )
     scene.muv_wsuv_scaling_factor = FloatProperty(
         name="Scaling Factor",
         default=1.0,
         max=1000.0,
-        min=0.00001
+        min=0.00001,
+        set=wsuv_set_scaling_factor,
+        get=wsuv_get_scaling_factor
     )
     scene.muv_wsuv_origin = EnumProperty(
         name="Origin",
@@ -356,7 +464,7 @@ def init_props(scene):
             ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
 
         ],
-        default="CENTER"
+        default='CENTER'
     )
 
     # Unwrap Constraint

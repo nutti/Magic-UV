@@ -396,9 +396,43 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             ops.proportional_scaling = sc.muv_wsuv_proportional_scaling
             ops.scaling_factor = sc.muv_wsuv_scaling_factor
             ops.origin = sc.muv_wsuv_origin
-            box.prop(sc, "muv_wsuv_proportional_scaling",
-                        text="Proportional Scaling")
-            if not sc.muv_wsuv_proportional_scaling:
+            box.label("Source:")
+            sp = box.split(percentage=0.7)
+            col = sp.column(align=True)
+            col.prop(sc, "muv_wsuv_src_mesh_area", text="Mesh Area")
+            col.prop(sc, "muv_wsuv_src_uv_area", text="UV Area")
+            col.prop(sc, "muv_wsuv_src_density", text="Density")
+            col.enabled = False
+            sp = sp.split(percentage=1.0)
+            col = sp.column(align=True)
+            col.label("cm x cm")
+            col.label("px x px")
+            col.label("px/cm")
+            col.enabled = False
+            box.label("Target:")
+            sp = box.split(percentage=0.7)
+            col = sp.column(align=True)
+            if sc.muv_wsuv_mode != 'PROPORTION':
+                c = col.column(align=True)
+                c.prop(sc, "muv_wsuv_tgt_mesh_area", text="Mesh Area")
+                c.prop(sc, "muv_wsuv_tgt_uv_area", text="UV Area")
+                c.enabled = False
+            col = col.column(align=True)
+            col.prop(sc, "muv_wsuv_tgt_density", text="Density")
+            if sc.muv_wsuv_mode != 'USER':
+                col.enabled = False
+            sp = sp.split(percentage=1.0)
+            col = sp.column(align=True)
+            if sc.muv_wsuv_mode != 'PROPORTION':
+                c = col.column(align=True)
+                c.label("cm x cm")
+                c.label("px x px")
+                c.enabled = False
+            col.label("px/cm")
+            if sc.muv_wsuv_mode != 'USER':
+                col.enabled = False
+            box.prop(sc, "muv_wsuv_mode", text="Mode")
+            if sc.muv_wsuv_mode == 'SCALING':
                 box.prop(sc, "muv_wsuv_scaling_factor",
                             text="Scaling Factor")
             box.prop(sc, "muv_wsuv_origin", text="Origin")
