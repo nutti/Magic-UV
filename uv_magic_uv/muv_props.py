@@ -126,6 +126,16 @@ def init_props(scene):
     scene.muv_props = MUV_Properties()
 
     # UV inspection
+    scene.muv_seluv_enabled = BoolProperty(
+        name="Select UV Enabled",
+        description="Select UV is enabled",
+        default=False
+    )
+    scene.muv_uvinsp_enabled = BoolProperty(
+        name="UV Inspection Enabled",
+        description="UV Inspection is enabled",
+        default=False
+    )
     scene.muv_uvinsp_show_overlapped = BoolProperty(
         name="Overlapped",
         description="Show overlapped UVs",
@@ -147,6 +157,11 @@ def init_props(scene):
     )
 
     # Align UV
+    scene.muv_auv_enabled = BoolProperty(
+        name="Aline UV Enabled",
+        description="Align UV is enabled",
+        default=False
+    )
     scene.muv_auv_transmission = BoolProperty(
         name="Transmission",
         description="Align linked UVs",
@@ -181,6 +196,11 @@ def init_props(scene):
     )
 
     # Smooth UV
+    scene.muv_smuv_enabled = BoolProperty(
+        name="Smooth UV Enabled",
+        description="Smooth UV is enabled",
+        default=False
+    )
     scene.muv_smuv_transmission = BoolProperty(
         name="Transmission",
         description="Smooth linked UVs",
@@ -200,6 +220,11 @@ def init_props(scene):
     )
 
     # UV Bounding Box
+    scene.muv_uvbb_enabled = BoolProperty(
+        name="UV Bounding Box Enabled",
+        description="UV Bounding Box is enabled",
+        default=False
+    )
     scene.muv_uvbb_uniform_scaling = BoolProperty(
         name="Uniform Scaling",
         description="Enable Uniform Scaling",
@@ -207,6 +232,11 @@ def init_props(scene):
     )
 
     # Pack UV
+    scene.muv_packuv_enabled = BoolProperty(
+        name="Pack UV Enabled",
+        description="Pack UV is enabled",
+        default=False
+    )
     scene.muv_packuv_allowable_center_deviation = FloatVectorProperty(
         name="Allowable Center Deviation",
         description="Allowable center deviation to judge same UV island",
@@ -478,6 +508,16 @@ def init_props(scene):
         cy = bd_size[1] * value[1]
         space.cursor_location = Vector((cx, cy))
 
+    scene.muv_auvc_enabled = BoolProperty(
+        name="Align UV Cursor Enabled",
+        description="Align UV Cursor is enabled",
+        default=False
+    )
+    scene.muv_uvcloc_enabled = BoolProperty(
+        name="UV Cursor Location Enabled",
+        description="UV Cursor Location is enabled",
+        default=False
+    )
     scene.muv_auvc_cursor_loc = FloatVectorProperty(
         name="UV Cursor Location",
         size=2,

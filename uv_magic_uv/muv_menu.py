@@ -69,87 +69,6 @@ class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
         layout.prop(sc, "muv_cpuv_copy_seams", text="Copy Seams")
 
 
-class IMAGE_PT_MUV_AUV(bpy.types.Panel):
-    """
-    Panel class: Align UV on Property Panel on UV/ImageEditor
-    """
-
-    bl_space_type = 'IMAGE_EDITOR'
-    bl_region_type = 'TOOLS'
-    bl_label = "Align UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        col = layout.column()
-        row = col.row(align=True)
-        ops = row.operator(muv_auv_ops.MUV_AUVCircle.bl_idname, text="Circle")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
-        ops = row.operator(muv_auv_ops.MUV_AUVStraighten.bl_idname,
-                           text="Straighten")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
-        ops.vertical = sc.muv_auv_vertical
-        ops.horizontal = sc.muv_auv_horizontal
-        row = col.row()
-        ops = row.operator(muv_auv_ops.MUV_AUVAxis.bl_idname, text="XY-axis")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
-        ops.vertical = sc.muv_auv_vertical
-        ops.horizontal = sc.muv_auv_horizontal
-        ops.location = sc.muv_auv_location
-        row.prop(sc, "muv_auv_location", text="")
-
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.prop(sc, "muv_auv_transmission", text="Transmission")
-        row.prop(sc, "muv_auv_select", text="Select")
-        row = col.row(align=True)
-        row.prop(sc, "muv_auv_vertical", text="Vertical")
-        row.prop(sc, "muv_auv_horizontal", text="Horizontal")
-
-
-class IMAGE_PT_MUV_SMUV(bpy.types.Panel):
-    """
-    Panel class: Smooth UV on Property Panel on UV/ImageEditor
-    """
-
-    bl_space_type = 'IMAGE_EDITOR'
-    bl_region_type = 'TOOLS'
-    bl_label = "Smooth UV"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        layout = self.layout
-
-        ops = layout.operator(muv_auv_ops.MUV_AUVSmooth.bl_idname,
-                              text="Smooth")
-        ops.transmission = sc.muv_smuv_transmission
-        ops.select = sc.muv_smuv_select
-        ops.mesh_infl = sc.muv_smuv_mesh_infl
-        col = layout.column(align=True)
-        row = col.row(align=True)
-        row.prop(sc, "muv_smuv_transmission", text="Transmission")
-        row.prop(sc, "muv_smuv_select", text="Select")
-        col.prop(sc, "muv_smuv_mesh_infl", text="Mesh Influence")
-
-
 class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on UV/ImageEditor
@@ -174,113 +93,14 @@ class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
         row.operator(muv_cpuv_ops.MUV_CPUVIEPasteUV.bl_idname, text="Paste")
 
 
-class IMAGE_PT_MUV_AUVC(bpy.types.Panel):
+class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
     """
-    Panel class: Align UV Cursor
-    """
-
-    bl_space_type = 'IMAGE_EDITOR'
-    bl_region_type = 'TOOLS'
-    bl_label = "Align UV Cursor"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        layout = self.layout
-        sc = context.scene
-
-        layout.prop(sc, "muv_auvc_align_menu", expand=True)
-
-        col = layout.column(align=True)
-
-        row = col.row(align=True)
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Left Top")
-        ops.position = 'LEFT_TOP'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Middle Top")
-        ops.position = 'MIDDLE_TOP'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Right Top")
-        ops.position = 'RIGHT_TOP'
-        ops.base = sc.muv_auvc_align_menu
-
-        row = col.row(align=True)
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Left Middle")
-        ops.position = 'LEFT_MIDDLE'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Center")
-        ops.position = 'CENTER'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Right Middle")
-        ops.position = 'RIGHT_MIDDLE'
-        ops.base = sc.muv_auvc_align_menu
-
-        row = col.row(align=True)
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Left Bottom")
-        ops.position = 'LEFT_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Middle Bottom")
-        ops.position = 'MIDDLE_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
-        ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
-                           text="Right Bottom")
-        ops.position = 'RIGHT_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
-
-        layout.label("UV Cursor Location:")
-        layout.prop(sc, "muv_auvc_cursor_loc", text="")
-
-
-class IMAGE_PT_MUV_UVBB(bpy.types.Panel):
-    """
-    Panel class: UV Bounding Box Menu on Property Panel on UV/ImageEditor
+    Panel class: UV Manipulation on Property Panel on UV/ImageEditor
     """
 
     bl_space_type = 'IMAGE_EDITOR'
     bl_region_type = 'TOOLS'
-    bl_label = "UV Bounding Box"
-    bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
-    bl_options = {'DEFAULT_CLOSED'}
-
-    def draw_header(self, _):
-        layout = self.layout
-        layout.label(text="", icon='IMAGE_COL')
-
-    def draw(self, context):
-        sc = context.scene
-        props = sc.muv_props.uvbb
-        layout = self.layout
-        if props.running is False:
-            layout.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
-                            text="Display", icon='PLAY')
-        else:
-            layout.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
-                            text="Hide", icon='PAUSE')
-        layout.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
-
-
-class IMAGE_PT_MUV_PackUV(bpy.types.Panel):
-    """
-    Panel class: Pack UV (Extension) on Property Panel on UV/ImageEditor
-    """
-
-    bl_space_type = 'IMAGE_EDITOR'
-    bl_region_type = 'TOOLS'
-    bl_label = "Pack UV (Extension)"
+    bl_label = "UV Manipulation"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
     bl_options = {'DEFAULT_CLOSED'}
@@ -293,24 +113,81 @@ class IMAGE_PT_MUV_PackUV(bpy.types.Panel):
         sc = context.scene
         layout = self.layout
 
-        ops = layout.operator(muv_packuv_ops.MUV_PackUV.bl_idname,
-                              text="Pack UV")
-        ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
-        ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
-        layout.label("Allowable Center Deviation:")
-        layout.prop(sc, "muv_packuv_allowable_center_deviation", text="")
-        layout.label("Allowable Size Deviation:")
-        layout.prop(sc, "muv_packuv_allowable_size_deviation", text="")
+        box = layout.box()
+        box.prop(sc, "muv_auv_enabled", text="Align UV")
+        if sc.muv_auv_enabled:
+            col = box.column()
+            row = col.row(align=True)
+            ops = row.operator(muv_auv_ops.MUV_AUVCircle.bl_idname,
+                               text="Circle")
+            ops.transmission = sc.muv_auv_transmission
+            ops.select = sc.muv_auv_select
+            ops = row.operator(muv_auv_ops.MUV_AUVStraighten.bl_idname,
+                               text="Straighten")
+            ops.transmission = sc.muv_auv_transmission
+            ops.select = sc.muv_auv_select
+            ops.vertical = sc.muv_auv_vertical
+            ops.horizontal = sc.muv_auv_horizontal
+            row = col.row()
+            ops = row.operator(muv_auv_ops.MUV_AUVAxis.bl_idname,
+                               text="XY-axis")
+            ops.transmission = sc.muv_auv_transmission
+            ops.select = sc.muv_auv_select
+            ops.vertical = sc.muv_auv_vertical
+            ops.horizontal = sc.muv_auv_horizontal
+            ops.location = sc.muv_auv_location
+            row.prop(sc, "muv_auv_location", text="")
+
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.prop(sc, "muv_auv_transmission", text="Transmission")
+            row.prop(sc, "muv_auv_select", text="Select")
+            row = col.row(align=True)
+            row.prop(sc, "muv_auv_vertical", text="Vertical")
+            row.prop(sc, "muv_auv_horizontal", text="Horizontal")
+
+        box = layout.box()
+        box.prop(sc, "muv_smuv_enabled", text="Smooth UV")
+        if sc.muv_smuv_enabled:
+            ops = box.operator(muv_auv_ops.MUV_AUVSmooth.bl_idname,
+                                  text="Smooth")
+            ops.transmission = sc.muv_smuv_transmission
+            ops.select = sc.muv_smuv_select
+            ops.mesh_infl = sc.muv_smuv_mesh_infl
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.prop(sc, "muv_smuv_transmission", text="Transmission")
+            row.prop(sc, "muv_smuv_select", text="Select")
+            col.prop(sc, "muv_smuv_mesh_infl", text="Mesh Influence")
+
+        box = layout.box()
+        box.prop(sc, "muv_seluv_enabled", text="Select UV")
+        if sc.muv_seluv_enabled:
+            row = box.row(align=True)
+            row.operator(muv_uvinsp_ops.MUV_UVInspSelectOverlapped.bl_idname)
+            row.operator(muv_uvinsp_ops.MUV_UVInspSelectFlipped.bl_idname)
+
+        box = layout.box()
+        box.prop(sc, "muv_packuv_enabled", text="Pack UV (Extension)")
+        if sc.muv_packuv_enabled:
+            ops = box.operator(muv_packuv_ops.MUV_PackUV.bl_idname,
+                               text="Pack UV")
+            ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
+            ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
+            box.label("Allowable Center Deviation:")
+            box.prop(sc, "muv_packuv_allowable_center_deviation", text="")
+            box.label("Allowable Size Deviation:")
+            box.prop(sc, "muv_packuv_allowable_size_deviation", text="")
 
 
-class IMAGE_PT_MUV_UVInspection(bpy.types.Panel):
+class IMAGE_PT_MUV_EE(bpy.types.Panel):
     """
-    Panel class: UV Inspection on Property Panel on UV/ImageEditor
+    Panel class: UV/Image Editor Enhancement
     """
 
     bl_space_type = 'IMAGE_EDITOR'
     bl_region_type = 'TOOLS'
-    bl_label = "UV Inspection"
+    bl_label = "Editor Enhancement"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
     bl_options = {'DEFAULT_CLOSED'}
@@ -322,27 +199,90 @@ class IMAGE_PT_MUV_UVInspection(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         sc = context.scene
+        props = sc.muv_props
 
-        layout.label("Emphasize:")
-        row = layout.row()
-        if not sc.muv_props.uvinsp.display_running:
-            row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
-                         text="Display", icon='PLAY')
-        else:
-            row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
-                         text="Hide", icon='PAUSE')
-            row.operator(muv_uvinsp_ops.MUV_UVInspUpdate.bl_idname,
-                         text="Update")
-        row = layout.row()
-        row.prop(sc, "muv_uvinsp_show_overlapped")
-        row.prop(sc, "muv_uvinsp_show_flipped")
-        row = layout.row()
-        row.prop(sc, "muv_uvinsp_show_mode")
+        box = layout.box()
+        box.prop(sc, "muv_auvc_enabled", text="Align UV Cursor")
+        if sc.muv_auvc_enabled:
+            box.prop(sc, "muv_auvc_align_menu", expand=True)
 
-        layout.label("Select Face:")
-        row = layout.row(align=True)
-        row.operator(muv_uvinsp_ops.MUV_UVInspSelectOverlapped.bl_idname)
-        row.operator(muv_uvinsp_ops.MUV_UVInspSelectFlipped.bl_idname)
+            col = box.column(align=True)
+
+            row = col.row(align=True)
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Left Top")
+            ops.position = 'LEFT_TOP'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Middle Top")
+            ops.position = 'MIDDLE_TOP'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Right Top")
+            ops.position = 'RIGHT_TOP'
+            ops.base = sc.muv_auvc_align_menu
+
+            row = col.row(align=True)
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Left Middle")
+            ops.position = 'LEFT_MIDDLE'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Center")
+            ops.position = 'CENTER'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Right Middle")
+            ops.position = 'RIGHT_MIDDLE'
+            ops.base = sc.muv_auvc_align_menu
+
+            row = col.row(align=True)
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Left Bottom")
+            ops.position = 'LEFT_BOTTOM'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Middle Bottom")
+            ops.position = 'MIDDLE_BOTTOM'
+            ops.base = sc.muv_auvc_align_menu
+            ops = row.operator(muv_auvc_ops.MUV_AUVCAlignOps.bl_idname,
+                               text="Right Bottom")
+            ops.position = 'RIGHT_BOTTOM'
+            ops.base = sc.muv_auvc_align_menu
+
+        box = layout.box()
+        box.prop(sc, "muv_uvcloc_enabled", text="UV Cursor Location")
+        if sc.muv_uvcloc_enabled:
+            box.prop(sc, "muv_auvc_cursor_loc", text="")
+
+        box = layout.box()
+        box.prop(sc, "muv_uvbb_enabled", text="UV Bounding Box")
+        if sc.muv_uvbb_enabled:
+            if props.uvbb.running is False:
+                box.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
+                                text="Display", icon='PLAY')
+            else:
+                box.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
+                                text="Hide", icon='PAUSE')
+            box.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
+
+        box = layout.box()
+        box.prop(sc, "muv_uvinsp_enabled", text="UV Inspection")
+        if sc.muv_uvinsp_enabled:
+            row = box.row()
+            if not sc.muv_props.uvinsp.display_running:
+                row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
+                             text="Display", icon='PLAY')
+            else:
+                row.operator(muv_uvinsp_ops.MUV_UVInspDisplay.bl_idname,
+                             text="Hide", icon='PAUSE')
+                row.operator(muv_uvinsp_ops.MUV_UVInspUpdate.bl_idname,
+                             text="Update")
+            row = box.row()
+            row.prop(sc, "muv_uvinsp_show_overlapped")
+            row.prop(sc, "muv_uvinsp_show_flipped")
+            row = box.row()
+            row.prop(sc, "muv_uvinsp_show_mode")
 
 
 class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
@@ -396,14 +336,14 @@ class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
             row.prop(sc, "muv_transuv_copy_seams", text="Seams")
 
 
-class OBJECT_PT_MUV_ManipUV(bpy.types.Panel):
+class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
     """
-    Panel class: Manipulate UV on Property Panel on View3D
+    Panel class: UV Manipulation on Property Panel on View3D
     """
 
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
-    bl_label = "Manipulate UV"
+    bl_label = "UV Manipulation"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
     bl_options = {'DEFAULT_CLOSED'}
