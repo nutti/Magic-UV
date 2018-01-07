@@ -410,22 +410,12 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             box.label("Target:")
             sp = box.split(percentage=0.7)
             col = sp.column(align=True)
-            if sc.muv_wsuv_mode != 'PROPORTION':
-                c = col.column(align=True)
-                c.prop(sc, "muv_wsuv_tgt_mesh_area", text="Mesh Area")
-                c.prop(sc, "muv_wsuv_tgt_uv_area", text="UV Area")
-                c.enabled = False
             col = col.column(align=True)
             col.prop(sc, "muv_wsuv_tgt_density", text="Density")
             if sc.muv_wsuv_mode != 'USER':
                 col.enabled = False
             sp = sp.split(percentage=1.0)
             col = sp.column(align=True)
-            if sc.muv_wsuv_mode != 'PROPORTION':
-                c = col.column(align=True)
-                c.label("cm x cm")
-                c.label("px x px")
-                c.enabled = False
             col.label("px/cm")
             if sc.muv_wsuv_mode != 'USER':
                 col.enabled = False

@@ -26,13 +26,14 @@ __date__ = "19 Nov 2017"
 
 from collections import defaultdict
 from pprint import pprint
+from math import fabs, sqrt
 
 import bpy
 from mathutils import Vector
 import bmesh
 
 
-from . import muv_props
+DEBUG = False
 
 
 def debug_print(*s):
@@ -40,7 +41,7 @@ def debug_print(*s):
     Print message to console in debugging mode
     """
 
-    if muv_props.DEBUG:
+    if DEBUG:
         pprint(s)
 
 
@@ -216,3 +217,74 @@ def get_uvimg_editor_board_size(area):
         return area.spaces.active.image.size
 
     return (255.0, 255.0)
+
+
+def calc_polygon_2d_area(points):
+    area = 0.0
+    for i, p1 in enumerate(points):
+        p2 = points[(i + 1) % len(points)]
+        a = p1.x * p2.y - p1.y * p2.x
+        area = area + a
+
+    return fabs(0.5 * area)
+
+
+def calc_polygon_3d_area(points):
+    area = 0.0
+    for i, p1 in enumerate(points):
+        p2 = points[(i + 1) % len(points)]
+        cx = p1.y * p2.z - p1.z * p2.y
+        cy = p1.z * p2.x - p1.x * p2.z
+        cz = p1.x * p2.y - p1.y * p2.x
+        a = sqrt(cx * cx + cy * cy + cz * cz)
+        area = area + a
+
+    return 0.5 * area
+
+
+def measure_mesh_area(obj):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # measure
+    mesh_area = 0.0
+    for f in sel_faces:
+        verts = [l.vert.co for l in f.loops]
+        f_mesh_area = calc_polygon_3d_area(verts)
+        mesh_area = mesh_area + f_mesh_area
+
+    return mesh_area
+
+
+def measure_uv_area(obj):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+    if not bm.loops.layers.uv:
+        return None
+    uv_layer = bm.loops.layers.uv.verify()
+
+    tex_layer = None
+    if bm.faces.layers.tex:
+        tex_layer = bm.faces.layers.tex.verify()
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # measure
+    uv_area = 0.0
+    for f in sel_faces:
+        uvs = [l[uv_layer].uv for l in f.loops]
+        f_uv_area = calc_polygon_2d_area(uvs)
+        if tex_layer:
+            img = f[tex_layer].image
+            uv_area = uv_area + f_uv_area * img.size[0] * img.size[1]
+
+    return uv_area

@@ -29,89 +29,17 @@ from math import fabs, sqrt
 import bpy
 import bmesh
 from mathutils import Vector
-from bpy.props import (
-    FloatProperty,
-    BoolProperty,
-    EnumProperty
-)
+from bpy.props import EnumProperty
 from . import muv_common
 
 
-def calc_edge_scale(uv_layer, loop0, loop1):
-    v0 = loop0.vert.co
-    v1 = loop1.vert.co
-    uv0 = loop0[uv_layer].uv.copy()
-    uv1 = loop1[uv_layer].uv.copy()
-
-    dv = v1 - v0
-    duv = uv1 - uv0
-
-    scale = 0.0
-    if dv.magnitude > 0.00000001:
-        scale = duv.magnitude / dv.magnitude
-
-    return scale
-
-
-def calc_face_scale(uv_layer, face):
-    es = 0.0
-    for i, l in enumerate(face.loops[1:]):
-        es = es + calc_edge_scale(uv_layer, face.loops[i], l)
-
-    return es
-
-
-def calc_polygon_2d_area(points):
-    area = 0.0
-    for i, p1 in enumerate(points):
-        p2 = points[(i + 1) % len(points)]
-        a = p1.x * p2.y - p1.y * p2.x
-        area = area + a
-
-    return fabs(0.5 * area)
-
-
-def calc_polygon_3d_area(points):
-    area = 0.0
-    for i, p1 in enumerate(points):
-        p2 = points[(i + 1) % len(points)]
-        cx = p1.y * p2.z - p1.z * p2.y
-        cy = p1.z * p2.x - p1.x * p2.z
-        cz = p1.x * p2.y - p1.y * p2.x
-        a = sqrt(cx * cx + cy * cy + cz * cz)
-        area = area + a
-
-    return 0.5 * area
-
-
 def measure_wsuv_info(obj):
-    bm = bmesh.from_edit_mesh(obj.data)
-    if muv_common.check_version(2, 73, 0) >= 0:
-        bm.verts.ensure_lookup_table()
-        bm.edges.ensure_lookup_table()
-        bm.faces.ensure_lookup_table()
+    mesh_area = muv_common.measure_mesh_area(obj)
+    uv_area = muv_common.measure_uv_area(obj)
 
-    if not bm.loops.layers.uv:
+    if not uv_area:
         return None, None, None
-    uv_layer = bm.loops.layers.uv.verify()
 
-    tex_layer = None
-    if bm.faces.layers.tex:
-        tex_layer = bm.faces.layers.tex.verify()
-
-    sel_faces = [f for f in bm.faces if f.select]
-
-    # measure average face size
-    uv_area = 0.0
-    mesh_area = 0.0
-    for f in sel_faces:
-        uvs = [l[uv_layer].uv for l in f.loops]
-        verts = [l.vert.co for l in f.loops]
-        uv_area = uv_area + calc_polygon_2d_area(uvs)
-        if tex_layer:
-            img = f[tex_layer].image
-            uv_area = uv_area * img.size[0] * img.size[1]
-        mesh_area = mesh_area + calc_polygon_3d_area(verts)
     if mesh_area == 0.0:
         density = 0.0
     else:
@@ -135,6 +63,9 @@ class MUV_WSUVMeasure(bpy.types.Operator):
         obj = context.active_object
 
         uv_area, mesh_area, density = measure_wsuv_info(obj)
+        if not uv_area:
+            self.report({'WARNING'}, "Object must have more than one UV map")
+            return {'CANCELLED'}
 
         sc.muv_wsuv_src_uv_area = uv_area
         sc.muv_wsuv_src_mesh_area = mesh_area

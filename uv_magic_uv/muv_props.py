@@ -32,8 +32,7 @@ from bpy.props import (
 )
 from mathutils import Vector
 
-
-DEBUG = False
+from . import muv_common
 
 
 def get_loaded_texture_name(_, __):
@@ -320,17 +319,14 @@ def init_props(scene):
 
     def wsuv_set_mode(self, value):
         src_density = self.get("muv_wsuv_src_density", 0.0)
+        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
         factor = self.get("muv_wsuv_scaling_factor", 1.0)
-
-        from .muv_wsuv_ops import measure_wsuv_info
-        obj = bpy.context.active_object
-        uv_area, mesh_area, density = measure_wsuv_info(obj)
-        self["muv_wsuv_tgt_mesh_area"] = mesh_area
-        self["muv_wsuv_tgt_uv_area"] = uv_area
 
         # PROPORTIONAL
         if value == 0:
-            self["muv_wsuv_tgt_density"] = density
+            obj = bpy.context.active_object
+            tgt_mesh_area = muv_common.measure_mesh_area(obj)
+            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
         # SCALING
         elif value == 1:
             self["muv_wsuv_tgt_density"] = src_density * factor
@@ -338,34 +334,29 @@ def init_props(scene):
         self["muv_wsuv_mode"] = value
 
     def wsuv_get_mode(self):
+        src_density = self.get("muv_wsuv_src_density", 0.0)
+        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
         mode = self.get("muv_wsuv_mode", 1)
-
-        from .muv_wsuv_ops import measure_wsuv_info
-        obj = bpy.context.active_object
-        uv_area, mesh_area, density = measure_wsuv_info(obj)
-        self["muv_wsuv_tgt_mesh_area"] = mesh_area
-        self["muv_wsuv_tgt_uv_area"] = uv_area
 
         # PROPORTIONAL
         if mode == 0:
-            self["muv_wsuv_tgt_density"] = density
+            obj = bpy.context.active_object
+            tgt_mesh_area = muv_common.measure_mesh_area(obj)
+            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
 
         return self.get("muv_wsuv_mode", 1)
 
     def wsuv_set_scaling_factor(self, value):
         mode = self.get("muv_wsuv_mode", 1)
         src_density = self.get("muv_wsuv_src_density", 0.0)
+        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
         factor = self.get("muv_wsuv_scaling_factor", 1.0)
-
-        from .muv_wsuv_ops import measure_wsuv_info
-        obj = bpy.context.active_object
-        uv_area, mesh_area, density = measure_wsuv_info(obj)
-        self["muv_wsuv_tgt_mesh_area"] = mesh_area
-        self["muv_wsuv_tgt_uv_area"] = uv_area
 
         # PROPORTIONAL
         if mode == 0:
-            self["muv_wsuv_tgt_density"] = density
+            obj = bpy.context.active_object
+            tgt_mesh_area = muv_common.measure_mesh_area(obj)
+            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
         # SCALING
         elif mode == 1:
             self["muv_wsuv_tgt_density"] = src_density * factor
@@ -374,16 +365,14 @@ def init_props(scene):
 
     def wsuv_get_scaling_factor(self):
         mode = self.get("muv_wsuv_mode", 1)
-
-        from .muv_wsuv_ops import measure_wsuv_info
-        obj = bpy.context.active_object
-        uv_area, mesh_area, density = measure_wsuv_info(obj)
-        self["muv_wsuv_tgt_mesh_area"] = mesh_area
-        self["muv_wsuv_tgt_uv_area"] = uv_area
+        src_density = self.get("muv_wsuv_src_density", 0.0)
+        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
 
         # PROPORTIONAL
         if mode == 0:
-            self["muv_wsuv_tgt_density"] = density
+            obj = bpy.context.active_object
+            tgt_mesh_area = muv_common.measure_mesh_area(obj)
+            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
 
         return self.get("muv_wsuv_scaling_factor", 1.0)
 
@@ -408,18 +397,6 @@ def init_props(scene):
     scene.muv_wsuv_src_density = FloatProperty(
         name="Density",
         description="Source Texel Density",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_tgt_mesh_area = FloatProperty(
-        name="Mesh Area",
-        description="Target Mesh Area",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_tgt_uv_area = FloatProperty(
-        name="UV Area",
-        description="Target UV Area",
         default=0.0,
         min=0.0
     )
