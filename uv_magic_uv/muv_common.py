@@ -272,9 +272,9 @@ def measure_uv_area(obj):
         return None
     uv_layer = bm.loops.layers.uv.verify()
 
-    tex_layer = None
-    if bm.faces.layers.tex:
-        tex_layer = bm.faces.layers.tex.verify()
+    if not bm.faces.layers.tex:
+        return None
+    tex_layer = bm.faces.layers.tex.verify()
 
     sel_faces = [f for f in bm.faces if f.select]
 
