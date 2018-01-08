@@ -136,7 +136,7 @@ class RingBuffer:
 
 # clip: reference polygon
 # subject: tested polygon
-def do_weiler_atherton_cliping(clip, subject, uv_layer):
+def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
 
     clip_uvs = RingBuffer([l[uv_layer].uv.copy() for l in clip.loops])
     if is_polygon_flipped(clip_uvs):
@@ -235,9 +235,19 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer):
     muv_common.debug_print(clip_exiting)
     muv_common.debug_print(subject_exiting)
 
+    # TODO: can't handle the situation which all below conditions are fulfilled
+    #        * two faces have common edge
+    #        * each face is intersected
+    #        * Show Mode is "Part"
+    #       so for now, ignore this situation
+    if len(subject_entering) != len(subject_exiting):
+        if mode == 'FACE':
+            polygons = [subject_uvs.as_list()]
+            return True, polygons
+        return False, None
 
-    def traverse(current_list, entering, exiting, poly,
-                 current, start, other_list):
+
+    def traverse(current_list, entering, exiting, poly, current, other_list):
         result = current_list.find(current)
         if not result:
             return None
@@ -272,13 +282,11 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer):
     current_exiting = subject_exiting
 
     poly = []
-    start_uv = current_entering[0]
     current_uv = current_entering[0]
 
     while True:
         current_uv = traverse(current_uv_list, current_entering,
-                              current_exiting, poly, current_uv,
-                              start_uv, other_uv_list)
+                              current_exiting, poly, current_uv, other_uv_list)
 
         if current_uv_list == subject_uvs:
             current_uv_list = clip_uvs
@@ -421,12 +429,12 @@ def is_points_in_polygon(points, subject_points):
     return True
 
 
-def get_overlapped_uv_info(faces, uv_layer):
+def get_overlapped_uv_info(faces, uv_layer, mode):
     overlapped_uvs = []
     for i, f_clip in enumerate(faces):
         for f_subject in faces[i + 1:]:
             result, polygons = do_weiler_atherton_cliping(f_clip, f_subject,
-                                                          uv_layer)
+                                                          uv_layer, mode)
             if result:
                 subject_uvs = [l[uv_layer].uv.copy() for l in f_subject.loops]
                 overlapped_uvs.append({"clip_face": f_clip,
@@ -461,7 +469,8 @@ def update_uvinsp_info(context):
         sel_faces = [f for f in bm.faces]
     else:
         sel_faces = [f for f in bm.faces if f.select]
-    props.overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
+    props.overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer,
+                                                   sc.muv_uvinsp_show_mode)
     props.flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
 
 
@@ -531,7 +540,7 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
         else:
             sel_faces = [f for f in bm.faces if f.select]
 
-        overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer)
+        overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer, 'FACE')
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:
