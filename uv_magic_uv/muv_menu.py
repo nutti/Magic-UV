@@ -41,6 +41,7 @@ from . import muv_mirroruv_ops
 from . import muv_unwrapconst_ops
 from . import muv_preserve_uv_aspect
 from . import muv_uvinsp_ops
+from . import muv_texwrap_ops
 
 
 class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
@@ -459,6 +460,15 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             else:
                 row.operator(muv_texlock_ops.MUV_TexLockIntrStop.bl_idname,
                              icon="PAUSE", text="Stop")
+
+        box = layout.box()
+        box.prop(sc, "muv_texwrap_enabled", text="Texture Wrap")
+        if sc.muv_texwrap_enabled:
+            row = box.row(align=True)
+            row.operator(muv_texwrap_ops.MUV_TexWrapRefer.bl_idname,
+                         text="Refer")
+            row.operator(muv_texwrap_ops.MUV_TexWrapSet.bl_idname, text="Set")
+            box.prop(sc, "muv_texwrap_set_and_refer")
 
 
 class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):

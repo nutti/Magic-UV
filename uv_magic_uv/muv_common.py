@@ -288,3 +288,19 @@ def measure_uv_area(obj):
             uv_area = uv_area + f_uv_area * img.size[0] * img.size[1]
 
     return uv_area
+
+
+def diff_point_to_segment(a, b, p):
+    ab = b - a
+    normal_ab = ab.normalized()
+
+    ap = p - a
+    dist_ax = normal_ab.dot(ap)
+
+    # cross point
+    x = a + normal_ab * dist_ax
+
+    # difference between cross point and point
+    xp = p - x
+
+    return xp, x

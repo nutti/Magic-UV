@@ -101,7 +101,8 @@ class MUV_TexLockProps():
 
 
 class MUV_TexWrapProps():
-    src_face_index = -1
+    ref_face_index = -1
+    ref_obj = None
 
 
 class MUV_MVUVProps():
@@ -116,6 +117,18 @@ class MUV_UVInspProps():
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
+
+    # Texture Wrap
+    scene.muv_texwrap_enabled = BoolProperty(
+        name="Texture Wrap",
+        description="Texture Wrap is enabled",
+        default=False
+    )
+    scene.muv_texwrap_set_and_refer = BoolProperty(
+        name="Set and Refer",
+        description="Refer and set UV",
+        default=True
+    )
 
     # UV inspection
     scene.muv_seluv_enabled = BoolProperty(
