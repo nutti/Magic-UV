@@ -470,6 +470,7 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
                          text="Refer")
             row.operator(muv_texwrap_ops.MUV_TexWrapSet.bl_idname, text="Set")
             box.prop(sc, "muv_texwrap_set_and_refer")
+            box.prop(sc, "muv_texwrap_selseq")
 
         box = layout.box()
         box.prop(sc, "muv_uvsculpt_enabled", text="UV Sculpt")
