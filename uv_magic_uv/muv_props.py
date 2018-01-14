@@ -29,6 +29,7 @@ from bpy.props import (
     EnumProperty,
     BoolProperty,
     FloatVectorProperty,
+    IntProperty
 )
 from mathutils import Vector
 
@@ -53,6 +54,7 @@ class MUV_Properties():
     texwrap = None
     mvuv = None
     uvinsp = None
+    uvsculpt = None
 
     def __init__(self):
         self.cpuv = MUV_CPUVProps()
@@ -65,6 +67,7 @@ class MUV_Properties():
         self.texwrap = MUV_TexWrapProps()
         self.mvuv = MUV_MVUVProps()
         self.uvinsp = MUV_UVInspProps()
+        self.uvsculpt = MUV_UVSculptProps()
 
 
 class MUV_CPUVProps():
@@ -115,8 +118,62 @@ class MUV_UVInspProps():
     flipped_info = []
 
 
+class MUV_UVSculptProps():
+    running = False
+
+
 def init_props(scene):
     scene.muv_props = MUV_Properties()
+
+    # UV Sculpt
+    scene.muv_uvsculpt_enabled = BoolProperty(
+        name="UV Sculpt",
+        description="UV Sculpt is enabled",
+        default=False
+    )
+    scene.muv_uvsculpt_radius = IntProperty(
+        name="Radius",
+        description="Radius of the brush",
+        min=1,
+        max=500,
+        default=30
+    )
+    scene.muv_uvsculpt_strength = FloatProperty(
+        name="Strength",
+        description="How powerful the effect of the brush when applied",
+        min=0.0,
+        max=1.0,
+        default=0.03,
+    )
+    scene.muv_uvsculpt_tools = EnumProperty(
+        name="Tools",
+        description="Select Tools for the UV sculpt brushes",
+        items=[
+            ('GRAB', "Grab", "Grab UVs"),
+            ('RELAX', "Relax", "Relax UVs"),
+            ('PINCH', "Pinch", "Pinch UVs")
+        ],
+        default='GRAB'
+    )
+    scene.muv_uvsculpt_show_brush = BoolProperty(
+        name="Show Brush",
+        description="Show Brush",
+        default=True
+    )
+    scene.muv_uvsculpt_pinch_invert = BoolProperty(
+        name="Invert",
+        description="Pinch UV to invert direction",
+        default=False
+    )
+    scene.muv_uvsculpt_relax_method = EnumProperty(
+        name="Method",
+        description="Algorithm used for relaxation",
+        items=[
+            ('HC', "HC", "Use HC method for relaxation"),
+            ('LAPLACIAN', "Laplacian", "Use laplacian method for relaxation")
+        ],
+        default='HC'
+    )
 
     # Texture Wrap
     scene.muv_texwrap_enabled = BoolProperty(

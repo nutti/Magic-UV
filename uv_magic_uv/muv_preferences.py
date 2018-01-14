@@ -36,6 +36,17 @@ class MUV_Preferences(AddonPreferences):
 
     bl_idname = __package__
 
+    # for UV Sculpt
+    uvsculpt_brush_color = FloatVectorProperty(
+        name="Color",
+        description="Color",
+        default=(1.0, 0.4, 0.4, 1.0),
+        min=0.0,
+        max=1.0,
+        size=4,
+        subtype='COLOR'
+    )
+
     # for Overlapped UV
     uvinsp_overlapped_color = FloatVectorProperty(
         name="Color",
@@ -84,7 +95,15 @@ class MUV_Preferences(AddonPreferences):
     def draw(self, _):
         layout = self.layout
 
-        layout.label("Switch Enable/Disable and Configurate Features:")
+        layout.label("Configuration:")
+
+        layout.label("UV Sculpt:")
+        sp = layout.split(percentage=0.05)
+        col = sp.column()  # spacer
+        sp = sp.split(percentage=0.3)
+        col = sp.column()
+        col.label("Brush:")
+        col.prop(self, "uvsculpt_brush_color")
 
         layout.label("UV Inspection:")
         sp = layout.split(percentage=0.05)
@@ -93,7 +112,7 @@ class MUV_Preferences(AddonPreferences):
         col = sp.column()
         col.label("Overlapped UV:")
         col.prop(self, "uvinsp_overlapped_color")
-        sp = sp.split(percentage=1.0)
+        sp = sp.split(percentage=0.5)
         col = sp.column()
         col.label("Flipped UV:")
         col.prop(self, "uvinsp_flipped_color")

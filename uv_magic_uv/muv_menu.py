@@ -42,6 +42,7 @@ from . import muv_unwrapconst_ops
 from . import muv_preserve_uv_aspect
 from . import muv_uvinsp_ops
 from . import muv_texwrap_ops
+from . import muv_uvsculpt_ops
 
 
 class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
@@ -469,6 +470,27 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
                          text="Refer")
             row.operator(muv_texwrap_ops.MUV_TexWrapSet.bl_idname, text="Set")
             box.prop(sc, "muv_texwrap_set_and_refer")
+
+        box = layout.box()
+        box.prop(sc, "muv_uvsculpt_enabled", text="UV Sculpt")
+        if sc.muv_uvsculpt_enabled:
+            if not props.uvsculpt.running:
+                box.operator(muv_uvsculpt_ops.MUV_UVSculptOps.bl_idname,
+                             icon='PLAY', text="Start")
+            else:
+                box.operator(muv_uvsculpt_ops.MUV_UVSculptOps.bl_idname,
+                             icon='PAUSE', text="Stop")
+            col = box.column()
+            col.label("Brush:")
+            col.prop(sc, "muv_uvsculpt_radius")
+            col.prop(sc, "muv_uvsculpt_strength")
+            box.prop(sc, "muv_uvsculpt_tools")
+            if sc.muv_uvsculpt_tools == 'PINCH':
+                box.prop(sc, "muv_uvsculpt_pinch_invert")
+            elif sc.muv_uvsculpt_tools == 'RELAX':
+                box.prop(sc, "muv_uvsculpt_relax_method")
+            box.prop(sc, "muv_uvsculpt_show_brush")
+
 
 
 class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
