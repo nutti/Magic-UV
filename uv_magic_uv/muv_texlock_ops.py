@@ -306,7 +306,7 @@ class MUV_TexLockUpdater(bpy.types.Operator):
 
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
-            return None
+            return
         uv_layer = bm.loops.layers.uv.verify()
 
         verts = [v.index for v in bm.verts if v.select]
@@ -315,7 +315,7 @@ class MUV_TexLockUpdater(bpy.types.Operator):
         for vidx, v_orig in zip(verts, verts_orig):
             if vidx != v_orig["vidx"]:
                 self.report({'ERROR'}, "Internal Error")
-                return None
+                return
 
             v = bm.verts[vidx]
             link_loops = get_link_loops(v)
