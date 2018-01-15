@@ -69,7 +69,8 @@ def is_segment_intersect(start1, end1, start2, end2):
     seg2_line1_start = a1 * start2.x + b1 * start2.y + d1
     seg2_line1_end = a1 * end2.x + b1 * end2.y + d1
 
-    if (seg1_line2_start * seg1_line2_end >= 0) or (seg2_line1_start * seg2_line1_end >= 0):
+    if (seg1_line2_start * seg1_line2_end >= 0) or \
+            (seg2_line1_start * seg2_line1_end >= 0):
         return False, None
 
     u = seg1_line2_start / (seg1_line2_start - seg1_line2_end)
@@ -181,7 +182,8 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
             if intersected:
                 clip_uvs.insert(point, 1)
                 subject_uvs.insert(point, 1)
-                intersections.append([point, [clip_uvs.get(), clip_uvs.get(1)]])
+                intersections.append([point,
+                                      [clip_uvs.get(), clip_uvs.get(1)]])
             subject_uvs.next()
             if subject_uvs.get() == subject_uvs.head():
                 break
@@ -193,7 +195,7 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     muv_common.debug_print(intersections)
 
     # no intersection, so subject and clip is not overlapped
-    if len(intersections) == 0:
+    if not intersections:
         return False, None
 
     def get_intersection_pair(intersections, key):
@@ -235,7 +237,7 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     muv_common.debug_print(clip_exiting)
     muv_common.debug_print(subject_exiting)
 
-    # TODO: can't handle the situation which all below conditions are fulfilled
+    # for now, can't handle the situation when fulfill all below conditions
     #        * two faces have common edge
     #        * each face is intersected
     #        * Show Mode is "Part"
@@ -245,7 +247,6 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
             polygons = [subject_uvs.as_list()]
             return True, polygons
         return False, None
-
 
     def traverse(current_list, entering, exiting, poly, current, other_list):
         result = current_list.find(current)
@@ -306,8 +307,8 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         muv_common.debug_print(subject_entering)
         muv_common.debug_print(subject_exiting)
 
-        if (len(clip_entering) == 0) and (len(clip_exiting) == 0) \
-                and (len(subject_entering) == 0) and (len(subject_exiting) == 0):
+        if not clip_entering and not clip_exiting \
+                and not subject_entering and not subject_exiting:
             break
 
     polygons.append(poly)
@@ -332,7 +333,8 @@ class MUV_UVInspRenderer(bpy.types.Operator):
 
     @staticmethod
     def handle_add(obj, context):
-        MUV_UVInspRenderer.__handle = bpy.types.SpaceImageEditor.draw_handler_add(
+        sie = bpy.types.SpaceImageEditor
+        MUV_UVInspRenderer.__handle = sie.draw_handler_add(
             MUV_UVInspRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
 
     @staticmethod
@@ -360,7 +362,8 @@ class MUV_UVInspRenderer(bpy.types.Operator):
                         bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                         bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
-                            x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                            x, y = context.region.view2d.view_to_region(
+                                uv.x, uv.y)
                             bgl.glVertex2f(x, y)
                         bgl.glEnd()
                 elif sc.muv_uvinsp_show_mode == 'FACE':
@@ -380,7 +383,8 @@ class MUV_UVInspRenderer(bpy.types.Operator):
                         bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                         bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
-                            x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                            x, y = context.region.view2d.view_to_region(
+                                uv.x, uv.y)
                             bgl.glVertex2f(x, y)
                         bgl.glEnd()
                 elif sc.muv_uvinsp_show_mode == 'FACE':

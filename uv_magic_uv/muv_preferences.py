@@ -24,7 +24,6 @@ __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
 from bpy.props import (
-    BoolProperty,
     FloatProperty,
     FloatVectorProperty,
 )

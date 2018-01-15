@@ -129,8 +129,8 @@ def sort_loop_pairs(uv_layer, pairs, closed):
         diff = p2[0][uv_layer].uv - p1[-1][uv_layer].uv
         if diff.length > 0.000000001:
             # UVs are separated
-            sorted_pairs = tmp_pairs[i+1:]
-            sorted_pairs.extend(tmp_pairs[:i+1])
+            sorted_pairs = tmp_pairs[i + 1:]
+            sorted_pairs.extend(tmp_pairs[:i + 1])
             break
     else:
         p1 = tmp_pairs[0]
@@ -221,7 +221,7 @@ def get_island_group_include_pair(pair, island_info):
 # get loop sequence in the same island
 def get_loop_sequence_internal(uv_layer, pairs, island_info, closed):
     loop_sequences = []
-    for i, pair in enumerate(pairs):
+    for pair in pairs:
         seqs = [pair]
         p = pair
         isl_grp = get_island_group_include_pair(pair, island_info)
@@ -237,9 +237,8 @@ def get_loop_sequence_internal(uv_layer, pairs, island_info, closed):
                 break       # another island
             for nlpl in nlp:
                 if nlpl[uv_layer].select:
-                    return None, \
-                           "Do not select UV which does not belong to " \
-                           "the end edge"
+                    return None, "Do not select UV which does not belong to " \
+                                 "the end edge"
 
             seqs.append(nlp)
 
@@ -269,9 +268,8 @@ def get_loop_sequence_internal(uv_layer, pairs, island_info, closed):
 
             for nlpl in nplp:
                 if nlpl[uv_layer].select:
-                    return None, \
-                           "Do not select UV which does not belong to " \
-                           "the end edge"
+                    return None, "Do not select UV which does not belong to " \
+                                 "the end edge"
 
             seqs.append(nplp)
 
@@ -363,7 +361,8 @@ def get_circle(v):
     ey = (v[0].y + v[1].y) / 2.0
     fx = (v[1].x + v[2].x) / 2.0
     fy = (v[1].y + v[2].y) / 2.0
-    cx = (ey - fy - ex * tan(alpha) + fx * tan(beta)) / (tan(beta) - tan(alpha))
+    cx = (ey - fy - ex * tan(alpha) + fx * tan(beta)) / \
+         (tan(beta) - tan(alpha))
     cy = ey - (ex - cx) * tan(alpha)
     center = Vector((cx, cy))
 
@@ -378,7 +377,7 @@ def calc_v_on_circle(v, center, radius):
     base = v[0]
     theta = atan2(base.y - center.y, base.x - center.x)
     new_v = []
-    for i, uv in enumerate(v):
+    for i in range(len(v)):
         angle = theta + i * 2 * math.pi / len(v)
         new_v.append(Vector((center.x + radius * sin(angle),
                              center.y + radius * cos(angle))))
@@ -441,23 +440,23 @@ class MUV_AUVCircle(bpy.types.Operator):
             for hidx, hseq in enumerate(loop_seqs):
                 for vidx, pair in enumerate(hseq):
                     all_ = int((len(hseq) + 1) / 2)
-                    pair[0][uv_layer].uv = c +\
-                        (new_uvs[hidx] - c) * (all_ - int((vidx+1)/2)) / all_
+                    r = (all_ - int((vidx + 1) / 2)) / all_
+                    pair[0][uv_layer].uv = c + (new_uvs[hidx] - c) * r
                     if self.select:
                         pair[0][uv_layer].select = True
 
+                    if len(pair) < 2:
+                        continue
                     # for quad polygon
-                    if len(pair) >= 2:
-                        pair[1][uv_layer].uv = c +\
-                            ((new_uvs[(hidx+1) % len(loop_seqs)]) - c) *\
-                            (all_ - int((vidx+1)/2)) / all_
-                        if self.select:
-                            pair[1][uv_layer].select = True
+                    next_hidx = (hidx + 1) % len(loop_seqs)
+                    pair[1][uv_layer].uv = c + ((new_uvs[next_hidx]) - c) * r
+                    if self.select:
+                        pair[1][uv_layer].select = True
         else:
             for hidx, hseq in enumerate(loop_seqs):
                 pair = hseq[0]
                 pair[0][uv_layer].uv = new_uvs[hidx]
-                pair[1][uv_layer].uv = new_uvs[(hidx+1) % len(loop_seqs)]
+                pair[1][uv_layer].uv = new_uvs[(hidx + 1) % len(loop_seqs)]
                 if self.select:
                     pair[0][uv_layer].select = True
                     pair[1][uv_layer].select = True
@@ -529,19 +528,19 @@ class MUV_AUVSmooth(bpy.types.Operator):
                 # calculate target path length
                 # target = no influenced * (1 - infl) + influenced * infl
                 tgt_noinfl = full_uvlen * (hidx + pidx) / (len(loop_seqs))
-                tgt_infl = full_uvlen * accm_vlens[hidx*2 + pidx] / full_vlen
-                target_length = tgt_noinfl * (1 - self.mesh_infl) +\
-                                tgt_infl * self.mesh_infl
+                tgt_infl = full_uvlen * accm_vlens[hidx * 2 + pidx] / full_vlen
+                target_length = tgt_noinfl * (1 - self.mesh_infl) + \
+                    tgt_infl * self.mesh_infl
 
                 # get target UV
                 for i in range(len(accm_uvlens[:-1])):
                     # get line segment which UV will be placed
                     if ((accm_uvlens[i] <= target_length) and
-                            (accm_uvlens[i+1] > target_length)):
+                            (accm_uvlens[i + 1] > target_length)):
                         tgt_seg_len = target_length - accm_uvlens[i]
-                        seg_len = accm_uvlens[i+1] - accm_uvlens[i]
+                        seg_len = accm_uvlens[i + 1] - accm_uvlens[i]
                         uv1 = orig_uvs[i]
-                        uv2 = orig_uvs[i+1]
+                        uv2 = orig_uvs[i + 1]
                         target_uv = uv1 + (uv2 - uv1) * tgt_seg_len / seg_len
                         break
                 else:
@@ -594,29 +593,29 @@ class MUV_AUVSmooth(bpy.types.Operator):
                         l[uv_layer].select = True
 
                     # ignore start/end loop
-                    if (hidx == 0 and pidx == 0) or\
-                       ((hidx == len(loop_seqs) - 1) and
-                            (pidx == len(pair) - 1)):
+                    if hidx == 0 and pidx == 0:
+                        continue
+                    if hidx == len(loop_seqs) - 1 and pidx == len(pair) - 1:
                         continue
 
                     # calculate target path length
                     # target = no influenced * (1 - infl) + influenced * infl
                     tgt_noinfl = full_uv * (hidx + pidx) / (len(loop_seqs))
                     tgt_infl = full_uv * accm_v[hidx * 2 + pidx] / full_v
-                    target_length = tgt_noinfl * (1 - self.mesh_infl) +\
-                                    tgt_infl * self.mesh_infl
+                    target_length = tgt_noinfl * (1 - self.mesh_infl) + \
+                        tgt_infl * self.mesh_infl
 
                     # get target UV
                     for i in range(len(accm_uv[:-1])):
                         # get line segment to be placed
                         if ((accm_uv[i] <= target_length) and
-                                (accm_uv[i+1] > target_length)):
+                                (accm_uv[i + 1] > target_length)):
                             tgt_seg_len = target_length - accm_uv[i]
-                            seg_len = accm_uv[i+1] - accm_uv[i]
+                            seg_len = accm_uv[i + 1] - accm_uv[i]
                             uv1 = uvs[i]
-                            uv2 = uvs[i+1]
+                            uv2 = uvs[i + 1]
                             target_uv = uv1 +\
-                                        (uv2 - uv1) * tgt_seg_len / seg_len
+                                (uv2 - uv1) * tgt_seg_len / seg_len
                             break
                     else:
                         self.report({'ERROR'}, "Failed to get target UV")
@@ -679,7 +678,7 @@ def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pair_idx):
     # uv_all_hdiff = loop_seqs[-1][0][-1][uv_layer].uv -
     # loop_seqs[0][0][0][uv_layer].uv
     uv_total_hlen = loop_seqs[-1][vidx][-1][uv_layer].uv -\
-                   loop_seqs[0][vidx][0][uv_layer].uv
+        loop_seqs[0][vidx][0][uv_layer].uv
     muv_common.debug_print(uv_total_hlen)
 
     return uv_total_hlen * vert_hlen / vert_total_hlen
@@ -699,7 +698,7 @@ def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pair_idx):
 
     # target vertex length
     hloops = []
-    for s in loop_seqs[hidx][:vidx+1]:
+    for s in loop_seqs[hidx][:vidx + 1]:
         hloops.append(s[pair_idx])
     vert_hlen = get_loop_vert_len(hloops)
     muv_common.debug_print(vert_hlen)
@@ -708,7 +707,7 @@ def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pair_idx):
     # uv_all_hdiff = loop_seqs[0][-1][pair_idx][uv_layer].uv - \
     #                loop_seqs[0][0][pair_idx][uv_layer].uv
     uv_total_hlen = loop_seqs[hidx][-1][pair_idx][uv_layer].uv -\
-                    loop_seqs[hidx][0][pair_idx][uv_layer].uv
+        loop_seqs[hidx][0][pair_idx][uv_layer].uv
     muv_common.debug_print(uv_total_hlen)
 
     return uv_total_hlen * vert_hlen / vert_total_hlen
@@ -818,8 +817,8 @@ class MUV_AUVStraighten(bpy.types.Operator):
                     hseq[vidx][0], hseq[vidx][1],
                     hseq[vidx + 1][0], hseq[vidx + 1][1]
                 ]
-                for l, hdiff, vdiff in zip(loops, diffs[int(vidx/2)][0],
-                                           diffs[int(vidx/2)][1]):
+                for l, hdiff, vdiff in zip(loops, diffs[int(vidx / 2)][0],
+                                           diffs[int(vidx / 2)][1]):
                     l[uv_layer].uv = base_uv + hdiff + vdiff
                     if self.select:
                         l[uv_layer].select = True
@@ -981,8 +980,8 @@ class MUV_AUVAxis(bpy.types.Operator):
     def __align_to_x_axis_wo_transmission(self, loop_seqs, uv_layer,
                                           uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
-        need_revese = loop_seqs[0][0][0][uv_layer].uv.x\
-                      > loop_seqs[-1][0][0][uv_layer].uv.x
+        need_revese = loop_seqs[0][0][0][uv_layer].uv.x > \
+            loop_seqs[-1][0][0][uv_layer].uv.x
         if need_revese:
             loop_seqs.reverse()
             for hidx, hseq in enumerate(loop_seqs):
@@ -1004,11 +1003,11 @@ class MUV_AUVAxis(bpy.types.Operator):
             luv1.uv = luv1.uv + duv[1]
 
     # only selected UV loop sequence will be aligned along to Y-axis
-    def __align_to_y_axis_wo_transmission(self, scene, loop_seqs, uv_layer,
+    def __align_to_y_axis_wo_transmission(self, loop_seqs, uv_layer,
                                           uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
-        need_revese = loop_seqs[0][0][0][uv_layer].uv.y\
-                      > loop_seqs[-1][0][0][uv_layer].uv.y
+        need_revese = loop_seqs[0][0][0][uv_layer].uv.y > \
+            loop_seqs[-1][0][0][uv_layer].uv.y
         if need_revese:
             loop_seqs.reverse()
             for hidx, hseq in enumerate(loop_seqs):
@@ -1018,7 +1017,7 @@ class MUV_AUVAxis(bpy.types.Operator):
                     loop_seqs[hidx][vidx][1] = tmp
 
         # get UV differential
-        diff_uvs = self.__get_y_axis_align_diff_uvs(scene, loop_seqs, uv_layer,
+        diff_uvs = self.__get_y_axis_align_diff_uvs(loop_seqs, uv_layer,
                                                     uv_min, width, height)
 
         # update UV
@@ -1033,19 +1032,20 @@ class MUV_AUVAxis(bpy.types.Operator):
     def __align_to_x_axis_w_transmission(self, loop_seqs, uv_layer,
                                          uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
-        need_revese = loop_seqs[0][0][0][uv_layer].uv.x\
-                      > loop_seqs[-1][0][0][uv_layer].uv.x
+        need_revese = loop_seqs[0][0][0][uv_layer].uv.x > \
+            loop_seqs[-1][0][0][uv_layer].uv.x
         if need_revese:
             loop_seqs.reverse()
             for hidx, hseq in enumerate(loop_seqs):
-                for vidx, pair in enumerate(hseq):
+                for vidx in range(len(hseq)):
                     tmp = loop_seqs[hidx][vidx][0]
                     loop_seqs[hidx][vidx][0] = loop_seqs[hidx][vidx][1]
                     loop_seqs[hidx][vidx][1] = tmp
 
         # get offset UVs when the UVs are aligned to X-axis
         align_diff_uvs = self.__get_x_axis_align_diff_uvs(loop_seqs, uv_layer,
-                                                          uv_min, width, height)
+                                                          uv_min, width,
+                                                          height)
         base_uv = loop_seqs[0][0][0][uv_layer].uv.copy()
         offset_uvs = []
         for hseq, aduv in zip(loop_seqs, align_diff_uvs):
@@ -1107,8 +1107,8 @@ class MUV_AUVAxis(bpy.types.Operator):
                     hseq[vidx][0], hseq[vidx][1],
                     hseq[vidx + 1][0], hseq[vidx + 1][1]
                 ]
-                for l, hdiff, vdiff in zip(loops, diffs[int(vidx/2)][0],
-                                           diffs[int(vidx/2)][1]):
+                for l, hdiff, vdiff in zip(loops, diffs[int(vidx / 2)][0],
+                                           diffs[int(vidx / 2)][1]):
                     l[uv_layer].uv = base_uv + hdiff + vdiff
                     if self.select:
                         l[uv_layer].select = True
@@ -1117,25 +1117,27 @@ class MUV_AUVAxis(bpy.types.Operator):
     def __align_to_y_axis_w_transmission(self, loop_seqs, uv_layer,
                                          uv_min, width, height):
         # reverse if the UV coordinate is not sorted by position
-        need_revese = loop_seqs[0][0][0][uv_layer].uv.y\
-                      > loop_seqs[-1][0][-1][uv_layer].uv.y
+        need_revese = loop_seqs[0][0][0][uv_layer].uv.y > \
+            loop_seqs[-1][0][-1][uv_layer].uv.y
         if need_revese:
             loop_seqs.reverse()
             for hidx, hseq in enumerate(loop_seqs):
-                for vidx, pair in enumerate(hseq):
+                for vidx in range(len(hseq)):
                     tmp = loop_seqs[hidx][vidx][0]
                     loop_seqs[hidx][vidx][0] = loop_seqs[hidx][vidx][1]
                     loop_seqs[hidx][vidx][1] = tmp
 
         # get offset UVs when the UVs are aligned to Y-axis
         align_diff_uvs = self.__get_y_axis_align_diff_uvs(loop_seqs, uv_layer,
-                                                          uv_min, width, height)
+                                                          uv_min, width,
+                                                          height)
         base_uv = loop_seqs[0][0][0][uv_layer].uv.copy()
         offset_uvs = []
         for hseq, aduv in zip(loop_seqs, align_diff_uvs):
             luv0 = hseq[0][0][uv_layer]
             luv1 = hseq[0][1][uv_layer]
-            offset_uvs.append([luv0.uv + aduv[0] - base_uv, luv1.uv + aduv[1] - base_uv])
+            offset_uvs.append([luv0.uv + aduv[0] - base_uv,
+                               luv1.uv + aduv[1] - base_uv])
 
         # get UV differential
         diff_uvs = []
@@ -1190,8 +1192,8 @@ class MUV_AUVAxis(bpy.types.Operator):
                     hseq[vidx][0], hseq[vidx][1],
                     hseq[vidx + 1][0], hseq[vidx + 1][1]
                 ]
-                for l, hdiff, vdiff in zip(loops, diffs[int(vidx/2)][0],
-                                           diffs[int(vidx/2)][1]):
+                for l, hdiff, vdiff in zip(loops, diffs[int(vidx / 2)][0],
+                                           diffs[int(vidx / 2)][1]):
                     l[uv_layer].uv = base_uv + hdiff + vdiff
                     if self.select:
                         l[uv_layer].select = True

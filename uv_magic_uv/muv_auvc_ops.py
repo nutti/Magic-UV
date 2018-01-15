@@ -137,7 +137,6 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
             else:
                 self.report({'ERROR'}, "Unknown Operation")
 
-
             space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}

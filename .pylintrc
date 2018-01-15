@@ -2,17 +2,20 @@
 
 disable=
     C0111,
+    C0302,
     C0412,
     F0401,
     R0201,
     R0204,
     R0902,
     R0903,
+    R0911,
     R0912,
     R0913,
     R0914,
     R0915,
-    W0640
+    W0640,
+    E1121
 
 # C0412, R0201, R0204, R0912, R0913, R0914, R0915, W0640 should removed
 
@@ -20,3 +23,4 @@ variable-rgx=[a-z_][a-z0-9_]{0,30}$
 class-rgx=[A-Z_][a-zA-Z0-9_]+$
 argument-rgx=[a-z_][a-z0-9_]{0,30}$
 attr-rgx=[a-z_][a-z0-9_]{0,30}$
+

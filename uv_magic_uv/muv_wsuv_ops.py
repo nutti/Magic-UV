@@ -24,7 +24,7 @@ __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
 
-from math import fabs, sqrt
+from math import sqrt
 
 import bpy
 import bmesh
@@ -81,8 +81,8 @@ class MUV_WSUVMeasure(bpy.types.Operator):
             sc.muv_wsuv_tgt_density = sc.muv_wsuv_src_density
         # SCALING
         elif sc.muv_wsuv_mode == 'SCALING':
-            sc.muv_wsuv_tgt_density = sc.muv_wsuv_src_density * \
-                                      sc.muv_wsuv_scaling_factor
+            sc.muv_wsuv_tgt_density = \
+                sc.muv_wsuv_src_density * sc.muv_wsuv_scaling_factor
 
         return {'FINISHED'}
 

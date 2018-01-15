@@ -29,7 +29,6 @@ import bpy
 import bmesh
 from bpy.props import BoolProperty
 
-from . import muv_props
 from . import muv_common
 
 
@@ -303,7 +302,7 @@ def parse_faces(
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                if muv_props.DEBUG:
+                if muv_common.DEBUG:
                     shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)

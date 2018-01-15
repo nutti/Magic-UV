@@ -34,8 +34,9 @@ from bpy.props import (
     IntProperty,
     EnumProperty,
 )
-from . import muv_common
 from mathutils import Vector
+
+from . import muv_common
 
 
 def memorize_view_3d_mode(fn):
@@ -288,7 +289,7 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVPasteUV.bl_idname,text=m)
+            ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text=m)
             ops.uv_map = m
             ops.copy_seams = sc.muv_cpuv_copy_seams
             ops.strategy = sc.muv_cpuv_strategy
@@ -526,7 +527,8 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
 
         for face in bm.faces:
             if face.select:
-                props.src_uvs.append([l[uv_layer].uv.copy() for l in face.loops])
+                props.src_uvs.append([l[uv_layer].uv.copy()
+                                      for l in face.loops])
 
         return {'FINISHED'}
 
@@ -578,14 +580,16 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
             ratio = dest_diff.length / src_diff.length
             break
 
-        for suvs, duvs, fidx in zip(props.src_uvs, dest_uvs, dest_face_indices):
-            for l, suv, duv in zip(bm.faces[fidx].loops, suvs, duvs):
+        for suvs, fidx in zip(props.src_uvs, dest_face_indices):
+            for l, suv in zip(bm.faces[fidx].loops, suvs):
                 base = suv - src_base
                 radian_ref = atan2(base.y, base.x)
                 radian_fin = (radian + radian_ref)
                 length = base.length
-                turn = Vector((length * cos(radian_fin), length * sin(radian_fin)))
-                target_uv = Vector((turn.x * ratio, turn.y * ratio)) + dest_base
+                turn = Vector((length * cos(radian_fin),
+                               length * sin(radian_fin)))
+                target_uv = Vector((turn.x * ratio, turn.y * ratio)) + \
+                    dest_base
                 l[uv_layer].uv = target_uv
 
         bmesh.update_edit_mesh(obj.data)

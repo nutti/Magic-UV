@@ -400,7 +400,8 @@ def init_props(scene):
         if value == 0:
             obj = bpy.context.active_object
             tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
+            self["muv_wsuv_tgt_density"] = \
+                src_density * tgt_mesh_area / src_mesh_area
         # SCALING
         elif value == 1:
             self["muv_wsuv_tgt_density"] = src_density * factor
@@ -416,7 +417,8 @@ def init_props(scene):
         if mode == 0:
             obj = bpy.context.active_object
             tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
+            self["muv_wsuv_tgt_density"] = \
+                src_density * tgt_mesh_area / src_mesh_area
 
         return self.get("muv_wsuv_mode", 1)
 
@@ -430,7 +432,8 @@ def init_props(scene):
         if mode == 0:
             obj = bpy.context.active_object
             tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
+            self["muv_wsuv_tgt_density"] = \
+                src_density * tgt_mesh_area / src_mesh_area
         # SCALING
         elif mode == 1:
             self["muv_wsuv_tgt_density"] = src_density * factor
@@ -446,7 +449,8 @@ def init_props(scene):
         if mode == 0:
             obj = bpy.context.active_object
             tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = src_density * tgt_mesh_area / src_mesh_area
+            self["muv_wsuv_tgt_density"] = \
+                src_density * tgt_mesh_area / src_mesh_area
 
         return self.get("muv_wsuv_scaling_factor", 1.0)
 
@@ -641,7 +645,6 @@ def init_props(scene):
     )
 
     def auvc_get_cursor_loc(self):
-        from . import muv_common
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
         bd_size = muv_common.get_uvimg_editor_board_size(area)
@@ -658,7 +661,6 @@ def init_props(scene):
         return self.get('muv_auvc_cursor_loc', (0.0, 0.0))
 
     def auvc_set_cursor_loc(self, value):
-        from . import muv_common
         self['muv_auvc_cursor_loc'] = value
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')

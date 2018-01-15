@@ -271,7 +271,8 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_maps = bm.loops.layers.uv.keys()
-        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = ""
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy

@@ -82,8 +82,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
         default=False
     )
 
-    def execute(self, context):
-        sc = context.scene
+    def execute(self, _):
         obj = bpy.context.active_object
 
         # unwrap

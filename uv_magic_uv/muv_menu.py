@@ -152,7 +152,7 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
         box.prop(sc, "muv_smuv_enabled", text="Smooth UV")
         if sc.muv_smuv_enabled:
             ops = box.operator(muv_auv_ops.MUV_AUVSmooth.bl_idname,
-                                  text="Smooth")
+                               text="Smooth")
             ops.transmission = sc.muv_smuv_transmission
             ops.select = sc.muv_smuv_select
             ops.mesh_infl = sc.muv_smuv_mesh_infl
@@ -174,8 +174,10 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
         if sc.muv_packuv_enabled:
             ops = box.operator(muv_packuv_ops.MUV_PackUV.bl_idname,
                                text="Pack UV")
-            ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
-            ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
+            ops.allowable_center_deviation = \
+                sc.muv_packuv_allowable_center_deviation
+            ops.allowable_size_deviation = \
+                sc.muv_packuv_allowable_size_deviation
             box.label("Allowable Center Deviation:")
             box.prop(sc, "muv_packuv_allowable_center_deviation", text="")
             box.label("Allowable Size Deviation:")
@@ -262,10 +264,10 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         if sc.muv_uvbb_enabled:
             if props.uvbb.running is False:
                 box.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
-                                text="Display", icon='PLAY')
+                             text="Display", icon='PLAY')
             else:
                 box.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
-                                text="Hide", icon='PAUSE')
+                             text="Hide", icon='PAUSE')
             box.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
 
         box = layout.box()
@@ -312,14 +314,17 @@ class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
         if sc.muv_cpuv_enabled:
             row = box.row(align=True)
             if sc.muv_cpuv_mode == 'DEFAULT':
-                row.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname, text="Copy")
+                row.menu(muv_cpuv_ops.MUV_CPUVCopyUVMenu.bl_idname,
+                         text="Copy")
                 row.menu(muv_cpuv_ops.MUV_CPUVPasteUVMenu.bl_idname,
                          text="Paste")
             elif sc.muv_cpuv_mode == 'SEL_SEQ':
-                row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
-                         text="Copy")
-                row.menu(muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
-                         text="Paste")
+                row.menu(
+                    muv_cpuv_selseq_ops.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
+                    text="Copy")
+                row.menu(
+                    muv_cpuv_selseq_ops.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
+                    text="Paste")
             box.prop(sc, "muv_cpuv_mode", expand=True)
             box.prop(sc, "muv_cpuv_copy_seams", text="Seams")
             box.prop(sc, "muv_cpuv_strategy", text="Strategy")
@@ -328,7 +333,8 @@ class OBJECT_PT_MUV_CPUV(bpy.types.Panel):
         box.prop(sc, "muv_transuv_enabled", text="Transfer UV")
         if sc.muv_transuv_enabled:
             row = box.row(align=True)
-            row.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname, text="Copy")
+            row.operator(muv_transuv_ops.MUV_TransUVCopy.bl_idname,
+                         text="Copy")
             ops = row.operator(muv_transuv_ops.MUV_TransUVPaste.bl_idname,
                                text="Paste")
             ops.invert_normals = sc.muv_transuv_invert_normals
@@ -392,7 +398,8 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
         box.prop(sc, "muv_wsuv_enabled", text="World Scale UV")
         if sc.muv_wsuv_enabled:
             row = box.row(align=True)
-            row.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname, text="Measure")
+            row.operator(muv_wsuv_ops.MUV_WSUVMeasure.bl_idname,
+                         text="Measure")
             ops = row.operator(muv_wsuv_ops.MUV_WSUVApply.bl_idname,
                                text="Apply")
             ops.origin = sc.muv_wsuv_origin
@@ -423,8 +430,7 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
                 col.enabled = False
             box.prop(sc, "muv_wsuv_mode", text="Mode")
             if sc.muv_wsuv_mode == 'SCALING':
-                box.prop(sc, "muv_wsuv_scaling_factor",
-                            text="Scaling Factor")
+                box.prop(sc, "muv_wsuv_scaling_factor", text="Scaling Factor")
             box.prop(sc, "muv_wsuv_origin", text="Origin")
 
         box = layout.box()
@@ -491,7 +497,6 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             elif sc.muv_uvsculpt_tools == 'RELAX':
                 box.prop(sc, "muv_uvsculpt_relax_method")
             box.prop(sc, "muv_uvsculpt_show_brush")
-
 
 
 class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):

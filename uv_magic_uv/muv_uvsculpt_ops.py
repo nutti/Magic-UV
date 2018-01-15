@@ -69,8 +69,8 @@ class MUV_UVSculptRenderer(bpy.types.Operator):
         sc = context.scene
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
-        SEGMENT = 180
-        theta = 2 * pi / SEGMENT
+        num_segment = 180
+        theta = 2 * pi / num_segment
         fact_t = tan(theta)
         fact_r = cos(theta)
         color = prefs.uvsculpt_brush_color
@@ -79,7 +79,7 @@ class MUV_UVSculptRenderer(bpy.types.Operator):
         bgl.glColor4f(color[0], color[1], color[2], color[3])
         x = sc.muv_uvsculpt_radius * cos(0.0)
         y = sc.muv_uvsculpt_radius * sin(0.0)
-        for i in range(SEGMENT):
+        for _ in range(num_segment):
             bgl.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
             tx = -y
             ty = x
@@ -105,24 +105,23 @@ class MUV_UVSculptOps(bpy.types.Operator):
         self.__loop_info = []
         self.__stroking = False
         self.current_mco = Vector((0.0, 0.0))
+        self.__initial_mco = Vector((0.0, 0.0))
 
-
-    def __get_strength(self, p, len, factor):
+    def __get_strength(self, p, len_, factor):
         f = factor
 
-        if p > len:
+        if p > len_:
             return 0.0
 
         if p < 0.0:
             return f
 
-        return (len - p) * f / len
+        return (len_ - p) * f / len_
 
-
-    def __stroke_init(self, context, event):
+    def __stroke_init(self, context, _):
         sc = context.scene
 
-        self.__initial_mco = Vector((event.mouse_region_x, event.mouse_region_y))
+        self.__initial_mco = self.current_mco
 
         # get influenced UV
         obj = context.active_object
@@ -152,13 +151,13 @@ class MUV_UVSculptOps(bpy.types.Operator):
                     }
                     self.__loop_info.append(info)
 
-    def __stroke_apply(self, context, event):
+    def __stroke_apply(self, context, _):
         sc = context.scene
         obj = context.active_object
         world_mat = obj.matrix_world
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
-        mco = Vector((event.mouse_region_x, event.mouse_region_y))
+        mco = self.current_mco
 
         if sc.muv_uvsculpt_tools == 'GRAB':
             for info in self.__loop_info:
@@ -195,7 +194,8 @@ class MUV_UVSculptOps(bpy.types.Operator):
                                                           space.region_3d, mco)
             ray_vec.normalize()
             ray_orig = view3d_utils.region_2d_to_origin_3d(region,
-                                                           space.region_3d, mco)
+                                                           space.region_3d,
+                                                           mco)
             ray_tgt = ray_orig + ray_vec * 1000000.0
             mwi = world_mat.inverted()
             ray_orig_obj = mwi * ray_orig
@@ -203,12 +203,12 @@ class MUV_UVSculptOps(bpy.types.Operator):
             ray_dir_obj = ray_tgt_obj - ray_orig_obj
             ray_dir_obj.normalize()
             tree = BVHTree.FromBMesh(bm)
-            loc, normal, fidx, distance = tree.ray_cast(ray_orig_obj,
-                                                        ray_dir_obj)
+            loc, _, fidx, _ = tree.ray_cast(ray_orig_obj, ray_dir_obj)
             if not loc:
                 return
             loops = [l for l in bm.faces[fidx].loops]
-            uvs = [Vector((l[uv_layer].uv.x, l[uv_layer].uv.y, 0.0)) for l in loops]
+            uvs = [Vector((l[uv_layer].uv.x, l[uv_layer].uv.y, 0.0))
+                   for l in loops]
             target_uv = barycentric_transform(
                 loc, loops[0].vert.co, loops[1].vert.co, loops[2].vert.co,
                 uvs[0], uvs[1], uvs[2])
@@ -237,8 +237,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
                         vert_db[l.vert] = {"loops": [l]}
 
             # get relaxation information
-            for key in vert_db.keys():
-                d = vert_db[key]
+            for d in vert_db:
                 d["uv_sum"] = Vector((0.0, 0.0))
                 d["uv_count"] = 0
 
@@ -250,8 +249,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
                     d["uv_count"] = d["uv_count"] + 2
                 d["uv_p"] = d["uv_sum"] / d["uv_count"]
                 d["uv_b"] = d["uv_p"] - d["loops"][0][uv_layer].uv
-            for key in vert_db.keys():
-                d = vert_db[key]
+            for d in vert_db:
                 d["uv_sum_b"] = Vector((0.0, 0.0))
                 for l in d["loops"]:
                     ln = l.link_loop_next
@@ -271,16 +269,18 @@ class MUV_UVSculptOps(bpy.types.Operator):
                     if diff.length >= sc.muv_uvsculpt_radius:
                         continue
                     db = vert_db[l.vert]
-                    strength = self.__get_strength(
-                            diff.length, sc.muv_uvsculpt_radius,
-                            sc.muv_uvsculpt_strength)
+                    strength = self.__get_strength(diff.length,
+                                                   sc.muv_uvsculpt_radius,
+                                                   sc.muv_uvsculpt_strength)
 
+                    base = (1.0 - strength) * l[uv_layer].uv
                     if sc.muv_uvsculpt_relax_method == 'HC':
-                        target_uv = (1.0 - strength) * l[uv_layer].uv \
-                                    + strength * (db["uv_p"] - 0.5 * (db["uv_b"] + db["uv_sum_b"] / d["uv_count"]))
+                        t = 0.5 * (db["uv_b"] + db["uv_sum_b"] / d["uv_count"])
+                        diff = strength * (db["uv_p"] - t)
+                        target_uv = base + diff
                     elif sc.muv_uvsculpt_relax_method == 'LAPLACIAN':
-                        target_uv = (1.0 - strength) * l[uv_layer].uv \
-                                    + strength * db["uv_p"]
+                        diff = strength * db["uv_p"]
+                        target_uv = base + diff
                     else:
                         continue
 
@@ -288,12 +288,12 @@ class MUV_UVSculptOps(bpy.types.Operator):
 
         bmesh.update_edit_mesh(obj.data)
 
-    def __stroke_exit(self, context, event):
+    def __stroke_exit(self, context, _):
         sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
-        mco = Vector((event.mouse_region_x, event.mouse_region_y))
+        mco = self.current_mco
 
         if sc.muv_uvsculpt_tools == 'GRAB':
             for info in self.__loop_info:
@@ -302,7 +302,6 @@ class MUV_UVSculptOps(bpy.types.Operator):
                 l[uv_layer].uv = info["initial_uv"] + diff_uv / 100.0
 
         bmesh.update_edit_mesh(obj.data)
-
 
     def modal(self, context, event):
         props = context.scene.muv_props.uvsculpt
@@ -337,7 +336,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
 
         return {'PASS_THROUGH'}
 
-    def invoke(self, context, event):
+    def invoke(self, context, _):
         props = context.scene.muv_props.uvsculpt
 
         if context.area:
