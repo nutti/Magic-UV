@@ -285,6 +285,8 @@ def measure_uv_area(obj):
         f_uv_area = calc_polygon_2d_area(uvs)
         if tex_layer:
             img = f[tex_layer].image
+            if not img:
+                return None
             uv_area = uv_area + f_uv_area * img.size[0] * img.size[1]
 
     return uv_area
