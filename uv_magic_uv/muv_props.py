@@ -631,7 +631,8 @@ def init_props(scene):
         default='TEXTURE',
         items=[
             ('TEXTURE', "Texture", "Align to texture"),
-            ('UV_ISLAND', "UV Island", "Align to UV island")
+            ('UV', "UV", "Align to UV"),
+            ('UV_SEL', "UV (Selected)", "Align to Selected UV")
         ]
     )
 

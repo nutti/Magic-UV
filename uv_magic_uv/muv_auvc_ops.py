@@ -29,6 +29,7 @@ from mathutils import Vector
 from bpy.props import (
     EnumProperty,
 )
+import bmesh
 
 from . import muv_common
 
@@ -59,7 +60,8 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
     base = EnumProperty(
         items=(
             ('TEXTURE', "Texture", "Align based on Texture"),
-            ('UV_ISLAND', "UV Island", "Align based on UV Island")
+            ('UV', "UV", "Align to UV"),
+            ('UV_SEL', "UV (Selected)", "Align to Selected UV")
         ),
         name="Base",
         description="Align base",
@@ -67,76 +69,86 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
     )
 
     def execute(self, context):
-        island_info = muv_common.get_island_info(context.active_object)
-
         area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
                                               'IMAGE_EDITOR')
-        if self.base == 'UV_ISLAND':
-            for isl in island_info:
-                bd_size = muv_common.get_uvimg_editor_board_size(area)
-                center = Vector((
-                    (isl['min'][0] + (isl['max'][0] - isl['min'][0]) / 2.0),
-                    (isl['min'][1] + (isl['max'][1] - isl['min'][1]) / 2.0)))
-                if self.position == 'CENTER':
-                    cx = center[0] * bd_size[0]
-                    cy = center[1] * bd_size[1]
-                elif self.position == 'LEFT_TOP':
-                    cx = isl['min'][0] * bd_size[0]
-                    cy = isl['max'][1] * bd_size[1]
-                elif self.position == 'LEFT_MIDDLE':
-                    cx = isl['min'][0] * bd_size[0]
-                    cy = center[1] * bd_size[1]
-                elif self.position == 'LEFT_BOTTOM':
-                    cx = isl['min'][0] * bd_size[0]
-                    cy = isl['min'][1] * bd_size[1]
-                elif self.position == 'MIDDLE_TOP':
-                    cx = center[0] * bd_size[0]
-                    cy = isl['max'][1] * bd_size[1]
-                elif self.position == 'MIDDLE_BOTTOM':
-                    cx = center[0] * bd_size[0]
-                    cy = isl['min'][1] * bd_size[1]
-                elif self.position == 'RIGHT_TOP':
-                    cx = isl['max'][0] * bd_size[0]
-                    cy = isl['max'][1] * bd_size[1]
-                elif self.position == 'RIGHT_MIDDLE':
-                    cx = isl['max'][0] * bd_size[0]
-                    cy = center[1] * bd_size[1]
-                elif self.position == 'RIGHT_BOTTOM':
-                    cx = isl['max'][0] * bd_size[0]
-                    cy = isl['min'][1] * bd_size[1]
-                else:
-                    self.report({'ERROR'}, "Unknown Operation")
+        bd_size = muv_common.get_uvimg_editor_board_size(area)
+
+        if self.base == 'UV':
+            obj = context.active_object
+            bm = bmesh.from_edit_mesh(obj.data)
+            if not bm.loops.layers.uv:
+                return None
+            uv_layer = bm.loops.layers.uv.verify()
+
+            max_ = Vector((-10000000.0, -10000000.0))
+            min_ = Vector((10000000.0, 10000000.0))
+            for f in bm.faces:
+                if not f.select:
+                    continue
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    max_.x = max(max_.x, uv.x)
+                    max_.y = max(max_.y, uv.y)
+                    min_.x = min(min_.x, uv.x)
+                    min_.y = min(min_.y, uv.x)
+            center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
+
+        elif self.base == 'UV_SEL':
+            obj = context.active_object
+            bm = bmesh.from_edit_mesh(obj.data)
+            if not bm.loops.layers.uv:
+                return None
+            uv_layer = bm.loops.layers.uv.verify()
+
+            max_ = Vector((-10000000.0, -10000000.0))
+            min_ = Vector((10000000.0, 10000000.0))
+            for f in bm.faces:
+                if not f.select:
+                    continue
+                for l in f.loops:
+                    if not l[uv_layer].select:
+                        continue
+                    uv = l[uv_layer].uv
+                    max_.x = max(max_.x, uv.x)
+                    max_.y = max(max_.y, uv.y)
+                    min_.x = min(min_.x, uv.x)
+                    min_.y = min(min_.y, uv.x)
+            center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
+
         elif self.base == 'TEXTURE':
-            bd_size = muv_common.get_uvimg_editor_board_size(area)
-            if self.position == 'CENTER':
-                cx = bd_size[0] / 2.0
-                cy = bd_size[1] / 2.0
-            elif self.position == 'LEFT_TOP':
-                cx = 0
-                cy = bd_size[1]
-            elif self.position == 'LEFT_MIDDLE':
-                cx = 0
-                cy = bd_size[1] / 2.0
-            elif self.position == 'LEFT_BOTTOM':
-                cx = 0
-                cy = 0
-            elif self.position == 'MIDDLE_TOP':
-                cx = bd_size[0] / 2.0
-                cy = bd_size[1]
-            elif self.position == 'MIDDLE_BOTTOM':
-                cx = bd_size[0] / 2.0
-                cy = 0
-            elif self.position == 'RIGHT_TOP':
-                cx = bd_size[0]
-                cy = bd_size[1]
-            elif self.position == 'RIGHT_MIDDLE':
-                cx = bd_size[0]
-                cy = bd_size[1] / 2.0
-            elif self.position == 'RIGHT_BOTTOM':
-                cx = bd_size[0]
-                cy = 0
-            else:
-                self.report({'ERROR'}, "Unknown Operation")
+            min_ = Vector((0.0, 0.0))
+            max_ = Vector((1.0, 1.0))
+            center = Vector((0.5, 0.5))
+        else:
+            self.report({'ERROR'}, "Unknown Operation")
+
+        if self.position == 'CENTER':
+            cx = center.x * bd_size[0]
+            cy = center.y * bd_size[1]
+        elif self.position == 'LEFT_TOP':
+            cx = min_.x * bd_size[0]
+            cy = max_.y * bd_size[1]
+        elif self.position == 'LEFT_MIDDLE':
+            cx = min_.x * bd_size[0]
+            cy = center.y * bd_size[1]
+        elif self.position == 'LEFT_BOTTOM':
+            cx = min_.x * bd_size[0]
+            cy = min_.y * bd_size[1]
+        elif self.position == 'MIDDLE_TOP':
+            cx = center.x * bd_size[0]
+            cy = max_.y * bd_size[1]
+        elif self.position == 'MIDDLE_BOTTOM':
+            cx = center.x * bd_size[0]
+            cy = min_.y * bd_size[1]
+        elif self.position == 'RIGHT_TOP':
+            cx = max_.x * bd_size[0]
+            cy = max_.y * bd_size[1]
+        elif self.position == 'RIGHT_MIDDLE':
+            cx = max_.x * bd_size[0]
+            cy = center.y * bd_size[1]
+        elif self.position == 'RIGHT_BOTTOM':
+            cx = max_.x * bd_size[0]
+            cy = min_.y * bd_size[1]
         else:
             self.report({'ERROR'}, "Unknown Operation")
 
