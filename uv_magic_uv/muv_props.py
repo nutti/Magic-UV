@@ -392,69 +392,6 @@ def init_props(scene):
         default=True
     )
 
-    def wsuv_set_mode(self, value):
-        src_density = self.get("muv_wsuv_src_density", 0.0)
-        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
-        factor = self.get("muv_wsuv_scaling_factor", 1.0)
-
-        # PROPORTIONAL
-        if value == 0:
-            obj = bpy.context.active_object
-            tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = \
-                src_density * tgt_mesh_area / src_mesh_area
-        # SCALING
-        elif value == 1:
-            self["muv_wsuv_tgt_density"] = src_density * factor
-
-        self["muv_wsuv_mode"] = value
-
-    def wsuv_get_mode(self):
-        src_density = self.get("muv_wsuv_src_density", 0.0)
-        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
-        mode = self.get("muv_wsuv_mode", 1)
-
-        # PROPORTIONAL
-        if mode == 0:
-            obj = bpy.context.active_object
-            tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = \
-                src_density * tgt_mesh_area / src_mesh_area
-
-        return self.get("muv_wsuv_mode", 1)
-
-    def wsuv_set_scaling_factor(self, value):
-        mode = self.get("muv_wsuv_mode", 1)
-        src_density = self.get("muv_wsuv_src_density", 0.0)
-        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
-        factor = self.get("muv_wsuv_scaling_factor", 1.0)
-
-        # PROPORTIONAL
-        if mode == 0:
-            obj = bpy.context.active_object
-            tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = \
-                src_density * tgt_mesh_area / src_mesh_area
-        # SCALING
-        elif mode == 1:
-            self["muv_wsuv_tgt_density"] = src_density * factor
-
-        self["muv_wsuv_scaling_factor"] = value
-
-    def wsuv_get_scaling_factor(self):
-        mode = self.get("muv_wsuv_mode", 1)
-        src_density = self.get("muv_wsuv_src_density", 0.0)
-        src_mesh_area = self.get("muv_wsuv_src_mesh_area", 0.0)
-
-        # PROPORTIONAL
-        if mode == 0:
-            obj = bpy.context.active_object
-            tgt_mesh_area = muv_common.measure_mesh_area(obj)
-            self["muv_wsuv_tgt_density"] = \
-                src_density * tgt_mesh_area / src_mesh_area
-
-        return self.get("muv_wsuv_scaling_factor", 1.0)
-
     # World Scale UV
     scene.muv_wsuv_enabled = BoolProperty(
         name="World Scale UV Enabled",
@@ -491,19 +428,16 @@ def init_props(scene):
         items=[
             ('PROPORTIONAL', 'Proportional', 'Scale proportionally by mesh'),
             ('SCALING', 'Scaling', 'Specify scale factor'),
-            ('USER', 'User', 'Specify density')
+            ('USER', 'User', 'Specify density'),
+            ('CONSTANT', 'Constant', 'Constant density')
         ],
-        default='PROPORTIONAL',
-        set=wsuv_set_mode,
-        get=wsuv_get_mode
+        default='CONSTANT'
     )
     scene.muv_wsuv_scaling_factor = FloatProperty(
         name="Scaling Factor",
         default=1.0,
         max=1000.0,
-        min=0.00001,
-        set=wsuv_set_scaling_factor,
-        get=wsuv_get_scaling_factor
+        min=0.00001
     )
     scene.muv_wsuv_origin = EnumProperty(
         name="Origin",

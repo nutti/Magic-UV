@@ -43,7 +43,7 @@ def measure_wsuv_info(obj):
     if mesh_area == 0.0:
         density = 0.0
     else:
-        density = sqrt(uv_area / mesh_area)
+        density = sqrt(uv_area) / sqrt(mesh_area)
 
     return uv_area, mesh_area, density
 
@@ -75,14 +75,6 @@ class MUV_WSUVMeasure(bpy.types.Operator):
         self.report({'INFO'},
                     "UV Area: {0}, Mesh Area: {1}, Texel Density: {2}"
                     .format(uv_area, mesh_area, density))
-
-        # PROPORTIONAL
-        if sc.muv_wsuv_mode == 'PROPORTIONAL':
-            sc.muv_wsuv_tgt_density = sc.muv_wsuv_src_density
-        # SCALING
-        elif sc.muv_wsuv_mode == 'SCALING':
-            sc.muv_wsuv_tgt_density = \
-                sc.muv_wsuv_src_density * sc.muv_wsuv_scaling_factor
 
         return {'FINISHED'}
 
@@ -129,18 +121,27 @@ class MUV_WSUVApply(bpy.types.Operator):
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
 
-        if not bm.loops.layers.uv:
-            self.report({'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
-        uv_layer = bm.loops.layers.uv.verify()
-
         sel_faces = [f for f in bm.faces if f.select]
 
-        if sc.muv_wsuv_tgt_density == 0.0:
-            self.report({'WARNING'}, "Target density must be more than 0")
+        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        if not uv_area:
+            self.report({'WARNING'},
+                        "Object must have more than one UV map and texture")
             return {'CANCELLED'}
 
-        factor = sc.muv_wsuv_src_density / sc.muv_wsuv_tgt_density
+        uv_layer = bm.loops.layers.uv.verify()
+
+        if sc.muv_wsuv_mode == 'PROPORTIONAL':
+            tgt_density = sc.muv_wsuv_src_density * sqrt(mesh_area) / \
+                sqrt(sc.muv_wsuv_src_mesh_area)
+        elif sc.muv_wsuv_mode == 'SCALING':
+            tgt_density = sc.muv_wsuv_src_density * sc.muv_wsuv_scaling_factor
+        elif sc.muv_wsuv_mode == 'USER':
+            tgt_density = sc.muv_wsuv_tgt_density
+        elif sc.muv_wsuv_mode == 'CONSTANT':
+            tgt_density = sc.muv_wsuv_src_density
+
+        factor = tgt_density / density
 
         # calculate origin
         if self.origin == 'CENTER':

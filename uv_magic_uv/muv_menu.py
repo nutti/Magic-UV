@@ -416,21 +416,15 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             col.label("px x px")
             col.label("px/cm")
             col.enabled = False
-            box.label("Target:")
-            sp = box.split(percentage=0.7)
-            col = sp.column(align=True)
-            col = col.column(align=True)
-            col.prop(sc, "muv_wsuv_tgt_density", text="Density")
-            if sc.muv_wsuv_mode != 'USER':
-                col.enabled = False
+            sp = box.split(percentage=0.3)
+            sp.label("Mode:")
             sp = sp.split(percentage=1.0)
-            col = sp.column(align=True)
-            col.label("px/cm")
-            if sc.muv_wsuv_mode != 'USER':
-                col.enabled = False
-            box.prop(sc, "muv_wsuv_mode", text="Mode")
+            col = sp.column()
+            col.prop(sc, "muv_wsuv_mode", text="")
+            if sc.muv_wsuv_mode == 'USER':
+                col.prop(sc, "muv_wsuv_tgt_density", text="Density")
             if sc.muv_wsuv_mode == 'SCALING':
-                box.prop(sc, "muv_wsuv_scaling_factor", text="Scaling Factor")
+                col.prop(sc, "muv_wsuv_scaling_factor", text="Scaling Factor")
             box.prop(sc, "muv_wsuv_origin", text="Origin")
 
         box = layout.box()

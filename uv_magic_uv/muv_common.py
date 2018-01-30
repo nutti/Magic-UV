@@ -223,7 +223,9 @@ def calc_polygon_2d_area(points):
     area = 0.0
     for i, p1 in enumerate(points):
         p2 = points[(i + 1) % len(points)]
-        a = p1.x * p2.y - p1.y * p2.x
+        v1 = p1 - points[0]
+        v2 = p2 - points[0]
+        a = v1.x * v2.y - v1.y * v2.x
         area = area + a
 
     return fabs(0.5 * area)
@@ -233,9 +235,11 @@ def calc_polygon_3d_area(points):
     area = 0.0
     for i, p1 in enumerate(points):
         p2 = points[(i + 1) % len(points)]
-        cx = p1.y * p2.z - p1.z * p2.y
-        cy = p1.z * p2.x - p1.x * p2.z
-        cz = p1.x * p2.y - p1.y * p2.x
+        v1 = p1 - points[0]
+        v2 = p2 - points[0]
+        cx = v1.y * v2.z - v1.z * v2.y
+        cy = v1.z * v2.x - v1.x * v2.z
+        cz = v1.x * v2.y - v1.y * v2.x
         a = sqrt(cx * cx + cy * cy + cz * cz)
         area = area + a
 

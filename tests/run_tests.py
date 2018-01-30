@@ -863,7 +863,7 @@ class TestUVMagicUV(TestBase):
         result = bpy.ops.uv.muv_wsuv_measure()
         self.assertSetEqual(result, {'CANCELLED'})
 
-        # Warning: Object must have more than one UV map
+        # Warning: Object must have more than one UV map and texture
         print("[TEST] (Fail) No UV (Apply)")
         result = bpy.ops.uv.muv_wsuv_apply()
         self.assertSetEqual(result, {'CANCELLED'})
@@ -888,12 +888,6 @@ class TestUVMagicUV(TestBase):
         bpy.ops.mesh.uv_texture_add()
         result = bpy.ops.uv.muv_wsuv_apply(origin='RIGHT_TOP')
         self.assertSetEqual(result, {'FINISHED'})
-
-        # Warning: Target density must be more than 0
-        print("[TEST] (Fail) (Apply) Target density is 0")
-        bpy.context.scene.muv_wsuv_tgt_density = 0.0
-        result = bpy.ops.uv.muv_wsuv_apply()
-        self.assertSetEqual(result, {'CANCELLED'})
 
     def test_unwrapconst(self):
         print("======== Unwrap Constraint ========")
