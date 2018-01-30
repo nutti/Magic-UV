@@ -237,10 +237,6 @@ class MUV_TexProjProject(bpy.types.Operator):
     def execute(self, context):
         sc = context.scene
 
-        if context.mode != "EDIT_MESH":
-            self.report({'WARNING'}, "Mesh must be in Edit mode")
-            return {'CANCELLED'}
-
         if sc.muv_texproj_tex_image == "None":
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}

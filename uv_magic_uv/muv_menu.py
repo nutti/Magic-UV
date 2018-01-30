@@ -560,7 +560,9 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
         box.prop(sc, "muv_uvw_enabled", text="UVW")
         if sc.muv_uvw_enabled:
             row = box.row(align=True)
-            row.operator(muv_uvw_ops.MUV_UVWBoxMap.bl_idname, text="Box")
-            row.operator(muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname,
-                         text="Best Planner")
+            ops = row.operator(muv_uvw_ops.MUV_UVWBoxMap.bl_idname, text="Box")
+            ops.assign_uvmap = sc.muv_uvw_assign_uvmap
+            ops = row.operator(muv_uvw_ops.MUV_UVWBestPlanerMap.bl_idname,
+                               text="Best Planner")
+            ops.assign_uvmap = sc.muv_uvw_assign_uvmap
             box.prop(sc, "muv_uvw_assign_uvmap", text="Assign UVMap")

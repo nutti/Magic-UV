@@ -30,7 +30,8 @@ import bpy
 import bmesh
 from bpy.props import (
     FloatProperty,
-    FloatVectorProperty
+    FloatVectorProperty,
+    BoolProperty
 )
 from mathutils import Vector
 
@@ -62,6 +63,11 @@ class MUV_UVWBoxMap(bpy.types.Operator):
         default=1.0,
         precision=4
     )
+    assign_uvmap = BoolProperty(
+        name="Assign UVMap",
+        description="Assign UVMap when no UVmaps are available",
+        default=True
+    )
 
     @classmethod
     def poll(cls, context):
@@ -69,7 +75,6 @@ class MUV_UVWBoxMap(bpy.types.Operator):
         return obj and obj.type == 'MESH'
 
     def execute(self, context):
-        sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -77,7 +82,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
 
         # get UV layer
         if not bm.loops.layers.uv:
-            if sc.muv_uvw_assign_uvmap:
+            if self.assign_uvmap:
                 bm.loops.layers.uv.new()
             else:
                 self.report(
@@ -171,6 +176,11 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
         default=1.0,
         precision=4
     )
+    assign_uvmap = BoolProperty(
+        name="Assign UVMap",
+        description="Assign UVMap when no UVmaps are available",
+        default=True
+    )
 
     @classmethod
     def poll(cls, context):
@@ -178,7 +188,6 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
         return obj and obj.type == 'MESH'
 
     def execute(self, context):
-        sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if muv_common.check_version(2, 73, 0) >= 0:
@@ -186,7 +195,7 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
 
         # get UV layer
         if not bm.loops.layers.uv:
-            if sc.muv_uvw_assign_uvmap:
+            if self.assign_uvmap:
                 bm.loops.layers.uv.new()
             else:
                 self.report(

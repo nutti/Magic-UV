@@ -510,7 +510,7 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
     Operation class: Copy UV coordinate on UV/Image Editor
     """
 
-    bl_idname = "object.muv_cpuv_ie_copy_uv"
+    bl_idname = "uv.muv_cpuv_ie_copy_uv"
     bl_label = "Copy UV"
     bl_description = "Copy UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -524,6 +524,8 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
+        if muv_common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
 
         for face in bm.faces:
             if face.select:
@@ -538,7 +540,7 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
     Operation class: Paste UV coordinate on UV/Image Editor
     """
 
-    bl_idname = "object.muv_cpuv_ie_paste_uv"
+    bl_idname = "uv.muv_cpuv_ie_paste_uv"
     bl_label = "Paste UV"
     bl_description = "Paste UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -552,6 +554,8 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
+        if muv_common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
 
         dest_uvs = []
         dest_face_indices = []

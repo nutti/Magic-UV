@@ -69,10 +69,10 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
     def execute(self, context):
         island_info = muv_common.get_island_info(context.active_object)
 
-        for isl in island_info:
-            area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                                  'IMAGE_EDITOR')
-            if self.base == 'UV_ISLAND':
+        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                              'IMAGE_EDITOR')
+        if self.base == 'UV_ISLAND':
+            for isl in island_info:
                 bd_size = muv_common.get_uvimg_editor_board_size(area)
                 if self.position == 'CENTER':
                     cx = isl['center'][0] * bd_size[0]
@@ -103,40 +103,40 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
                     cy = isl['min'][1] * bd_size[1]
                 else:
                     self.report({'ERROR'}, "Unknown Operation")
-            elif self.base == 'TEXTURE':
-                bd_size = muv_common.get_uvimg_editor_board_size(area)
-                if self.position == 'CENTER':
-                    cx = bd_size[0] / 2.0
-                    cy = bd_size[1] / 2.0
-                elif self.position == 'LEFT_TOP':
-                    cx = 0
-                    cy = bd_size[1]
-                elif self.position == 'LEFT_MIDDLE':
-                    cx = 0
-                    cy = bd_size[1] / 2.0
-                elif self.position == 'LEFT_BOTTOM':
-                    cx = 0
-                    cy = 0
-                elif self.position == 'MIDDLE_TOP':
-                    cx = bd_size[0] / 2.0
-                    cy = bd_size[1]
-                elif self.position == 'MIDDLE_BOTTOM':
-                    cx = bd_size[0] / 2.0
-                    cy = 0
-                elif self.position == 'RIGHT_TOP':
-                    cx = bd_size[0]
-                    cy = bd_size[1]
-                elif self.position == 'RIGHT_MIDDLE':
-                    cx = bd_size[0]
-                    cy = bd_size[1] / 2.0
-                elif self.position == 'RIGHT_BOTTOM':
-                    cx = bd_size[0]
-                    cy = 0
-                else:
-                    self.report({'ERROR'}, "Unknown Operation")
+        elif self.base == 'TEXTURE':
+            bd_size = muv_common.get_uvimg_editor_board_size(area)
+            if self.position == 'CENTER':
+                cx = bd_size[0] / 2.0
+                cy = bd_size[1] / 2.0
+            elif self.position == 'LEFT_TOP':
+                cx = 0
+                cy = bd_size[1]
+            elif self.position == 'LEFT_MIDDLE':
+                cx = 0
+                cy = bd_size[1] / 2.0
+            elif self.position == 'LEFT_BOTTOM':
+                cx = 0
+                cy = 0
+            elif self.position == 'MIDDLE_TOP':
+                cx = bd_size[0] / 2.0
+                cy = bd_size[1]
+            elif self.position == 'MIDDLE_BOTTOM':
+                cx = bd_size[0] / 2.0
+                cy = 0
+            elif self.position == 'RIGHT_TOP':
+                cx = bd_size[0]
+                cy = bd_size[1]
+            elif self.position == 'RIGHT_MIDDLE':
+                cx = bd_size[0]
+                cy = bd_size[1] / 2.0
+            elif self.position == 'RIGHT_BOTTOM':
+                cx = bd_size[0]
+                cy = 0
             else:
                 self.report({'ERROR'}, "Unknown Operation")
+        else:
+            self.report({'ERROR'}, "Unknown Operation")
 
-            space.cursor_location = Vector((cx, cy))
+        space.cursor_location = Vector((cx, cy))
 
         return {'FINISHED'}

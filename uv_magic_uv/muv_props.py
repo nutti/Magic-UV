@@ -188,7 +188,8 @@ def init_props(scene):
     )
     scene.muv_texwrap_selseq = BoolProperty(
         name="Selection Sequence",
-        description="Set UV sequentially"
+        description="Set UV sequentially",
+        default=False
     )
 
     # UV inspection
