@@ -297,6 +297,15 @@ def init_props(scene):
         description="Enable Uniform Scaling",
         default=False
     )
+    scene.muv_uvbb_boundary = EnumProperty(
+        name="Boundary",
+        description="Boundary",
+        default='UV_SEL',
+        items=[
+            ('UV', "UV", "Boundary is decided by UV"),
+            ('UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
+        ]
+    )
 
     # Pack UV
     scene.muv_packuv_enabled = BoolProperty(

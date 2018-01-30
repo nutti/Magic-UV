@@ -269,6 +269,7 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
                 box.operator(muv_uvbb_ops.MUV_UVBBUpdater.bl_idname,
                              text="Hide", icon='PAUSE')
             box.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
+            box.prop(sc, "muv_uvbb_boundary", text="Boundary")
 
         box = layout.box()
         box.prop(sc, "muv_uvinsp_enabled", text="UV Inspection")

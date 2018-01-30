@@ -602,6 +602,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         """
         Get UV coordinate
         """
+        sc = context.scene
         obj = context.active_object
         uv_info = []
         bm = bmesh.from_edit_mesh(obj.data)
@@ -611,8 +612,13 @@ class MUV_UVBBUpdater(bpy.types.Operator):
             return None
         uv_layer = bm.loops.layers.uv.verify()
         for f in bm.faces:
-            if f.select:
-                for i, l in enumerate(f.loops):
+            if not f.select:
+                continue
+            for i, l in enumerate(f.loops):
+                if sc.muv_uvbb_boundary == 'UV_SEL':
+                    if l[uv_layer].select:
+                        uv_info.append((f.index, i, l[uv_layer].uv.copy()))
+                elif sc.muv_uvbb_boundary == 'UV':
                     uv_info.append((f.index, i, l[uv_layer].uv.copy()))
         if not uv_info:
             return None
