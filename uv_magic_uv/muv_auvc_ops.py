@@ -74,30 +74,33 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
         if self.base == 'UV_ISLAND':
             for isl in island_info:
                 bd_size = muv_common.get_uvimg_editor_board_size(area)
+                center = Vector((
+                    (isl['min'][0] + (isl['max'][0] - isl['min'][0]) / 2.0),
+                    (isl['min'][1] + (isl['max'][1] - isl['min'][1]) / 2.0)))
                 if self.position == 'CENTER':
-                    cx = isl['center'][0] * bd_size[0]
-                    cy = isl['center'][1] * bd_size[1]
+                    cx = center[0] * bd_size[0]
+                    cy = center[1] * bd_size[1]
                 elif self.position == 'LEFT_TOP':
                     cx = isl['min'][0] * bd_size[0]
                     cy = isl['max'][1] * bd_size[1]
                 elif self.position == 'LEFT_MIDDLE':
                     cx = isl['min'][0] * bd_size[0]
-                    cy = isl['center'][1] * bd_size[1]
+                    cy = center[1] * bd_size[1]
                 elif self.position == 'LEFT_BOTTOM':
                     cx = isl['min'][0] * bd_size[0]
                     cy = isl['min'][1] * bd_size[1]
                 elif self.position == 'MIDDLE_TOP':
-                    cx = isl['center'][0] * bd_size[0]
+                    cx = center[0] * bd_size[0]
                     cy = isl['max'][1] * bd_size[1]
                 elif self.position == 'MIDDLE_BOTTOM':
-                    cx = isl['center'][0] * bd_size[0]
+                    cx = center[0] * bd_size[0]
                     cy = isl['min'][1] * bd_size[1]
                 elif self.position == 'RIGHT_TOP':
                     cx = isl['max'][0] * bd_size[0]
                     cy = isl['max'][1] * bd_size[1]
                 elif self.position == 'RIGHT_MIDDLE':
                     cx = isl['max'][0] * bd_size[0]
-                    cy = isl['center'][1] * bd_size[1]
+                    cy = center[1] * bd_size[1]
                 elif self.position == 'RIGHT_BOTTOM':
                     cx = isl['max'][0] * bd_size[0]
                     cy = isl['min'][1] * bd_size[1]
