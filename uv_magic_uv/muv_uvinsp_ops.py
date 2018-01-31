@@ -433,18 +433,42 @@ def is_points_in_polygon(points, subject_points):
     return True
 
 
-def get_overlapped_uv_info(faces, uv_layer, mode):
+def get_overlapped_uv_info(bm, faces, uv_layer, mode):
+    # at first, check island overlapped
+    isl = muv_common.get_island_info_from_faces(bm, faces, uv_layer)
+    overlapped_isl_pairs = []
+    for i, i1 in enumerate(isl):
+        for i2 in isl[i+1:]:
+            if (i1["max"].x < i2["min"].x) or (i2["max"].x < i1["min"].x) or \
+               (i1["max"].y < i2["min"].y) or (i2["max"].y < i1["min"].y):
+                continue
+            overlapped_isl_pairs.append([i1, i2])
+
+    # next, check polygon overlapped
     overlapped_uvs = []
-    for i, f_clip in enumerate(faces):
-        for f_subject in faces[i + 1:]:
-            result, polygons = do_weiler_atherton_cliping(f_clip, f_subject,
-                                                          uv_layer, mode)
-            if result:
-                subject_uvs = [l[uv_layer].uv.copy() for l in f_subject.loops]
-                overlapped_uvs.append({"clip_face": f_clip,
-                                       "subject_face": f_subject,
-                                       "subject_uvs": subject_uvs,
-                                       "polygons": polygons})
+    for oip in overlapped_isl_pairs:
+        for clip in oip[0]["faces"]:
+            f_clip = clip["face"]
+            for subject in oip[1]["faces"]:
+                f_subject = subject["face"]
+
+                # fast operation, apply bounding box algorithm
+                if (clip["max_uv"].x < subject["min_uv"].x) or \
+                   (subject["max_uv"].x < clip["min_uv"].x) or \
+                   (clip["max_uv"].y < subject["min_uv"].y) or \
+                   (subject["max_uv"].y < clip["min_uv"].y):
+                    continue
+
+                # slow operation, apply Weiler-Atherton cliping algorithm
+                result, polygons = do_weiler_atherton_cliping(f_clip, f_subject,
+                                                              uv_layer, mode)
+                if result:
+                    subject_uvs = [l[uv_layer].uv.copy()
+                                   for l in f_subject.loops]
+                    overlapped_uvs.append({"clip_face": f_clip,
+                                           "subject_face": f_subject,
+                                           "subject_uvs": subject_uvs,
+                                           "polygons": polygons})
 
     return overlapped_uvs
 
@@ -473,7 +497,7 @@ def update_uvinsp_info(context):
         sel_faces = [f for f in bm.faces]
     else:
         sel_faces = [f for f in bm.faces if f.select]
-    props.overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer,
+    props.overlapped_info = get_overlapped_uv_info(bm, sel_faces, uv_layer,
                                                    sc.muv_uvinsp_show_mode)
     props.flipped_info = get_flipped_uv_info(sel_faces, uv_layer)
 
@@ -544,7 +568,7 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
         else:
             sel_faces = [f for f in bm.faces if f.select]
 
-        overlapped_info = get_overlapped_uv_info(sel_faces, uv_layer, 'FACE')
+        overlapped_info = get_overlapped_uv_info(bm, sel_faces, uv_layer, 'FACE')
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:

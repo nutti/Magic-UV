@@ -107,21 +107,25 @@ def __get_island_info(uv_layer, islands):
         for face in isl:
             n = 0
             a = Vector((0.0, 0.0))
+            ma = Vector((-10000000.0, -10000000.0))
+            mi = Vector((10000000.0, 10000000.0))
             for l in face['face'].loops:
                 uv = l[uv_layer].uv
-                if uv.x > max_uv.x:
-                    max_uv.x = uv.x
-                if uv.y > max_uv.y:
-                    max_uv.y = uv.y
-                if uv.x < min_uv.x:
-                    min_uv.x = uv.x
-                if uv.y < min_uv.y:
-                    min_uv.y = uv.y
+                ma.x = max(uv.x, ma.x)
+                ma.y = max(uv.y, ma.y)
+                mi.x = min(uv.x, mi.x)
+                mi.y = min(uv.y, mi.y)
                 a = a + uv
                 n = n + 1
             ave_uv = ave_uv + a
             num_uv = num_uv + n
             a = a / n
+            max_uv.x = max(ma.x, max_uv.x)
+            max_uv.y = max(ma.y, max_uv.y)
+            min_uv.x = min(mi.x, min_uv.x)
+            min_uv.y = min(mi.y, min_uv.y)
+            face['max_uv'] = ma
+            face['min_uv'] = mi
             face['ave_uv'] = a
         ave_uv = ave_uv / num_uv
 
@@ -203,7 +207,12 @@ def get_island_info_from_bmesh(bm, only_selected=True):
         selected_faces = [f for f in bm.faces if f.select]
     else:
         selected_faces = [f for f in bm.faces]
-    ftv, vtf = __create_vert_face_db(selected_faces, uv_layer)
+
+    return get_island_info_from_faces(bm, selected_faces, uv_layer)
+
+
+def get_island_info_from_faces(bm, faces, uv_layer):
+    ftv, vtf = __create_vert_face_db(faces, uv_layer)
 
     # Get island information
     uv_island_lists = __get_island(bm, ftv, vtf)
