@@ -438,7 +438,7 @@ def get_overlapped_uv_info(bm, faces, uv_layer, mode):
     isl = muv_common.get_island_info_from_faces(bm, faces, uv_layer)
     overlapped_isl_pairs = []
     for i, i1 in enumerate(isl):
-        for i2 in isl[i+1:]:
+        for i2 in isl[i + 1:]:
             if (i1["max"].x < i2["min"].x) or (i2["max"].x < i1["min"].x) or \
                (i1["max"].y < i2["min"].y) or (i2["max"].y < i1["min"].y):
                 continue
@@ -460,7 +460,8 @@ def get_overlapped_uv_info(bm, faces, uv_layer, mode):
                     continue
 
                 # slow operation, apply Weiler-Atherton cliping algorithm
-                result, polygons = do_weiler_atherton_cliping(f_clip, f_subject,
+                result, polygons = do_weiler_atherton_cliping(f_clip,
+                                                              f_subject,
                                                               uv_layer, mode)
                 if result:
                     subject_uvs = [l[uv_layer].uv.copy()
@@ -568,7 +569,8 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
         else:
             sel_faces = [f for f in bm.faces if f.select]
 
-        overlapped_info = get_overlapped_uv_info(bm, sel_faces, uv_layer, 'FACE')
+        overlapped_info = get_overlapped_uv_info(bm, sel_faces, uv_layer,
+                                                 'FACE')
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:
