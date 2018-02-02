@@ -492,6 +492,8 @@ def update_uvinsp_info(context):
 
     obj = context.active_object
     bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.faces.ensure_lookup_table()
     uv_layer = bm.loops.layers.uv.verify()
 
     if context.tool_settings.use_uv_select_sync:
@@ -562,6 +564,8 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
+        if check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
         uv_layer = bm.loops.layers.uv.verify()
 
         if context.tool_settings.use_uv_select_sync:
@@ -597,6 +601,8 @@ class MUV_UVInspSelectFlipped(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
+        if check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
         uv_layer = bm.loops.layers.uv.verify()
 
         if context.tool_settings.use_uv_select_sync:
