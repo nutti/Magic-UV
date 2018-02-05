@@ -528,9 +528,16 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         for face in bm.faces:
-            if face.select:
-                props.src_uvs.append([l[uv_layer].uv.copy()
-                                      for l in face.loops])
+            if not face.select:
+                continue
+            skip = False
+            for l in face.loops:
+                if not l[uv_layer].select:
+                    skip = True
+                    break
+            if skip:
+                continue
+            props.src_uvs.append([l[uv_layer].uv.copy() for l in face.loops])
 
         return {'FINISHED'}
 
@@ -560,10 +567,18 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
         dest_uvs = []
         dest_face_indices = []
         for face in bm.faces:
+            if not face.select:
+                continue
+            skip = False
+            for l in face.loops:
+                if not l[uv_layer].select:
+                    skip = True
+                    break
+            if skip:
+                continue
             dest_face_indices.append(face.index)
-            if face.select:
-                uvs = [l[uv_layer].uv.copy() for l in face.loops]
-                dest_uvs.append(uvs)
+            uvs = [l[uv_layer].uv.copy() for l in face.loops]
+            dest_uvs.append(uvs)
 
         for suvs, duvs in zip(props.src_uvs, dest_uvs):
             src_diff = suvs[1] - suvs[0]
