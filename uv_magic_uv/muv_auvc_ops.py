@@ -90,7 +90,7 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
                     max_.x = max(max_.x, uv.x)
                     max_.y = max(max_.y, uv.y)
                     min_.x = min(min_.x, uv.x)
-                    min_.y = min(min_.y, uv.x)
+                    min_.y = min(min_.y, uv.y)
             center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
 
         elif self.base == 'UV_SEL':
@@ -112,7 +112,7 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
                     max_.x = max(max_.x, uv.x)
                     max_.y = max(max_.y, uv.y)
                     min_.x = min(min_.x, uv.x)
-                    min_.y = min(min_.y, uv.x)
+                    min_.y = min(min_.y, uv.y)
             center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
 
         elif self.base == 'TEXTURE':
