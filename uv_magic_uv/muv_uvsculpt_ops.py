@@ -237,7 +237,8 @@ class MUV_UVSculptOps(bpy.types.Operator):
                         vert_db[l.vert] = {"loops": [l]}
 
             # get relaxation information
-            for d in vert_db:
+            for k in vert_db.keys():
+                d = vert_db[k]
                 d["uv_sum"] = Vector((0.0, 0.0))
                 d["uv_count"] = 0
 
@@ -249,7 +250,8 @@ class MUV_UVSculptOps(bpy.types.Operator):
                     d["uv_count"] = d["uv_count"] + 2
                 d["uv_p"] = d["uv_sum"] / d["uv_count"]
                 d["uv_b"] = d["uv_p"] - d["loops"][0][uv_layer].uv
-            for d in vert_db:
+            for k in vert_db.keys():
+                d = vert_db[k]
                 d["uv_sum_b"] = Vector((0.0, 0.0))
                 for l in d["loops"]:
                     ln = l.link_loop_next
