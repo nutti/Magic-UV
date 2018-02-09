@@ -31,7 +31,7 @@ bl_info = {
     "version": (5, 0, 0),
     "blender": (2, 79, 0),
     "location": "See Add-ons Preferences",
-    "description": "UV Manipulator Tools. See Add-ons Preferences for details",
+    "description": "UV Toolset. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
     "wiki_url": "https://wiki.blender.org/index.php/Extensions:2.6/"
