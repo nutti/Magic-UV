@@ -155,7 +155,7 @@ class MUV_Preferences(AddonPreferences):
         sp.label("View3D > Tool shelf > Copy/Paste UV (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
-        col.label("Copy/Paste UV Coordinates")
+        col.label("Copy/Paste UV")
         col.label("Transfer UV")
 
         row = layout.row(align=True)
@@ -163,7 +163,7 @@ class MUV_Preferences(AddonPreferences):
         sp.label("View3D > Tool shelf > UV Manipulation (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
-        col.label("Flip/Rotate UVs")
+        col.label("Flip/Rotate UV")
         col.label("Mirror UV")
         col.label("Move UV")
         col.label("World Scale UV")
