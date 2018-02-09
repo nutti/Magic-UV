@@ -18,6 +18,11 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+__author__ = "Nutti <nutti.metro@gmail.com>"
+__status__ = "production"
+__version__ = "4.5"
+__date__ = "19 Nov 2017"
+
 if "bpy" in locals():
     import importlib
     importlib.reload(view3d_copy_paste_uv_objectmode)

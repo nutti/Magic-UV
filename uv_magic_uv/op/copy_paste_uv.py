@@ -18,7 +18,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-__author__ = "Nutti <nutti.metro@gmail.com>, Jace Priester"
+__author__ = "imdjs, Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
