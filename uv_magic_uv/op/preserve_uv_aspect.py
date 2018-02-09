@@ -27,7 +27,8 @@ import bpy
 import bmesh
 from bpy.props import StringProperty, EnumProperty
 from mathutils import Vector
-from . import muv_common
+
+from .. import common
 
 
 class MUV_PreserveUVAspect(bpy.types.Operator):
@@ -71,7 +72,7 @@ class MUV_PreserveUVAspect(bpy.types.Operator):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
 
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:

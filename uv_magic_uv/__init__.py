@@ -42,65 +42,29 @@ bl_info = {
 
 if "bpy" in locals():
     import importlib
-    importlib.reload(muv_preferences)
-    importlib.reload(muv_menu)
-    importlib.reload(muv_common)
-    importlib.reload(muv_props)
-    importlib.reload(muv_cpuv_ops)
-    importlib.reload(muv_cpuv_selseq_ops)
-    importlib.reload(muv_fliprot_ops)
-    importlib.reload(muv_transuv_ops)
-    importlib.reload(muv_uvbb_ops)
-    importlib.reload(muv_mvuv_ops)
-    importlib.reload(muv_texproj_ops)
-    importlib.reload(muv_packuv_ops)
-    importlib.reload(muv_texlock_ops)
-    importlib.reload(muv_mirroruv_ops)
-    importlib.reload(muv_wsuv_ops)
-    importlib.reload(muv_unwrapconst_ops)
-    importlib.reload(muv_preserve_uv_aspect)
-    importlib.reload(muv_uvw_ops)
-    importlib.reload(muv_auvc_ops)
-    importlib.reload(muv_auv_ops)
-    importlib.reload(muv_uvinsp_ops)
-    importlib.reload(muv_texwrap_ops)
-    importlib.reload(muv_uvsculpt_ops)
+    importlib.reload(op)
+    importlib.reload(ui)
+    importlib.reload(common)
+    importlib.reload(preferences)
+    importlib.reload(properites)
 else:
-    from . import muv_preferences
-    from . import muv_menu
-    from . import muv_common
-    from . import muv_props
-    from . import muv_cpuv_ops
-    from . import muv_cpuv_selseq_ops
-    from . import muv_fliprot_ops
-    from . import muv_transuv_ops
-    from . import muv_uvbb_ops
-    from . import muv_mvuv_ops
-    from . import muv_texproj_ops
-    from . import muv_packuv_ops
-    from . import muv_texlock_ops
-    from . import muv_mirroruv_ops
-    from . import muv_wsuv_ops
-    from . import muv_unwrapconst_ops
-    from . import muv_preserve_uv_aspect
-    from . import muv_uvw_ops
-    from . import muv_auvc_ops
-    from . import muv_auv_ops
-    from . import muv_uvinsp_ops
-    from . import muv_texwrap_ops
-    from . import muv_uvsculpt_ops
+    from . import op
+    from . import ui
+    from . import common
+    from . import preferences
+    from . import properites
 
 import bpy
 
 
 def register():
     bpy.utils.register_module(__name__)
-    muv_props.init_props(bpy.types.Scene)
+    properites.init_props(bpy.types.Scene)
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    muv_props.clear_props(bpy.types.Scene)
+    properites.clear_props(bpy.types.Scene)
 
 
 if __name__ == "__main__":

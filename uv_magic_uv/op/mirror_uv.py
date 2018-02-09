@@ -30,7 +30,8 @@ from bpy.props import (
 )
 import bmesh
 from mathutils import Vector
-from . import muv_common
+
+from .. import common
 
 
 class MUV_MirrorUV(bpy.types.Operator):
@@ -113,7 +114,7 @@ class MUV_MirrorUV(bpy.types.Operator):
         error = self.error
         axis = self.axis
 
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")

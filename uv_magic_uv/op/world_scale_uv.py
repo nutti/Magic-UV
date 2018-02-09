@@ -23,19 +23,19 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 from math import sqrt
 
 import bpy
 import bmesh
 from mathutils import Vector
 from bpy.props import EnumProperty
-from . import muv_common
+
+from .. import common
 
 
 def measure_wsuv_info(obj):
-    mesh_area = muv_common.measure_mesh_area(obj)
-    uv_area = muv_common.measure_uv_area(obj)
+    mesh_area = common.measure_mesh_area(obj)
+    uv_area = common.measure_uv_area(obj)
 
     if not uv_area:
         return None, None, None
@@ -116,7 +116,7 @@ class MUV_WSUVApply(bpy.types.Operator):
         sc = context.scene
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()

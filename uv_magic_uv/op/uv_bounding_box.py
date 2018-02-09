@@ -31,7 +31,7 @@ import bgl
 import mathutils
 import bmesh
 
-from . import muv_common
+from .. import common
 
 
 MAX_VALUE = 100000.0
@@ -606,7 +606,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         obj = context.active_object
         uv_info = []
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
             return None
@@ -667,7 +667,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         """
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
             return
@@ -689,7 +689,7 @@ class MUV_UVBBUpdater(bpy.types.Operator):
 
     def modal(self, context, event):
         props = context.scene.muv_props.uvbb
-        muv_common.redraw_all_areas()
+        common.redraw_all_areas()
         if props.running is False:
             self.__handle_remove(context)
             return {'FINISHED'}

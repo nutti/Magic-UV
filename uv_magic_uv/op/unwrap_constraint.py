@@ -28,7 +28,8 @@ from bpy.props import (
     EnumProperty,
     FloatProperty,
 )
-from . import muv_common
+
+from .. import common
 
 
 class MUV_UnwrapConstraint(bpy.types.Operator):
@@ -85,7 +86,7 @@ class MUV_UnwrapConstraint(bpy.types.Operator):
     def execute(self, _):
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # bpy.ops.uv.unwrap() makes one UV map at least

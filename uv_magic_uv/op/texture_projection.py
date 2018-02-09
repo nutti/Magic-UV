@@ -31,7 +31,7 @@ import bmesh
 import mathutils
 from bpy_extras import view3d_utils
 
-from . import muv_common
+from .. import common
 
 
 Rect = namedtuple('Rect', 'x0 y0 x1 y1')
@@ -241,14 +241,14 @@ class MUV_TexProjProject(bpy.types.Operator):
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
 
-        _, region, space = muv_common.get_space(
+        _, region, space = common.get_space(
             'VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         # get faces to be texture projected
         obj = context.active_object
         world_mat = obj.matrix_world
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # get UV and texture layer
@@ -290,7 +290,7 @@ class MUV_TexProjProject(bpy.types.Operator):
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1
 
-        muv_common.redraw_all_areas()
+        common.redraw_all_areas()
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}

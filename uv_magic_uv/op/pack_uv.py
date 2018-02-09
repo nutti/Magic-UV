@@ -35,7 +35,7 @@ from bpy.props import (
 )
 from mathutils import Vector
 
-from . import muv_common
+from .. import common
 
 
 class MUV_PackUV(bpy.types.Operator):
@@ -82,7 +82,7 @@ class MUV_PackUV(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
             self.report({'WARNING'}, "Object must have more than one UV map")
@@ -90,7 +90,7 @@ class MUV_PackUV(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
 
         selected_faces = [f for f in bm.faces if f.select]
-        island_info = muv_common.get_island_info(obj)
+        island_info = common.get_island_info(obj)
         num_group = self.__group_island(island_info)
 
         loop_lists = [l for f in bm.faces for l in f.loops]

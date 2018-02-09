@@ -33,7 +33,7 @@ from bpy.props import (
 )
 from mathutils import Vector
 
-from . import muv_common
+from . import common
 
 
 def get_loaded_texture_name(_, __):
@@ -589,9 +589,9 @@ def init_props(scene):
     )
 
     def auvc_get_cursor_loc(self):
-        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
-        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                          'IMAGE_EDITOR')
+        bd_size = common.get_uvimg_editor_board_size(area)
         loc = space.cursor_location
         if bd_size[0] < 0.000001:
             cx = 0.0
@@ -606,9 +606,9 @@ def init_props(scene):
 
     def auvc_set_cursor_loc(self, value):
         self['muv_auvc_cursor_loc'] = value
-        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
-        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                          'IMAGE_EDITOR')
+        bd_size = common.get_uvimg_editor_board_size(area)
         cx = bd_size[0] * value[0]
         cy = bd_size[1] * value[1]
         space.cursor_location = Vector((cx, cy))

@@ -23,15 +23,12 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 import bpy
 from mathutils import Vector
-from bpy.props import (
-    EnumProperty,
-)
+from bpy.props import EnumProperty
 import bmesh
 
-from . import muv_common
+from .. import common
 
 
 class MUV_AUVCAlignOps(bpy.types.Operator):
@@ -69,9 +66,9 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
     )
 
     def execute(self, context):
-        area, _, space = muv_common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
-        bd_size = muv_common.get_uvimg_editor_board_size(area)
+        area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                          'IMAGE_EDITOR')
+        bd_size = common.get_uvimg_editor_board_size(area)
 
         if self.base == 'UV':
             obj = context.active_object

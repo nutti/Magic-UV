@@ -29,7 +29,7 @@ import bpy
 import bmesh
 from bpy.props import BoolProperty
 
-from . import muv_common
+from .. import common
 
 
 class MUV_TransUVCopy(bpy.types.Operator):
@@ -47,7 +47,7 @@ class MUV_TransUVCopy(bpy.types.Operator):
         props = context.scene.muv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # get UV layer
@@ -114,7 +114,7 @@ class MUV_TransUVPaste(bpy.types.Operator):
         props = context.scene.muv_props.transuv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # get UV layer
@@ -290,19 +290,19 @@ def parse_faces(
                 vert1 = sorted_edge.verts[0]
                 vert2 = sorted_edge.verts[1]
 
-                muv_common.debug_print(face_stuff[0], vert1, vert2)
+                common.debug_print(face_stuff[0], vert1, vert2)
                 if face_stuff[0].index(vert1) > face_stuff[0].index(vert2):
                     vert1 = sorted_edge.verts[1]
                     vert2 = sorted_edge.verts[0]
 
-                muv_common.debug_print(shared_face.verts, vert1, vert2)
+                common.debug_print(shared_face.verts, vert1, vert2)
                 new_face_stuff = get_other_verts_edges(
                     shared_face, vert1, vert2, sorted_edge, uv_layer)
                 all_sorted_faces[shared_face] = new_face_stuff
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                if muv_common.DEBUG:
+                if common.DEBUG:
                     shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)

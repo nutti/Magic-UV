@@ -23,13 +23,12 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 import bpy
 import bmesh
 import bgl
 from mathutils import Vector
 
-from . import muv_common
+from .. import common
 
 
 def is_polygon_same(points1, points2):
@@ -146,16 +145,16 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     if is_polygon_flipped(subject_uvs):
         subject_uvs.reverse()
 
-    muv_common.debug_print("===== Clip UV List =====")
-    muv_common.debug_print(clip_uvs)
-    muv_common.debug_print("===== Subject UV List =====")
-    muv_common.debug_print(subject_uvs)
+    common.debug_print("===== Clip UV List =====")
+    common.debug_print(clip_uvs)
+    common.debug_print("===== Subject UV List =====")
+    common.debug_print(subject_uvs)
 
     # check if clip and subject is overlapped completely
     if is_polygon_same(clip_uvs, subject_uvs):
         polygons = [subject_uvs.as_list()]
-        muv_common.debug_print("===== Polygons Overlapped Completely =====")
-        muv_common.debug_print(polygons)
+        common.debug_print("===== Polygons Overlapped Completely =====")
+        common.debug_print(polygons)
         return True, polygons
 
     # check if subject is in clip
@@ -191,8 +190,8 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         if clip_uvs.get() == clip_uvs.head():
             break
 
-    muv_common.debug_print("===== Intersection List =====")
-    muv_common.debug_print(intersections)
+    common.debug_print("===== Intersection List =====")
+    common.debug_print(intersections)
 
     # no intersection, so subject and clip is not overlapped
     if not intersections:
@@ -230,12 +229,12 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         if subject_uvs.get() == subject_uvs.head():
             break
 
-    muv_common.debug_print("===== Enter List =====")
-    muv_common.debug_print(clip_entering)
-    muv_common.debug_print(subject_entering)
-    muv_common.debug_print("===== Exit List =====")
-    muv_common.debug_print(clip_exiting)
-    muv_common.debug_print(subject_exiting)
+    common.debug_print("===== Enter List =====")
+    common.debug_print(clip_entering)
+    common.debug_print(subject_entering)
+    common.debug_print("===== Exit List =====")
+    common.debug_print(clip_exiting)
+    common.debug_print(subject_exiting)
 
     # for now, can't handle the situation when fulfill all below conditions
     #        * two faces have common edge
@@ -294,18 +293,18 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
             other_uv_list = subject_uvs
             current_entering = clip_entering
             current_exiting = clip_exiting
-            muv_common.debug_print("-- Next: Clip --")
+            common.debug_print("-- Next: Clip --")
         else:
             current_uv_list = subject_uvs
             other_uv_list = clip_uvs
             current_entering = subject_entering
             current_exiting = subject_exiting
-            muv_common.debug_print("-- Next: Subject --")
+            common.debug_print("-- Next: Subject --")
 
-        muv_common.debug_print(clip_entering)
-        muv_common.debug_print(clip_exiting)
-        muv_common.debug_print(subject_entering)
-        muv_common.debug_print(subject_exiting)
+        common.debug_print(clip_entering)
+        common.debug_print(clip_exiting)
+        common.debug_print(subject_entering)
+        common.debug_print(subject_exiting)
 
         if not clip_entering and not clip_exiting \
                 and not subject_entering and not subject_exiting:
@@ -313,8 +312,8 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
 
     polygons.append(poly)
 
-    muv_common.debug_print("===== Polygons Overlapped Partially =====")
-    muv_common.debug_print(polygons)
+    common.debug_print("===== Polygons Overlapped Partially =====")
+    common.debug_print(polygons)
 
     return True, polygons
 
@@ -435,7 +434,7 @@ def is_points_in_polygon(points, subject_points):
 
 def get_overlapped_uv_info(bm, faces, uv_layer, mode):
     # at first, check island overlapped
-    isl = muv_common.get_island_info_from_faces(bm, faces, uv_layer)
+    isl = common.get_island_info_from_faces(bm, faces, uv_layer)
     overlapped_isl_pairs = []
     for i, i1 in enumerate(isl):
         for i2 in isl[i + 1:]:
@@ -492,7 +491,7 @@ def update_uvinsp_info(context):
 
     obj = context.active_object
     bm = bmesh.from_edit_mesh(obj.data)
-    if muv_common.check_version(2, 73, 0) >= 0:
+    if common.check_version(2, 73, 0) >= 0:
         bm.faces.ensure_lookup_table()
     uv_layer = bm.loops.layers.uv.verify()
 
@@ -564,7 +563,7 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         uv_layer = bm.loops.layers.uv.verify()
 
@@ -601,7 +600,7 @@ class MUV_UVInspSelectFlipped(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         uv_layer = bm.loops.layers.uv.verify()
 

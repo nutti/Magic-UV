@@ -23,11 +23,10 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 import bpy
 import bmesh
 
-from . import muv_common
+from .. import common
 
 
 class MUV_TexWrapRefer(bpy.types.Operator):
@@ -44,7 +43,7 @@ class MUV_TexWrapRefer(bpy.types.Operator):
         props = context.scene.muv_props.texwrap
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:
@@ -77,7 +76,7 @@ class MUV_TexWrapSet(bpy.types.Operator):
         props = sc.muv_props.texwrap
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         if not bm.loops.layers.uv:
@@ -152,9 +151,9 @@ class MUV_TexWrapSet(bpy.types.Operator):
             ouv0 = ref_other_verts[0]["loop"][uv_layer].uv
             ref_info["vert_vdiff"] = cv1 - cv0
             ref_info["uv_vdiff"] = cuv1 - cuv0
-            ref_info["vert_hdiff"], _ = muv_common.diff_point_to_segment(
+            ref_info["vert_hdiff"], _ = common.diff_point_to_segment(
                 cv0, cv1, ov0)
-            ref_info["uv_hdiff"], _ = muv_common.diff_point_to_segment(
+            ref_info["uv_hdiff"], _ = common.diff_point_to_segment(
                 cuv0, cuv1, ouv0)
 
             # get target other vertices info
@@ -177,7 +176,7 @@ class MUV_TexWrapSet(bpy.types.Operator):
                 cv1 = common_verts[1]["vert"].co
                 cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
                 ov = info["vert"].co
-                info["vert_hdiff"], x = muv_common.diff_point_to_segment(
+                info["vert_hdiff"], x = common.diff_point_to_segment(
                     cv0, cv1, ov)
                 info["vert_vdiff"] = x - common_verts[0]["vert"].co
 
@@ -200,8 +199,8 @@ class MUV_TexWrapSet(bpy.types.Operator):
             for info in tgt_other_verts:
                 info["loop"][uv_layer].uv = info["target_uv"]
 
-            muv_common.debug_print("===== Target Other Verticies =====")
-            muv_common.debug_print(tgt_other_verts)
+            common.debug_print("===== Target Other Verticies =====")
+            common.debug_print(tgt_other_verts)
 
             bmesh.update_edit_mesh(obj.data)
 

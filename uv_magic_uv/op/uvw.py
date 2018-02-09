@@ -23,7 +23,6 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 from math import sin, cos, pi
 
 import bpy
@@ -35,7 +34,7 @@ from bpy.props import (
 )
 from mathutils import Vector
 
-from . import muv_common
+from .. import common
 
 
 class MUV_UVWBoxMap(bpy.types.Operator):
@@ -77,7 +76,7 @@ class MUV_UVWBoxMap(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # get UV layer
@@ -190,7 +189,7 @@ class MUV_UVWBestPlanerMap(bpy.types.Operator):
     def execute(self, context):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
         # get UV layer

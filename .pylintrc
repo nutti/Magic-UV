@@ -2,6 +2,7 @@
 
 disable=
     C0111,
+    C0201,
     C0302,
     C0412,
     F0401,
@@ -23,4 +24,4 @@ variable-rgx=[a-z_][a-z0-9_]{0,30}$
 class-rgx=[A-Z_][a-zA-Z0-9_]+$
 argument-rgx=[a-z_][a-z0-9_]{0,30}$
 attr-rgx=[a-z_][a-z0-9_]{0,30}$
-
+ignored-modules=uv_magic_uv.common

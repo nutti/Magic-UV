@@ -23,7 +23,6 @@ __status__ = "production"
 __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
-
 from math import pi, cos, tan, sin
 
 import bpy
@@ -34,7 +33,7 @@ from bpy_extras import view3d_utils
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
 
-from . import muv_common
+from .. import common
 
 
 class MUV_UVSculptRenderer(bpy.types.Operator):
@@ -128,7 +127,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
         world_mat = obj.matrix_world
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
-        _, region, space = muv_common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
+        _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         self.__loop_info = []
         for f in bm.faces:
@@ -166,8 +165,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
                 l[uv_layer].uv = info["initial_uv"] + diff_uv / 100.0
 
         elif sc.muv_uvsculpt_tools == 'PINCH':
-            _, region, space = muv_common.get_space('VIEW_3D', 'WINDOW',
-                                                    'VIEW_3D')
+            _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
             loop_info = []
             for f in bm.faces:
                 if not f.select:
@@ -224,8 +222,7 @@ class MUV_UVSculptOps(bpy.types.Operator):
                 l[uv_layer].uv = l[uv_layer].uv + diff_uv / 10.0
 
         elif sc.muv_uvsculpt_tools == 'RELAX':
-            _, region, space = muv_common.get_space('VIEW_3D', 'WINDOW',
-                                                    'VIEW_3D')
+            _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
             # get vertex and loop relation
             vert_db = {}

@@ -24,16 +24,14 @@ __version__ = "4.5"
 __date__ = "19 Nov 2017"
 
 import math
-from math import (
-    atan2, cos,
-    sqrt, sin, fabs,
-)
+from math import atan2, cos, sqrt, sin, fabs
 
 import bpy
 import bmesh
 from mathutils import Vector
 from bpy.props import BoolProperty
-from . import muv_common
+
+from .. import common
 
 
 def get_vco(verts_orig, loop):
@@ -195,7 +193,7 @@ class MUV_TexLockStart(bpy.types.Operator):
         props = context.scene.muv_props.texlock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
@@ -232,7 +230,7 @@ class MUV_TexLockStop(bpy.types.Operator):
         props = sc.muv_props.texlock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
@@ -299,7 +297,7 @@ class MUV_TexLockUpdater(bpy.types.Operator):
         props = context.scene.muv_props.texlock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
@@ -338,7 +336,7 @@ class MUV_TexLockUpdater(bpy.types.Operator):
             v_orig["moved"] = True
             bmesh.update_edit_mesh(obj.data)
 
-        muv_common.redraw_all_areas()
+        common.redraw_all_areas()
         props.intr_verts_orig = [
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
             for v in bm.verts if v.select]
@@ -397,7 +395,7 @@ class MUV_TexLockIntrStart(bpy.types.Operator):
 
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
-        if muv_common.check_version(2, 73, 0) >= 0:
+        if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
