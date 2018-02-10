@@ -152,7 +152,7 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
-        sp.label("View3D > Tool shelf > Copy/Paste UV (Edit mode)")
+        sp.label("3D View > Tool shelf > Copy/Paste UV (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
         col.label("Copy/Paste UV")
@@ -160,7 +160,7 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
-        sp.label("View3D > Tool shelf > UV Manipulation (Edit mode)")
+        sp.label("3D View > Tool shelf > UV Manipulation (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
         col.label("Flip/Rotate UV")
@@ -174,7 +174,7 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
-        sp.label("View3D > Tool shelf > UV Manipulation (Edit mode)")
+        sp.label("3D View > Tool shelf > UV Manipulation (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
         col.label("Unwrap Constraint")
@@ -183,7 +183,7 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
-        sp.label("View3D > Tool shelf > Copy/Paste UV (Object mode)")
+        sp.label("3D View > Tool shelf > Copy/Paste UV (Object mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
         col.label("Copy/Paste UV Coordinates (Among same objects)")
