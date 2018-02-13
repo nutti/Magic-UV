@@ -321,7 +321,7 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
 class MUV_UVInspRenderer(bpy.types.Operator):
     """
     Operation class: Render UV Inspection
-    No operation (only rendering texture)
+    No operation (only rendering)
     """
 
     bl_idname = "uv.muv_uvinsp_renderer"

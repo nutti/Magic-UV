@@ -588,6 +588,7 @@ def init_props(scene):
         default=True
     )
 
+    # Align UV Cursor
     def auvc_get_cursor_loc(self):
         area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
                                           'IMAGE_EDITOR')
@@ -618,11 +619,6 @@ def init_props(scene):
         description="Align UV Cursor is enabled",
         default=False
     )
-    scene.muv_uvcloc_enabled = BoolProperty(
-        name="UV Cursor Location Enabled",
-        description="UV Cursor Location is enabled",
-        default=False
-    )
     scene.muv_auvc_cursor_loc = FloatVectorProperty(
         name="UV Cursor Location",
         size=2,
@@ -649,18 +645,111 @@ def init_props(scene):
 def clear_props(scene):
     del scene.muv_props
 
+    # UV Sculpt
+    del scene.muv_uvsculpt_enabled
+    del scene.muv_uvsculpt_radius
+    del scene.muv_uvsculpt_strength
+    del scene.muv_uvsculpt_tools
+    del scene.muv_uvsculpt_show_brush
+    del scene.muv_uvsculpt_pinch_invert
+    del scene.muv_uvsculpt_relax_method
+
+    # Texture Wrap
+    del scene.muv_texwrap_enabled
+    del scene.muv_texwrap_set_and_refer
+    del scene.muv_texwrap_selseq
+
+    # UV Inspection
+    del scene.muv_seluv_enabled
+    del scene.muv_uvinsp_enabled
+    del scene.muv_uvinsp_show_overlapped
+    del scene.muv_uvinsp_show_flipped
+    del scene.muv_uvinsp_show_mode
+
+    # Align UV
+    del scene.muv_auv_enabled
     del scene.muv_auv_transmission
     del scene.muv_auv_select
     del scene.muv_auv_vertical
     del scene.muv_auv_horizontal
+    del scene.muv_auv_location
 
+    # Smooth UV
+    del scene.muv_smuv_enabled
+    del scene.muv_smuv_transmission
+    del scene.muv_smuv_mesh_infl
+    del scene.muv_smuv_select
+
+    # UV Bounding Box
+    del scene.muv_uvbb_enabled
     del scene.muv_uvbb_uniform_scaling
+    del scene.muv_uvbb_boundary
 
+    # Pack UV
+    del scene.muv_packuv_enabled
+    del scene.muv_packuv_allowable_center_deviation
+    del scene.muv_packuv_allowable_size_deviation
+
+    # Move UV
+    del scene.muv_mvuv_enabled
+
+    # UVW
+    del scene.muv_uvw_enabled
+    del scene.muv_uvw_assign_uvmap
+
+    # Texture Projection
+    del scene.muv_texproj_enabled
     del scene.muv_texproj_tex_magnitude
     del scene.muv_texproj_tex_image
     del scene.muv_texproj_tex_transparency
     del scene.muv_texproj_adjust_window
     del scene.muv_texproj_apply_tex_aspect
+    del scene.muv_texproj_assign_uvmap
 
+    # Texture Lock
+    del scene.muv_texlock_enabled
+    del scene.muv_texlock_connect
+
+    # World Scale UV
+    del scene.muv_wsuv_enabled
+    del scene.muv_wsuv_src_mesh_area
+    del scene.muv_wsuv_src_uv_area
+    del scene.muv_wsuv_src_density
+    del scene.muv_wsuv_tgt_density
+    del scene.muv_wsuv_mode
+    del scene.muv_wsuv_scaling_factor
+    del scene.muv_wsuv_origin
+
+    # Unwrap Constraint
+    del scene.muv_unwrapconst_enabled
+    del scene.muv_unwrapconst_u_const
+    del scene.muv_unwrapconst_v_const
+
+    # Preserve UV Aspect
+    del scene.muv_preserve_uv_enabled
+    del scene.muv_preserve_uv_tex_image
+    del scene.muv_preserve_uv_origin
+
+    # Flip/Rotate UV
+    del scene.muv_fliprot_enabled
+    del scene.muv_fliprot_seams
+
+    # Mirror UV
+    del scene.muv_mirroruv_enabled
+    del scene.muv_mirroruv_axis
+
+    # Copy/Paste UV
+    del scene.muv_cpuv_enabled
+    del scene.muv_cpuv_copy_seams
+    del scene.muv_cpuv_mode
+    del scene.muv_cpuv_strategy
+
+    # Transfer UV
+    del scene.muv_transuv_enabled
+    del scene.muv_transuv_invert_normals
+    del scene.muv_transuv_copy_seams
+
+    # Align UV Cursor
+    del scene.muv_auvc_enabled
     del scene.muv_auvc_cursor_loc
     del scene.muv_auvc_align_menu
