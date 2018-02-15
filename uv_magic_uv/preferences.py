@@ -152,10 +152,17 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
+        sp.label("3D View > Tool shelf > Copy/Paste UV (Object mode)")
+        sp = sp.split(percentage=1.0)
+        col = sp.column(align=True)
+        col.label("Copy/Paste UV (Among objects)")
+
+        row = layout.row(align=True)
+        sp = row.split(percentage=0.5)
         sp.label("3D View > Tool shelf > Copy/Paste UV (Edit mode)")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
-        col.label("Copy/Paste UV")
+        col.label("Copy/Paste UV (Among faces in 3D View)")
         col.label("Transfer UV")
 
         row = layout.row(align=True)
@@ -183,17 +190,10 @@ class MUV_Preferences(AddonPreferences):
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
-        sp.label("3D View > Tool shelf > Copy/Paste UV (Object mode)")
-        sp = sp.split(percentage=1.0)
-        col = sp.column(align=True)
-        col.label("Copy/Paste UV Coordinates (Among same objects)")
-
-        row = layout.row(align=True)
-        sp = row.split(percentage=0.5)
         sp.label("UV/Image Editor > Tool shelf > Copy/Paste UV")
         sp = sp.split(percentage=1.0)
         col = sp.column(align=True)
-        col.label("Copy/Paste UV Coordinates")
+        col.label("Copy/Paste UV (Among faces in UV/Image Editor)")
 
         row = layout.row(align=True)
         sp = row.split(percentage=0.5)
