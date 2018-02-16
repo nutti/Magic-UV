@@ -40,6 +40,11 @@ filelist.each {|src_path|
     path.slice!(src_dir_path)
     dest_path = tmp_dir_path + path
 
+    # make sub directory
+    idx = dest_path.rindex("/")
+    sub_dir_path = dest_path[0..idx-1]
+    FileUtils.mkdir_p(sub_dir_path) unless FileTest.exist?(sub_dir_path)
+
     # make converted file
     File.open(src_path, 'r') {|src_file|
         File.open(dest_path, 'w') {|dest_file|
