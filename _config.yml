@@ -1,0 +1,8 @@
+title: Copy-and-paste-uv
+description: "Blender add-on: Copy/Past UV"
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-midnight
+
+gems:
+  - jekyll-mentions
