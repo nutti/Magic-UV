@@ -3,6 +3,8 @@
 This is a blender add-on "Magic UV". (a.k.a. Copy/Paste UV for older version)  
 "Magic UV" consists of many UV manipulation features which Blender lacks of.
 
+![Magic UV Thumbnail](https://raw.githubusercontent.com/wiki/nutti/Magic-UV/images/magic_uv_thumbnail.png)
+
 "Magic UV" is in **Release** support level. (**Contrib** support level in Blender version <2.79)  
 So, stable version is included on **Blender**.
 Of course, you can also download older version.
