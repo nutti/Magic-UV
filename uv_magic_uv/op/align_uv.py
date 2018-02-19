@@ -34,33 +34,6 @@ from bpy.props import EnumProperty, BoolProperty
 from .. import common
 
 
-def get_closed_loop_sequences(bm, uv_layer):
-    sel_faces = [f for f in bm.faces if f.select]
-
-    # get candidate loops
-    cand_loops = []
-    for f in sel_faces:
-        for l in f.loops:
-            if l[uv_layer].select:
-                cand_loops.append(l)
-
-    if len(cand_loops) < 2:
-        return None, "More than 2 UVs must be selected"
-
-    first_loop = cand_loops[0]
-    isl_info = common.get_island_info_from_bmesh(bm, False)
-    loop_pairs = common.get_loop_pairs(first_loop, uv_layer)
-    loop_pairs, err = common.sort_loop_pairs(uv_layer, loop_pairs, True)
-    if not loop_pairs:
-        return None, err
-    loop_seqs, err = common.get_loop_sequence_internal(uv_layer, loop_pairs,
-                                                       isl_info, True)
-    if not loop_seqs:
-        return None, err
-
-    return loop_seqs, ""
-
-
 # get sum vertex length of loop sequences
 def get_loop_vert_len(loops):
     length = 0
@@ -143,7 +116,7 @@ class MUV_AUVCircle(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
 
         # loop_seqs[horizontal][vertical][loop]
-        loop_seqs, error = get_closed_loop_sequences(bm, uv_layer)
+        loop_seqs, error = common.get_loop_sequences(bm, uv_layer, True)
         if not loop_seqs:
             self.report({'WARNING'}, error)
             return {'CANCELLED'}

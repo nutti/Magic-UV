@@ -565,7 +565,7 @@ def __get_loop_sequence_internal(uv_layer, pairs, island_info, closed):
     return loop_sequences, ""
 
 
-def get_loop_sequences(bm, uv_layer):
+def get_loop_sequences(bm, uv_layer, closed=False):
     sel_faces = [f for f in bm.faces if f.select]
 
     # get candidate loops
@@ -581,11 +581,11 @@ def get_loop_sequences(bm, uv_layer):
     first_loop = cand_loops[0]
     isl_info = get_island_info_from_bmesh(bm, False)
     loop_pairs = __get_loop_pairs(first_loop, uv_layer)
-    loop_pairs, err = __sort_loop_pairs(uv_layer, loop_pairs, False)
+    loop_pairs, err = __sort_loop_pairs(uv_layer, loop_pairs, closed)
     if not loop_pairs:
         return None, err
     loop_seqs, err = __get_loop_sequence_internal(uv_layer, loop_pairs,
-                                                  isl_info, False)
+                                                  isl_info, closed)
     if not loop_seqs:
         return None, err
 
