@@ -297,6 +297,17 @@ def measure_uv_area(obj):
         f_uv_area = calc_polygon_2d_area(uvs)
         if tex_layer:
             img = f[tex_layer].image
+            # not found, try to search from node
+            if not img:
+                for mat in obj.material_slots:
+                    for node in mat.material.node_tree.nodes:
+                        tex_node_types = [
+                            'TEX_ENVIRONMENT',
+                            'TEX_IMAGE',
+                        ]
+                        if node.type in tex_node_types:
+                            if node.image:
+                               img = node.image
             if not img:
                 return None
             uv_area = uv_area + f_uv_area * img.size[0] * img.size[1]
