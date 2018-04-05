@@ -694,7 +694,11 @@ class MUV_UVBBUpdater(bpy.types.Operator):
             self.__handle_remove(context)
             return {'FINISHED'}
 
-        area, _, _ = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
+        area, _, _ = common.get_space('IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
+        if area is None:
+            self.__handle_remove(context)
+            props.running = False
+            return {'CANCELLED'}
 
         if event.mouse_region_x < 0 or event.mouse_region_x > area.width or \
            event.mouse_region_y < 0 or event.mouse_region_y > area.height:
