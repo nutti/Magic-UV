@@ -121,7 +121,7 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         box.prop(sc, "muv_uvinsp_enabled", text="UV Inspection")
         if sc.muv_uvinsp_enabled:
             row = box.row()
-            if not sc.muv_props.uvinsp.display_running:
+            if not props.uvinsp.display_running:
                 row.operator(uv_inspection.MUV_UVInspDisplay.bl_idname,
                              text="Display", icon='PLAY')
             else:

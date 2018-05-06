@@ -60,11 +60,15 @@ import bpy
 def register():
     bpy.utils.register_module(__name__)
     properites.init_props(bpy.types.Scene)
+    if preferences.MUV_Preferences.enable_builtin_menu:
+        preferences.add_builtin_menu()
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    if preferences.MUV_Preferences.enable_builtin_menu:
+        preferences.remove_builtin_menu()
     properites.clear_props(bpy.types.Scene)
+    bpy.utils.unregister_module(__name__)
 
 
 if __name__ == "__main__":

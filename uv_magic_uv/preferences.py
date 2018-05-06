@@ -23,17 +23,153 @@ __status__ = "production"
 __version__ = "5.1"
 __date__ = "24 Feb 2018"
 
+import bpy
 from bpy.props import (
     FloatProperty,
     FloatVectorProperty,
+    BoolProperty,
 )
 from bpy.types import AddonPreferences
+
+from . import ui
+from . import op
+
+
+def view3d_uvmap_menu_fn(self, context):
+    layout = self.layout
+    sc = context.scene
+
+    layout.separator()
+    # Copy/Paste UV
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_CPUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Copy/Paste UV")
+    # Transfer UV
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TransUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Transfer UV")
+
+    layout.separator()
+    # Flip/Rotate UV
+    ops = layout.operator(op.flip_rotate_uv.MUV_FlipRot.bl_idname,
+                          icon="IMAGE_COL", text="Flip/Rotate UV")
+    ops.seams = sc.muv_fliprot_seams
+    # Mirror UV
+    ops = layout.operator(op.mirror_uv.MUV_MirrorUV.bl_idname,
+                          icon="IMAGE_COL", text="Mirror UV")
+    ops.axis = sc.muv_mirroruv_axis
+    # Move UV
+    layout.operator(op.move_uv.MUV_MVUV.bl_idname,
+                    icon="IMAGE_COL", text="Move UV")
+    # World Scale UV
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_WSUVMenu.bl_idname,
+                icon="IMAGE_COL", text="World Scale UV")
+    # Preserve UV
+    ops = layout.operator(op.preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
+                          icon="IMAGE_COL", text="Preserve UV")
+    ops.dest_img_name = sc.muv_preserve_uv_tex_image
+    ops.origin = sc.muv_preserve_uv_origin
+    # Texture Lock
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexLockMenu.bl_idname,
+                icon="IMAGE_COL", text="Texture Lock")
+    # Texture Wrap
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexWrapMenu.bl_idname,
+                icon="IMAGE_COL", text="Texture Wrap")
+    # UV Sculpt
+    layout.operator(op.uv_sculpt.MUV_UVSculptOps.bl_idname,
+                    icon='IMAGE_COL', text="UV Sculpt")
+
+    layout.separator()
+    # Unwrap Constraint
+    ops = layout.operator(op.unwrap_constraint.MUV_UnwrapConstraint.bl_idname,
+                          icon="IMAGE_COL", text="Unwrap")
+    ops.u_const = sc.muv_unwrapconst_u_const
+    ops.v_const = sc.muv_unwrapconst_v_const
+    # Texture Projection
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexProjMenu.bl_idname,
+                icon='IMAGE_COL', text="Texture Projection")
+    # UVW
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_UVWMenu.bl_idname,
+                icon="IMAGE_COL", text="UVW")
+
+
+def view3d_object_menu_fn(self, _):
+    layout = self.layout
+
+    layout.separator()
+    # Copy/Paste UV (Among Objecct)
+    layout.menu(ui.VIEW3D_MT_object.MUV_CPUVObjMenu.bl_idname,
+                icon="IMAGE_COL", text="Copy/Paste UV")
+
+
+def image_uvs_menu_fn(self, context):
+    layout = self.layout
+    sc = context.scene
+
+    layout.separator()
+    # Copy/Paste UV (on UV/Image Editor)
+    layout.menu(ui.IMAGE_MT_uvs.MUV_UVCPUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Copy/Paste UV")
+
+    layout.separator()
+    # Align UV
+    layout.menu(ui.IMAGE_MT_uvs.MUV_AUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Align UV")
+    # Smooth UV
+    ops = layout.operator(op.smooth_uv.MUV_AUVSmooth.bl_idname,
+                          icon="IMAGE_COL", text="Smooth")
+    ops.transmission = sc.muv_smuv_transmission
+    ops.select = sc.muv_smuv_select
+    ops.mesh_infl = sc.muv_smuv_mesh_infl
+    # Select UV
+    layout.menu(ui.IMAGE_MT_uvs.MUV_SelUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Select UV")
+    # Pack UV
+    ops = layout.operator(op.pack_uv.MUV_PackUV.bl_idname,
+                          icon="IMAGE_COL", text="Pack UV")
+    ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
+    ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
+
+    layout.separator()
+    # Align UV Cursor
+    layout.menu(ui.IMAGE_MT_uvs.MUV_AUVCMenu.bl_idname,
+                icon="IMAGE_COL", text="Align UV Cursor")
+    # UV Bounding Box
+    layout.menu(ui.IMAGE_MT_uvs.MUV_UVBBMenu.bl_idname,
+                icon="IMAGE_COL", text="UV Bounding Box")
+    # UV Inspection
+    layout.menu(ui.IMAGE_MT_uvs.MUV_UVInspMenu.bl_idname,
+                icon="IMAGE_COL", text="UV Inspection")
+
+
+def add_builtin_menu():
+    bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
+    bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
+    bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
+
+
+def remove_builtin_menu():
+    bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
+    bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
+    bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
 
 
 class MUV_Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
     bl_idname = __package__
+
+    def update_enable_builtin_menu(self, _):
+        if self['enable_builtin_menu']:
+            add_builtin_menu()
+        else:
+            remove_builtin_menu()
+
+    # enable to add features to built-in menu
+    enable_builtin_menu = BoolProperty(
+        name="Built-in Menu",
+        description="Enable built-in menu",
+        default=False,
+        update=update_enable_builtin_menu
+    )
 
     # for UV Sculpt
     uvsculpt_brush_color = FloatVectorProperty(
@@ -95,6 +231,8 @@ class MUV_Preferences(AddonPreferences):
         layout = self.layout
 
         layout.label("[Configuration]")
+
+        layout.prop(self, "enable_builtin_menu", text="Built-in Menu")
 
         layout.label("UV Sculpt:")
         sp = layout.split(percentage=0.05)
