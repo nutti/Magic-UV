@@ -44,6 +44,7 @@ def get_loaded_texture_name(_, __):
 
 # Properties used in this add-on.
 class MUV_Properties():
+    prefs = None
     cpuv = None
     cpuv_obj = None
     cpuv_selseq = None
@@ -57,6 +58,7 @@ class MUV_Properties():
     uvsculpt = None
 
     def __init__(self):
+        self.prefs = MUV_Prefs()
         self.cpuv = MUV_CPUVProps()
         self.cpuv_obj = MUV_CPUVProps()
         self.cpuv_selseq = MUV_CPUVSelSeqProps()
@@ -68,6 +70,17 @@ class MUV_Properties():
         self.mvuv = MUV_MVUVProps()
         self.uvinsp = MUV_UVInspProps()
         self.uvsculpt = MUV_UVSculptProps()
+
+
+class MUV_Prefs():
+    expanded = {
+        "info_desc": False,
+        "info_loc": False,
+        "conf_uvsculpt": False,
+        "conf_uvinsp": False,
+        "conf_texproj": False,
+        "conf_uvbb": False
+    }
 
 
 class MUV_CPUVProps():
