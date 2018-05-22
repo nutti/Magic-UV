@@ -37,24 +37,6 @@ from . import ui
 from . import op
 
 
-class MUV_PrefExpandMenu(bpy.types.Operator):
-
-    bl_idname = "uv.muv_pref_expand_menu"
-    bl_label = "Ex"
-    bl_description = "Expand Menu in Preferences"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    menu = StringProperty(options={'HIDDEN'})
-
-    def execute(self, context):
-        sc = context.scene
-        props = sc.muv_props
-
-        props.prefs.expanded[self.menu] = not props.prefs.expanded[self.menu]
-
-        return {'FINISHED'}
-
-
 def view3d_uvmap_menu_fn(self, context):
     layout = self.layout
     sc = context.scene
@@ -257,6 +239,36 @@ class MUV_Preferences(AddonPreferences):
         ],
         default='INFO'
     )
+    info_desc_expanded = BoolProperty(
+        name="Description",
+        description="Description",
+        default=False
+    )
+    info_loc_expanded = BoolProperty(
+        name="Location",
+        description="Location",
+        default=False
+    )
+    conf_uvsculpt_expanded = BoolProperty(
+        name="UV Sculpt",
+        description="UV Sculpt",
+        default=False
+    )
+    conf_uvinsp_expanded = BoolProperty(
+        name="UV Inspection",
+        description="UV Inspection",
+        default=False
+    )
+    conf_texproj_expanded = BoolProperty(
+        name="Texture Projection",
+        description="Texture Projection",
+        default=False
+    )
+    conf_uvbb_expanded = BoolProperty(
+        name="UV Bounding Box",
+        description="UV Bounding Box",
+        default=False
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -266,25 +278,19 @@ class MUV_Preferences(AddonPreferences):
         layout.row().prop(self, "category", expand=True)
 
         if self.category == 'INFO':
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["info_desc"] else 'TRIA_RIGHT')
-            ops.menu = "info_desc"
-            row.label("Description")
-            if props.prefs.expanded["info_desc"]:
+            layout.prop(
+                self, "info_desc_expanded", text="Description",
+                icon='DISCLOSURE_TRI_DOWN' if self.info_desc_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.info_desc_expanded:
                 column = layout.column(align=True)
                 column.label("Magic UV is composed of many UV editing features.")
                 column.label("See tutorial page if you are new to this add-on.")
                 column.label("https://github.com/nutti/Magic-UV/wiki/Tutorial")
 
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["info_loc"] else 'TRIA_RIGHT')
-            ops.menu = "info_loc"
-            row.label("Location")
-            if props.prefs.expanded["info_loc"]:
+            layout.prop(
+                self, "info_loc_expanded", text="Location",
+                icon='DISCLOSURE_TRI_DOWN' if self.info_loc_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.info_loc_expanded:
                 row = layout.row(align=True)
                 sp = row.split(percentage=0.5)
                 sp.label("3D View > Tool shelf > Copy/Paste UV (Object mode)")
@@ -355,13 +361,10 @@ class MUV_Preferences(AddonPreferences):
 
             layout.separator()
 
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["conf_uvsculpt"] else 'TRIA_RIGHT')
-            ops.menu = "conf_uvsculpt"
-            row.label("UV Sculpt")
-            if props.prefs.expanded["conf_uvsculpt"]:
+            layout.prop(
+                self, "conf_uvsculpt_expanded", text="UV Sculpt",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvsculpt_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uvsculpt_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
                 sp = sp.split(percentage=0.3)
@@ -370,13 +373,10 @@ class MUV_Preferences(AddonPreferences):
                 col.prop(self, "uvsculpt_brush_color", text="")
                 layout.separator()
 
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["conf_uvinsp"] else 'TRIA_RIGHT')
-            ops.menu = "conf_uvinsp"
-            row.label("UV Inspection")
-            if props.prefs.expanded["conf_uvinsp"]:
+            layout.prop(
+                self, "conf_uvinsp_expanded", text="UV Inspection",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvinsp_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uvinsp_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
                 sp = sp.split(percentage=0.3)
@@ -389,13 +389,10 @@ class MUV_Preferences(AddonPreferences):
                 col.prop(self, "uvinsp_flipped_color", text="")
                 layout.separator()
 
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["conf_texproj"] else 'TRIA_RIGHT')
-            ops.menu = "conf_texproj"
-            row.label("Texture Projection")
-            if props.prefs.expanded["conf_texproj"]:
+            layout.prop(
+                self, "conf_texproj_expanded", text="Texture Projection",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_texproj_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_texproj_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer
                 sp = sp.split(percentage=0.3)
@@ -403,13 +400,10 @@ class MUV_Preferences(AddonPreferences):
                 col.prop(self, "texproj_canvas_padding")
                 layout.separator()
 
-            row = layout.row(align=True)
-            ops = row.operator(
-                MUV_PrefExpandMenu.bl_idname, text="", emboss=False,
-                icon='TRIA_DOWN' if props.prefs.expanded["conf_uvbb"] else 'TRIA_RIGHT')
-            ops.menu = "conf_uvbb"
-            row.label("UV Bounding Box")
-            if props.prefs.expanded["conf_uvbb"]:
+            layout.prop(
+                self, "conf_uvbb_expanded", text="UV Bounding Box",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvbb_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uvbb_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer
                 sp = sp.split(percentage=0.3)
