@@ -88,16 +88,21 @@ class MUV_TexLockMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(texture_lock.MUV_TexLockStart.bl_idname,
-                        icon="IMAGE_COL")
-        ops = layout.operator(texture_lock.MUV_TexLockStop.bl_idname,
-                              icon="IMAGE_COL")
+        layout.label("Normal Mode")
+        layout.operator(texture_lock.MUV_TexLockLock.bl_idname,
+                        icon="IMAGE_COL",
+                        text="Lock" if not texture_lock.MUV_TexLockLock.is_ready(context) else "ReLock")
+        ops = layout.operator(texture_lock.MUV_TexLockUnlock.bl_idname,
+                              icon="IMAGE_COL", text="Unlock")
         ops.connect = sc.muv_texlock_connect
 
-        layout.operator(texture_lock.MUV_TexLockIntrStart.bl_idname,
-                        icon="IMAGE_COL")
-        layout.operator(texture_lock.MUV_TexLockIntrStop.bl_idname,
-                        icon="IMAGE_COL")
+        layout.separator()
+
+        layout.label("Interactive Mode")
+        layout.operator(texture_lock.MUV_TexLockIntrLock.bl_idname,
+                        icon="IMAGE_COL", text="Lock")
+        layout.operator(texture_lock.MUV_TexLockIntrUnlock.bl_idname,
+                        icon="IMAGE_COL", text="Unlock")
 
 
 class MUV_WSUVMenu(bpy.types.Menu):

@@ -135,20 +135,21 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
             col = row.column(align=True)
             col.label("Normal Mode:")
             col = row.column(align=True)
-            col.operator(texture_lock.MUV_TexLockStart.bl_idname, text="Lock")
-            ops = col.operator(texture_lock.MUV_TexLockStop.bl_idname,
+            col.operator(texture_lock.MUV_TexLockLock.bl_idname,
+                         text="Lock" if not texture_lock.MUV_TexLockLock.is_ready(context) else "ReLock")
+            ops = col.operator(texture_lock.MUV_TexLockUnlock.bl_idname,
                                text="Unlock")
             ops.connect = sc.muv_texlock_connect
             col.prop(sc, "muv_texlock_connect", text="Connect")
 
             row = box.row(align=True)
             row.label("Interactive Mode:")
-            if not props.texlock.intr_running:
-                row.operator(texture_lock.MUV_TexLockIntrStart.bl_idname,
-                             icon='PLAY', text="Start")
+            if not texture_lock.MUV_TexLockUpdater.is_running(context):
+                row.operator(texture_lock.MUV_TexLockIntrLock.bl_idname,
+                             icon='PLAY', text="Lock")
             else:
-                row.operator(texture_lock.MUV_TexLockIntrStop.bl_idname,
-                             icon="PAUSE", text="Stop")
+                row.operator(texture_lock.MUV_TexLockIntrUnlock.bl_idname,
+                             icon="PAUSE", text="Unlock")
 
         box = layout.box()
         box.prop(sc, "muv_texwrap_enabled", text="Texture Wrap")

@@ -34,6 +34,15 @@ from bpy.props import BoolProperty
 from .. import common
 
 
+__all__ = [
+    'MUV_TexLockLock',
+    'MUV_TexLockUnlock',
+    'MUV_TexLockIntrLock',
+    'MUV_TexLockIntrUnlock',
+    'MUV_TexLockUpdater',
+]
+
+
 def get_vco(verts_orig, loop):
     """
     Get vertex original coordinate from loop
@@ -169,8 +178,13 @@ def calc_tri_vert(v0, v1, angle0, angle1):
         xd = 0
         yd = 0
     else:
-        xd = (b * b - a * a + d * d) / (2 * d)
-        yd = 2 * sqrt(s * (s - a) * (s - b) * (s - d)) / d
+        r = s * (s - a) * (s - b) * (s - d)
+        if r < 0:
+            xd = 0
+            yd = 0
+        else:
+            xd = (b * b - a * a + d * d) / (2 * d)
+            yd = 2 * sqrt(r) / d
     x1 = xd * cos(alpha) - yd * sin(alpha) + v0.x
     y1 = xd * sin(alpha) + yd * cos(alpha) + v0.y
     x2 = xd * cos(alpha) + yd * sin(alpha) + v0.x
@@ -179,15 +193,48 @@ def calc_tri_vert(v0, v1, angle0, angle1):
     return Vector((x1, y1)), Vector((x2, y2))
 
 
-class MUV_TexLockStart(bpy.types.Operator):
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+class MUV_TexLockLock(bpy.types.Operator):
     """
-    Operation class: Start Texture Lock
+    Operation class: Lock Texture
     """
 
-    bl_idname = "uv.muv_texlock_start"
-    bl_label = "Start"
-    bl_description = "Start Texture Lock"
+    bl_idname = "uv.muv_texlock_lock"
+    bl_label = "Lock Texture"
+    bl_description = "Lock Texture"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def is_ready(cls, context):
+        sc = context.scene
+        props = sc.muv_props.texlock
+        if props.verts_orig:
+            return True
+        return False
 
     def execute(self, context):
         props = context.scene.muv_props.texlock
@@ -210,20 +257,28 @@ class MUV_TexLockStart(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexLockStop(bpy.types.Operator):
+class MUV_TexLockUnlock(bpy.types.Operator):
     """
-    Operation class: Stop Texture Lock
+    Operation class: Unlock Texture
     """
 
-    bl_idname = "uv.muv_texlock_stop"
-    bl_label = "Stop"
-    bl_description = "Stop Texture Lock"
+    bl_idname = "uv.muv_texlock_unlock"
+    bl_label = "Unlock Texture"
+    bl_description = "Unlock Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
     connect = BoolProperty(
         name="Connect UV",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.texlock
+        if not props.verts_orig:
+            return False
+        return MUV_TexLockLock.is_ready(context) and is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
@@ -275,6 +330,8 @@ class MUV_TexLockStop(bpy.types.Operator):
             v_orig["moved"] = True
             bmesh.update_edit_mesh(obj.data)
 
+        props.verts_orig = None
+
         return {'FINISHED'}
 
 
@@ -287,8 +344,34 @@ class MUV_TexLockUpdater(bpy.types.Operator):
     bl_label = "Texture Lock Updater"
     bl_description = "Texture Lock Updater"
 
-    def __init__(self):
-        self.__timer = None
+    __timer = None
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def is_running(cls, _):
+        return MUV_TexLockUpdater.__timer
+
+    @classmethod
+    def handle_add(cls, self_, context):
+        if MUV_TexLockUpdater.__timer is None:
+            MUV_TexLockUpdater.__timer = context.window_manager.event_timer_add(
+                0.10, context.window)
+            context.window_manager.modal_handler_add(self_)
+
+    @classmethod
+    def handle_remove(cls, context):
+        if MUV_TexLockUpdater.__timer is not None:
+            context.window_manager.event_timer_remove(MUV_TexLockUpdater.__timer)
+            MUV_TexLockUpdater.__timer = None
+
+    def __sel_verts_changed(self, context):
+        pass  # TODO
+
+    def __reinit_verts(self, context):
+        pass  # TODO
 
     def __update_uv(self, context):
         """
@@ -342,56 +425,55 @@ class MUV_TexLockUpdater(bpy.types.Operator):
             for v in bm.verts if v.select]
 
     def modal(self, context, event):
-        props = context.scene.muv_props.texlock
+        if not is_valid_context(context):
+            MUV_TexLockUpdater.handle_remove(context)
+            return {'FINISHED'}
+
+        if not MUV_TexLockUpdater.is_running(context):
+            return {'FINISHED'}
+
         if context.area:
             context.area.tag_redraw()
-        if props.intr_running is False:
-            self.__handle_remove(context)
-            return {'FINISHED'}
+
         if event.type == 'TIMER':
             self.__update_uv(context)
 
         return {'PASS_THROUGH'}
 
-    def __handle_add(self, context):
-        if self.__timer is None:
-            self.__timer = context.window_manager.event_timer_add(
-                0.10, context.window)
-            context.window_manager.modal_handler_add(self)
-
-    def __handle_remove(self, context):
-        if self.__timer is not None:
-            context.window_manager.event_timer_remove(self.__timer)
-            self.__timer = None
-
     def execute(self, context):
-        props = context.scene.muv_props.texlock
-        if props.intr_running is False:
-            self.__handle_add(context)
-            props.intr_running = True
+        if not is_valid_context(context):
+            return {'CANCELLED'}
+
+        if not MUV_TexLockUpdater.is_running(context):
+            MUV_TexLockUpdater.handle_add(self, context)
             return {'RUNNING_MODAL'}
         else:
-            props.intr_running = False
+            MUV_TexLockUpdater.handle_remove(context)
+
         if context.area:
             context.area.tag_redraw()
 
         return {'FINISHED'}
 
 
-class MUV_TexLockIntrStart(bpy.types.Operator):
+class MUV_TexLockIntrLock(bpy.types.Operator):
     """
-    Operation class: Start texture locking (Interactive mode)
+    Operation class: Lock Texture (Interactive mode)
     """
 
-    bl_idname = "uv.muv_texlock_intr_start"
-    bl_label = "Texture Lock Start (Interactive mode)"
-    bl_description = "Texture Lock Start (Realtime UV update)"
+    bl_idname = "uv.muv_texlock_intr_lock"
+    bl_label = "Lock Texture (Interactive mode)"
+    bl_description = "Lock Texture (Realtime UV update)"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if MUV_TexLockUpdater.is_running(context):
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.texlock
-        if props.intr_running is True:
-            return {'CANCELLED'}
 
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
@@ -413,22 +495,24 @@ class MUV_TexLockIntrStart(bpy.types.Operator):
         return {'FINISHED'}
 
 
-# Texture lock (Stop, Interactive mode)
-class MUV_TexLockIntrStop(bpy.types.Operator):
+# Texture lock (Unlock, Interactive mode)
+class MUV_TexLockIntrUnlock(bpy.types.Operator):
     """
-    Operation class: Stop texture locking (interactive mode)
+    Operation class: Unlock Texture (Interactive mode)
     """
 
-    bl_idname = "uv.muv_texlock_intr_stop"
-    bl_label = "Texture Lock Stop (Interactive mode)"
-    bl_description = "Texture Lock Stop (Realtime UV update)"
+    bl_idname = "uv.muv_texlock_intr_unlock"
+    bl_label = "Unlock Texture (Interactive mode)"
+    bl_description = "Unlock Texture (Realtime UV update)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        props = context.scene.muv_props.texlock
-        if props.intr_running is False:
-            return {'CANCELLED'}
+    @classmethod
+    def poll(cls, context):
+        if not MUV_TexLockUpdater.is_running(context):
+            return False
+        return is_valid_context(context)
 
+    def execute(self, _):
         bpy.ops.uv.muv_texlock_updater()
 
         return {'FINISHED'}

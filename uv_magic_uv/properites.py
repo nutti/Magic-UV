@@ -113,7 +113,6 @@ class MUV_UVBBProps():
 class MUV_TexLockProps():
     verts_orig = None
     intr_verts_orig = None
-    intr_running = False
 
 
 class MUV_TexWrapProps():
