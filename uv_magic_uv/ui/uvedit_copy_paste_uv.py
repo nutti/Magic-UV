@@ -28,6 +28,11 @@ import bpy
 from ..op import copy_paste_uv_uvedit
 
 
+__all__ = [
+    'IMAGE_PT_MUV_CPUV',
+]
+
+
 class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on UV/ImageEditor

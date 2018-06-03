@@ -31,6 +31,16 @@ from ..op import align_uv_cursor
 from ..op import uv_bounding_box
 
 
+__all__ = [
+    'MUV_UVCPUVMenu',
+    'MUV_AUVMenu',
+    'MUV_SelUVMenu',
+    'MUV_AUVCMenu',
+    'MUV_UVBBMenu',
+    'MUV_UVInspMenu',
+]
+
+
 class MUV_UVCPUVMenu(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate on UV/ImageEditor
@@ -44,9 +54,9 @@ class MUV_UVCPUVMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.operator(copy_paste_uv_uvedit.MUV_CPUVIECopyUV.bl_idname,
-                        icon="IMAGE_COL")
+                        icon="IMAGE_COL", text="Copy")
         layout.operator(copy_paste_uv_uvedit.MUV_CPUVIEPasteUV.bl_idname,
-                        icon="IMAGE_COL")
+                        icon="IMAGE_COL", text="Paste")
 
 
 class MUV_AUVMenu(bpy.types.Menu):
@@ -114,47 +124,47 @@ class MUV_AUVCMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Left Top")
         ops.position = 'LEFT_TOP'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Middle Top")
         ops.position = 'MIDDLE_TOP'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Right Top")
         ops.position = 'RIGHT_TOP'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Left Middle")
         ops.position = 'LEFT_MIDDLE'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Center")
         ops.position = 'CENTER'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Right Middle")
         ops.position = 'RIGHT_MIDDLE'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Left Bottom")
         ops.position = 'LEFT_BOTTOM'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Middle Bottom")
         ops.position = 'MIDDLE_BOTTOM'
         ops.base = sc.muv_auvc_align_menu
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                               icon="IMAGE_COL", text="Right Bottom")
         ops.position = 'RIGHT_BOTTOM'
         ops.base = sc.muv_auvc_align_menu
@@ -169,17 +179,12 @@ class MUV_UVBBMenu(bpy.types.Menu):
     bl_label = "UV Bounding Box"
     bl_description = "UV Bounding Box"
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
-        sc = context.scene
-        props = sc.muv_props
-
-        if props.uvbb.running is False:
-            layout.operator(uv_bounding_box.MUV_UVBBUpdater.bl_idname,
-                            text="Display", icon='PLAY')
-        else:
-            layout.operator(uv_bounding_box.MUV_UVBBUpdater.bl_idname,
-                            text="Hide", icon='PAUSE')
+        layout.operator(uv_bounding_box.MUV_UVBBShow.bl_idname,
+                        text="Show", icon='IMAGE_COL')
+        layout.operator(uv_bounding_box.MUV_UVBBHide.bl_idname,
+                        text="Hide", icon='IMAGE_COL')
 
 
 class MUV_UVInspMenu(bpy.types.Menu):
@@ -193,14 +198,10 @@ class MUV_UVInspMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        sc = context.scene
-        props = sc.muv_props
 
-        if not props.uvinsp.display_running:
-            layout.operator(uv_inspection.MUV_UVInspDisplay.bl_idname,
-                            text="Display", icon='PLAY')
-        else:
-            layout.operator(uv_inspection.MUV_UVInspDisplay.bl_idname,
-                            text="Hide", icon='PAUSE')
-            layout.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
-                            text="Update")
+        layout.operator(uv_inspection.MUV_UVInspShow.bl_idname,
+                            text="Show", icon='IMAGE_COL')
+        layout.operator(uv_inspection.MUV_UVInspHide.bl_idname,
+                        text="Hide", icon='IMAGE_COL')
+        layout.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
+                        text="Update", icon='IMAGE_COL')

@@ -38,6 +38,32 @@ from mathutils import Vector
 from .. import common
 
 
+__all__ = [
+    'MUV_PackUV',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_PackUV(bpy.types.Operator):
     """
     Operation class: Pack UV with same UV islands are integrated
@@ -78,6 +104,10 @@ class MUV_PackUV(bpy.types.Operator):
         default=(0.001, 0.001),
         size=2
     )
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object

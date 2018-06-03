@@ -30,6 +30,32 @@ from bpy.props import BoolProperty, FloatProperty
 from .. import common
 
 
+__all__ = [
+    'MUV_AUVSmooth',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_AUVSmooth(bpy.types.Operator):
 
     bl_idname = "uv.muv_auv_smooth"
@@ -57,7 +83,7 @@ class MUV_AUVSmooth(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        return is_valid_context(context)
 
     def __smooth_wo_transmission(self, loop_seqs, uv_layer):
         # calculate path length

@@ -33,6 +33,33 @@ from mathutils import Vector
 from .. import common
 
 
+__all__ = [
+    'MUV_CPUVIECopyUV',
+    'MUV_CPUVIEPasteUV',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_CPUVIECopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate on UV/Image Editor
@@ -45,16 +72,17 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv
+        props = context.scene.muv_props.cpuv_ie
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
         if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
+        props.src_uvs = []
         for face in bm.faces:
             if not face.select:
                 continue
@@ -82,10 +110,14 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        sc = context.scene
+        props = sc.muv_props.cpuv_ie
+        if not props.src_uvs:
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv
+        props = context.scene.muv_props.cpuv_ie
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()

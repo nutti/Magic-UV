@@ -33,6 +33,33 @@ from bpy.props import EnumProperty
 from .. import common
 
 
+__all__ = [
+    'MUV_WSUVMeasure',
+    'MUV_WSUVApply',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 def measure_wsuv_info(obj):
     mesh_area = common.measure_mesh_area(obj)
     uv_area = common.measure_uv_area(obj)
@@ -54,9 +81,13 @@ class MUV_WSUVMeasure(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_wsuv_measure"
-    bl_label = "Measure"
+    bl_label = "Measure World Scale UV"
     bl_description = "Measure face size for scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
@@ -85,7 +116,7 @@ class MUV_WSUVApply(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_wsuv_apply"
-    bl_label = "Apply"
+    bl_label = "Apply World Scale UV"
     bl_description = "Apply scaled UV based on scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -106,6 +137,10 @@ class MUV_WSUVApply(bpy.types.Operator):
         ],
         default="CENTER"
     )
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def draw(self, _):
         layout = self.layout

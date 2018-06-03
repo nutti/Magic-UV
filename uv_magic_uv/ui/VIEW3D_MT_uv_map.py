@@ -31,6 +31,19 @@ from ..op import world_scale_uv
 from ..op import uvw
 from ..op import texture_projection
 from ..op import texture_wrap
+from ..op import uv_sculpt
+
+
+__all__ = [
+    'MUV_CPUVMenu',
+    'MUV_TransUVMenu',
+    'MUV_TexLockMenu',
+    'MUV_WSUVMenu',
+    'MUV_TexWrapMenu',
+    'MUV_UVWMenu',
+    'MUV_TexProjMenu',
+    'MUV_UVSculptMenu'
+]
 
 
 class MUV_CPUVMenu(bpy.types.Menu):
@@ -45,14 +58,19 @@ class MUV_CPUVMenu(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
+        layout.label("Default")
         layout.menu(copy_paste_uv.MUV_CPUVCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Copy")
         layout.menu(copy_paste_uv.MUV_CPUVPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Paste")
+
+        layout.separator()
+
+        layout.label("Selection Sequence")
         layout.menu(copy_paste_uv.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Copy")
         layout.menu(copy_paste_uv.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Paste")
 
 
 class MUV_TransUVMenu(bpy.types.Menu):
@@ -68,9 +86,10 @@ class MUV_TransUVMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(transfer_uv.MUV_TransUVCopy.bl_idname, icon="IMAGE_COL")
+        layout.operator(transfer_uv.MUV_TransUVCopy.bl_idname,
+                        icon="IMAGE_COL", text="Copy")
         ops = layout.operator(transfer_uv.MUV_TransUVPaste.bl_idname,
-                              icon="IMAGE_COL")
+                              icon="IMAGE_COL", text="Paste")
         ops.invert_normals = sc.muv_transuv_invert_normals
         ops.copy_seams = sc.muv_transuv_copy_seams
 
@@ -119,9 +138,9 @@ class MUV_WSUVMenu(bpy.types.Menu):
         sc = context.scene
 
         layout.operator(world_scale_uv.MUV_WSUVMeasure.bl_idname,
-                        icon="IMAGE_COL")
+                        text="Measure", icon="IMAGE_COL")
         ops = layout.operator(world_scale_uv.MUV_WSUVApply.bl_idname,
-                              icon="IMAGE_COL")
+                              text="Apply", icon="IMAGE_COL")
         ops.origin = sc.muv_wsuv_origin
 
 
@@ -174,16 +193,30 @@ class MUV_TexProjMenu(bpy.types.Menu):
     bl_label = "Texture Projection"
     bl_description = ""
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
-        sc = context.scene
-        props = sc.muv_props
 
-        if not props.texproj.running:
-            layout.operator(texture_projection.MUV_TexProjStart.bl_idname,
-                            text="Start", icon='PLAY')
-        else:
-            layout.operator(texture_projection.MUV_TexProjStop.bl_idname,
-                            text="Stop", icon='PAUSE')
+        layout.operator(texture_projection.MUV_TexProjStart.bl_idname,
+                        text="Start", icon='IMAGE_COL')
+        layout.operator(texture_projection.MUV_TexProjStop.bl_idname,
+                        text="Stop", icon='IMAGE_COL')
         layout.operator(texture_projection.MUV_TexProjProject.bl_idname,
-                        text="Project")
+                        text="Project", icon='IMAGE_COL')
+
+
+class MUV_UVSculptMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Projection
+    """
+
+    bl_idname = "uv.muv_uvsculpt_menu"
+    bl_label = "UV Sculpt"
+    bl_description = ""
+
+    def draw(self, _):
+        layout = self.layout
+
+        layout.operator(uv_sculpt.MUV_UVSculptEnable.bl_idname,
+                        text="Enable", icon='IMAGE_COL')
+        layout.operator(uv_sculpt.MUV_UVSculptDisable.bl_idname,
+                        text="Disable", icon='IMAGE_COL')

@@ -31,6 +31,11 @@ from ..op import smooth_uv
 from ..op import pack_uv
 
 
+__all__ = [
+    'IMAGE_PT_MUV_UVManip',
+]
+
+
 class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on UV/ImageEditor

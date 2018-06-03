@@ -30,6 +30,11 @@ from ..op import unwrap_constraint
 from ..op import uvw
 
 
+__all__ = [
+    'OBJECT_PT_MUV_UVMapping',
+]
+
+
 class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
     """
     Panel class: UV Mapping on Property Panel on View3D
@@ -67,7 +72,7 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
         box.prop(sc, "muv_texproj_enabled", text="Texture Projection")
         if sc.muv_texproj_enabled:
             row = box.row()
-            if not props.texproj.running:
+            if not texture_projection.MUV_TexProjRenderer.is_running(context):
                 row.operator(texture_projection.MUV_TexProjStart.bl_idname,
                              text="Start", icon='PLAY')
             else:
@@ -83,7 +88,7 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
             col.prop(sc, "muv_texproj_apply_tex_aspect",
                      text="Texture Aspect Ratio")
             col.prop(sc, "muv_texproj_assign_uvmap", text="Assign UVMap")
-            if props.texproj.running:
+            if texture_projection.MUV_TexProjRenderer.is_running(context):
                 box.operator(texture_projection.MUV_TexProjProject.bl_idname,
                              text="Project")
 

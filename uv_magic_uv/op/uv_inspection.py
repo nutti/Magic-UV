@@ -31,6 +31,37 @@ from mathutils import Vector
 from .. import common
 
 
+__all__ = [
+    'MUV_UVInsp',
+    'MUV_UVInspShow',
+    'MUV_UVInspHide',
+    'MUV_UVInspUpdate',
+    'MUV_UVInspSelectFlipped',
+    'MUV_UVInspSelectOverlapped',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
 def is_polygon_same(points1, points2):
     if len(points1) != len(points2):
         return False
@@ -197,8 +228,8 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     if not intersections:
         return False, None
 
-    def get_intersection_pair(intersections, key):
-        for sect in intersections:
+    def get_intersection_pair(intersects, key):
+        for sect in intersects:
             if sect[0] == key:
                 return sect[1]
 
@@ -247,7 +278,7 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
             return True, polygons
         return False, None
 
-    def traverse(current_list, entering, exiting, poly, current, other_list):
+    def traverse(current_list, entering, exiting, p, current, other_list):
         result = current_list.find(current)
         if not result:
             return None
@@ -263,12 +294,12 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         current = current_list.get()
 
         while exiting.count(current) == 0:
-            poly.append(current.copy())
+            p.append(current.copy())
             current_list.find_and_next(current)
             current = current_list.get()
 
         # exit
-        poly.append(current.copy())
+        p.append(current.copy())
         exiting.remove(current)
 
         other_list.find_and_set(current)
@@ -318,7 +349,7 @@ def do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     return True, polygons
 
 
-class MUV_UVInspRenderer(bpy.types.Operator):
+class MUV_UVInsp(bpy.types.Operator):
     """
     Operation class: Render UV Inspection
     No operation (only rendering)
@@ -330,24 +361,31 @@ class MUV_UVInspRenderer(bpy.types.Operator):
 
     __handle = None
 
-    @staticmethod
-    def handle_add(obj, context):
-        sie = bpy.types.SpaceImageEditor
-        MUV_UVInspRenderer.__handle = sie.draw_handler_add(
-            MUV_UVInspRenderer.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
+    @classmethod
+    def is_running(cls, _):
+        return cls.__handle
 
-    @staticmethod
-    def handle_remove():
-        if MUV_UVInspRenderer.__handle is not None:
+    @classmethod
+    def handle_add(cls, obj, context):
+        sie = bpy.types.SpaceImageEditor
+        cls.__handle = sie.draw_handler_add(
+            MUV_UVInsp.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
+
+    @classmethod
+    def handle_remove(cls):
+        if cls.__handle is not None:
             bpy.types.SpaceImageEditor.draw_handler_remove(
-                MUV_UVInspRenderer.__handle, 'WINDOW')
-            MUV_UVInspRenderer.__handle = None
+                cls.__handle, 'WINDOW')
+            cls.__handle = None
 
     @staticmethod
     def draw(_, context):
         sc = context.scene
         props = sc.muv_props.uvinsp
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+
+        if not MUV_UVInsp.is_running(context):
+            return
 
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
@@ -510,9 +548,15 @@ class MUV_UVInspUpdate(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_uvinsp_update"
-    bl_label = "Update"
-    bl_description = "Update Overlapped/Flipped UV"
+    bl_label = "Update UV Inspection"
+    bl_description = "Update UV Inspection"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if not MUV_UVInsp.is_running(context):
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         update_uvinsp_info(context)
@@ -523,26 +567,52 @@ class MUV_UVInspUpdate(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_UVInspDisplay(bpy.types.Operator):
+class MUV_UVInspShow(bpy.types.Operator):
     """
-    Operation class: Display
+    Operation class: Show
     """
 
-    bl_idname = "uv.muv_uvinsp_display"
-    bl_label = "Display"
-    bl_description = "Display Overlapped/Flipped UV"
+    bl_idname = "uv.muv_uvinsp_show"
+    bl_label = "Show UV Inspection"
+    bl_description = "Show UV Inspection"
     bl_options = {'REGISTER', 'UNDO'}
 
+    @classmethod
+    def poll(cls, context):
+        if MUV_UVInsp.is_running(context):
+            return False
+        return is_valid_context(context)
+
     def execute(self, context):
-        sc = context.scene
-        props = sc.muv_props.uvinsp
-        if not props.display_running:
+        if not MUV_UVInsp.is_running(context):
             update_uvinsp_info(context)
-            MUV_UVInspRenderer.handle_add(self, context)
-            props.display_running = True
-        else:
-            MUV_UVInspRenderer.handle_remove()
-            props.display_running = False
+            MUV_UVInsp.handle_add(self, context)
+
+        if context.area:
+            context.area.tag_redraw()
+
+        return {'FINISHED'}
+
+
+class MUV_UVInspHide(bpy.types.Operator):
+    """
+    Operation class: Hide
+    """
+
+    bl_idname = "uv.muv_uvinsp_hide"
+    bl_label = "Hide UV Inspection"
+    bl_description = "Hide UV Inspection"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if not MUV_UVInsp.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    def execute(self, context):
+        if MUV_UVInsp.is_running(context):
+            MUV_UVInsp.handle_remove()
 
         if context.area:
             context.area.tag_redraw()
@@ -559,6 +629,10 @@ class MUV_UVInspSelectOverlapped(bpy.types.Operator):
     bl_label = "Overlapped"
     bl_description = "Select faces which have overlapped UVs"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object
@@ -596,6 +670,10 @@ class MUV_UVInspSelectFlipped(bpy.types.Operator):
     bl_label = "Flipped"
     bl_description = "Select faces which have flipped UVs"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object

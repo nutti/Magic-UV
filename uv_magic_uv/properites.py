@@ -36,6 +36,14 @@ from mathutils import Vector
 from . import common
 
 
+__all__ = [
+    'get_loaded_texture_name',
+    'MUV_Properties',
+    'init_props',
+    'clear_props',
+]
+
+
 def get_loaded_texture_name(_, __):
     items = [(key, key, "") for key in bpy.data.images.keys()]
     items.append(("None", "None", ""))
@@ -44,32 +52,18 @@ def get_loaded_texture_name(_, __):
 
 # Properties used in this add-on.
 class MUV_Properties():
-    prefs = None
-    cpuv = None
-    cpuv_obj = None
-    cpuv_selseq = None
-    transuv = None
-    uvbb = None
-    texlock = None
-    texproj = None
-    texwrap = None
-    mvuv = None
-    uvinsp = None
-    uvsculpt = None
 
     def __init__(self):
         self.prefs = MUV_Prefs()
         self.cpuv = MUV_CPUVProps()
         self.cpuv_obj = MUV_CPUVProps()
+        self.cpuv_ie = MUV_CPUVProps()
         self.cpuv_selseq = MUV_CPUVSelSeqProps()
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()
         self.texlock = MUV_TexLockProps()
-        self.texproj = MUV_TexProjProps()
         self.texwrap = MUV_TexWrapProps()
-        self.mvuv = MUV_MVUVProps()
         self.uvinsp = MUV_UVInspProps()
-        self.uvsculpt = MUV_UVSculptProps()
 
 
 class MUV_Prefs():
@@ -84,30 +78,25 @@ class MUV_Prefs():
 
 
 class MUV_CPUVProps():
-    src_uvs = []
-    src_pin_uvs = []
-    src_seams = []
+    src_uvs = None
+    src_pin_uvs = None
+    src_seams = None
 
 
 class MUV_CPUVSelSeqProps():
-    src_uvs = []
-    src_pin_uvs = []
-    src_seams = []
+    src_uvs = None
+    src_pin_uvs = None
+    src_seams = None
 
 
 class MUV_TransUVProps():
-    topology_copied = []
-
-
-class MUV_TexProjProps():
-    running = False
+    topology_copied = None
 
 
 class MUV_UVBBProps():
     uv_info_ini = []
     ctrl_points_ini = []
     ctrl_points = []
-    running = False
 
 
 class MUV_TexLockProps():
@@ -120,18 +109,9 @@ class MUV_TexWrapProps():
     ref_obj = None
 
 
-class MUV_MVUVProps():
-    running = False
-
-
 class MUV_UVInspProps():
-    display_running = False
     overlapped_info = []
     flipped_info = []
-
-
-class MUV_UVSculptProps():
-    running = False
 
 
 def init_props(scene):

@@ -28,14 +28,42 @@ import bmesh
 from mathutils import Vector
 
 
+__all__ = [
+    'MUV_MVUV',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_MVUV(bpy.types.Operator):
     """
-    Operator class: Move UV from View3D
+    Operator class: Move UV
     """
 
     bl_idname = "view3d.muv_mvuv"
-    bl_label = "Move the UV from View3D"
+    bl_label = "Move UV"
     bl_options = {'REGISTER', 'UNDO'}
+
+    __running = False
 
     def __init__(self):
         self.__topology_dict = []
@@ -44,7 +72,17 @@ class MUV_MVUV(bpy.types.Operator):
         self.__prev_offset_uv = Vector((0.0, 0.0))
         self.__first_time = True
         self.__ini_uvs = []
-        self.__running = False
+        self.__operating = False
+
+    @classmethod
+    def poll(cls, context):
+        if cls.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    @classmethod
+    def is_running(cls, _):
+        return cls.__running
 
     def __find_uv(self, context):
         bm = bmesh.from_edit_mesh(context.object.data)
@@ -59,12 +97,7 @@ class MUV_MVUV(bpy.types.Operator):
 
         return topology_dict, uvs
 
-    @classmethod
-    def poll(cls, context):
-        return context.edit_object
-
     def modal(self, context, event):
-        props = context.scene.muv_props.mvuv
         if self.__first_time is True:
             self.__prev_mouse = Vector((
                 event.mouse_region_x, event.mouse_region_y))
@@ -85,9 +118,9 @@ class MUV_MVUV(bpy.types.Operator):
             event.mouse_region_x, event.mouse_region_y))
 
         # check if operation is started
-        if self.__running:
+        if not self.__operating:
             if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
-                self.__running = False
+                self.__operating = True
             return {'RUNNING_MODAL'}
 
         # update UV
@@ -111,20 +144,24 @@ class MUV_MVUV(bpy.types.Operator):
         if event.type == cancel_btn and event.value == 'PRESS':
             for (fidx, vidx), uv in zip(self.__topology_dict, self.__ini_uvs):
                 bm.faces[fidx].loops[vidx][active_uv].uv = uv
-            props.running = False
+            MUV_MVUV.__running = False
             return {'FINISHED'}
         # confirmed
         if event.type == confirm_btn and event.value == 'PRESS':
-            props.running = False
+            MUV_MVUV.__running = False
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
-        props = context.scene.muv_props.mvuv
-        props.running = True
-        self.__running = True
+        MUV_MVUV.__running = True
+        self.__operating = False
         self.__first_time = True
+
         context.window_manager.modal_handler_add(self)
         self.__topology_dict, self.__ini_uvs = self.__find_uv(context)
+
+        if context.area:
+            context.area.tag_redraw()
+
         return {'RUNNING_MODAL'}

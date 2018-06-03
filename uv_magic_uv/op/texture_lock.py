@@ -37,9 +37,9 @@ from .. import common
 __all__ = [
     'MUV_TexLockLock',
     'MUV_TexLockUnlock',
+    'MUV_TexLockIntr',
     'MUV_TexLockIntrLock',
     'MUV_TexLockIntrUnlock',
-    'MUV_TexLockUpdater',
 ]
 
 
@@ -335,14 +335,14 @@ class MUV_TexLockUnlock(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexLockUpdater(bpy.types.Operator):
+class MUV_TexLockIntr(bpy.types.Operator):
     """
-    Operation class: Texture locking updater
+    Operation class: Texture Lock (Interactive mode)
     """
 
-    bl_idname = "uv.muv_texlock_updater"
-    bl_label = "Texture Lock Updater"
-    bl_description = "Texture Lock Updater"
+    bl_idname = "uv.muv_texlock_intr"
+    bl_label = "Texture Lock (Interactive mode)"
+    bl_description = "Internal operation for Texture Lock (Interactive mode)"
 
     __timer = None
 
@@ -352,20 +352,20 @@ class MUV_TexLockUpdater(bpy.types.Operator):
 
     @classmethod
     def is_running(cls, _):
-        return MUV_TexLockUpdater.__timer
+        return cls.__timer
 
     @classmethod
     def handle_add(cls, self_, context):
-        if MUV_TexLockUpdater.__timer is None:
-            MUV_TexLockUpdater.__timer = context.window_manager.event_timer_add(
+        if cls.__timer is None:
+            cls.__timer = context.window_manager.event_timer_add(
                 0.10, context.window)
             context.window_manager.modal_handler_add(self_)
 
     @classmethod
     def handle_remove(cls, context):
-        if MUV_TexLockUpdater.__timer is not None:
-            context.window_manager.event_timer_remove(MUV_TexLockUpdater.__timer)
-            MUV_TexLockUpdater.__timer = None
+        if cls.__timer is not None:
+            context.window_manager.event_timer_remove(cls.__timer)
+            cls.__timer = None
 
     def __sel_verts_changed(self, context):
         pass  # TODO
@@ -426,10 +426,10 @@ class MUV_TexLockUpdater(bpy.types.Operator):
 
     def modal(self, context, event):
         if not is_valid_context(context):
-            MUV_TexLockUpdater.handle_remove(context)
+            MUV_TexLockIntr.handle_remove(context)
             return {'FINISHED'}
 
-        if not MUV_TexLockUpdater.is_running(context):
+        if not MUV_TexLockIntr.is_running(context):
             return {'FINISHED'}
 
         if context.area:
@@ -444,11 +444,11 @@ class MUV_TexLockUpdater(bpy.types.Operator):
         if not is_valid_context(context):
             return {'CANCELLED'}
 
-        if not MUV_TexLockUpdater.is_running(context):
-            MUV_TexLockUpdater.handle_add(self, context)
+        if not MUV_TexLockIntr.is_running(context):
+            MUV_TexLockIntr.handle_add(self, context)
             return {'RUNNING_MODAL'}
         else:
-            MUV_TexLockUpdater.handle_remove(context)
+            MUV_TexLockIntr.handle_remove(context)
 
         if context.area:
             context.area.tag_redraw()
@@ -468,7 +468,7 @@ class MUV_TexLockIntrLock(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        if MUV_TexLockUpdater.is_running(context):
+        if MUV_TexLockIntr.is_running(context):
             return False
         return is_valid_context(context)
 
@@ -490,7 +490,7 @@ class MUV_TexLockIntrLock(bpy.types.Operator):
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
             for v in bm.verts if v.select]
 
-        bpy.ops.uv.muv_texlock_updater()
+        bpy.ops.uv.muv_texlock_intr()
 
         return {'FINISHED'}
 
@@ -508,11 +508,11 @@ class MUV_TexLockIntrUnlock(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        if not MUV_TexLockUpdater.is_running(context):
+        if not MUV_TexLockIntr.is_running(context):
             return False
         return is_valid_context(context)
 
     def execute(self, _):
-        bpy.ops.uv.muv_texlock_updater()
+        bpy.ops.uv.muv_texlock_intr()
 
         return {'FINISHED'}

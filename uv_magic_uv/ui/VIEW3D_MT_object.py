@@ -27,6 +27,11 @@ import bpy
 from ..op import copy_paste_uv_object
 
 
+__all__ = [
+    'MUV_CPUVObjMenu',
+]
+
+
 class MUV_CPUVObjMenu(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate among object
@@ -40,6 +45,6 @@ class MUV_CPUVObjMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.menu(copy_paste_uv_object.MUV_CPUVObjCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Copy")
         layout.menu(copy_paste_uv_object.MUV_CPUVObjPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL")
+                    icon="IMAGE_COL", text="Paste")

@@ -34,6 +34,32 @@ from mathutils import Vector
 from .. import common
 
 
+__all__ = [
+    'MUV_MirrorUV',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_MirrorUV(bpy.types.Operator):
     """
     Operation class: Mirror UV
@@ -104,8 +130,7 @@ class MUV_MirrorUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        obj = context.active_object
-        return obj and obj.type == 'MESH'
+        return is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object

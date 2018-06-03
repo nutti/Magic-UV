@@ -29,6 +29,33 @@ import bmesh
 from .. import common
 
 
+__all__ = [
+    'MUV_TexWrapRefer',
+    'MUV_TexWrapSet',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_TexWrapRefer(bpy.types.Operator):
     """
     Operation class: Refer UV
@@ -38,6 +65,10 @@ class MUV_TexWrapRefer(bpy.types.Operator):
     bl_label = "Refer"
     bl_description = "Refer UV"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.texwrap
@@ -70,6 +101,14 @@ class MUV_TexWrapSet(bpy.types.Operator):
     bl_label = "Set"
     bl_description = "Set UV"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.texwrap
+        if not props.ref_obj:
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene

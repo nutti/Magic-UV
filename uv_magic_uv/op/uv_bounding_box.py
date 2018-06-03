@@ -34,7 +34,35 @@ import bmesh
 from .. import common
 
 
+__all__ = [
+    'MUV_UVBB',
+    'MUV_UVBBShow',
+    'MUV_UVBBHide',
+]
+
+
 MAX_VALUE = 100000.0
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
 
 
 class MUV_UVBBCmd():
@@ -288,66 +316,6 @@ class MUV_UVBBCmdExecuter():
         self.__cmd_list.append(cmd)
 
 
-class MUV_UVBBRenderer(bpy.types.Operator):
-    """
-    Operation class: Render UV bounding box
-    """
-
-    bl_idname = "uv.muv_uvbb_renderer"
-    bl_label = "UV Bounding Box Renderer"
-    bl_description = "Bounding Box Renderer about UV in Image Editor"
-
-    __handle = None
-
-    @staticmethod
-    def handle_add(obj, context):
-        if MUV_UVBBRenderer.__handle is None:
-            sie = bpy.types.SpaceImageEditor
-            MUV_UVBBRenderer.__handle = sie.draw_handler_add(
-                MUV_UVBBRenderer.draw_bb,
-                (obj, context), "WINDOW", "POST_PIXEL")
-
-    @staticmethod
-    def handle_remove():
-        if MUV_UVBBRenderer.__handle is not None:
-            sie = bpy.types.SpaceImageEditor
-            sie.draw_handler_remove(
-                MUV_UVBBRenderer.__handle, "WINDOW")
-            MUV_UVBBRenderer.__handle = None
-
-    @staticmethod
-    def __draw_ctrl_point(context, pos):
-        """
-        Draw control point
-        """
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        cp_size = prefs.uvbb_cp_size
-        offset = cp_size / 2
-        verts = [
-            [pos.x - offset, pos.y - offset],
-            [pos.x - offset, pos.y + offset],
-            [pos.x + offset, pos.y + offset],
-            [pos.x + offset, pos.y - offset]
-        ]
-        bgl.glEnable(bgl.GL_BLEND)
-        bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
-        for (x, y) in verts:
-            bgl.glVertex2f(x, y)
-        bgl.glEnd()
-
-    @staticmethod
-    def draw_bb(_, context):
-        """
-        Draw bounding box
-        """
-        props = context.scene.muv_props.uvbb
-        for cp in props.ctrl_points:
-            MUV_UVBBRenderer.__draw_ctrl_point(
-                context, mathutils.Vector(
-                    context.region.view2d.view_to_region(cp.x, cp.y)))
-
-
 class MUV_UVBBState(IntEnum):
     """
     Enum: State definition used by MUV_UVBBStateMgr
@@ -570,33 +538,91 @@ class MUV_UVBBStateMgr():
         self.__update_state(next_state, ctrl_points)
 
 
-class MUV_UVBBUpdater(bpy.types.Operator):
+class MUV_UVBB(bpy.types.Operator):
     """
-    Operation class: Update state and handle event by modal function
+    Operation class: UV Bounding Box
     """
 
-    bl_idname = "uv.muv_uvbb_updater"
-    bl_label = "UV Bounding Box Updater"
-    bl_description = "Update UV Bounding Box"
+    bl_idname = "uv.muv_uvbb"
+    bl_label = "UV Bounding Box"
+    bl_description = "Internal operation for UV Bounding Box"
     bl_options = {'REGISTER', 'UNDO'}
 
     def __init__(self):
         self.__timer = None
-        self.__cmd_exec = MUV_UVBBCmdExecuter()         # Command executer
+        self.__cmd_exec = MUV_UVBBCmdExecuter()         # Command executor
         self.__state_mgr = MUV_UVBBStateMgr(self.__cmd_exec)    # State Manager
 
-    def __handle_add(self, context):
-        if self.__timer is None:
-            self.__timer = context.window_manager.event_timer_add(
-                0.1, context.window)
-            context.window_manager.modal_handler_add(self)
-        MUV_UVBBRenderer.handle_add(self, context)
+    __handle = None
+    __timer = None
 
-    def __handle_remove(self, context):
-        MUV_UVBBRenderer.handle_remove()
-        if self.__timer is not None:
-            context.window_manager.event_timer_remove(self.__timer)
-            self.__timer = None
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def is_running(cls, _):
+        return cls.__handle
+
+    @classmethod
+    def handle_add(cls, obj, context):
+        if cls.__handle is None:
+            sie = bpy.types.SpaceImageEditor
+            cls.__handle = sie.draw_handler_add(
+                cls.draw_bb, (obj, context), "WINDOW", "POST_PIXEL")
+        if cls.__timer is None:
+            cls.__timer = context.window_manager.event_timer_add(
+                0.1, context.window)
+            context.window_manager.modal_handler_add(obj)
+
+    @classmethod
+    def handle_remove(cls, context):
+        if cls.__handle is not None:
+            sie = bpy.types.SpaceImageEditor
+            sie.draw_handler_remove(cls.__handle, "WINDOW")
+            cls.__handle = None
+        if cls.__timer is not None:
+            context.window_manager.event_timer_remove(cls.__timer)
+            cls.__timer = None
+
+    @classmethod
+    def __draw_ctrl_point(cls, context, pos):
+        """
+        Draw control point
+        """
+        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        cp_size = prefs.uvbb_cp_size
+        offset = cp_size / 2
+        verts = [
+            [pos.x - offset, pos.y - offset],
+            [pos.x - offset, pos.y + offset],
+            [pos.x + offset, pos.y + offset],
+            [pos.x + offset, pos.y - offset]
+        ]
+        bgl.glEnable(bgl.GL_BLEND)
+        bgl.glBegin(bgl.GL_QUADS)
+        bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
+        for (x, y) in verts:
+            bgl.glVertex2f(x, y)
+        bgl.glEnd()
+
+    @classmethod
+    def draw_bb(cls, _, context):
+        """
+        Draw bounding box
+        """
+        props = context.scene.muv_props.uvbb
+
+        if not MUV_UVBB.is_running(context):
+            return
+
+        if not is_valid_context(context):
+            return
+
+        for cp in props.ctrl_points:
+            cls.__draw_ctrl_point(
+                context, mathutils.Vector(
+                    context.region.view2d.view_to_region(cp.x, cp.y)))
 
     def __get_uv_info(self, context):
         """
@@ -690,14 +716,17 @@ class MUV_UVBBUpdater(bpy.types.Operator):
     def modal(self, context, event):
         props = context.scene.muv_props.uvbb
         common.redraw_all_areas()
-        if props.running is False:
-            self.__handle_remove(context)
+
+        if not MUV_UVBB.is_running(context):
+            return {'FINISHED'}
+
+        if not is_valid_context(context):
+            MUV_UVBB.handle_remove(context)
             return {'FINISHED'}
 
         area, _, _ = common.get_space('IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
         if area is None:
-            self.__handle_remove(context)
-            props.running = False
+            MUV_UVBB.handle_remove(context)
             return {'CANCELLED'}
 
         if event.mouse_region_x < 0 or event.mouse_region_x > area.width or \
@@ -717,8 +746,8 @@ class MUV_UVBBUpdater(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.uvbb
 
-        if props.running is True:
-            props.running = False
+        if MUV_UVBB.is_running(context):
+            MUV_UVBB.handle_remove(context)
             return {'FINISHED'}
 
         props.uv_info_ini = self.__get_uv_info(context)
@@ -730,7 +759,50 @@ class MUV_UVBBUpdater(bpy.types.Operator):
         self.__update_uvs(context, props.uv_info_ini, trans_mat)
         props.ctrl_points = self.__update_ctrl_point(
             props.ctrl_points_ini, trans_mat)
-        self.__handle_add(context)
-        props.running = True
+        MUV_UVBB.handle_add(self, context)
 
         return {'RUNNING_MODAL'}
+
+
+class MUV_UVBBShow(bpy.types.Operator):
+    """
+    Operation class: Show UV Bounding Box
+    """
+
+    bl_idname = "uv.muv_uvbb_show"
+    bl_label = "Show UV Bounding Box"
+    bl_description = "Show UV Bounding Box"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if MUV_UVBB.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    def execute(self, _):
+        bpy.ops.uv.muv_uvbb()
+
+        return {'FINISHED'}
+
+
+class MUV_UVBBHide(bpy.types.Operator):
+    """
+    Operation class: Hide UV Bounding Box
+    """
+
+    bl_idname = "uv.muv_uvbb_hide"
+    bl_label = "Hide UV Bounding Box"
+    bl_description = "Hide UV Bounding Box"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if not MUV_UVBB.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    def execute(self, _):
+        bpy.ops.uv.muv_uvbb()
+
+        return {'FINISHED'}

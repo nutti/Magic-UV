@@ -39,17 +39,54 @@ from mathutils import Vector
 from .. import common
 
 
+__all__ = [
+    'MUV_CPUVCopyUV',
+    'MUV_CPUVCopyUVMenu',
+    'MUV_CPUVPasteUV',
+    'MUV_CPUVPasteUVMenu',
+    'MUV_CPUVSelSeqCopyUV',
+    'MUV_CPUVSelSeqCopyUVMenu',
+    'MUV_CPUVSelSeqPasteUV',
+    'MUV_CPUVSelSeqPasteUVMenu',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_CPUVCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate
     """
 
     bl_idname = "uv.muv_cpuv_copy_uv"
-    bl_label = "Copy UV (Operation)"
-    bl_description = "Copy UV coordinate (Operation)"
+    bl_label = "Copy UV"
+    bl_description = "Copy UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
@@ -99,8 +136,12 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
     """
 
     bl_idname = "uv.muv_cpuv_copy_uv_menu"
-    bl_label = "Copy UV"
-    bl_description = "Copy UV coordinate"
+    bl_label = "Copy UV (Menu)"
+    bl_description = "Menu of Copy UV coordinate"
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def draw(self, context):
         layout = self.layout
@@ -127,8 +168,8 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_cpuv_paste_uv"
-    bl_label = "Paste UV (Operation)"
-    bl_description = "Paste UV coordinate (Operation)"
+    bl_label = "Paste UV"
+    bl_description = "Paste UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
@@ -157,6 +198,14 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         description="Copy Seams",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
@@ -265,8 +314,16 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
     """
 
     bl_idname = "uv.muv_cpuv_paste_uv_menu"
-    bl_label = "Paste UV"
-    bl_description = "Paste UV coordinate"
+    bl_label = "Paste UV (Menu)"
+    bl_description = "Menu of Paste UV coordinate"
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     def draw(self, context):
         sc = context.scene
@@ -275,126 +332,17 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_maps = bm.loops.layers.uv.keys()
-        ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_CPUVPasteUV.bl_idname,
+                              text="[Default]", icon='IMAGE_COL')
         ops.uv_map = ""
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text=m)
+            ops = layout.operator(MUV_CPUVPasteUV.bl_idname,
+                                  text=m, icon='IMAGE_COL')
             ops.uv_map = m
             ops.copy_seams = sc.muv_cpuv_copy_seams
             ops.strategy = sc.muv_cpuv_strategy
-
-
-class MUV_CPUVIECopyUV(bpy.types.Operator):
-    """
-    Operation class: Copy UV coordinate on UV/Image Editor
-    """
-
-    bl_idname = "uv.muv_cpuv_ie_copy_uv"
-    bl_label = "Copy UV"
-    bl_description = "Copy UV coordinate (only selected in UV/Image Editor)"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
-
-    def execute(self, context):
-        props = context.scene.muv_props.cpuv
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        uv_layer = bm.loops.layers.uv.verify()
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-
-        for face in bm.faces:
-            if not face.select:
-                continue
-            skip = False
-            for l in face.loops:
-                if not l[uv_layer].select:
-                    skip = True
-                    break
-            if skip:
-                continue
-            props.src_uvs.append([l[uv_layer].uv.copy() for l in face.loops])
-
-        return {'FINISHED'}
-
-
-class MUV_CPUVIEPasteUV(bpy.types.Operator):
-    """
-    Operation class: Paste UV coordinate on UV/Image Editor
-    """
-
-    bl_idname = "uv.muv_cpuv_ie_paste_uv"
-    bl_label = "Paste UV"
-    bl_description = "Paste UV coordinate (only selected in UV/Image Editor)"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
-
-    def execute(self, context):
-        props = context.scene.muv_props.cpuv
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        uv_layer = bm.loops.layers.uv.verify()
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-
-        dest_uvs = []
-        dest_face_indices = []
-        for face in bm.faces:
-            if not face.select:
-                continue
-            skip = False
-            for l in face.loops:
-                if not l[uv_layer].select:
-                    skip = True
-                    break
-            if skip:
-                continue
-            dest_face_indices.append(face.index)
-            uvs = [l[uv_layer].uv.copy() for l in face.loops]
-            dest_uvs.append(uvs)
-
-        for suvs, duvs in zip(props.src_uvs, dest_uvs):
-            src_diff = suvs[1] - suvs[0]
-            dest_diff = duvs[1] - duvs[0]
-
-            src_base = suvs[0]
-            dest_base = duvs[0]
-
-            src_rad = atan2(src_diff.y, src_diff.x)
-            dest_rad = atan2(dest_diff.y, dest_diff.x)
-            if src_rad < dest_rad:
-                radian = dest_rad - src_rad
-            elif src_rad > dest_rad:
-                radian = math.pi * 2 - (src_rad - dest_rad)
-            else:       # src_rad == dest_rad
-                radian = 0.0
-
-            ratio = dest_diff.length / src_diff.length
-            break
-
-        for suvs, fidx in zip(props.src_uvs, dest_face_indices):
-            for l, suv in zip(bm.faces[fidx].loops, suvs):
-                base = suv - src_base
-                radian_ref = atan2(base.y, base.x)
-                radian_fin = (radian + radian_ref)
-                length = base.length
-                turn = Vector((length * cos(radian_fin),
-                               length * sin(radian_fin)))
-                target_uv = Vector((turn.x * ratio, turn.y * ratio)) + \
-                    dest_base
-                l[uv_layer].uv = target_uv
-
-        bmesh.update_edit_mesh(obj.data)
-
-        return {'FINISHED'}
 
 
 class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
@@ -403,11 +351,15 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_cpuv_selseq_copy_uv"
-    bl_label = "Copy UV (Selection Sequence) (Operation)"
-    bl_description = "Copy UV data by selection sequence (Operation)"
+    bl_label = "Copy UV (Selection Sequence)"
+    bl_description = "Copy UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
@@ -459,8 +411,12 @@ class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
     """
 
     bl_idname = "uv.muv_cpuv_selseq_copy_uv_menu"
-    bl_label = "Copy UV (Selection Sequence)"
-    bl_description = "Copy UV coordinate by selection sequence"
+    bl_label = "Copy UV (Selection Sequence) (Menu)"
+    bl_description = "Menu of Copy UV coordinate by selection sequence"
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def draw(self, context):
         layout = self.layout
@@ -482,8 +438,8 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_cpuv_selseq_paste_uv"
-    bl_label = "Paste UV (Selection Sequence) (Operation)"
-    bl_description = "Paste UV coordinate by selection sequence (Operation)"
+    bl_label = "Paste UV (Selection Sequence)"
+    bl_description = "Paste UV coordinate by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
@@ -512,6 +468,14 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         description="Copy Seams",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv_selseq
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
@@ -624,8 +588,16 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
     """
 
     bl_idname = "uv.muv_cpuv_selseq_paste_uv_menu"
-    bl_label = "Paste UV (Selection Sequence)"
-    bl_description = "Paste UV coordinate by selection sequence"
+    bl_label = "Paste UV (Selection Sequence) (Menu)"
+    bl_description = "Menu of Paste UV coordinate by selection sequence"
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv_selseq
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     def draw(self, context):
         sc = context.scene
@@ -635,12 +607,13 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
         bm = bmesh.from_edit_mesh(obj.data)
         uv_maps = bm.loops.layers.uv.keys()
         ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname,
-                              text="[Default]")
+                              text="[Default]", icon="IMAGE_COL")
         ops.uv_map = ""
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text=m)
+            ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname,
+                                  text=m, icon="IMAGE_COL")
             ops.uv_map = m
             ops.copy_seams = sc.muv_cpuv_copy_seams
             ops.strategy = sc.muv_cpuv_strategy

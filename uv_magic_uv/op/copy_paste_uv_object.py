@@ -33,6 +33,35 @@ from bpy.props import (
 from .. import common
 
 
+__all__ = [
+    'MUV_CPUVObjCopyUV',
+    'MUV_CPUVObjCopyUVMenu',
+    'MUV_CPUVObjPasteUV',
+    'MUV_CPUVObjPasteUVMenu',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only object mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'OBJECT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 def memorize_view_3d_mode(fn):
     def __memorize_view_3d_mode(self, context):
         mode_orig = bpy.context.object.mode
@@ -44,15 +73,19 @@ def memorize_view_3d_mode(fn):
 
 class MUV_CPUVObjCopyUV(bpy.types.Operator):
     """
-    Operation class: Copy UV coordinate per object
+    Operation class: Copy UV coordinate among objects
     """
 
     bl_idname = "object.muv_cpuv_obj_copy_uv"
-    bl_label = "Copy UV"
-    bl_description = "Copy UV coordinate"
+    bl_label = "Copy UV (Among Objects)"
+    bl_description = "Copy UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -99,31 +132,38 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
 
 class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
     """
-    Menu class: Copy UV coordinate per object
+    Menu class: Copy UV coordinate among objects
     """
 
     bl_idname = "object.muv_cpuv_obj_copy_uv_menu"
-    bl_label = "Copy UV"
-    bl_description = "Copy UV coordinate per object"
+    bl_label = "Copy UV (Among Objects) (Menu)"
+    bl_description = "Menu of Copy UV coordinate (Among Objects)"
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def draw(self, _):
         layout = self.layout
         # create sub menu
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
-        layout.operator(MUV_CPUVObjCopyUV.bl_idname, text="[Default]")\
-            .uv_map = ""
+        ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname,
+                              text="[Default]", icon='IMAGE_COL')
+        ops.uv_map = ""
         for m in uv_maps:
-            layout.operator(MUV_CPUVObjCopyUV.bl_idname, text=m).uv_map = m
+            ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname,
+                                  text=m, icon='IMAGE_COL')
+            ops.uv_map = m
 
 
 class MUV_CPUVObjPasteUV(bpy.types.Operator):
     """
-    Operation class: Paste UV coordinate per object
+    Operation class: Paste UV coordinate among objects
     """
 
     bl_idname = "object.muv_cpuv_obj_paste_uv"
-    bl_label = "Paste UV"
-    bl_description = "Paste UV coordinate"
+    bl_label = "Paste UV (Among Objects)"
+    bl_description = "Paste UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
     uv_map = StringProperty(options={'HIDDEN'})
@@ -132,6 +172,14 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
         description="Copy Seams",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv_obj
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -227,12 +275,20 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
 
 class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
     """
-    Menu class: Paste UV coordinate per object
+    Menu class: Paste UV coordinate among objects
     """
 
     bl_idname = "object.muv_cpuv_obj_paste_uv_menu"
-    bl_label = "Paste UV"
-    bl_description = "Paste UV coordinate per object"
+    bl_label = "Paste UV (Among Objects) (Menu)"
+    bl_description = "Menu of Paste UV coordinate (Among Objects)"
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.cpuv_obj
+        if not props.src_uvs or not props.src_pin_uvs:
+            return False
+        return is_valid_context(context)
 
     def draw(self, context):
         sc = context.scene
@@ -243,10 +299,12 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
             if hasattr(obj.data, "uv_textures") and obj.select:
                 uv_maps.extend(obj.data.uv_textures.keys())
         uv_maps = list(set(uv_maps))
-        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname,
+                              text="[Default]", icon='IMAGE_COL')
         ops.uv_map = ""
         ops.copy_seams = sc.muv_cpuv_copy_seams
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text=m)
+            ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname,
+                                  text=m, icon='IMAGE_COL')
             ops.uv_map = m
             ops.copy_seams = sc.muv_cpuv_copy_seams

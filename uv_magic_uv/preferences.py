@@ -37,11 +37,19 @@ from . import ui
 from . import op
 
 
+__all__ = [
+    'add_builtin_menu',
+    'remove_builtin_menu',
+    'MUV_Preferences'
+]
+
+
 def view3d_uvmap_menu_fn(self, context):
     layout = self.layout
     sc = context.scene
 
     layout.separator()
+    layout.label("Copy/Paste UV")
     # Copy/Paste UV
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_CPUVMenu.bl_idname,
                 icon="IMAGE_COL", text="Copy/Paste UV")
@@ -50,6 +58,7 @@ def view3d_uvmap_menu_fn(self, context):
                 icon="IMAGE_COL", text="Transfer UV")
 
     layout.separator()
+    layout.label("UV Manipulation")
     # Flip/Rotate UV
     ops = layout.operator(op.flip_rotate_uv.MUV_FlipRot.bl_idname,
                           icon="IMAGE_COL", text="Flip/Rotate UV")
@@ -76,13 +85,14 @@ def view3d_uvmap_menu_fn(self, context):
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexWrapMenu.bl_idname,
                 icon="IMAGE_COL", text="Texture Wrap")
     # UV Sculpt
-    layout.operator(op.uv_sculpt.MUV_UVSculptOps.bl_idname,
-                    icon='IMAGE_COL', text="UV Sculpt")
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_UVSculptMenu.bl_idname,
+                text="UV Sculpt", icon='IMAGE_COL')
 
     layout.separator()
+    layout.label("UV Mapping")
     # Unwrap Constraint
     ops = layout.operator(op.unwrap_constraint.MUV_UnwrapConstraint.bl_idname,
-                          icon="IMAGE_COL", text="Unwrap")
+                          icon="IMAGE_COL", text="Unwrap Constraint")
     ops.u_const = sc.muv_unwrapconst_u_const
     ops.v_const = sc.muv_unwrapconst_v_const
     # Texture Projection
@@ -100,6 +110,7 @@ def view3d_object_menu_fn(self, _):
     # Copy/Paste UV (Among Objecct)
     layout.menu(ui.VIEW3D_MT_object.MUV_CPUVObjMenu.bl_idname,
                 icon="IMAGE_COL", text="Copy/Paste UV")
+    layout.label("Copy/Paste UV")
 
 
 def image_uvs_menu_fn(self, context):
@@ -110,6 +121,7 @@ def image_uvs_menu_fn(self, context):
     # Copy/Paste UV (on UV/Image Editor)
     layout.menu(ui.IMAGE_MT_uvs.MUV_UVCPUVMenu.bl_idname,
                 icon="IMAGE_COL", text="Copy/Paste UV")
+    layout.label("Copy/Paste UV")
 
     layout.separator()
     # Align UV
@@ -129,6 +141,7 @@ def image_uvs_menu_fn(self, context):
                           icon="IMAGE_COL", text="Pack UV")
     ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
     ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
+    layout.label("UV Manipulation")
 
     layout.separator()
     # Align UV Cursor
@@ -140,6 +153,7 @@ def image_uvs_menu_fn(self, context):
     # UV Inspection
     layout.menu(ui.IMAGE_MT_uvs.MUV_UVInspMenu.bl_idname,
                 icon="IMAGE_COL", text="UV Inspection")
+    layout.label("Editor Enhancement")
 
 
 def add_builtin_menu():

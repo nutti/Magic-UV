@@ -33,6 +33,32 @@ from bpy.props import (
 from .. import common
 
 
+__all__ = [
+    'MUV_FlipRot',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_FlipRot(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate
@@ -59,6 +85,10 @@ class MUV_FlipRot(bpy.types.Operator):
         description="Seams",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         self.report({'INFO'}, "Flip/Rotate UV")

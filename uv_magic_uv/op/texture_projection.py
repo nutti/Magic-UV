@@ -34,6 +34,14 @@ from bpy_extras import view3d_utils
 from .. import common
 
 
+__all__ = [
+    'MUV_TexProjRenderer',
+    'MUV_TexProjStart',
+    'MUV_TexProjStop',
+    'MUV_TexProjProject',
+]
+
+
 Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 Rect2 = namedtuple('Rect2', 'x y width height')
 
@@ -104,6 +112,27 @@ def region_to_canvas(rg_vec, canvas):
     return cv_vec
 
 
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_TexProjRenderer(bpy.types.Operator):
     """
     Operation class: Render selected texture
@@ -116,22 +145,28 @@ class MUV_TexProjRenderer(bpy.types.Operator):
 
     __handle = None
 
-    @staticmethod
-    def handle_add(obj, context):
-        MUV_TexProjRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
+    @classmethod
+    def is_running(cls, _):
+        return cls.__handle
+
+    @classmethod
+    def handle_add(cls, obj, context):
+        cls.__handle = bpy.types.SpaceView3D.draw_handler_add(
             MUV_TexProjRenderer.draw_texture,
             (obj, context), 'WINDOW', 'POST_PIXEL')
 
-    @staticmethod
-    def handle_remove():
-        if MUV_TexProjRenderer.__handle is not None:
-            bpy.types.SpaceView3D.draw_handler_remove(
-                MUV_TexProjRenderer.__handle, 'WINDOW')
-            MUV_TexProjRenderer.__handle = None
+    @classmethod
+    def handle_remove(cls):
+        if cls.__handle is not None:
+            bpy.types.SpaceView3D.draw_handler_remove(cls.__handle, 'WINDOW')
+            cls.__handle = None
 
-    @staticmethod
-    def draw_texture(_, context):
+    @classmethod
+    def draw_texture(cls, _, context):
         sc = context.scene
+
+        if not cls.is_running(context):
+            return
 
         # no textures are selected
         if sc.muv_texproj_tex_image == "None":
@@ -187,11 +222,15 @@ class MUV_TexProjStart(bpy.types.Operator):
     bl_description = "Start Texture Projection"
     bl_options = {'REGISTER', 'UNDO'}
 
+    @classmethod
+    def poll(cls, context):
+        if MUV_TexProjRenderer.is_running(context):
+            return False
+        return is_valid_context(context)
+
     def execute(self, context):
-        props = context.scene.muv_props.texproj
-        if props.running is False:
+        if not MUV_TexProjRenderer.is_running(context):
             MUV_TexProjRenderer.handle_add(self, context)
-            props.running = True
         if context.area:
             context.area.tag_redraw()
 
@@ -208,11 +247,15 @@ class MUV_TexProjStop(bpy.types.Operator):
     bl_description = "Stop Texture Projection"
     bl_options = {'REGISTER', 'UNDO'}
 
+    @classmethod
+    def poll(cls, context):
+        if not MUV_TexProjRenderer.is_running(context):
+            return False
+        return is_valid_context(context)
+
     def execute(self, context):
-        props = context.scene.muv_props.texproj
-        if props.running is True:
+        if MUV_TexProjRenderer.is_running(context):
             MUV_TexProjRenderer.handle_remove()
-            props.running = False
         if context.area:
             context.area.tag_redraw()
 
@@ -231,8 +274,9 @@ class MUV_TexProjProject(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        obj = context.active_object
-        return obj is not None and obj.type == "MESH"
+        if not MUV_TexProjRenderer.is_running(context):
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene

@@ -32,6 +32,33 @@ from bpy.props import BoolProperty
 from .. import common
 
 
+__all__ = [
+    'MUV_TransUVCopy',
+    'MUV_TransUVPaste',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
 class MUV_TransUVCopy(bpy.types.Operator):
     """
         Operation class: Transfer UV copy
@@ -42,6 +69,10 @@ class MUV_TransUVCopy(bpy.types.Operator):
     bl_label = "Transfer UV Copy"
     bl_description = "Transfer UV Copy (Topological based copy)"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.transuv
@@ -56,7 +87,7 @@ class MUV_TransUVCopy(bpy.types.Operator):
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 
-        props.topology_copied.clear()
+        props.topology_copied = []
 
         # get selected faces
         active_face = bm.faces.active
@@ -109,6 +140,14 @@ class MUV_TransUVPaste(bpy.types.Operator):
         description="Copy Seams",
         default=True
     )
+
+    @classmethod
+    def poll(cls, context):
+        sc = context.scene
+        props = sc.muv_props.transuv
+        if not props.topology_copied:
+            return False
+        return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.transuv

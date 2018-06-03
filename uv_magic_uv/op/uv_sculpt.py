@@ -36,35 +36,78 @@ from mathutils.geometry import barycentric_transform
 from .. import common
 
 
-class MUV_UVSculptRenderer(bpy.types.Operator):
+__all__ = [
+    'MUV_UVSculpt',
+    'MUV_UVSculptEnable',
+    'MUV_UVSculptDisable',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+class MUV_UVSculpt(bpy.types.Operator):
     """
-    Operation class: Render Brush
+    Operation class: UV Sculpt in View3D
     """
 
-    bl_idname = "uv.muv_uvsculpt_renderer"
-    bl_label = "Brush Renderer"
-    bl_description = "Brush Renderer in View3D"
+    bl_idname = "uv.muv_uvsculpt"
+    bl_label = "UV Sculpt"
+    bl_description = "UV Sculpt in View3D"
+    bl_options = {'REGISTER'}
 
     __handle = None
+    __timer = None
 
-    @staticmethod
-    def handle_add(obj, context):
-        if MUV_UVSculptRenderer.__handle is None:
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def is_running(cls, _):
+        return cls.__handle
+
+    @classmethod
+    def handle_add(cls, obj, context):
+        if not cls.__handle:
             sv = bpy.types.SpaceView3D
-            MUV_UVSculptRenderer.__handle = sv.draw_handler_add(
-                MUV_UVSculptRenderer.draw_brush,
-                (obj, context), "WINDOW", "POST_PIXEL")
+            cls.__handle = sv.draw_handler_add(cls.draw_brush, (obj, context),
+                                               "WINDOW", "POST_PIXEL")
+        if not cls.__timer:
+            cls.__timer = context.window_manager.event_timer_add(
+                0.1, context.window)
+            context.window_manager.modal_handler_add(obj)
 
-    @staticmethod
-    def handle_remove():
-        if MUV_UVSculptRenderer.__handle is not None:
+    @classmethod
+    def handle_remove(cls, context):
+        if cls.__handle:
             sv = bpy.types.SpaceView3D
-            sv.draw_handler_remove(
-                MUV_UVSculptRenderer.__handle, "WINDOW")
-            MUV_UVSculptRenderer.__handle = None
+            sv.draw_handler_remove(cls.__handle, "WINDOW")
+            cls.__handle = None
+        if cls.__timer:
+            context.window_manager.event_timer_remove(cls.__timer)
+            cls.__timer = None
 
-    @staticmethod
-    def draw_brush(obj, context):
+    @classmethod
+    def draw_brush(cls, obj, context):
         sc = context.scene
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
 
@@ -88,19 +131,7 @@ class MUV_UVSculptRenderer(bpy.types.Operator):
             y = y * fact_r
         bgl.glEnd()
 
-
-class MUV_UVSculptOps(bpy.types.Operator):
-    """
-    Operation class: UV Sculpt in View3D
-    """
-
-    bl_idname = "uv.muv_uvsculpt_ops"
-    bl_label = "UV Sculpt"
-    bl_description = "UV Sculpt in View3D"
-    bl_options = {'REGISTER'}
-
     def __init__(self):
-        self.__timer = None
         self.__loop_info = []
         self.__stroking = False
         self.current_mco = Vector((0.0, 0.0))
@@ -303,16 +334,13 @@ class MUV_UVSculptOps(bpy.types.Operator):
         bmesh.update_edit_mesh(obj.data)
 
     def modal(self, context, event):
-        props = context.scene.muv_props.uvsculpt
-
         if context.area:
             context.area.tag_redraw()
 
-        if not props.running:
-            if self.__timer is not None:
-                MUV_UVSculptRenderer.handle_remove()
-                context.window_manager.event_timer_remove(self.__timer)
-                self.__timer = None
+
+        if not MUV_UVSculpt.is_running(context):
+            MUV_UVSculpt.handle_remove()
+
             return {'FINISHED'}
 
         self.current_mco = Vector((event.mouse_region_x, event.mouse_region_y))
@@ -340,21 +368,64 @@ class MUV_UVSculptOps(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-    def invoke(self, context, _):
-        props = context.scene.muv_props.uvsculpt
-
+    def execute(self, context):
         if context.area:
             context.area.tag_redraw()
 
-        if props.running:
-            props.running = False
-            return {'FINISHED'}
+        if MUV_UVSculpt.is_running(context):
+            MUV_UVSculpt.handle_remove(context)
+        else:
+            MUV_UVSculpt.handle_add(context)
 
-        props.running = True
-        if self.__timer is None:
-            self.__timer = context.window_manager.event_timer_add(
-                0.1, context.window)
-            context.window_manager.modal_handler_add(self)
-            MUV_UVSculptRenderer.handle_add(self, context)
 
         return {'RUNNING_MODAL'}
+
+
+class MUV_UVSculptEnable(bpy.types.Operator):
+    """
+    Operation class: Enable
+    """
+
+    bl_idname = "uv.muv_uvsculpt_enable"
+    bl_label = "Enable UV Sculpt"
+    bl_description = "Enable UV Sculpt"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if MUV_UVSculpt.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    def execute(self, context):
+        if MUV_UVSculpt.is_running(context):
+            return {'CANCELLED'}
+
+        bpy.ops.uv.muv_uvsculpt()
+
+        return {'FINISHED'}
+
+
+class MUV_UVSculptDisable(bpy.types.Operator):
+    """
+    Operation class: Disable
+    """
+
+    bl_idname = "uv.muv_uvsculpt_disable"
+    bl_label = "Disable UV Sculpt"
+    bl_description = "Disable UV Sculpt"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if not MUV_UVSculpt.is_running(context):
+            return False
+        return is_valid_context(context)
+
+    def execute(self, context):
+        if not MUV_UVSculpt.is_running(context):
+            return {'CANCELLED'}
+
+        bpy.ops.uv.muv_uvsculpt()
+
+        return {'FINISHED'}

@@ -31,10 +31,21 @@ import bmesh
 from .. import common
 
 
-class MUV_AUVCAlignOps(bpy.types.Operator):
+def is_valid_context(context):
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
+class MUV_AUVCAlign(bpy.types.Operator):
 
     bl_idname = "uv.muv_auvc_align"
-    bl_label = "Align"
+    bl_label = "Align UV Cursor"
     bl_description = "Align cursor to the center of UV island"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -64,6 +75,10 @@ class MUV_AUVCAlignOps(bpy.types.Operator):
         description="Align base",
         default='TEXTURE'
     )
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     def execute(self, context):
         area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',

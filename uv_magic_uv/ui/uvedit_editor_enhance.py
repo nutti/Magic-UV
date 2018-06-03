@@ -30,6 +30,11 @@ from ..op import uv_bounding_box
 from ..op import uv_inspection
 
 
+__all__ = [
+    'IMAGE_PT_MUV_EE',
+]
+
+
 class IMAGE_PT_MUV_EE(bpy.types.Panel):
     """
     Panel class: UV/Image Editor Enhancement
@@ -59,43 +64,43 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
             col = box.column(align=True)
 
             row = col.row(align=True)
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Left Top")
             ops.position = 'LEFT_TOP'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Middle Top")
             ops.position = 'MIDDLE_TOP'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Right Top")
             ops.position = 'RIGHT_TOP'
             ops.base = sc.muv_auvc_align_menu
 
             row = col.row(align=True)
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Left Middle")
             ops.position = 'LEFT_MIDDLE'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Center")
             ops.position = 'CENTER'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Right Middle")
             ops.position = 'RIGHT_MIDDLE'
             ops.base = sc.muv_auvc_align_menu
 
             row = col.row(align=True)
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Left Bottom")
             ops.position = 'LEFT_BOTTOM'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Middle Bottom")
             ops.position = 'MIDDLE_BOTTOM'
             ops.base = sc.muv_auvc_align_menu
-            ops = row.operator(align_uv_cursor.MUV_AUVCAlignOps.bl_idname,
+            ops = row.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
                                text="Right Bottom")
             ops.position = 'RIGHT_BOTTOM'
             ops.base = sc.muv_auvc_align_menu
@@ -108,11 +113,11 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         box = layout.box()
         box.prop(sc, "muv_uvbb_enabled", text="UV Bounding Box")
         if sc.muv_uvbb_enabled:
-            if props.uvbb.running is False:
-                box.operator(uv_bounding_box.MUV_UVBBUpdater.bl_idname,
-                             text="Display", icon='PLAY')
+            if not uv_bounding_box.MUV_UVBB.is_running(context):
+                box.operator(uv_bounding_box.MUV_UVBBShow.bl_idname,
+                             text="Show", icon='PLAY')
             else:
-                box.operator(uv_bounding_box.MUV_UVBBUpdater.bl_idname,
+                box.operator(uv_bounding_box.MUV_UVBBHide.bl_idname,
                              text="Hide", icon='PAUSE')
             box.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
             box.prop(sc, "muv_uvbb_boundary", text="Boundary")
@@ -121,14 +126,14 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         box.prop(sc, "muv_uvinsp_enabled", text="UV Inspection")
         if sc.muv_uvinsp_enabled:
             row = box.row()
-            if not props.uvinsp.display_running:
-                row.operator(uv_inspection.MUV_UVInspDisplay.bl_idname,
-                             text="Display", icon='PLAY')
+            if not uv_inspection.MUV_UVInsp.is_running(context):
+                row.operator(uv_inspection.MUV_UVInspShow.bl_idname,
+                             text="Show", icon='PLAY')
             else:
-                row.operator(uv_inspection.MUV_UVInspDisplay.bl_idname,
-                             text="Hide", icon='PAUSE')
-                row.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
-                             text="Update")
+                row.operator(uv_inspection.MUV_UVInspHide.bl_idname,
+                            text="Hide", icon='PAUSE')
+            row.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
+                         text="Update")
             row = box.row()
             row.prop(sc, "muv_uvinsp_show_overlapped")
             row.prop(sc, "muv_uvinsp_show_flipped")

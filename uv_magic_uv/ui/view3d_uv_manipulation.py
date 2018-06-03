@@ -35,6 +35,11 @@ from ..op import uv_sculpt
 from ..op import world_scale_uv
 
 
+__all__ = [
+    'OBJECT_PT_MUV_UVManip',
+]
+
+
 class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on View3D
@@ -77,11 +82,12 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
         box.prop(sc, "muv_mvuv_enabled", text="Move UV")
         if sc.muv_mvuv_enabled:
             col = box.column()
-            col.operator(move_uv.MUV_MVUV.bl_idname, icon='PLAY', text="Start")
-            if props.mvuv.running:
-                col.enabled = False
+            if not move_uv.MUV_MVUV.is_running(context):
+                col.operator(move_uv.MUV_MVUV.bl_idname, icon='PLAY',
+                             text="Start")
             else:
-                col.enabled = True
+                col.operator(move_uv.MUV_MVUV.bl_idname, icon='PAUSE',
+                             text="Stop")
 
         box = layout.box()
         box.prop(sc, "muv_wsuv_enabled", text="World Scale UV")
@@ -144,7 +150,7 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
 
             row = box.row(align=True)
             row.label("Interactive Mode:")
-            if not texture_lock.MUV_TexLockUpdater.is_running(context):
+            if not texture_lock.MUV_TexLockIntr.is_running(context):
                 row.operator(texture_lock.MUV_TexLockIntrLock.bl_idname,
                              icon='PLAY', text="Lock")
             else:
@@ -163,12 +169,12 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
         box = layout.box()
         box.prop(sc, "muv_uvsculpt_enabled", text="UV Sculpt")
         if sc.muv_uvsculpt_enabled:
-            if not props.uvsculpt.running:
-                box.operator(uv_sculpt.MUV_UVSculptOps.bl_idname,
-                             icon='PLAY', text="Start")
+            if not uv_sculpt.MUV_UVSculpt.is_running(context):
+                box.operator(uv_sculpt.MUV_UVSculptEnable.bl_idname,
+                             icon='PLAY', text="Enable")
             else:
-                box.operator(uv_sculpt.MUV_UVSculptOps.bl_idname,
-                             icon='PAUSE', text="Stop")
+                box.operator(uv_sculpt.MUV_UVSculptDisable.bl_idname,
+                             icon='PAUSE', text="Disable")
             col = box.column()
             col.label("Brush:")
             col.prop(sc, "muv_uvsculpt_radius")

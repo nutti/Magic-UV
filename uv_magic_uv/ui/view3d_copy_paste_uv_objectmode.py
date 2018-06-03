@@ -28,6 +28,11 @@ import bpy
 from ..op import copy_paste_uv_object
 
 
+__all__ = [
+    'OBJECT_PT_MUV_CPUVObj',
+]
+
+
 class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D

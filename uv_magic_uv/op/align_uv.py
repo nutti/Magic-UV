@@ -34,6 +34,34 @@ from bpy.props import EnumProperty, BoolProperty
 from .. import common
 
 
+__all__ = [
+    'MUV_AUVCircle',
+    'MUV_AUVStraighten',
+    'MUV_AUVAxis',
+]
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'IMAGE_EDITOR' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'IMAGE_EDITOR':
+            break
+    else:
+        return False
+
+    return True
+
+
 # get sum vertex length of loop sequences
 def get_loop_vert_len(loops):
     length = 0
@@ -89,7 +117,7 @@ def calc_v_on_circle(v, center, radius):
 class MUV_AUVCircle(bpy.types.Operator):
 
     bl_idname = "uv.muv_auv_circle"
-    bl_label = "Circle"
+    bl_label = "Align UV (Circle)"
     bl_description = "Align UV coordinates to Circle"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -106,7 +134,7 @@ class MUV_AUVCircle(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        return is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object
@@ -249,7 +277,7 @@ def get_vdiff_uv(uv_layer, loop_seqs, vidx, hidx):
 class MUV_AUVStraighten(bpy.types.Operator):
 
     bl_idname = "uv.muv_auv_straighten"
-    bl_label = "Straighten"
+    bl_label = "Align UV (Straighten)"
     bl_description = "Straighten UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -278,7 +306,7 @@ class MUV_AUVStraighten(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        return is_valid_context(context)
 
     # selected and paralleled UV loop sequence will be aligned
     def __align_w_transmission(self, loop_seqs, uv_layer):
@@ -385,7 +413,7 @@ class MUV_AUVStraighten(bpy.types.Operator):
 class MUV_AUVAxis(bpy.types.Operator):
 
     bl_idname = "uv.muv_auv_axis"
-    bl_label = "XY-Axis"
+    bl_label = "Align UV (XY-Axis)"
     bl_description = "Align UV to XY-axis"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -424,7 +452,7 @@ class MUV_AUVAxis(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'EDIT_MESH'
+        return is_valid_context(context)
 
     # get min/max of UV
     def __get_uv_max_min(self, loop_seqs, uv_layer):
