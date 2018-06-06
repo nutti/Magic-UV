@@ -367,18 +367,41 @@ class MUV_TexLockIntr(bpy.types.Operator):
             context.window_manager.event_timer_remove(cls.__timer)
             cls.__timer = None
 
+    def __init__(self):
+        self.__intr_verts_orig = []
+        self.__intr_verts = []
+
     def __sel_verts_changed(self, context):
-        pass  # TODO
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        if common.check_version(2, 73, 0) >= 0:
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+
+        prev = set(self.__intr_verts)
+        now = set([v.index for v in bm.verts if v.select])
+
+        return prev != now
 
     def __reinit_verts(self, context):
-        pass  # TODO
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+        if common.check_version(2, 73, 0) >= 0:
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+
+        self.__intr_verts_orig = [
+            {"vidx": v.index, "vco": v.co.copy(), "moved": False}
+            for v in bm.verts if v.select]
+        self.__intr_verts = [v.index for v in bm.verts if v.select]
 
     def __update_uv(self, context):
         """
         Update UV when vertex coordinates are changed
         """
-        props = context.scene.muv_props.texlock
-        obj = bpy.context.active_object
+        obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if common.check_version(2, 73, 0) >= 0:
             bm.verts.ensure_lookup_table()
@@ -391,7 +414,7 @@ class MUV_TexLockIntr(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
 
         verts = [v.index for v in bm.verts if v.select]
-        verts_orig = props.intr_verts_orig
+        verts_orig = self.__intr_verts_orig
 
         for vidx, v_orig in zip(verts, verts_orig):
             if vidx != v_orig["vidx"]:
@@ -420,7 +443,7 @@ class MUV_TexLockIntr(bpy.types.Operator):
             bmesh.update_edit_mesh(obj.data)
 
         common.redraw_all_areas()
-        props.intr_verts_orig = [
+        self.__intr_verts_orig = [
             {"vidx": v.index, "vco": v.co.copy(), "moved": False}
             for v in bm.verts if v.select]
 
@@ -437,6 +460,8 @@ class MUV_TexLockIntr(bpy.types.Operator):
 
         if event.type == 'TIMER':
             self.__update_uv(context)
+            if self.__sel_verts_changed(context):
+                self.__reinit_verts(context)
 
         return {'PASS_THROUGH'}
 
@@ -472,24 +497,7 @@ class MUV_TexLockIntrLock(bpy.types.Operator):
             return False
         return is_valid_context(context)
 
-    def execute(self, context):
-        props = context.scene.muv_props.texlock
-
-        obj = bpy.context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.verts.ensure_lookup_table()
-            bm.edges.ensure_lookup_table()
-            bm.faces.ensure_lookup_table()
-
-        if not bm.loops.layers.uv:
-            self.report({'WARNING'}, "Object must have more than one UV map")
-            return {'CANCELLED'}
-
-        props.intr_verts_orig = [
-            {"vidx": v.index, "vco": v.co.copy(), "moved": False}
-            for v in bm.verts if v.select]
-
+    def execute(self, _):
         bpy.ops.uv.muv_texlock_intr()
 
         return {'FINISHED'}
