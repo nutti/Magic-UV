@@ -32,6 +32,7 @@ from ..op import uvw
 from ..op import texture_projection
 from ..op import texture_wrap
 from ..op import uv_sculpt
+from ..op import preserve_uv_aspect
 
 
 __all__ = [
@@ -42,7 +43,8 @@ __all__ = [
     'MUV_TexWrapMenu',
     'MUV_UVWMenu',
     'MUV_TexProjMenu',
-    'MUV_UVSculptMenu'
+    'MUV_UVSculptMenu',
+    'MUV_PreserveUVMenu',
 ]
 
 
@@ -220,3 +222,24 @@ class MUV_UVSculptMenu(bpy.types.Menu):
                         text="Enable", icon='IMAGE_COL')
         layout.operator(uv_sculpt.MUV_UVSculptDisable.bl_idname,
                         text="Disable", icon='IMAGE_COL')
+
+
+class MUV_PreserveUVMenu(bpy.types.Menu):
+    """
+    Menu class: Master menu of Preserve UV Aspect
+    """
+
+    bl_idname = "uv.muv_preserve_uv_aspect_menu"
+    bl_label = "Preserve UV Aspect"
+    bl_description = ""
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        for key in bpy.data.images.keys():
+            ops = layout.operator(
+                preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
+                text=key, icon='IMAGE_COL')
+            ops.dest_img_name = key
+            ops.origin = sc.muv_preserve_uv_origin

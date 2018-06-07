@@ -74,10 +74,8 @@ def view3d_uvmap_menu_fn(self, context):
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_WSUVMenu.bl_idname,
                 icon="IMAGE_COL", text="World Scale UV")
     # Preserve UV
-    ops = layout.operator(op.preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
-                          icon="IMAGE_COL", text="Preserve UV")
-    ops.dest_img_name = sc.muv_preserve_uv_tex_image
-    ops.origin = sc.muv_preserve_uv_origin
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_PreserveUVMenu.bl_idname,
+                icon="IMAGE_COL", text="Preserve UV")
     # Texture Lock
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexLockMenu.bl_idname,
                 icon="IMAGE_COL", text="Texture Lock")
