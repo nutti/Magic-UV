@@ -147,12 +147,10 @@ class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
         layout = self.layout
         # create sub menu
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
-        ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname,
-                              text="[Default]", icon='IMAGE_COL')
+        ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text="[Default]")
         ops.uv_map = ""
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname,
-                                  text=m, icon='IMAGE_COL')
+            ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text=m)
             ops.uv_map = m
 
 
@@ -299,12 +297,10 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
             if hasattr(obj.data, "uv_textures") and obj.select:
                 uv_maps.extend(obj.data.uv_textures.keys())
         uv_maps = list(set(uv_maps))
-        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname,
-                              text="[Default]", icon='IMAGE_COL')
+        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[Default]")
         ops.uv_map = ""
         ops.copy_seams = sc.muv_cpuv_copy_seams
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname,
-                                  text=m, icon='IMAGE_COL')
+            ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text=m)
             ops.uv_map = m
             ops.copy_seams = sc.muv_cpuv_copy_seams

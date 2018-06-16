@@ -38,8 +38,6 @@ __all__ = [
     'MUV_TexLockLock',
     'MUV_TexLockUnlock',
     'MUV_TexLockIntr',
-    'MUV_TexLockIntrLock',
-    'MUV_TexLockIntrUnlock',
 ]
 
 
@@ -351,8 +349,43 @@ class MUV_TexLockIntr(bpy.types.Operator):
         return is_valid_context(context)
 
     @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return MUV_TexLockIntr.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_texlock_intr('INVOKE_REGION_WIN')
+
+        scene.muv_texlock_enabled = BoolProperty(
+            name="Texture Lock Enabled",
+            description="Texture Lock is enabled",
+            default=False
+        )
+        scene.muv_texlock_lock = BoolProperty(
+            name="Texture Lock Locked",
+            description="Texture Lock is locked",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_texlock_connect = BoolProperty(
+            name="Connect UV",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_texlock_enabled
+        del scene.muv_texlock_lock
+        del scene.muv_texlock_connect
+
+    @classmethod
     def is_running(cls, _):
-        return cls.__timer
+        return 1 if cls.__timer else 0
 
     @classmethod
     def handle_add(cls, self_, context):
@@ -465,7 +498,7 @@ class MUV_TexLockIntr(bpy.types.Operator):
 
         return {'PASS_THROUGH'}
 
-    def execute(self, context):
+    def invoke(self, context, _):
         if not is_valid_context(context):
             return {'CANCELLED'}
 
@@ -477,50 +510,5 @@ class MUV_TexLockIntr(bpy.types.Operator):
 
         if context.area:
             context.area.tag_redraw()
-
-        return {'FINISHED'}
-
-
-class MUV_TexLockIntrLock(bpy.types.Operator):
-    """
-    Operation class: Lock Texture (Interactive mode)
-    """
-
-    bl_idname = "uv.muv_texlock_intr_lock"
-    bl_label = "Lock Texture (Interactive mode)"
-    bl_description = "Lock Texture (Realtime UV update)"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if MUV_TexLockIntr.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, _):
-        bpy.ops.uv.muv_texlock_intr()
-
-        return {'FINISHED'}
-
-
-# Texture lock (Unlock, Interactive mode)
-class MUV_TexLockIntrUnlock(bpy.types.Operator):
-    """
-    Operation class: Unlock Texture (Interactive mode)
-    """
-
-    bl_idname = "uv.muv_texlock_intr_unlock"
-    bl_label = "Unlock Texture (Interactive mode)"
-    bl_description = "Unlock Texture (Realtime UV update)"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if not MUV_TexLockIntr.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, _):
-        bpy.ops.uv.muv_texlock_intr()
 
         return {'FINISHED'}

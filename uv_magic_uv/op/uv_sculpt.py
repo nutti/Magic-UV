@@ -32,14 +32,18 @@ from mathutils import Vector
 from bpy_extras import view3d_utils
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
+from bpy.props import (
+    BoolProperty,
+    IntProperty,
+    EnumProperty,
+    FloatProperty,
+)
 
 from .. import common
 
 
 __all__ = [
     'MUV_UVSculpt',
-    'MUV_UVSculptEnable',
-    'MUV_UVSculptDisable',
 ]
 
 
@@ -82,8 +86,87 @@ class MUV_UVSculpt(bpy.types.Operator):
         return is_valid_context(context)
 
     @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return MUV_UVSculpt.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_uvsculpt('INVOKE_REGION_WIN')
+
+        scene.muv_uvsculpt_enabled = BoolProperty(
+            name="UV Sculpt",
+            description="UV Sculpt is enabled",
+            default=False
+        )
+        scene.muv_uvsculpt_enable = BoolProperty(
+            name="UV Sculpt Showed",
+            description="UV Sculpt is enabled",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_uvsculpt_radius = IntProperty(
+            name="Radius",
+            description="Radius of the brush",
+            min=1,
+            max=500,
+            default=30
+        )
+        scene.muv_uvsculpt_strength = FloatProperty(
+            name="Strength",
+            description="How powerful the effect of the brush when applied",
+            min=0.0,
+            max=1.0,
+            default=0.03,
+        )
+        scene.muv_uvsculpt_tools = EnumProperty(
+            name="Tools",
+            description="Select Tools for the UV sculpt brushes",
+            items=[
+                ('GRAB', "Grab", "Grab UVs"),
+                ('RELAX', "Relax", "Relax UVs"),
+                ('PINCH', "Pinch", "Pinch UVs")
+            ],
+            default='GRAB'
+        )
+        scene.muv_uvsculpt_show_brush = BoolProperty(
+            name="Show Brush",
+            description="Show Brush",
+            default=True
+        )
+        scene.muv_uvsculpt_pinch_invert = BoolProperty(
+            name="Invert",
+            description="Pinch UV to invert direction",
+            default=False
+        )
+        scene.muv_uvsculpt_relax_method = EnumProperty(
+            name="Method",
+            description="Algorithm used for relaxation",
+            items=[
+                ('HC', "HC", "Use HC method for relaxation"),
+                ('LAPLACIAN', "Laplacian", "Use laplacian method for relaxation")
+            ],
+            default='HC'
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_uvsculpt_enabled
+        del scene.muv_uvsculpt_enable
+        del scene.muv_uvsculpt_radius
+        del scene.muv_uvsculpt_strength
+        del scene.muv_uvsculpt_tools
+        del scene.muv_uvsculpt_show_brush
+        del scene.muv_uvsculpt_pinch_invert
+        del scene.muv_uvsculpt_relax_method
+
+    @classmethod
     def is_running(cls, _):
-        return cls.__handle
+        return 1 if cls.__handle else 0
 
     @classmethod
     def handle_add(cls, obj, context):
@@ -337,9 +420,8 @@ class MUV_UVSculpt(bpy.types.Operator):
         if context.area:
             context.area.tag_redraw()
 
-
         if not MUV_UVSculpt.is_running(context):
-            MUV_UVSculpt.handle_remove()
+            MUV_UVSculpt.handle_remove(context)
 
             return {'FINISHED'}
 
@@ -368,64 +450,13 @@ class MUV_UVSculpt(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-    def execute(self, context):
+    def invoke(self, context, _):
         if context.area:
             context.area.tag_redraw()
 
         if MUV_UVSculpt.is_running(context):
             MUV_UVSculpt.handle_remove(context)
         else:
-            MUV_UVSculpt.handle_add(context)
-
+            MUV_UVSculpt.handle_add(self, context)
 
         return {'RUNNING_MODAL'}
-
-
-class MUV_UVSculptEnable(bpy.types.Operator):
-    """
-    Operation class: Enable
-    """
-
-    bl_idname = "uv.muv_uvsculpt_enable"
-    bl_label = "Enable UV Sculpt"
-    bl_description = "Enable UV Sculpt"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if MUV_UVSculpt.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if MUV_UVSculpt.is_running(context):
-            return {'CANCELLED'}
-
-        bpy.ops.uv.muv_uvsculpt()
-
-        return {'FINISHED'}
-
-
-class MUV_UVSculptDisable(bpy.types.Operator):
-    """
-    Operation class: Disable
-    """
-
-    bl_idname = "uv.muv_uvsculpt_disable"
-    bl_label = "Disable UV Sculpt"
-    bl_description = "Disable UV Sculpt"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if not MUV_UVSculpt.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if not MUV_UVSculpt.is_running(context):
-            return {'CANCELLED'}
-
-        bpy.ops.uv.muv_uvsculpt()
-
-        return {'FINISHED'}

@@ -31,7 +31,6 @@ from ..op import world_scale_uv
 from ..op import uvw
 from ..op import texture_projection
 from ..op import texture_wrap
-from ..op import uv_sculpt
 from ..op import preserve_uv_aspect
 
 
@@ -43,7 +42,6 @@ __all__ = [
     'MUV_TexWrapMenu',
     'MUV_UVWMenu',
     'MUV_TexProjMenu',
-    'MUV_UVSculptMenu',
     'MUV_PreserveUVMenu',
 ]
 
@@ -61,18 +59,16 @@ class MUV_CPUVMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.label("Default")
-        layout.menu(copy_paste_uv.MUV_CPUVCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Copy")
-        layout.menu(copy_paste_uv.MUV_CPUVPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Paste")
+        layout.menu(copy_paste_uv.MUV_CPUVCopyUVMenu.bl_idname, text="Copy")
+        layout.menu(copy_paste_uv.MUV_CPUVPasteUVMenu.bl_idname, text="Paste")
 
         layout.separator()
 
         layout.label("Selection Sequence")
         layout.menu(copy_paste_uv.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Copy")
+                    text="Copy")
         layout.menu(copy_paste_uv.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Paste")
+                    text="Paste")
 
 
 class MUV_TransUVMenu(bpy.types.Menu):
@@ -88,10 +84,9 @@ class MUV_TransUVMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(transfer_uv.MUV_TransUVCopy.bl_idname,
-                        icon="IMAGE_COL", text="Copy")
+        layout.operator(transfer_uv.MUV_TransUVCopy.bl_idname, text="Copy")
         ops = layout.operator(transfer_uv.MUV_TransUVPaste.bl_idname,
-                              icon="IMAGE_COL", text="Paste")
+                              text="Paste")
         ops.invert_normals = sc.muv_transuv_invert_normals
         ops.copy_seams = sc.muv_transuv_copy_seams
 
@@ -111,19 +106,15 @@ class MUV_TexLockMenu(bpy.types.Menu):
 
         layout.label("Normal Mode")
         layout.operator(texture_lock.MUV_TexLockLock.bl_idname,
-                        icon="IMAGE_COL",
                         text="Lock" if not texture_lock.MUV_TexLockLock.is_ready(context) else "ReLock")
         ops = layout.operator(texture_lock.MUV_TexLockUnlock.bl_idname,
-                              icon="IMAGE_COL", text="Unlock")
+                              text="Unlock")
         ops.connect = sc.muv_texlock_connect
 
         layout.separator()
 
         layout.label("Interactive Mode")
-        layout.operator(texture_lock.MUV_TexLockIntrLock.bl_idname,
-                        icon="IMAGE_COL", text="Lock")
-        layout.operator(texture_lock.MUV_TexLockIntrUnlock.bl_idname,
-                        icon="IMAGE_COL", text="Unlock")
+        layout.prop(sc, "muv_texlock_lock", text="Lock")
 
 
 class MUV_WSUVMenu(bpy.types.Menu):
@@ -140,9 +131,9 @@ class MUV_WSUVMenu(bpy.types.Menu):
         sc = context.scene
 
         layout.operator(world_scale_uv.MUV_WSUVMeasure.bl_idname,
-                        text="Measure", icon="IMAGE_COL")
+                        text="Measure")
         ops = layout.operator(world_scale_uv.MUV_WSUVApply.bl_idname,
-                              text="Apply", icon="IMAGE_COL")
+                              text="Apply")
         ops.origin = sc.muv_wsuv_origin
 
 
@@ -158,10 +149,8 @@ class MUV_TexWrapMenu(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(texture_wrap.MUV_TexWrapRefer.bl_idname,
-                        icon="IMAGE_COL", text="Refer")
-        layout.operator(texture_wrap.MUV_TexWrapSet.bl_idname,
-                        icon="IMAGE_COL", text="Set")
+        layout.operator(texture_wrap.MUV_TexWrapRefer.bl_idname, text="Refer")
+        layout.operator(texture_wrap.MUV_TexWrapSet.bl_idname, text="Set")
 
 
 class MUV_UVWMenu(bpy.types.Menu):
@@ -177,12 +166,11 @@ class MUV_UVWMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(uvw.MUV_UVWBoxMap.bl_idname,
-                              text="Box", icon="IMAGE_COL")
+        ops = layout.operator(uvw.MUV_UVWBoxMap.bl_idname, text="Box")
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
 
         ops = layout.operator(uvw.MUV_UVWBestPlanerMap.bl_idname,
-                              text="Best Planner", icon="IMAGE_COL")
+                              text="Best Planner")
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
 
 
@@ -195,33 +183,13 @@ class MUV_TexProjMenu(bpy.types.Menu):
     bl_label = "Texture Projection"
     bl_description = ""
 
-    def draw(self, _):
+    def draw(self, context):
         layout = self.layout
+        sc = context.scene
 
-        layout.operator(texture_projection.MUV_TexProjStart.bl_idname,
-                        text="Start", icon='IMAGE_COL')
-        layout.operator(texture_projection.MUV_TexProjStop.bl_idname,
-                        text="Stop", icon='IMAGE_COL')
+        layout.prop(sc, "muv_texproj_enable", text="Texture Projection")
         layout.operator(texture_projection.MUV_TexProjProject.bl_idname,
-                        text="Project", icon='IMAGE_COL')
-
-
-class MUV_UVSculptMenu(bpy.types.Menu):
-    """
-    Menu class: Master menu of Texture Projection
-    """
-
-    bl_idname = "uv.muv_uvsculpt_menu"
-    bl_label = "UV Sculpt"
-    bl_description = ""
-
-    def draw(self, _):
-        layout = self.layout
-
-        layout.operator(uv_sculpt.MUV_UVSculptEnable.bl_idname,
-                        text="Enable", icon='IMAGE_COL')
-        layout.operator(uv_sculpt.MUV_UVSculptDisable.bl_idname,
-                        text="Disable", icon='IMAGE_COL')
+                        text="Project")
 
 
 class MUV_PreserveUVMenu(bpy.types.Menu):
@@ -239,7 +207,6 @@ class MUV_PreserveUVMenu(bpy.types.Menu):
 
         for key in bpy.data.images.keys():
             ops = layout.operator(
-                preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname,
-                text=key, icon='IMAGE_COL')
+                preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname, text=key)
             ops.dest_img_name = key
             ops.origin = sc.muv_preserve_uv_origin

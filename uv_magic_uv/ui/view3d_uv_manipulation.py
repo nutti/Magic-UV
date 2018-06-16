@@ -58,7 +58,6 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
 
     def draw(self, context):
         sc = context.scene
-        props = sc.muv_props
         layout = self.layout
 
         box = layout.box()
@@ -150,12 +149,9 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
 
             row = box.row(align=True)
             row.label("Interactive Mode:")
-            if not texture_lock.MUV_TexLockIntr.is_running(context):
-                row.operator(texture_lock.MUV_TexLockIntrLock.bl_idname,
-                             icon='PLAY', text="Lock")
-            else:
-                row.operator(texture_lock.MUV_TexLockIntrUnlock.bl_idname,
-                             icon="PAUSE", text="Unlock")
+            box.prop(sc, "muv_texlock_lock",
+                     text="Unlock" if texture_lock.MUV_TexLockIntr.is_running(context) else "Lock",
+                     icon='RESTRICT_VIEW_OFF' if texture_lock.MUV_TexLockIntr.is_running(context) else 'RESTRICT_VIEW_ON')
 
         box = layout.box()
         box.prop(sc, "muv_texwrap_enabled", text="Texture Wrap")
@@ -169,12 +165,9 @@ class OBJECT_PT_MUV_UVManip(bpy.types.Panel):
         box = layout.box()
         box.prop(sc, "muv_uvsculpt_enabled", text="UV Sculpt")
         if sc.muv_uvsculpt_enabled:
-            if not uv_sculpt.MUV_UVSculpt.is_running(context):
-                box.operator(uv_sculpt.MUV_UVSculptEnable.bl_idname,
-                             icon='PLAY', text="Enable")
-            else:
-                box.operator(uv_sculpt.MUV_UVSculptDisable.bl_idname,
-                             icon='PAUSE', text="Disable")
+            box.prop(sc, "muv_uvsculpt_enable",
+                     text="Disable" if uv_sculpt.MUV_UVSculpt.is_running(context) else "Enable",
+                     icon='RESTRICT_VIEW_OFF' if uv_sculpt.MUV_UVSculpt.is_running(context) else 'RESTRICT_VIEW_ON')
             col = box.column()
             col.label("Brush:")
             col.prop(sc, "muv_uvsculpt_radius")

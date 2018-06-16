@@ -72,12 +72,9 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
         box.prop(sc, "muv_texproj_enabled", text="Texture Projection")
         if sc.muv_texproj_enabled:
             row = box.row()
-            if not texture_projection.MUV_TexProjRenderer.is_running(context):
-                row.operator(texture_projection.MUV_TexProjStart.bl_idname,
-                             text="Start", icon='PLAY')
-            else:
-                row.operator(texture_projection.MUV_TexProjStop.bl_idname,
-                             text="Stop", icon='PAUSE')
+            row.prop(sc, "muv_texproj_enable",
+                     text="Disable" if texture_projection.MUV_TexProj.is_running(context) else "Enable",
+                     icon='RESTRICT_VIEW_OFF' if texture_projection.MUV_TexProj.is_running(context) else 'RESTRICT_VIEW_ON')
             row.prop(sc, "muv_texproj_tex_image", text="")
             box.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
             col = box.column(align=True)
@@ -88,9 +85,8 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
             col.prop(sc, "muv_texproj_apply_tex_aspect",
                      text="Texture Aspect Ratio")
             col.prop(sc, "muv_texproj_assign_uvmap", text="Assign UVMap")
-            if texture_projection.MUV_TexProjRenderer.is_running(context):
-                box.operator(texture_projection.MUV_TexProjProject.bl_idname,
-                             text="Project")
+            box.operator(texture_projection.MUV_TexProjProject.bl_idname,
+                         text="Project")
 
         box = layout.box()
         box.prop(sc, "muv_uvw_enabled", text="UVW")

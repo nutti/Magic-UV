@@ -29,11 +29,18 @@ from bpy.props import (
     EnumProperty,
     BoolProperty,
     FloatVectorProperty,
-    IntProperty
 )
 from mathutils import Vector
 
 from . import common
+
+from .op import (
+    uv_bounding_box,
+    uv_inspection,
+    uv_sculpt,
+    texture_lock,
+    texture_projection,
+)
 
 
 __all__ = [
@@ -116,56 +123,6 @@ class MUV_UVInspProps():
 def init_props(scene):
     scene.muv_props = MUV_Properties()
 
-    # UV Sculpt
-    scene.muv_uvsculpt_enabled = BoolProperty(
-        name="UV Sculpt",
-        description="UV Sculpt is enabled",
-        default=False
-    )
-    scene.muv_uvsculpt_radius = IntProperty(
-        name="Radius",
-        description="Radius of the brush",
-        min=1,
-        max=500,
-        default=30
-    )
-    scene.muv_uvsculpt_strength = FloatProperty(
-        name="Strength",
-        description="How powerful the effect of the brush when applied",
-        min=0.0,
-        max=1.0,
-        default=0.03,
-    )
-    scene.muv_uvsculpt_tools = EnumProperty(
-        name="Tools",
-        description="Select Tools for the UV sculpt brushes",
-        items=[
-            ('GRAB', "Grab", "Grab UVs"),
-            ('RELAX', "Relax", "Relax UVs"),
-            ('PINCH', "Pinch", "Pinch UVs")
-        ],
-        default='GRAB'
-    )
-    scene.muv_uvsculpt_show_brush = BoolProperty(
-        name="Show Brush",
-        description="Show Brush",
-        default=True
-    )
-    scene.muv_uvsculpt_pinch_invert = BoolProperty(
-        name="Invert",
-        description="Pinch UV to invert direction",
-        default=False
-    )
-    scene.muv_uvsculpt_relax_method = EnumProperty(
-        name="Method",
-        description="Algorithm used for relaxation",
-        items=[
-            ('HC', "HC", "Use HC method for relaxation"),
-            ('LAPLACIAN', "Laplacian", "Use laplacian method for relaxation")
-        ],
-        default='HC'
-    )
-
     # Texture Wrap
     scene.muv_texwrap_enabled = BoolProperty(
         name="Texture Wrap",
@@ -183,35 +140,11 @@ def init_props(scene):
         default=False
     )
 
-    # UV inspection
+    # Select UV
     scene.muv_seluv_enabled = BoolProperty(
         name="Select UV Enabled",
         description="Select UV is enabled",
         default=False
-    )
-    scene.muv_uvinsp_enabled = BoolProperty(
-        name="UV Inspection Enabled",
-        description="UV Inspection is enabled",
-        default=False
-    )
-    scene.muv_uvinsp_show_overlapped = BoolProperty(
-        name="Overlapped",
-        description="Show overlapped UVs",
-        default=False
-    )
-    scene.muv_uvinsp_show_flipped = BoolProperty(
-        name="Flipped",
-        description="Show flipped UVs",
-        default=False
-    )
-    scene.muv_uvinsp_show_mode = EnumProperty(
-        name="Mode",
-        description="Show mode",
-        items=[
-            ('PART', "Part", "Show only overlapped/flipped part"),
-            ('FACE', "Face", "Show overlapped/flipped face")
-        ],
-        default='PART'
     )
 
     # Align UV
@@ -277,26 +210,7 @@ def init_props(scene):
         default=False
     )
 
-    # UV Bounding Box
-    scene.muv_uvbb_enabled = BoolProperty(
-        name="UV Bounding Box Enabled",
-        description="UV Bounding Box is enabled",
-        default=False
-    )
-    scene.muv_uvbb_uniform_scaling = BoolProperty(
-        name="Uniform Scaling",
-        description="Enable Uniform Scaling",
-        default=False
-    )
-    scene.muv_uvbb_boundary = EnumProperty(
-        name="Boundary",
-        description="Boundary",
-        default='UV_SEL',
-        items=[
-            ('UV', "UV", "Boundary is decided by UV"),
-            ('UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
-        ]
-    )
+
 
     # Pack UV
     scene.muv_packuv_enabled = BoolProperty(
@@ -337,58 +251,6 @@ def init_props(scene):
     scene.muv_uvw_assign_uvmap = BoolProperty(
         name="Assign UVMap",
         description="Assign UVMap when no UVmaps are available",
-        default=True
-    )
-
-    # Texture Projection
-    scene.muv_texproj_enabled = BoolProperty(
-        name="Texture Projection Enabled",
-        description="Texture Projection is enabled",
-        default=False
-    )
-    scene.muv_texproj_tex_magnitude = FloatProperty(
-        name="Magnitude",
-        description="Texture Magnitude",
-        default=0.5,
-        min=0.0,
-        max=100.0
-    )
-    scene.muv_texproj_tex_image = EnumProperty(
-        name="Image",
-        description="Texture Image",
-        items=get_loaded_texture_name
-    )
-    scene.muv_texproj_tex_transparency = FloatProperty(
-        name="Transparency",
-        description="Texture Transparency",
-        default=0.2,
-        min=0.0,
-        max=1.0
-    )
-    scene.muv_texproj_adjust_window = BoolProperty(
-        name="Adjust Window",
-        description="Size of renderered texture is fitted to window",
-        default=True
-    )
-    scene.muv_texproj_apply_tex_aspect = BoolProperty(
-        name="Texture Aspect Ratio",
-        description="Apply Texture Aspect ratio to displayed texture",
-        default=True
-    )
-    scene.muv_texproj_assign_uvmap = BoolProperty(
-        name="Assign UVMap",
-        description="Assign UVMap when no UVmaps are available",
-        default=True
-    )
-
-    # Texture Lock
-    scene.muv_texlock_enabled = BoolProperty(
-        name="Texture Lock Enabled",
-        description="Texture Lock is enabled",
-        default=False
-    )
-    scene.muv_texlock_connect = BoolProperty(
-        name="Connect UV",
         default=True
     )
 
@@ -639,30 +501,23 @@ def init_props(scene):
         default=False
     )
 
+    uv_bounding_box.MUV_UVBB.init_props(scene)
+    uv_inspection.MUV_UVInsp.init_props(scene)
+    uv_sculpt.MUV_UVSculpt.init_props(scene)
+    texture_lock.MUV_TexLockIntr.init_props(scene)
+    texture_projection.MUV_TexProj.init_props(scene)
+
 
 def clear_props(scene):
     del scene.muv_props
-
-    # UV Sculpt
-    del scene.muv_uvsculpt_enabled
-    del scene.muv_uvsculpt_radius
-    del scene.muv_uvsculpt_strength
-    del scene.muv_uvsculpt_tools
-    del scene.muv_uvsculpt_show_brush
-    del scene.muv_uvsculpt_pinch_invert
-    del scene.muv_uvsculpt_relax_method
 
     # Texture Wrap
     del scene.muv_texwrap_enabled
     del scene.muv_texwrap_set_and_refer
     del scene.muv_texwrap_selseq
 
-    # UV Inspection
+    # Select UV
     del scene.muv_seluv_enabled
-    del scene.muv_uvinsp_enabled
-    del scene.muv_uvinsp_show_overlapped
-    del scene.muv_uvinsp_show_flipped
-    del scene.muv_uvinsp_show_mode
 
     # Align UV
     del scene.muv_auv_enabled
@@ -678,11 +533,6 @@ def clear_props(scene):
     del scene.muv_smuv_mesh_infl
     del scene.muv_smuv_select
 
-    # UV Bounding Box
-    del scene.muv_uvbb_enabled
-    del scene.muv_uvbb_uniform_scaling
-    del scene.muv_uvbb_boundary
-
     # Pack UV
     del scene.muv_packuv_enabled
     del scene.muv_packuv_allowable_center_deviation
@@ -694,19 +544,6 @@ def clear_props(scene):
     # UVW
     del scene.muv_uvw_enabled
     del scene.muv_uvw_assign_uvmap
-
-    # Texture Projection
-    del scene.muv_texproj_enabled
-    del scene.muv_texproj_tex_magnitude
-    del scene.muv_texproj_tex_image
-    del scene.muv_texproj_tex_transparency
-    del scene.muv_texproj_adjust_window
-    del scene.muv_texproj_apply_tex_aspect
-    del scene.muv_texproj_assign_uvmap
-
-    # Texture Lock
-    del scene.muv_texlock_enabled
-    del scene.muv_texlock_connect
 
     # World Scale UV
     del scene.muv_wsuv_enabled
@@ -754,3 +591,9 @@ def clear_props(scene):
 
     # UV Cursor Location
     del scene.muv_uvcloc_enabled
+
+    uv_bounding_box.MUV_UVBB.del_props(scene)
+    uv_inspection.MUV_UVInsp.del_props(scene)
+    uv_sculpt.MUV_UVSculpt.del_props(scene)
+    texture_lock.MUV_TexLockIntr.del_props(scene)
+    texture_projection.MUV_TexProj.del_props(scene)

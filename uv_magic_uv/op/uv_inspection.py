@@ -27,14 +27,13 @@ import bpy
 import bmesh
 import bgl
 from mathutils import Vector
+from bpy.props import BoolProperty, EnumProperty
 
 from .. import common
 
 
 __all__ = [
     'MUV_UVInsp',
-    'MUV_UVInspShow',
-    'MUV_UVInspHide',
     'MUV_UVInspUpdate',
     'MUV_UVInspSelectFlipped',
     'MUV_UVInspSelectOverlapped',
@@ -355,15 +354,71 @@ class MUV_UVInsp(bpy.types.Operator):
     No operation (only rendering)
     """
 
-    bl_idname = "uv.muv_uvinsp_renderer"
+    bl_idname = "uv.muv_uvinsp"
     bl_description = "Render overlapped/flipped UVs"
     bl_label = "Overlapped/Flipped UV renderer"
 
     __handle = None
 
     @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return MUV_UVInsp.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_uvinsp('INVOKE_REGION_WIN')
+
+        scene.muv_uvinsp_enabled = BoolProperty(
+            name="UV Inspection Enabled",
+            description="UV Inspection is enabled",
+            default=False
+        )
+        scene.muv_uvinsp_show = BoolProperty(
+            name="UV Inspection Showed",
+            description="UV Inspection is showed",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_uvinsp_show_overlapped = BoolProperty(
+            name="Overlapped",
+            description="Show overlapped UVs",
+            default=False
+        )
+        scene.muv_uvinsp_show_flipped = BoolProperty(
+            name="Flipped",
+            description="Show flipped UVs",
+            default=False
+        )
+        scene.muv_uvinsp_show_mode = EnumProperty(
+            name="Mode",
+            description="Show mode",
+            items=[
+                ('PART', "Part", "Show only overlapped/flipped part"),
+                ('FACE', "Face", "Show overlapped/flipped face")
+            ],
+            default='PART'
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_uvinsp_enabled
+        del scene.muv_uvinsp_show
+        del scene.muv_uvinsp_show_overlapped
+        del scene.muv_uvinsp_show_flipped
+        del scene.muv_uvinsp_show_mode
+
+    @classmethod
     def is_running(cls, _):
-        return cls.__handle
+        return 1 if cls.__handle else 0
 
     @classmethod
     def handle_add(cls, obj, context):
@@ -431,6 +486,18 @@ class MUV_UVInsp(bpy.types.Operator):
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
                         bgl.glVertex2f(x, y)
                     bgl.glEnd()
+
+    def invoke(self, context, _):
+        if not MUV_UVInsp.is_running(context):
+            update_uvinsp_info(context)
+            MUV_UVInsp.handle_add(self, context)
+        else:
+            MUV_UVInsp.handle_remove()
+
+        if context.area:
+            context.area.tag_redraw()
+
+        return {'FINISHED'}
 
 
 def is_polygon_flipped(points):
@@ -560,59 +627,6 @@ class MUV_UVInspUpdate(bpy.types.Operator):
 
     def execute(self, context):
         update_uvinsp_info(context)
-
-        if context.area:
-            context.area.tag_redraw()
-
-        return {'FINISHED'}
-
-
-class MUV_UVInspShow(bpy.types.Operator):
-    """
-    Operation class: Show
-    """
-
-    bl_idname = "uv.muv_uvinsp_show"
-    bl_label = "Show UV Inspection"
-    bl_description = "Show UV Inspection"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if MUV_UVInsp.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if not MUV_UVInsp.is_running(context):
-            update_uvinsp_info(context)
-            MUV_UVInsp.handle_add(self, context)
-
-        if context.area:
-            context.area.tag_redraw()
-
-        return {'FINISHED'}
-
-
-class MUV_UVInspHide(bpy.types.Operator):
-    """
-    Operation class: Hide
-    """
-
-    bl_idname = "uv.muv_uvinsp_hide"
-    bl_label = "Hide UV Inspection"
-    bl_description = "Hide UV Inspection"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if not MUV_UVInsp.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if MUV_UVInsp.is_running(context):
-            MUV_UVInsp.handle_remove()
 
         if context.area:
             context.area.tag_redraw()

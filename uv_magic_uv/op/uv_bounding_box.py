@@ -30,14 +30,13 @@ import bpy
 import bgl
 import mathutils
 import bmesh
+from bpy.props import BoolProperty, EnumProperty
 
 from .. import common
 
 
 __all__ = [
     'MUV_UVBB',
-    'MUV_UVBBShow',
-    'MUV_UVBBHide',
 ]
 
 
@@ -561,8 +560,55 @@ class MUV_UVBB(bpy.types.Operator):
         return is_valid_context(context)
 
     @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return MUV_UVBB.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_uvbb('INVOKE_REGION_WIN')
+
+        scene.muv_uvbb_enabled = BoolProperty(
+            name="UV Bounding Box Enabled",
+            description="UV Bounding Box is enabled",
+            default=False
+        )
+        scene.muv_uvbb_show = BoolProperty(
+            name="UV Bounding Box Showed",
+            description="UV Bounding Box is showed",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_uvbb_uniform_scaling = BoolProperty(
+            name="Uniform Scaling",
+            description="Enable Uniform Scaling",
+            default=False
+        )
+        scene.muv_uvbb_boundary = EnumProperty(
+            name="Boundary",
+            description="Boundary",
+            default='UV_SEL',
+            items=[
+                ('UV', "UV", "Boundary is decided by UV"),
+                (
+                'UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
+            ]
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_uvbb_enabled
+        del scene.muv_uvbb_show
+        del scene.muv_uvbb_uniform_scaling
+        del scene.muv_uvbb_boundary
+
+    @classmethod
     def is_running(cls, _):
-        return cls.__handle
+        return 1 if cls.__handle else 0
 
     @classmethod
     def handle_add(cls, obj, context):
@@ -743,7 +789,7 @@ class MUV_UVBB(bpy.types.Operator):
 
         return {'RUNNING_MODAL'}
 
-    def execute(self, context):
+    def invoke(self, context, _):
         props = context.scene.muv_props.uvbb
 
         if MUV_UVBB.is_running(context):
@@ -753,56 +799,14 @@ class MUV_UVBB(bpy.types.Operator):
         props.uv_info_ini = self.__get_uv_info(context)
         if props.uv_info_ini is None:
             return {'CANCELLED'}
+
+        MUV_UVBB.handle_add(self, context)
+
         props.ctrl_points_ini = self.__get_ctrl_point(props.uv_info_ini)
         trans_mat = self.__cmd_exec.execute()
         # Update is needed in order to display control point
         self.__update_uvs(context, props.uv_info_ini, trans_mat)
         props.ctrl_points = self.__update_ctrl_point(
             props.ctrl_points_ini, trans_mat)
-        MUV_UVBB.handle_add(self, context)
 
         return {'RUNNING_MODAL'}
-
-
-class MUV_UVBBShow(bpy.types.Operator):
-    """
-    Operation class: Show UV Bounding Box
-    """
-
-    bl_idname = "uv.muv_uvbb_show"
-    bl_label = "Show UV Bounding Box"
-    bl_description = "Show UV Bounding Box"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if MUV_UVBB.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, _):
-        bpy.ops.uv.muv_uvbb()
-
-        return {'FINISHED'}
-
-
-class MUV_UVBBHide(bpy.types.Operator):
-    """
-    Operation class: Hide UV Bounding Box
-    """
-
-    bl_idname = "uv.muv_uvbb_hide"
-    bl_label = "Hide UV Bounding Box"
-    bl_description = "Hide UV Bounding Box"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if not MUV_UVBB.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, _):
-        bpy.ops.uv.muv_uvbb()
-
-        return {'FINISHED'}

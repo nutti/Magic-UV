@@ -30,6 +30,11 @@ import bgl
 import bmesh
 import mathutils
 from bpy_extras import view3d_utils
+from bpy.props import (
+    BoolProperty,
+    EnumProperty,
+    FloatProperty,
+)
 
 from .. import common
 
@@ -44,6 +49,12 @@ __all__ = [
 
 Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 Rect2 = namedtuple('Rect2', 'x y width height')
+
+
+def get_loaded_texture_name(_, __):
+    items = [(key, key, "") for key in bpy.data.images.keys()]
+    items.append(("None", "None", ""))
+    return items
 
 
 def get_canvas(context, magnitude):
@@ -133,26 +144,99 @@ def is_valid_context(context):
     return True
 
 
-class MUV_TexProjRenderer(bpy.types.Operator):
+class MUV_TexProj(bpy.types.Operator):
     """
-    Operation class: Render selected texture
-    No operation (only rendering texture)
+    Operation class: Texture Projection
+    Render texture
     """
 
-    bl_idname = "uv.muv_texproj_renderer"
+    bl_idname = "uv.muv_texproj"
     bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
     __handle = None
 
     @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
+
+    @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return MUV_TexProj.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_texproj('INVOKE_REGION_WIN')
+
+        scene.muv_texproj_enabled = BoolProperty(
+            name="Texture Projection Enabled",
+            description="Texture Projection is enabled",
+            default=False
+        )
+        scene.muv_texproj_enable = BoolProperty(
+            name="Texture Projection Enabled",
+            description="Texture Projection is enabled",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_texproj_tex_magnitude = FloatProperty(
+            name="Magnitude",
+            description="Texture Magnitude",
+            default=0.5,
+            min=0.0,
+            max=100.0
+        )
+        scene.muv_texproj_tex_image = EnumProperty(
+            name="Image",
+            description="Texture Image",
+            items=get_loaded_texture_name
+        )
+        scene.muv_texproj_tex_transparency = FloatProperty(
+            name="Transparency",
+            description="Texture Transparency",
+            default=0.2,
+            min=0.0,
+            max=1.0
+        )
+        scene.muv_texproj_adjust_window = BoolProperty(
+            name="Adjust Window",
+            description="Size of renderered texture is fitted to window",
+            default=True
+        )
+        scene.muv_texproj_apply_tex_aspect = BoolProperty(
+            name="Texture Aspect Ratio",
+            description="Apply Texture Aspect ratio to displayed texture",
+            default=True
+        )
+        scene.muv_texproj_assign_uvmap = BoolProperty(
+            name="Assign UVMap",
+            description="Assign UVMap when no UVmaps are available",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_texproj_enabled
+        del scene.muv_texproj_tex_magnitude
+        del scene.muv_texproj_tex_image
+        del scene.muv_texproj_tex_transparency
+        del scene.muv_texproj_adjust_window
+        del scene.muv_texproj_apply_tex_aspect
+        del scene.muv_texproj_assign_uvmap
+
+    @classmethod
     def is_running(cls, _):
-        return cls.__handle
+        return 1 if cls.__handle else 0
 
     @classmethod
     def handle_add(cls, obj, context):
         cls.__handle = bpy.types.SpaceView3D.draw_handler_add(
-            MUV_TexProjRenderer.draw_texture,
+            MUV_TexProj.draw_texture,
             (obj, context), 'WINDOW', 'POST_PIXEL')
 
     @classmethod
@@ -211,51 +295,12 @@ class MUV_TexProjRenderer(bpy.types.Operator):
             bgl.glVertex2f(v1, v2)
         bgl.glEnd()
 
+    def invoke(self, context, _):
+        if not MUV_TexProj.is_running(context):
+            MUV_TexProj.handle_add(self, context)
+        else:
+            MUV_TexProj.handle_remove()
 
-class MUV_TexProjStart(bpy.types.Operator):
-    """
-    Operation class: Start Texture Projection
-    """
-
-    bl_idname = "uv.muv_texproj_start"
-    bl_label = "Start Texture Projection"
-    bl_description = "Start Texture Projection"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if MUV_TexProjRenderer.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if not MUV_TexProjRenderer.is_running(context):
-            MUV_TexProjRenderer.handle_add(self, context)
-        if context.area:
-            context.area.tag_redraw()
-
-        return {'FINISHED'}
-
-
-class MUV_TexProjStop(bpy.types.Operator):
-    """
-    Operation class: Stop Texture Projection
-    """
-
-    bl_idname = "uv.muv_texproj_stop"
-    bl_label = "Stop Texture Projection"
-    bl_description = "Stop Texture Projection"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if not MUV_TexProjRenderer.is_running(context):
-            return False
-        return is_valid_context(context)
-
-    def execute(self, context):
-        if MUV_TexProjRenderer.is_running(context):
-            MUV_TexProjRenderer.handle_remove()
         if context.area:
             context.area.tag_redraw()
 
@@ -274,7 +319,7 @@ class MUV_TexProjProject(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        if not MUV_TexProjRenderer.is_running(context):
+        if not MUV_TexProj.is_running(context):
             return False
         return is_valid_context(context)
 

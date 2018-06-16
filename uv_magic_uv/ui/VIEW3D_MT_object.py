@@ -45,6 +45,6 @@ class MUV_CPUVObjMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.menu(copy_paste_uv_object.MUV_CPUVObjCopyUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Copy")
+                    text="Copy")
         layout.menu(copy_paste_uv_object.MUV_CPUVObjPasteUVMenu.bl_idname,
-                    icon="IMAGE_COL", text="Paste")
+                    text="Paste")

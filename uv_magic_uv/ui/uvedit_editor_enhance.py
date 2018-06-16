@@ -54,7 +54,6 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         sc = context.scene
-        props = sc.muv_props
 
         box = layout.box()
         box.prop(sc, "muv_auvc_enabled", text="Align UV Cursor")
@@ -113,12 +112,9 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         box = layout.box()
         box.prop(sc, "muv_uvbb_enabled", text="UV Bounding Box")
         if sc.muv_uvbb_enabled:
-            if not uv_bounding_box.MUV_UVBB.is_running(context):
-                box.operator(uv_bounding_box.MUV_UVBBShow.bl_idname,
-                             text="Show", icon='PLAY')
-            else:
-                box.operator(uv_bounding_box.MUV_UVBBHide.bl_idname,
-                             text="Hide", icon='PAUSE')
+            box.prop(sc, "muv_uvbb_show",
+                     text="Hide" if uv_bounding_box.MUV_UVBB.is_running(context) else "Show",
+                     icon='RESTRICT_VIEW_OFF' if uv_bounding_box.MUV_UVBB.is_running(context) else 'RESTRICT_VIEW_ON')
             box.prop(sc, "muv_uvbb_uniform_scaling", text="Uniform Scaling")
             box.prop(sc, "muv_uvbb_boundary", text="Boundary")
 
@@ -126,12 +122,9 @@ class IMAGE_PT_MUV_EE(bpy.types.Panel):
         box.prop(sc, "muv_uvinsp_enabled", text="UV Inspection")
         if sc.muv_uvinsp_enabled:
             row = box.row()
-            if not uv_inspection.MUV_UVInsp.is_running(context):
-                row.operator(uv_inspection.MUV_UVInspShow.bl_idname,
-                             text="Show", icon='PLAY')
-            else:
-                row.operator(uv_inspection.MUV_UVInspHide.bl_idname,
-                            text="Hide", icon='PAUSE')
+            row.prop(sc, "muv_uvinsp_show",
+                     text="Hide" if uv_inspection.MUV_UVInsp.is_running(context) else "Show",
+                     icon='RESTRICT_VIEW_OFF' if uv_inspection.MUV_UVInsp.is_running(context) else 'RESTRICT_VIEW_ON')
             row.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
                          text="Update")
             row = box.row()
