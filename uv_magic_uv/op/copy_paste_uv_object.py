@@ -90,12 +90,7 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
     @memorize_view_3d_mode
     def execute(self, context):
         props = context.scene.muv_props.cpuv_obj
-        if self.uv_map == "":
-            self.report({'INFO'}, "Copy UV coordinate per object")
-        else:
-            self.report(
-                {'INFO'},
-                "Copy UV coordinate per object (UV map:%s)" % (self.uv_map))
+
         bpy.ops.object.mode_set(mode='EDIT')
 
         obj = context.active_object
@@ -104,14 +99,18 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         # get UV layer
-        if self.uv_map == "":
+        if self.uv_map == "__default":
             if not bm.loops.layers.uv:
                 self.report(
                     {'WARNING'}, "Object must have more than one UV map")
                 return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
+            self.report({'INFO'}, "Copy UV coordinate per object")
         else:
             uv_layer = bm.loops.layers.uv[self.uv_map]
+            self.report(
+                {'INFO'},
+                "Copy UV coordinate per object (UV map:%s)" % (self.uv_map))
 
         # get selected face
         props.src_uvs = []
@@ -147,8 +146,10 @@ class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
         layout = self.layout
         # create sub menu
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
+
         ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text="[Default]")
-        ops.uv_map = ""
+        ops.uv_map = "__default"
+
         for m in uv_maps:
             ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text=m)
             ops.uv_map = m
@@ -199,25 +200,32 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
             if common.check_version(2, 73, 0) >= 0:
                 bm.faces.ensure_lookup_table()
 
-            if (self.uv_map == "" or
-                    self.uv_map not in bm.loops.layers.uv.keys()):
-                self.report({'INFO'}, "Paste UV coordinate per object")
-            else:
-                self.report(
-                    {'INFO'},
-                    "Paste UV coordinate per object (UV map: %s)"
-                    % (self.uv_map))
-
             # get UV layer
-            if (self.uv_map == "" or
-                    self.uv_map not in bm.loops.layers.uv.keys()):
+            if self.uv_map == "__default":
                 if not bm.loops.layers.uv:
                     self.report(
                         {'WARNING'}, "Object must have more than one UV map")
                     return {'CANCELLED'}
                 uv_layer = bm.loops.layers.uv.verify()
+                self.report({'INFO'}, "Paste UV coordinate per object")
+            elif self.uv_map == "__new":
+                uv_maps_old = {l.name for l in obj.data.uv_layers}
+                bpy.ops.mesh.uv_texture_add()
+                uv_maps_new = {l.name for l in obj.data.uv_layers}
+                diff = uv_maps_new - uv_maps_old
+                bm = bmesh.from_edit_mesh(obj.data)
+                if common.check_version(2, 73, 0) >= 0:
+                    bm.faces.ensure_lookup_table()
+                uv_layer = bm.loops.layers.uv[list(diff)[0]]
+                self.report(
+                    {'INFO'},
+                    "Paste UV coordinate (UV map:%s)" % (list(diff)[0]))
             else:
                 uv_layer = bm.loops.layers.uv[self.uv_map]
+                self.report(
+                    {'INFO'},
+                    "Paste UV coordinate per object (UV map: %s)"
+                    % (self.uv_map))
 
             # get selected face
             dest_uvs = []
@@ -296,10 +304,15 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
         for obj in bpy.data.objects:
             if hasattr(obj.data, "uv_textures") and obj.select:
                 uv_maps.extend(obj.data.uv_textures.keys())
-        uv_maps = list(set(uv_maps))
+
         ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[Default]")
-        ops.uv_map = ""
+        ops.uv_map = "__default"
         ops.copy_seams = sc.muv_cpuv_copy_seams
+
+        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[New]")
+        ops.uv_map = "__new"
+        ops.copy_seams = sc.muv_cpuv_copy_seams
+
         for m in uv_maps:
             ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text=m)
             ops.uv_map = m
