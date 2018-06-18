@@ -492,9 +492,10 @@ class MUV_TexLockIntr(bpy.types.Operator):
             context.area.tag_redraw()
 
         if event.type == 'TIMER':
-            self.__update_uv(context)
             if self.__sel_verts_changed(context):
                 self.__reinit_verts(context)
+            else:
+                self.__update_uv(context)
 
         return {'PASS_THROUGH'}
 
