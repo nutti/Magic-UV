@@ -38,6 +38,8 @@ __all__ = [
     'check_version',
     'redraw_all_areas',
     'get_space',
+    'create_bmesh',
+    'create_new_uv_map',
     'get_island_info',
     'get_island_info_from_bmesh',
     'get_island_info_from_faces',
@@ -108,6 +110,31 @@ def get_space(area_type, region_type, space_type):
             break
 
     return (area, region, space)
+
+
+def create_bmesh(obj):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.faces.ensure_lookup_table()
+
+    return bm
+
+
+def create_new_uv_map(obj, name=None):
+    uv_maps_old = {l.name for l in obj.data.uv_layers}
+    bpy.ops.mesh.uv_texture_add()
+    uv_maps_new = {l.name for l in obj.data.uv_layers}
+    diff = uv_maps_new - uv_maps_old
+
+    if not list(diff):
+        return None     # no more UV maps can not be created
+
+    # rename UV map
+    new = obj.data.uv_layers[list(diff)[0]]
+    if name:
+        new.name = name
+
+    return new
 
 
 def __get_island_info(uv_layer, islands):

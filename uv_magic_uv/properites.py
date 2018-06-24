@@ -35,6 +35,8 @@ from mathutils import Vector
 from . import common
 
 from .op import (
+    copy_paste_uv,
+    copy_paste_uv_object,
     uv_bounding_box,
     uv_inspection,
     uv_sculpt,
@@ -62,10 +64,7 @@ class MUV_Properties():
 
     def __init__(self):
         self.prefs = MUV_Prefs()
-        self.cpuv = MUV_CPUVProps()
-        self.cpuv_obj = MUV_CPUVProps()
         self.cpuv_ie = MUV_CPUVProps()
-        self.cpuv_selseq = MUV_CPUVSelSeqProps()
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()
         self.texlock = MUV_TexLockProps()
@@ -85,15 +84,7 @@ class MUV_Prefs():
 
 
 class MUV_CPUVProps():
-    src_uvs = None
-    src_pin_uvs = None
-    src_seams = None
-
-
-class MUV_CPUVSelSeqProps():
-    src_uvs = None
-    src_pin_uvs = None
-    src_seams = None
+    src_info = None
 
 
 class MUV_TransUVProps():
@@ -394,36 +385,6 @@ def init_props(scene):
         default='X'
     )
 
-    # Copy/Paste UV
-    scene.muv_cpuv_enabled = BoolProperty(
-        name="Copy/Paste UV Enabled",
-        description="Copy/Paste UV is enabled",
-        default=False
-    )
-    scene.muv_cpuv_copy_seams = BoolProperty(
-        name="Copy Seams",
-        description="Copy Seams",
-        default=True
-    )
-    scene.muv_cpuv_mode = EnumProperty(
-        items=[
-            ('DEFAULT', "Default", "Default Mode"),
-            ('SEL_SEQ', "Selection Sequence", "Selection Sequence Mode")
-        ],
-        name="Copy/Paste UV Mode",
-        description="Copy/Paste UV Mode",
-        default='DEFAULT'
-    )
-    scene.muv_cpuv_strategy = EnumProperty(
-        name="Strategy",
-        description="Paste Strategy",
-        items=[
-            ('N_N', 'N:N', 'Number of faces must be equal to source'),
-            ('N_M', 'N:M', 'Number of faces must not be equal to source')
-        ],
-        default='N_M'
-    )
-
     # Transfer UV
     scene.muv_transuv_enabled = BoolProperty(
         name="Transfer UV Enabled",
@@ -501,6 +462,8 @@ def init_props(scene):
         default=False
     )
 
+    copy_paste_uv.MUV_CPUV.init_props(scene)
+    copy_paste_uv_object.MUV_CPUVObj.init_props(scene)
     uv_bounding_box.MUV_UVBB.init_props(scene)
     uv_inspection.MUV_UVInsp.init_props(scene)
     uv_sculpt.MUV_UVSculpt.init_props(scene)
@@ -509,8 +472,6 @@ def init_props(scene):
 
 
 def clear_props(scene):
-    del scene.muv_props
-
     # Texture Wrap
     del scene.muv_texwrap_enabled
     del scene.muv_texwrap_set_and_refer
@@ -573,12 +534,6 @@ def clear_props(scene):
     del scene.muv_mirroruv_enabled
     del scene.muv_mirroruv_axis
 
-    # Copy/Paste UV
-    del scene.muv_cpuv_enabled
-    del scene.muv_cpuv_copy_seams
-    del scene.muv_cpuv_mode
-    del scene.muv_cpuv_strategy
-
     # Transfer UV
     del scene.muv_transuv_enabled
     del scene.muv_transuv_invert_normals
@@ -592,8 +547,12 @@ def clear_props(scene):
     # UV Cursor Location
     del scene.muv_uvcloc_enabled
 
+    copy_paste_uv.MUV_CPUV.del_props(scene)
+    copy_paste_uv_object.MUV_CPUVObj.del_props(scene)
     uv_bounding_box.MUV_UVBB.del_props(scene)
     uv_inspection.MUV_UVInsp.del_props(scene)
     uv_sculpt.MUV_UVSculpt.del_props(scene)
     texture_lock.MUV_TexLockIntr.del_props(scene)
     texture_projection.MUV_TexProj.del_props(scene)
+
+    del scene.muv_props

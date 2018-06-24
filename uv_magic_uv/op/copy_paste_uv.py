@@ -40,6 +40,7 @@ from .. import common
 
 
 __all__ = [
+    'MUV_CPUV',
     'MUV_CPUVCopyUV',
     'MUV_CPUVCopyUVMenu',
     'MUV_CPUVPasteUV',
@@ -72,6 +73,161 @@ def is_valid_context(context):
     return True
 
 
+def get_copy_uv_layers(ops_obj, bm):
+    uv_layers = []
+    if ops_obj.uv_map == "__default":
+        if not bm.loops.layers.uv:
+            ops_obj.report(
+                {'WARNING'}, "Object must have more than one UV map")
+            return None
+        uv_layers.append(bm.loops.layers.uv.verify())
+        ops_obj.report({'INFO'}, "Copy UV coordinate")
+    elif ops_obj.uv_map == "__all":
+        for uv in bm.loops.layers.uv.keys():
+            uv_layers.append(bm.loops.layers.uv[uv])
+        ops_obj.report({'INFO'}, "Copy UV coordinate (UV map: ALL)")
+    else:
+        uv_layers.append(bm.loops.layers.uv[ops_obj.uv_map])
+        ops_obj.report(
+            {'INFO'}, "Copy UV coordinate (UV map:{})".format(ops_obj.uv_map))
+
+    return uv_layers
+
+
+def get_paste_uv_layers(ops_obj, obj, bm, src_info):
+    uv_layers = []
+    if ops_obj.uv_map == "__default":
+        if not bm.loops.layers.uv:
+            ops_obj.report(
+                {'WARNING'}, "Object must have more than one UV map")
+            return None
+        uv_layers.append(bm.loops.layers.uv.verify())
+        ops_obj.report({'INFO'}, "Paste UV coordinate")
+    elif ops_obj.uv_map == "__new":
+        new_uv_map = common.create_new_uv_map(obj)
+        if not new_uv_map:
+            ops_obj.report({'WARNING'},
+                           "Reached to the maximum number of UV map")
+            return None
+        uv_layers.append(bm.loops.layers.uv[new_uv_map.name])
+        ops_obj.report(
+            {'INFO'}, "Paste UV coordinate (UV map:{})".format(new_uv_map))
+    elif ops_obj.uv_map == "__all":
+        for src_layer in src_info.keys():
+            if src_layer not in bm.loops.layers.uv.keys():
+                new_uv_map = common.create_new_uv_map(obj, src_layer)
+                if not new_uv_map:
+                    ops_obj.report({'WARNING'},
+                                   "Reached to the maximum number of UV map")
+                    return None
+            uv_layers.append(bm.loops.layers.uv[src_layer])
+        ops_obj.report({'INFO'}, "Paste UV coordinate (UV map: ALL)")
+    else:
+        uv_layers.append(bm.loops.layers.uv[ops_obj.uv_map])
+        ops_obj.report(
+            {'INFO'}, "Paste UV coordinate (UV map:{})".format(ops_obj.uv_map))
+
+    return uv_layers
+
+
+def paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
+             rotate, copy_seams):
+    for slayer_name, dlayer in zip(src_info.keys(), uv_layers):
+        src_faces = src_info[slayer_name]
+        dest_faces = dest_info[dlayer.name]
+
+        for idx, dinfo in enumerate(dest_faces):
+            sinfo = None
+            if strategy == 'N_N':
+                sinfo = src_faces[idx]
+            elif strategy == 'N_M':
+                sinfo = src_faces[idx % len(src_faces)]
+
+            suv = sinfo["uvs"]
+            spuv = sinfo["pin_uvs"]
+            ss = sinfo["seams"]
+            if len(sinfo["uvs"]) != len(dinfo["uvs"]):
+                ops_obj.report({'WARNING'}, "Some faces are different size")
+                return -1
+
+            suvs_fr = [uv for uv in suv]
+            spuvs_fr = [pin_uv for pin_uv in spuv]
+            ss_fr = [s for s in ss]
+
+            # flip UVs
+            if flip is True:
+                suvs_fr.reverse()
+                spuvs_fr.reverse()
+                ss_fr.reverse()
+
+            # rotate UVs
+            for _ in range(rotate):
+                uv = suvs_fr.pop()
+                pin_uv = spuvs_fr.pop()
+                s = ss_fr.pop()
+                suvs_fr.insert(0, uv)
+                spuvs_fr.insert(0, pin_uv)
+                ss_fr.insert(0, s)
+
+            # paste UVs
+            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr,
+                                        spuvs_fr, ss_fr):
+                l[dlayer].uv = suv
+                l[dlayer].pin_uv = spuv
+                if copy_seams is True:
+                    l.edge.seam = ss
+
+    return 0
+
+
+class MUV_CPUV:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            src_info = None
+
+        scene.muv_props.cpuv = Props()
+        scene.muv_props.cpuv_selseq = Props()
+
+        scene.muv_cpuv_enabled = BoolProperty(
+            name="Copy/Paste UV Enabled",
+            description="Copy/Paste UV is enabled",
+            default=False
+        )
+        scene.muv_cpuv_copy_seams = BoolProperty(
+            name="Copy Seams",
+            description="Copy Seams",
+            default=True
+        )
+        scene.muv_cpuv_mode = EnumProperty(
+            items=[
+                ('DEFAULT', "Default", "Default Mode"),
+                ('SEL_SEQ', "Selection Sequence", "Selection Sequence Mode")
+            ],
+            name="Copy/Paste UV Mode",
+            description="Copy/Paste UV Mode",
+            default='DEFAULT'
+        )
+        scene.muv_cpuv_strategy = EnumProperty(
+            name="Strategy",
+            description="Paste Strategy",
+            items=[
+                ('N_N', 'N:N', 'Number of faces must be equal to source'),
+                ('N_M', 'N:M', 'Number of faces must not be equal to source')
+            ],
+            default='N_M'
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_props.cpuv
+        del scene.muv_props.cpuv_selseq
+        del scene.muv_cpuv_enabled
+        del scene.muv_cpuv_copy_seams
+        del scene.muv_cpuv_mode
+        del scene.muv_cpuv_strategy
+
+
 class MUV_CPUVCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate
@@ -91,39 +247,32 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.cpuv
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        bm = common.create_bmesh(obj)
 
         # get UV layer
-        if self.uv_map == "__default":
-            if not bm.loops.layers.uv:
-                self.report(
-                    {'WARNING'}, "Object must have more than one UV map")
-                return {'CANCELLED'}
-            uv_layer = bm.loops.layers.uv.verify()
-            self.report({'INFO'}, "Copy UV coordinate")
-        else:
-            uv_layer = bm.loops.layers.uv[self.uv_map]
-            self.report(
-                {'INFO'}, "Copy UV coordinate (UV map:%s)" % (self.uv_map))
+        uv_layers = get_copy_uv_layers(self, bm)
+        if not uv_layers:
+            return {'CANCELLED'}
 
         # get selected face
-        props.src_uvs = []
-        props.src_pin_uvs = []
-        props.src_seams = []
-        for face in bm.faces:
-            if face.select:
-                uvs = [l[uv_layer].uv.copy() for l in face.loops]
-                pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
-                seams = [l.edge.seam for l in face.loops]
-                props.src_uvs.append(uvs)
-                props.src_pin_uvs.append(pin_uvs)
-                props.src_seams.append(seams)
-        if not props.src_uvs or not props.src_pin_uvs:
-            self.report({'WARNING'}, "No faces are selected")
-            return {'CANCELLED'}
-        self.report({'INFO'}, "%d face(s) are selected" % len(props.src_uvs))
+        props.src_info = {}
+        for layer in uv_layers:
+            face_info = []
+            for face in bm.faces:
+                if face.select:
+                    info = {
+                        "uvs": [l[layer].uv.copy() for l in face.loops],
+                        "pin_uvs": [l[layer].pin_uv for l in face.loops],
+                        "seams": [l.edge.seam for l in face.loops],
+                    }
+                    face_info.append(info)
+            if not face_info:
+                self.report({'WARNING'}, "No faces are selected")
+                return {'CANCELLED'}
+            props.src_info[layer.name] = face_info
+
+        face_count = len([f for f in bm.faces if f.select])
+        self.report({'INFO'}, "{} face(s) are copied".format(face_count))
 
         return {'FINISHED'}
 
@@ -145,11 +294,14 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
         layout = self.layout
         # create sub menu
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
+        bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
         ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
+
+        ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text="[All]")
+        ops.uv_map = "__all"
 
         for m in uv_maps:
             ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text=m)
@@ -197,112 +349,55 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
     def poll(cls, context):
         sc = context.scene
         props = sc.muv_props.cpuv
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        bm = common.create_bmesh(obj)
 
         # get UV layer
-        if self.uv_map == "__default":
-            if not bm.loops.layers.uv:
-                self.report(
-                    {'WARNING'}, "Object must have more than one UV map")
-                return {'CANCELLED'}
-            uv_layer = bm.loops.layers.uv.verify()
-            self.report({'INFO'}, "Paste UV coordinate")
-        elif self.uv_map == "__new":
-            uv_maps_old = {l.name for l in obj.data.uv_layers}
-            bpy.ops.mesh.uv_texture_add()
-            uv_maps_new = {l.name for l in obj.data.uv_layers}
-            diff = uv_maps_new - uv_maps_old
-            bm = bmesh.from_edit_mesh(obj.data)
-            if common.check_version(2, 73, 0) >= 0:
-                bm.faces.ensure_lookup_table()
-            uv_layer = bm.loops.layers.uv[list(diff)[0]]
-            self.report(
-                {'INFO'}, "Paste UV coordinate (UV map:%s)" % (list(diff)[0]))
-        else:
-            uv_layer = bm.loops.layers.uv[self.uv_map]
-            self.report(
-                {'INFO'}, "Paste UV coordinate (UV map:%s)" % (self.uv_map))
+        uv_layers = get_paste_uv_layers(self, obj, bm, props.src_info)
+        if not uv_layers:
+            return {'CANCELLED'}
 
         # get selected face
-        dest_uvs = []
-        dest_pin_uvs = []
-        dest_seams = []
-        dest_face_indices = []
-        for face in bm.faces:
-            if face.select:
-                dest_face_indices.append(face.index)
-                uvs = [l[uv_layer].uv.copy() for l in face.loops]
-                pin_uvs = [l[uv_layer].pin_uv for l in face.loops]
-                seams = [l.edge.seam for l in face.loops]
-                dest_uvs.append(uvs)
-                dest_pin_uvs.append(pin_uvs)
-                dest_seams.append(seams)
-        if not dest_uvs or not dest_pin_uvs:
-            self.report({'WARNING'}, "No faces are selected")
-            return {'CANCELLED'}
-        if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
-            self.report(
-                {'WARNING'},
-                "Number of selected faces is different from copied" +
-                "(src:%d, dest:%d)" %
-                (len(props.src_uvs), len(dest_uvs)))
-            return {'CANCELLED'}
+        dest_face_count = 0
+        dest_info = {}
+        for layer in uv_layers:
+            face_info = []
+            for face in bm.faces:
+                if face.select:
+                    info = {
+                        "uvs": [l[layer].uv.copy() for l in face.loops],
+                    }
+                    face_info.append(info)
+            if not face_info:
+                self.report({'WARNING'}, "No faces are selected")
+                return {'CANCELLED'}
+            src_face_count = len(props.src_info[list(props.src_info.keys())[0]])
+            dest_face_count = len(face_info)
+            if self.strategy == 'N_N' and src_face_count != dest_face_count:
+                self.report(
+                    {'WARNING'},
+                    "Number of selected faces is different from copied" +
+                    "(src:{}, dest:{})".format(src_face_count, dest_face_count))
+                return {'CANCELLED'}
+            dest_info[layer.name] = face_info
 
         # paste
-        for i, idx in enumerate(dest_face_indices):
-            suv = None
-            spuv = None
-            ss = None
-            duv = None
-            if self.strategy == 'N_N':
-                suv = props.src_uvs[i]
-                spuv = props.src_pin_uvs[i]
-                ss = props.src_seams[i]
-                duv = dest_uvs[i]
-            elif self.strategy == 'N_M':
-                suv = props.src_uvs[i % len(props.src_uvs)]
-                spuv = props.src_pin_uvs[i % len(props.src_pin_uvs)]
-                ss = props.src_seams[i % len(props.src_seams)]
-                duv = dest_uvs[i]
-            if len(suv) != len(duv):
-                self.report({'WARNING'}, "Some faces are different size")
-                return {'CANCELLED'}
-            suvs_fr = [uv for uv in suv]
-            spuvs_fr = [pin_uv for pin_uv in spuv]
-            ss_fr = [s for s in ss]
-            # flip UVs
-            if self.flip_copied_uv is True:
-                suvs_fr.reverse()
-                spuvs_fr.reverse()
-                ss_fr.reverse()
-            # rotate UVs
-            for _ in range(self.rotate_copied_uv):
-                uv = suvs_fr.pop()
-                pin_uv = spuvs_fr.pop()
-                s = ss_fr.pop()
-                suvs_fr.insert(0, uv)
-                spuvs_fr.insert(0, pin_uv)
-                ss_fr.insert(0, s)
-            # paste UVs
-            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr,
-                                        spuvs_fr, ss_fr):
-                l[uv_layer].uv = suv
-                l[uv_layer].pin_uv = spuv
-                if self.copy_seams is True:
-                    l.edge.seam = ss
-        self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
+        ret = paste_uv(self, bm, props.src_info, dest_info, uv_layers,
+                       self.strategy, self.flip_copied_uv,
+                       self.rotate_copied_uv, self.copy_seams)
+        if ret:
+            return {'CANCELLED'}
+
+        self.report({'INFO'}, "{} face(s) are pasted".format(dest_face_count))
 
         bmesh.update_edit_mesh(obj.data)
         if self.copy_seams is True:
@@ -324,7 +419,7 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
     def poll(cls, context):
         sc = context.scene
         props = sc.muv_props.cpuv
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             return False
         return is_valid_context(context)
 
@@ -333,7 +428,7 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         layout = self.layout
         # create sub menu
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
+        bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
         ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[Default]")
@@ -343,6 +438,11 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
 
         ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[New]")
         ops.uv_map = "__new"
+        ops.copy_seams = sc.muv_cpuv_copy_seams
+        ops.strategy = sc.muv_cpuv_strategy
+
+        ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[All]")
+        ops.uv_map = "__all"
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy
 
@@ -372,41 +472,32 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        bm = common.create_bmesh(obj)
 
         # get UV layer
-        if self.uv_map == "__default":
-            if not bm.loops.layers.uv:
-                self.report(
-                    {'WARNING'}, "Object must have more than one UV map")
-                return {'CANCELLED'}
-            uv_layer = bm.loops.layers.uv.verify()
-            self.report({'INFO'}, "Copy UV coordinate (selection sequence)")
-        else:
-            uv_layer = bm.loops.layers.uv[self.uv_map]
-            self.report(
-                {'INFO'},
-                "Copy UV coordinate (selection sequence) (UV map:%s)"
-                % (self.uv_map))
+        uv_layers = get_copy_uv_layers(self, bm)
+        if not uv_layers:
+            return {'CANCELLED'}
 
         # get selected face
-        props.src_uvs = []
-        props.src_pin_uvs = []
-        props.src_seams = []
-        for hist in bm.select_history:
-            if isinstance(hist, bmesh.types.BMFace) and hist.select:
-                uvs = [l[uv_layer].uv.copy() for l in hist.loops]
-                pin_uvs = [l[uv_layer].pin_uv for l in hist.loops]
-                seams = [l.edge.seam for l in hist.loops]
-                props.src_uvs.append(uvs)
-                props.src_pin_uvs.append(pin_uvs)
-                props.src_seams.append(seams)
-        if not props.src_uvs or not props.src_pin_uvs:
-            self.report({'WARNING'}, "No faces are selected")
-            return {'CANCELLED'}
-        self.report({'INFO'}, "%d face(s) are selected" % len(props.src_uvs))
+        props.src_info = {}
+        for layer in uv_layers:
+            face_info = []
+            for hist in bm.select_history:
+                if isinstance(hist, bmesh.types.BMFace) and hist.select:
+                    info = {
+                        "uvs": [l[layer].uv.copy() for l in hist.loops],
+                        "pin_uvs": [l[layer].pin_uv for l in hist.loops],
+                        "seams": [l.edge.seam for l in hist.loops],
+                    }
+                    face_info.append(info)
+            if not face_info:
+                self.report({'WARNING'}, "No faces are selected")
+                return {'CANCELLED'}
+            props.src_info[layer.name] = face_info
+
+        face_count = len([f for f in bm.faces if f.select])
+        self.report({'INFO'}, "{} face(s) are selected".format(face_count))
 
         return {'FINISHED'}
 
@@ -427,11 +518,14 @@ class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
+        bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
         ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
+
+        ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text="[All]")
+        ops.uv_map = "__all"
 
         for m in uv_maps:
             ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text=m)
@@ -479,116 +573,55 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     def poll(cls, context):
         sc = context.scene
         props = sc.muv_props.cpuv_selseq
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
         props = context.scene.muv_props.cpuv_selseq
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
-
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        bm = common.create_bmesh(obj)
 
         # get UV layer
-        if self.uv_map == "__default":
-            if not bm.loops.layers.uv:
-                self.report(
-                    {'WARNING'}, "Object must have more than one UV map")
-                return {'CANCELLED'}
-            uv_layer = bm.loops.layers.uv.verify()
-            self.report({'INFO'}, "Paste UV coordinate (selection sequence)")
-        elif self.uv_map == "__new":
-            uv_maps_old = {l.name for l in obj.data.uv_layers}
-            bpy.ops.mesh.uv_texture_add()
-            uv_maps_new = {l.name for l in obj.data.uv_layers}
-            diff = uv_maps_new - uv_maps_old
-            bm = bmesh.from_edit_mesh(obj.data)
-            if common.check_version(2, 73, 0) >= 0:
-                bm.faces.ensure_lookup_table()
-            uv_layer = bm.loops.layers.uv[list(diff)[0]]
-            self.report(
-                {'INFO'}, "Paste UV coordinate (UV map:%s)" % (list(diff)[0]))
-        else:
-            uv_layer = bm.loops.layers.uv[self.uv_map]
-            self.report(
-                {'INFO'},
-                "Paste UV coordinate (selection sequence) (UV map:%s)"
-                % (self.uv_map))
+        uv_layers = get_paste_uv_layers(self, obj, bm, props.src_info)
+        if not uv_layers:
+            return {'CANCELLED'}
 
         # get selected face
-        dest_uvs = []
-        dest_pin_uvs = []
-        dest_seams = []
-        dest_face_indices = []
-        for hist in bm.select_history:
-            if isinstance(hist, bmesh.types.BMFace) and hist.select:
-                dest_face_indices.append(hist.index)
-                uvs = [l[uv_layer].uv.copy() for l in hist.loops]
-                pin_uvs = [l[uv_layer].pin_uv for l in hist.loops]
-                seams = [l.edge.seam for l in hist.loops]
-                dest_uvs.append(uvs)
-                dest_pin_uvs.append(pin_uvs)
-                dest_seams.append(seams)
-        if not dest_uvs or not dest_pin_uvs:
-            self.report({'WARNING'}, "No faces are selected")
-            return {'CANCELLED'}
-        if self.strategy == 'N_N' and len(props.src_uvs) != len(dest_uvs):
-            self.report(
-                {'WARNING'},
-                "Number of selected faces is different from copied faces " +
-                "(src:%d, dest:%d)"
-                % (len(props.src_uvs), len(dest_uvs)))
-            return {'CANCELLED'}
+        dest_face_count = 0
+        dest_info = {}
+        for layer in uv_layers:
+            face_info = []
+            for hist in bm.select_history:
+                if isinstance(hist, bmesh.types.BMFace) and hist.select:
+                    info = {
+                        "uvs": [l[layer].uv.copy() for l in hist.loops],
+                    }
+                    face_info.append(info)
+            if not face_info:
+                self.report({'WARNING'}, "No faces are selected")
+                return {'CANCELLED'}
+            src_face_count = len(props.src_info[list(props.src_info.keys())[0]])
+            dest_face_count = len(face_info)
+            if self.strategy == 'N_N' and src_face_count != dest_face_count:
+                self.report(
+                    {'WARNING'},
+                    "Number of selected faces is different from copied" +
+                    "(src:{}, dest:{})".format(src_face_count, dest_face_count))
+                return {'CANCELLED'}
+            dest_info[layer.name] = face_info
 
         # paste
-        for i, idx in enumerate(dest_face_indices):
-            suv = None
-            spuv = None
-            ss = None
-            duv = None
-            if self.strategy == 'N_N':
-                suv = props.src_uvs[i]
-                spuv = props.src_pin_uvs[i]
-                ss = props.src_seams[i]
-                duv = dest_uvs[i]
-            elif self.strategy == 'N_M':
-                suv = props.src_uvs[i % len(props.src_uvs)]
-                spuv = props.src_pin_uvs[i % len(props.src_pin_uvs)]
-                ss = props.src_seams[i % len(props.src_seams)]
-                duv = dest_uvs[i]
-            if len(suv) != len(duv):
-                self.report({'WARNING'}, "Some faces are different size")
-                return {'CANCELLED'}
-            suvs_fr = [uv for uv in suv]
-            spuvs_fr = [pin_uv for pin_uv in spuv]
-            ss_fr = [s for s in ss]
-            # flip UVs
-            if self.flip_copied_uv is True:
-                suvs_fr.reverse()
-                spuvs_fr.reverse()
-                ss_fr.reverse()
-            # rotate UVs
-            for _ in range(self.rotate_copied_uv):
-                uv = suvs_fr.pop()
-                pin_uv = spuvs_fr.pop()
-                s = ss_fr.pop()
-                suvs_fr.insert(0, uv)
-                spuvs_fr.insert(0, pin_uv)
-                ss_fr.insert(0, s)
-            # paste UVs
-            for l, suv, spuv, ss in zip(bm.faces[idx].loops, suvs_fr,
-                                        spuvs_fr, ss_fr):
-                l[uv_layer].uv = suv
-                l[uv_layer].pin_uv = spuv
-                if self.copy_seams is True:
-                    l.edge.seam = ss
+        ret = paste_uv(self, bm, props.src_info, dest_info, uv_layers,
+                       self.strategy, self.flip_copied_uv,
+                       self.rotate_copied_uv, self.copy_seams)
+        if ret:
+            return {'CANCELLED'}
 
-        self.report({'INFO'}, "%d face(s) are copied" % len(dest_uvs))
+        self.report({'INFO'}, "{} face(s) are pasted".format(dest_face_count))
 
         bmesh.update_edit_mesh(obj.data)
         if self.copy_seams is True:
@@ -619,7 +652,7 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
         layout = self.layout
         # create sub menu
         obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
+        bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
         ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[Default]")
@@ -629,6 +662,11 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
 
         ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[New]")
         ops.uv_map = "__new"
+        ops.copy_seams = sc.muv_cpuv_copy_seams
+        ops.strategy = sc.muv_cpuv_strategy
+
+        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[All]")
+        ops.uv_map = "__all"
         ops.copy_seams = sc.muv_cpuv_copy_seams
         ops.strategy = sc.muv_cpuv_strategy
 
