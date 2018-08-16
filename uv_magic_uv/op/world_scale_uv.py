@@ -65,7 +65,7 @@ def measure_wsuv_info(obj):
     uv_area = common.measure_uv_area(obj)
 
     if not uv_area:
-        return None, None, None
+        return None, mesh_area, None
 
     if mesh_area == 0.0:
         density = 0.0

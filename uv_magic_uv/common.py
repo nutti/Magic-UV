@@ -348,6 +348,8 @@ def measure_uv_area(obj):
         # not found, try to search from node
         if not img:
             for mat in obj.material_slots:
+                if not mat.material.node_tree:
+                    return None
                 for node in mat.material.node_tree.nodes:
                     tex_node_types = [
                         'TEX_ENVIRONMENT',
