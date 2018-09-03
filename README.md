@@ -81,24 +81,8 @@ See the link below for further details.
 * [Google+](https://plus.google.com/100058529622539760372/posts/82eS2tGE6Nc)
 
 ## Change Log
-|Version|Release Date|Change Log|
-|---|---|---|
-|5.1|2018.2.24|[1] Fixed bugs|
-|5.0|2018.2.16|[1] **Add feature**<br> - Align UV Cursor<br> - UV Cursor Location<br> - Align UV<br> - Smooth UV<br> - UV Inspection<br> - Select UV<br> - Texture Wrap<br> - UV Sculpt<br><br>[2] Improve feature<br> (1) Copy/Paste UV<br> - Add menu to UV/Image Editor<br>(2) World Scale UV<br> - Add: Information about Texel Density<br>(3) UV Bounding Box<br> - Add option: Bound<br>(4) Texture Projection<br> - Add option: Assign UVMap<br>(5) UVW<br> - Add option: Assign UVMap<br><br>[3] Improve UI<br><br>[4] Fixed bugs<br><br>[5] Optimization/Refactoring|
-|4.5|2017.11.19|[1] **Add feature**<br> - UVW<br><br>[2] Improve feature<br> (1) Preserve UV Aspect<br> - Add option: Aspect Origin<br><br>[3] Fixed bugs<br><br>[4] Merge change set of Blender's official repository|
-|4.4|2017.8.2|[1] Improve feature<br>(1) Copy/Paste UV<br> - Add option: Copy Seams<br>(2) Transfer UV<br> - Add option: Copy Seams<br>(3) Flip/Rotate UV<br> - Add option: Seams<br><br>[2] Fixed bugs<br><br>[3] Merge change set of Blender's official repository|
-|4.3|2017.4.1|Update for **Blender 2.79 release**<br><br>[1] Optimization/Refactoring|
-|4.2|2017.3.4|[1] **Add feature**<br> - Preserve UV Aspect<br><br>[2] Improve feature<br>(1) Texture Projection<br>- Add preferences for rendering textures<br><br>[3] Improve UI<br><br>[4] Optimization/Refactoring<br><br>[5] Fixed bug|
-|4.1|2016.11.13|[1] **Add feature**<br> - Texture Lock<br> - Mirror UV<br> - World Scale UV<br> - Unwrap Constraint<br><br>[2] Improve feature<br>(1) Pack UV (Extension)<br> - Add options: Allowable Center Deviation, Allowable Size Deviation<br>(2) Copy/Paste UV<br> - Add: Copy/Paste UV among same objects <br><br>[3] Fixed bug|
-|4.0|2016.5.14|[1] **Rename this add-on**<br><br>[2] **Add feature**<br> - UV Bounding Box<br> - Move UV<br> - Texture Projection<br> - Pack UV (Extension)<br><br>[3] Improve feature<br>(1) Copy/Paste UV<br>- Add: N to M copy/paste UV<br>- Add: Copy/Paste UV by selection sequence between specified UV maps<br><br>[4] Optimization/Refactoring<br><br>[5] Fixed bugs|
-|3.2|2015.6.20|[1] Improve feature<br>(1) Transfer UV<br>- Add: Copy/Paste to multiple meshes<br>- Add: Partially copy/paste UV|
-|3.1|2015.6.17|[1] Improve feature<br>(1) Transfer UV<br>- Improve algorithm|
-|3.0|2015.6.15|[1] **Add feature**<br> - Flip/Rotate UV<br> - Transfer UV<br><br>[2] Optimization/Refactoring<br><br>[3] Fixed bugs|
-|2.2|2015.4.11|[1] Fixed bug<br><br>[2] Refactoring|
-|2.1|2015.1.23|[1]Fixed bug for Blender 2.73|
-|2.0|2014.12.31|[1] Improve feature<br>(1) Copy/Paste UV<br> - Add: Copy/Paste UV Coordinates (by selection sequence)<br> - Add: Copy/Paste UV Coordinates (between UVMaps)<br><br>[2] Optimization|
-|1.1|2014.8.31|[1] Optimization|
-|1.0|2014.8.18|**First release**|
+
+See [CHANGELOG.md](CHANGELOG.md)
 
 
 ## Bug report / Feature request
