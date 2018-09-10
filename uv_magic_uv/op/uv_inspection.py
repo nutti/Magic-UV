@@ -51,9 +51,11 @@ def is_valid_context(context):
     if context.object.mode != 'EDIT':
         return False
 
-    # only 'IMAGE_EDITOR' space is allowed to execute
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
     for space in context.area.spaces:
-        if space.type == 'IMAGE_EDITOR':
+        if (space.type == 'IMAGE_EDITOR') or (space.type == 'VIEW_3D'):
             break
     else:
         return False

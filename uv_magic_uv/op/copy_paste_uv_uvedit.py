@@ -51,9 +51,11 @@ def is_valid_context(context):
     if context.object.mode != 'EDIT':
         return False
 
-    # only 'IMAGE_EDITOR' space is allowed to execute
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
     for space in context.area.spaces:
-        if space.type == 'IMAGE_EDITOR':
+        if (space.type == 'IMAGE_EDITOR') or (space.type == 'VIEW_3D'):
             break
     else:
         return False
@@ -80,7 +82,7 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_cpuv_ie_copy_uv"
-    bl_label = "Copy UV"
+    bl_label = "Copy UV (UV/Image Editor)"
     bl_description = "Copy UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -118,7 +120,7 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
     """
 
     bl_idname = "uv.muv_cpuv_ie_paste_uv"
-    bl_label = "Paste UV"
+    bl_label = "Paste UV (UV/Image Editor)"
     bl_description = "Paste UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
 
