@@ -37,6 +37,7 @@ from . import common
 from .op import (
     copy_paste_uv,
     copy_paste_uv_object,
+    copy_paste_uv_uvedit,
     uv_bounding_box,
     uv_inspection,
     uv_sculpt,
@@ -64,7 +65,6 @@ class MUV_Properties():
 
     def __init__(self):
         self.prefs = MUV_Prefs()
-        self.cpuv_ie = MUV_CPUVProps()
         self.transuv = MUV_TransUVProps()
         self.uvbb = MUV_UVBBProps()
         self.texlock = MUV_TexLockProps()
@@ -81,10 +81,6 @@ class MUV_Prefs():
         "conf_texproj": False,
         "conf_uvbb": False
     }
-
-
-class MUV_CPUVProps():
-    src_info = None
 
 
 class MUV_TransUVProps():
@@ -464,6 +460,7 @@ def init_props(scene):
 
     copy_paste_uv.MUV_CPUV.init_props(scene)
     copy_paste_uv_object.MUV_CPUVObj.init_props(scene)
+    copy_paste_uv_uvedit.MUV_CPUVIE.init_props(scene)
     uv_bounding_box.MUV_UVBB.init_props(scene)
     uv_inspection.MUV_UVInsp.init_props(scene)
     uv_sculpt.MUV_UVSculpt.init_props(scene)
@@ -549,6 +546,7 @@ def clear_props(scene):
 
     copy_paste_uv.MUV_CPUV.del_props(scene)
     copy_paste_uv_object.MUV_CPUVObj.del_props(scene)
+    copy_paste_uv_uvedit.MUV_CPUVIE.del_props(scene)
     uv_bounding_box.MUV_UVBB.del_props(scene)
     uv_inspection.MUV_UVInsp.del_props(scene)
     uv_sculpt.MUV_UVSculpt.del_props(scene)

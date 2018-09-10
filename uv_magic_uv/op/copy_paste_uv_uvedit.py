@@ -34,6 +34,7 @@ from .. import common
 
 
 __all__ = [
+    'MUV_CPUVIE',
     'MUV_CPUVIECopyUV',
     'MUV_CPUVIEPasteUV',
 ]
@@ -58,6 +59,19 @@ def is_valid_context(context):
         return False
 
     return True
+
+
+class MUV_CPUVIE:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            src_uvs = None
+
+        scene.muv_props.cpuv_ie = Props()
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_props.cpuv_ie
 
 
 class MUV_CPUVIECopyUV(bpy.types.Operator):
