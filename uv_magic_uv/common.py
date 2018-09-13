@@ -112,6 +112,46 @@ def get_space(area_type, region_type, space_type):
     return (area, region, space)
 
 
+def mouse_on_region(event, area_type, region_type):
+    pos = Vector((event.mouse_x, event.mouse_y))
+
+    _, region, _ = get_space(area_type, region_type, "")
+    if region is None:
+        return False
+
+    if (pos.x > region.x) and (pos.x < region.x + region.width) and \
+       (pos.y > region.y) and (pos.y < region.y + region.height):
+        return True
+
+    return False
+
+
+def mouse_on_area(event, area_type):
+    pos = Vector((event.mouse_x, event.mouse_y))
+
+    area, _, _ = get_space(area_type, "", "")
+    if area is None:
+        return False
+
+    if (pos.x > area.x) and (pos.x < area.x + area.width) and \
+       (pos.y > area.y) and (pos.y < area.y + area.height):
+        return True
+
+    return False
+
+
+def mouse_on_regions(event, area_type, regions):
+    if not mouse_on_area(event, area_type):
+        return False
+
+    for region in regions:
+        result = mouse_on_region(event, area_type, region)
+        if result:
+            return True
+
+    return False
+
+
 def create_bmesh(obj):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:

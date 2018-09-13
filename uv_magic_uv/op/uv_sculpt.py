@@ -426,10 +426,15 @@ class MUV_UVSculpt(bpy.types.Operator):
             return {'FINISHED'}
 
         self.current_mco = Vector((event.mouse_region_x, event.mouse_region_y))
-        area, _, _ = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
-        if self.current_mco.x < 0 or self.current_mco.x > area.width or \
-           self.current_mco.y < 0 or self.current_mco.y > area.height:
+        region_types = [
+            'HEADER',
+            'UI',
+            'TOOLS',
+            'TOOL_PROPS',
+        ]
+        if not common.mouse_on_area(event, 'VIEW_3D') or \
+           common.mouse_on_regions(event, 'VIEW_3D', region_types):
             return {'PASS_THROUGH'}
 
         if event.type == 'LEFTMOUSE':

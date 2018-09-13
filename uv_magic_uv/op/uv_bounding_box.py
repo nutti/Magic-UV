@@ -772,13 +772,13 @@ class MUV_UVBB(bpy.types.Operator):
             MUV_UVBB.handle_remove(context)
             return {'FINISHED'}
 
-        area, _, _ = common.get_space('IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
-        if area is None:
-            MUV_UVBB.handle_remove(context)
-            return {'CANCELLED'}
-
-        if event.mouse_region_x < 0 or event.mouse_region_x > area.width or \
-           event.mouse_region_y < 0 or event.mouse_region_y > area.height:
+        region_types = [
+            'HEADER',
+            'UI',
+            'TOOLS',
+        ]
+        if not common.mouse_on_area(event, 'IMAGE_EDITOR') or \
+           common.mouse_on_regions(event, 'IMAGE_EDITOR', region_types):
             return {'PASS_THROUGH'}
 
         if event.type == 'TIMER':
