@@ -29,6 +29,7 @@ from bpy.props import (
     EnumProperty,
     BoolProperty,
     FloatVectorProperty,
+    IntVectorProperty,
 )
 from mathutils import Vector
 
@@ -43,6 +44,7 @@ from .op import (
     uv_sculpt,
     texture_lock,
     texture_projection,
+    world_scale_uv,
 )
 
 
@@ -241,71 +243,6 @@ def init_props(scene):
         default=True
     )
 
-    # World Scale UV
-    scene.muv_wsuv_enabled = BoolProperty(
-        name="World Scale UV Enabled",
-        description="World Scale UV is enabled",
-        default=False
-    )
-    scene.muv_wsuv_src_mesh_area = FloatProperty(
-        name="Mesh Area",
-        description="Source Mesh Area",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_src_uv_area = FloatProperty(
-        name="UV Area",
-        description="Source UV Area",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_src_density = FloatProperty(
-        name="Density",
-        description="Source Texel Density",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_tgt_density = FloatProperty(
-        name="Density",
-        description="Target Texel Density",
-        default=0.0,
-        min=0.0
-    )
-    scene.muv_wsuv_mode = EnumProperty(
-        name="Mode",
-        description="Density calculation mode",
-        items=[
-            ('PROPORTIONAL', 'Proportional', 'Scale proportionally by mesh'),
-            ('SCALING', 'Scaling', 'Specify scale factor'),
-            ('USER', 'User', 'Specify density'),
-            ('CONSTANT', 'Constant', 'Constant density')
-        ],
-        default='CONSTANT'
-    )
-    scene.muv_wsuv_scaling_factor = FloatProperty(
-        name="Scaling Factor",
-        default=1.0,
-        max=1000.0,
-        min=0.00001
-    )
-    scene.muv_wsuv_origin = EnumProperty(
-        name="Origin",
-        description="Aspect Origin",
-        items=[
-            ('CENTER', 'Center', 'Center'),
-            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
-            ('LEFT_CENTER', 'Left Center', 'Left Center'),
-            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
-            ('CENTER_TOP', 'Center Top', 'Center Top'),
-            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
-            ('RIGHT_TOP', 'Right Top', 'Right Top'),
-            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
-            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
-
-        ],
-        default='CENTER'
-    )
-
     # Unwrap Constraint
     scene.muv_unwrapconst_enabled = BoolProperty(
         name="Unwrap Constraint Enabled",
@@ -466,6 +403,7 @@ def init_props(scene):
     uv_sculpt.MUV_UVSculpt.init_props(scene)
     texture_lock.MUV_TexLockIntr.init_props(scene)
     texture_projection.MUV_TexProj.init_props(scene)
+    world_scale_uv.MUV_WSUV.init_props(scene)
 
 
 def clear_props(scene):
@@ -502,16 +440,6 @@ def clear_props(scene):
     # UVW
     del scene.muv_uvw_enabled
     del scene.muv_uvw_assign_uvmap
-
-    # World Scale UV
-    del scene.muv_wsuv_enabled
-    del scene.muv_wsuv_src_mesh_area
-    del scene.muv_wsuv_src_uv_area
-    del scene.muv_wsuv_src_density
-    del scene.muv_wsuv_tgt_density
-    del scene.muv_wsuv_mode
-    del scene.muv_wsuv_scaling_factor
-    del scene.muv_wsuv_origin
 
     # Unwrap Constraint
     del scene.muv_unwrapconst_enabled

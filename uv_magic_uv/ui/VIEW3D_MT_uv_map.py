@@ -132,8 +132,28 @@ class MUV_WSUVMenu(bpy.types.Menu):
 
         layout.operator(world_scale_uv.MUV_WSUVMeasure.bl_idname,
                         text="Measure")
-        ops = layout.operator(world_scale_uv.MUV_WSUVApply.bl_idname,
-                              text="Apply")
+
+        layout.operator(world_scale_uv.MUV_WSUVApplyManual.bl_idname,
+                        text="Apply (Manual)")
+
+        ops = layout.operator(
+            world_scale_uv.MUV_WSUVApplyScalingDensity.bl_idname,
+            text="Apply (Same Desity)")
+        ops.src_density = sc.muv_wsuv_src_density
+        ops.same_density = True
+
+        ops = layout.operator(
+            world_scale_uv.MUV_WSUVApplyScalingDensity.bl_idname,
+            text="Apply (Scaling Desity)")
+        ops.src_density = sc.muv_wsuv_src_density
+        ops.same_density = False
+        ops.tgt_scaling_factor = sc.muv_wsuv_tgt_scaling_factor
+
+        ops = layout.operator(world_scale_uv.MUV_WSUVApplyProportionalToMesh.bl_idname,
+                              text="Apply (Proportional to Mesh)")
+        ops.src_density = sc.muv_wsuv_src_density
+        ops.src_uv_area = sc.muv_wsuv_src_uv_area
+        ops.src_mesh_area = sc.muv_wsuv_src_mesh_area
         ops.origin = sc.muv_wsuv_origin
 
 
