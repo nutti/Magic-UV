@@ -538,6 +538,8 @@ class MUV_UVBBStateMgr():
             context, event, ctrl_points, mouse_view)
         self.__update_state(next_state, ctrl_points)
 
+        return self.__state
+
 
 class MUV_UVBB(bpy.types.Operator):
     """
@@ -787,7 +789,9 @@ class MUV_UVBB(bpy.types.Operator):
             props.ctrl_points = self.__update_ctrl_point(
                 props.ctrl_points_ini, trans_mat)
 
-        self.__state_mgr.update(context, props.ctrl_points, event)
+        state = self.__state_mgr.update(context, props.ctrl_points, event)
+        if state == MUV_UVBBState.NONE:
+            return {'PASS_THROUGH'}
 
         return {'RUNNING_MODAL'}
 

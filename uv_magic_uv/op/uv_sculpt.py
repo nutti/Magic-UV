@@ -446,14 +446,17 @@ class MUV_UVSculpt(bpy.types.Operator):
                 if self.__stroking:
                     self.__stroke_exit(context, event)
                 self.__stroking = False
+            return {'RUNNING_MODAL'}
         elif event.type == 'MOUSEMOVE':
             if self.__stroking:
                 self.__stroke_apply(context, event)
+            return {'RUNNING_MODAL'}
         elif event.type == 'TIMER':
             if self.__stroking:
                 self.__stroke_apply(context, event)
+            return {'RUNNING_MODAL'}
 
-        return {'RUNNING_MODAL'}
+        return {'PASS_THROUGH'}
 
     def invoke(self, context, _):
         if context.area:
