@@ -29,7 +29,7 @@ from math import atan2, tan, sin, cos
 import bpy
 import bmesh
 from mathutils import Vector
-from bpy.props import EnumProperty, BoolProperty
+from bpy.props import EnumProperty, BoolProperty, FloatProperty
 
 from .. import common
 
@@ -197,66 +197,157 @@ class MUV_AUVCircle(bpy.types.Operator):
         return {'FINISHED'}
 
 
-# get horizontal differential of UV influenced by mesh vertex
-def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pair_idx):
-    common.debug_print(
-        "vidx={0}, hidx={1}, pair_idx={2}".format(vidx, hidx, pair_idx))
+# get accumulate vertex lengths of loop sequences
+def get_loop_vert_accum_len(loops):
+    accum_lengths = [0.0]
+    length = 0
+    for l1, l2 in zip(loops[:-1], loops[1:]):
+        diff = l2.vert.co - l1.vert.co
+        length = length + abs(diff.length)
+        accum_lengths.extend([length])
 
-    # get total vertex length
+    return accum_lengths
+
+
+# get sum uv length of loop sequences
+def get_loop_uv_accum_len(loops, uv_layer):
+    accum_lengths = [0.0]
+    length = 0
+    for l1, l2 in zip(loops[:-1], loops[1:]):
+        diff = l2[uv_layer].uv - l1[uv_layer].uv
+        length = length + abs(diff.length)
+        accum_lengths.extend([length])
+
+    return accum_lengths
+
+
+# get horizontal differential of UV influenced by mesh vertex
+def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
+    common.debug_print(
+        "loop_seqs[hidx={0}][vidx={1}][pidx={2}]".format(hidx, vidx, pidx))
+
+    base_uv = loop_seqs[0][vidx][0][uv_layer].uv.copy()
+
+    # calculate original length
     hloops = []
     for s in loop_seqs:
         hloops.extend([s[vidx][0], s[vidx][1]])
-    vert_total_hlen = get_loop_vert_len(hloops)
-    common.debug_print(vert_total_hlen)
+    total_vlen = get_loop_vert_len(hloops)
+    accum_vlens = get_loop_vert_accum_len(hloops)
+    total_uvlen = get_loop_uv_len(hloops, uv_layer)
+    accum_uvlens = get_loop_uv_accum_len(hloops, uv_layer)
+    orig_uvs = [l[uv_layer].uv.copy() for l in hloops]
 
-    # target vertex length
-    hloops = []
-    for s in loop_seqs[:hidx]:
-        hloops.extend([s[vidx][0], s[vidx][1]])
-    for pidx, l in enumerate(loop_seqs[hidx][vidx]):
-        if pidx > pair_idx:
+    # calculate target length
+    tgt_noinfl = total_uvlen * (hidx + pidx) / len(loop_seqs)
+    tgt_infl = total_uvlen * accum_vlens[hidx * 2 + pidx] / total_vlen
+    target_length = tgt_noinfl * (1 - infl) + tgt_infl * infl
+    common.debug_print(target_length)
+    common.debug_print(accum_uvlens)
+
+    # calculate target UV
+    for i in range(len(accum_uvlens[:-1])):
+        # get line segment which UV will be placed
+        if ((accum_uvlens[i] <= target_length) and
+                (accum_uvlens[i + 1] > target_length)):
+            tgt_seg_len = target_length - accum_uvlens[i]
+            seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
+            uv1 = orig_uvs[i]
+            uv2 = orig_uvs[i + 1]
+            target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
             break
-        hloops.append(l)
-    vert_hlen = get_loop_vert_len(hloops)
-    common.debug_print(vert_hlen)
+        elif i == (len(accum_uvlens[:-1]) - 1):
+            if accum_uvlens[i + 1] != target_length:
+                raise Exception("Internal Error: horizontal_target_length={} is not equal to {}"
+                                .format(target_length, accum_uvlens[-1]))
+            tgt_seg_len = target_length - accum_uvlens[i]
+            seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
+            uv1 = orig_uvs[i]
+            uv2 = orig_uvs[i + 1]
+            target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
+            break
+    else:
+        raise Exception("Internal Error: horizontal_target_length={} is not in range {} to {}"
+                        .format(target_length, accum_uvlens[0], accum_uvlens[-1]))
 
-    # get total UV length
-    # uv_all_hdiff = loop_seqs[-1][0][-1][uv_layer].uv -
-    # loop_seqs[0][0][0][uv_layer].uv
-    uv_total_hlen = loop_seqs[-1][vidx][-1][uv_layer].uv -\
-        loop_seqs[0][vidx][0][uv_layer].uv
-    common.debug_print(uv_total_hlen)
+    return target_uv
 
-    return uv_total_hlen * vert_hlen / vert_total_hlen
+
+###################### LOOP STRUCTURE ######################
+#
+#  loops[hidx][vidx][pidx]
+#     hidx: horizontal index
+#     vidx: vertical index
+#     pidx: pair index
+#
+#              <----- horizontal ----->
+#
+#              (hidx, vidx, pidx) = (0, 3, 0)
+#              |      (hidx, vidx, pidx) = (1, 3, 0)
+#              v      v
+#          ^   o --- oo --- o
+#          |   |     ||     |
+# vertical |   o --- oo --- o  <- (hidx, vidx, pidx)
+#          |   o --- oo --- o          = (1, 2, 1)
+#          |   |     ||     |
+#          v   o --- oo --- o
+#              ^            ^
+#              |            (hidx, vidx, pidx) = (1, 0, 1)
+#              (hidx, vidx, pidx) = (0, 0, 0)
+#
+############################################################
 
 
 # get vertical differential of UV influenced by mesh vertex
-def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pair_idx):
+def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
     common.debug_print(
-        "vidx={0}, hidx={1}, pair_idx={2}".format(vidx, hidx, pair_idx))
+        "loop_seqs[hidx={0}][vidx={1}][pidx={2}]".format(hidx, vidx, pidx))
 
-    # get total vertex length
-    hloops = []
+    base_uv = loop_seqs[hidx][0][pidx][uv_layer].uv.copy()
+
+    # calculate original length
+    vloops = []
     for s in loop_seqs[hidx]:
-        hloops.append(s[pair_idx])
-    vert_total_hlen = get_loop_vert_len(hloops)
-    common.debug_print(vert_total_hlen)
+        vloops.append(s[pidx])
+    total_vlen = get_loop_vert_len(vloops)
+    accum_vlens = get_loop_vert_accum_len(vloops)
+    total_uvlen = get_loop_uv_len(vloops, uv_layer)
+    accum_uvlens = get_loop_uv_accum_len(vloops, uv_layer)
+    orig_uvs = [l[uv_layer].uv.copy() for l in vloops]
 
-    # target vertex length
-    hloops = []
-    for s in loop_seqs[hidx][:vidx + 1]:
-        hloops.append(s[pair_idx])
-    vert_hlen = get_loop_vert_len(hloops)
-    common.debug_print(vert_hlen)
+    # calculate target length
+    tgt_noinfl = total_uvlen * int((vidx + 1) / 2) / len(loop_seqs)
+    tgt_infl = total_uvlen * accum_vlens[vidx] / total_vlen
+    target_length = tgt_noinfl * (1 - infl) + tgt_infl * infl
+    common.debug_print(target_length)
+    common.debug_print(accum_uvlens)
 
-    # get total UV length
-    # uv_all_hdiff = loop_seqs[0][-1][pair_idx][uv_layer].uv - \
-    #                loop_seqs[0][0][pair_idx][uv_layer].uv
-    uv_total_hlen = loop_seqs[hidx][-1][pair_idx][uv_layer].uv -\
-        loop_seqs[hidx][0][pair_idx][uv_layer].uv
-    common.debug_print(uv_total_hlen)
+    # calculate target UV
+    for i in range(len(accum_uvlens[:-1])):
+        # get line segment which UV will be placed
+        if ((accum_uvlens[i] <= target_length) and
+                (accum_uvlens[i + 1] > target_length)):
+            tgt_seg_len = target_length - accum_uvlens[i]
+            seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
+            uv1 = orig_uvs[i]
+            uv2 = orig_uvs[i + 1]
+            target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
+            break
+        elif i == (len(accum_uvlens[:-1]) - 1):
+            if accum_uvlens[i + 1] != target_length:
+                raise Exception("Internal Error: horizontal_target_length={} is not equal to {}"
+                                .format(target_length, accum_uvlens[-1]))
+            tgt_seg_len = target_length - accum_uvlens[i]
+            seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
+            uv1 = orig_uvs[i]
+            uv2 = orig_uvs[i + 1]
+            target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
+            break
+    else:
+        raise Exception("Internal Error: horizontal_target_length={} is not in range {} to {}"
+                        .format(target_length, accum_uvlens[0], accum_uvlens[-1]))
 
-    return uv_total_hlen * vert_hlen / vert_total_hlen
+    return target_uv
 
 
 # get horizontal differential of UV no influenced
@@ -305,6 +396,13 @@ class MUV_AUVStraighten(bpy.types.Operator):
                     "by mesh vertex proportion",
         default=False
     )
+    mesh_infl = FloatProperty(
+        name="Mesh Influence",
+        description="Influence rate of mesh vertex",
+        min=0.0,
+        max=1.0,
+        default=0.0
+    )
 
     @classmethod
     def poll(cls, context):
@@ -323,12 +421,14 @@ class MUV_AUVStraighten(bpy.types.Operator):
             for vidx in range(0, len(hseq), 2):
                 if self.horizontal:
                     hdiff_uvs = [
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                 else:
                     hdiff_uvs = [
@@ -339,12 +439,12 @@ class MUV_AUVStraighten(bpy.types.Operator):
                     ]
                 if self.vertical:
                     vdiff_uvs = [
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0, self.mesh_infl),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1, self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                 else:
                     vdiff_uvs = [
@@ -450,6 +550,13 @@ class MUV_AUVAxis(bpy.types.Operator):
             ('RIGHT_BOTTOM', "Right/Bottom", "Align to Right or Bottom")
         ],
         default='MIDDLE'
+    )
+    mesh_infl = FloatProperty(
+        name="Mesh Influence",
+        description="Influence rate of mesh vertex",
+        min=0.0,
+        max=1.0,
+        default=0.0
     )
 
     @classmethod
@@ -609,12 +716,14 @@ class MUV_AUVAxis(bpy.types.Operator):
             for vidx in range(0, len(hseq), 2):
                 if self.horizontal:
                     hdiff_uvs = [
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                     hdiff_uvs[0].y = hdiff_uvs[0].y + offset_uvs[hidx][0].y
                     hdiff_uvs[1].y = hdiff_uvs[1].y + offset_uvs[hidx][1].y
@@ -629,12 +738,14 @@ class MUV_AUVAxis(bpy.types.Operator):
                     ]
                 if self.vertical:
                     vdiff_uvs = [
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                 else:
                     vdiff_uvs = [
@@ -694,12 +805,14 @@ class MUV_AUVAxis(bpy.types.Operator):
             for vidx in range(0, len(hseq), 2):
                 if self.horizontal:
                     hdiff_uvs = [
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                     hdiff_uvs[0].x = hdiff_uvs[0].x + offset_uvs[hidx][0].x
                     hdiff_uvs[1].x = hdiff_uvs[1].x + offset_uvs[hidx][1].x
@@ -714,12 +827,14 @@ class MUV_AUVAxis(bpy.types.Operator):
                     ]
                 if self.vertical:
                     vdiff_uvs = [
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0),
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 0),
+                                           hidx, 0, self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
-                                           hidx, 1),
+                                           hidx, 1, self.mesh_infl),
                     ]
                 else:
                     vdiff_uvs = [

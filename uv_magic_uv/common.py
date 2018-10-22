@@ -53,7 +53,7 @@ __all__ = [
 ]
 
 
-DEBUG = False
+DEBUG = True
 
 
 def debug_print(*s):

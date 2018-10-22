@@ -70,6 +70,7 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
             ops.select = sc.muv_auv_select
             ops.vertical = sc.muv_auv_vertical
             ops.horizontal = sc.muv_auv_horizontal
+            ops.mesh_infl = sc.muv_auv_mesh_infl
             row = col.row()
             ops = row.operator(align_uv.MUV_AUVAxis.bl_idname, text="XY-axis")
             ops.transmission = sc.muv_auv_transmission
@@ -77,6 +78,7 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
             ops.vertical = sc.muv_auv_vertical
             ops.horizontal = sc.muv_auv_horizontal
             ops.location = sc.muv_auv_location
+            ops.mesh_infl = sc.muv_auv_mesh_infl
             row.prop(sc, "muv_auv_location", text="")
 
             col = box.column(align=True)
@@ -86,6 +88,7 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
             row = col.row(align=True)
             row.prop(sc, "muv_auv_vertical", text="Vertical")
             row.prop(sc, "muv_auv_horizontal", text="Horizontal")
+            col.prop(sc, "muv_auv_mesh_infl", text="Mesh Influence")
 
         box = layout.box()
         box.prop(sc, "muv_smuv_enabled", text="Smooth UV")

@@ -164,6 +164,13 @@ def init_props(scene):
                     "by mesh vertex proportion",
         default=False
     )
+    scene.muv_auv_mesh_infl = FloatProperty(
+        name="Mesh Influence",
+        description="Influence rate of mesh vertex",
+        min=0.0,
+        max=1.0,
+        default=0.0
+    )
     scene.muv_auv_location = EnumProperty(
         name="Location",
         description="Align location",
