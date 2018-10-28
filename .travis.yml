@@ -11,8 +11,7 @@ branches:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install blender
-  - pip install pylint
-  - pip install pep8
+  - pip install -r requirements.txt
 
 install:
   - wget http://mirror.cs.umn.edu/blender.org/release/Blender2.77/blender-2.77-linux-glibc211-x86_64.tar.bz2
@@ -20,6 +19,7 @@ install:
   - cp -r uv_magic_uv blender-2.77-linux-glibc211-x86_64/2.77/scripts/addons
 
 before_script:
-  - bash tests/check_code_style.sh uv_magic_uv
+  - bash tests/lint/pylint.sh uv_magic_uv
+  - bash tests/lint/pep8.sh uv_magic_uv
 
 script: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/run_tests.py
