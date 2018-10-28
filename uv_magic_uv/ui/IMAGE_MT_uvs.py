@@ -28,42 +28,42 @@ from ..op import copy_paste_uv_uvedit
 from ..op import align_uv
 from ..op import uv_inspection
 from ..op import align_uv_cursor
-from ..op import uv_bounding_box
+from ..op import select_uv
 
 
 __all__ = [
-    'MUV_UVCPUVMenu',
-    'MUV_AUVMenu',
-    'MUV_SelUVMenu',
-    'MUV_AUVCMenu',
-    'MUV_UVInspMenu',
+    'MenuCopyPasteUVUVEdit',
+    'MenuAlignUV',
+    'MenuSelectUV',
+    'MenuAlignUVCursor',
+    'MenuUVInspection',
 ]
 
 
-class MUV_UVCPUVMenu(bpy.types.Menu):
+class MenuCopyPasteUVUVEdit(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate on UV/ImageEditor
     """
 
-    bl_idname = "uv.muv_cpuv_ie_menu"
+    bl_idname = "uv.muv_copy_paste_uv_uvedit_menu"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate among object"
 
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(copy_paste_uv_uvedit.MUV_CPUVIECopyUV.bl_idname,
+        layout.operator(copy_paste_uv_uvedit.OperatorCopyUV.bl_idname,
                         text="Copy")
-        layout.operator(copy_paste_uv_uvedit.MUV_CPUVIEPasteUV.bl_idname,
+        layout.operator(copy_paste_uv_uvedit.OperatorPasteUV.bl_idname,
                         text="Paste")
 
 
-class MUV_AUVMenu(bpy.types.Menu):
+class MenuAlignUV(bpy.types.Menu):
     """
     Menu class: Master menu of Align UV
     """
 
-    bl_idname = "uv.muv_auv_menu"
+    bl_idname = "uv.muv_align_uv_menu"
     bl_label = "Align UV"
     bl_description = "Align UV"
 
@@ -71,50 +71,50 @@ class MUV_AUVMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(align_uv.MUV_AUVCircle.bl_idname, text="Circle")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
+        ops = layout.operator(align_uv.OperatorCircle.bl_idname, text="Circle")
+        ops.transmission = sc.muv_align_uv_transmission
+        ops.select = sc.muv_align_uv_select
 
-        ops = layout.operator(align_uv.MUV_AUVStraighten.bl_idname,
+        ops = layout.operator(align_uv.OperatorStraighten.bl_idname,
                               text="Straighten")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
-        ops.vertical = sc.muv_auv_vertical
-        ops.horizontal = sc.muv_auv_horizontal
+        ops.transmission = sc.muv_align_uv_transmission
+        ops.select = sc.muv_align_uv_select
+        ops.vertical = sc.muv_align_uv_vertical
+        ops.horizontal = sc.muv_align_uv_horizontal
 
-        ops = layout.operator(align_uv.MUV_AUVAxis.bl_idname,
+        ops = layout.operator(align_uv.OperatorAxis.bl_idname,
                               text="XY-axis")
-        ops.transmission = sc.muv_auv_transmission
-        ops.select = sc.muv_auv_select
-        ops.vertical = sc.muv_auv_vertical
-        ops.horizontal = sc.muv_auv_horizontal
-        ops.location = sc.muv_auv_location
+        ops.transmission = sc.muv_align_uv_transmission
+        ops.select = sc.muv_align_uv_select
+        ops.vertical = sc.muv_align_uv_vertical
+        ops.horizontal = sc.muv_align_uv_horizontal
+        ops.location = sc.muv_align_uv_location
 
 
-class MUV_SelUVMenu(bpy.types.Menu):
+class MenuSelectUV(bpy.types.Menu):
     """
     Menu class: Master menu of Select UV
     """
 
-    bl_idname = "uv.muv_seluv_menu"
+    bl_idname = "uv.muv_select_uv_menu"
     bl_label = "Select UV"
     bl_description = "Select UV"
 
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(uv_inspection.MUV_UVInspSelectOverlapped.bl_idname,
+        layout.operator(select_uv.OperatorSelectOverlapped.bl_idname,
                         text="Overlapped")
-        layout.operator(uv_inspection.MUV_UVInspSelectFlipped.bl_idname,
+        layout.operator(select_uv.OperatorSelectFlipped.bl_idname,
                         text="Flipped")
 
 
-class MUV_AUVCMenu(bpy.types.Menu):
+class MenuAlignUVCursor(bpy.types.Menu):
     """
     Menu class: Master menu of Align UV Cursor
     """
 
-    bl_idname = "uv.muv_auvc_menu"
+    bl_idname = "uv.muv_align_uv_cursor_menu"
     bl_label = "Align UV Cursor"
     bl_description = "Align UV cursor"
 
@@ -122,58 +122,58 @@ class MUV_AUVCMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Left Top")
         ops.position = 'LEFT_TOP'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Middle Top")
         ops.position = 'MIDDLE_TOP'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Right Top")
         ops.position = 'RIGHT_TOP'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Left Middle")
         ops.position = 'LEFT_MIDDLE'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Center")
         ops.position = 'CENTER'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Right Middle")
         ops.position = 'RIGHT_MIDDLE'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Left Bottom")
         ops.position = 'LEFT_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Middle Bottom")
         ops.position = 'MIDDLE_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(align_uv_cursor.MUV_AUVCAlign.bl_idname,
+        ops = layout.operator(align_uv_cursor.Operator.bl_idname,
                               text="Right Bottom")
         ops.position = 'RIGHT_BOTTOM'
-        ops.base = sc.muv_auvc_align_menu
+        ops.base = sc.muv_align_uv_cursor_align_method
 
 
-class MUV_UVInspMenu(bpy.types.Menu):
+class MenuUVInspection(bpy.types.Menu):
     """
     Menu class: Master menu of UV Inspection
     """
 
-    bl_idname = "uv.muv_uvinsp_menu"
+    bl_idname = "uv.muv_uv_inspection_menu"
     bl_label = "UV Inspection"
     bl_description = "UV Inspection"
 
@@ -181,6 +181,6 @@ class MUV_UVInspMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.prop(sc, "muv_uvinsp_show", text="UV Inspection")
-        layout.operator(uv_inspection.MUV_UVInspUpdate.bl_idname,
+        layout.prop(sc, "muv_uv_inspection_show", text="UV Inspection")
+        layout.operator(uv_inspection.OperatorUpdate.bl_idname,
                         text="Update")

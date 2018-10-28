@@ -33,7 +33,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_UnwrapConstraint',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -58,12 +59,38 @@ def is_valid_context(context):
     return True
 
 
-class MUV_UnwrapConstraint(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_unwrap_constraint_enabled = BoolProperty(
+            name="Unwrap Constraint Enabled",
+            description="Unwrap Constraint is enabled",
+            default=False
+        )
+        scene.muv_unwrap_constraint_u_const = BoolProperty(
+            name="U-Constraint",
+            description="Keep UV U-axis coordinate",
+            default=False
+        )
+        scene.muv_unwrap_constraint_v_const = BoolProperty(
+            name="V-Constraint",
+            description="Keep UV V-axis coordinate",
+            default=False
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_unwrap_constraint_enabled
+        del scene.muv_unwrap_constraint_u_const
+        del scene.muv_unwrap_constraint_v_const
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Unwrap with constrain UV coordinate
     """
 
-    bl_idname = "uv.muv_unwrap_constraint"
+    bl_idname = "uv.muv_unwrap_constraint_operator"
     bl_label = "Unwrap Constraint"
     bl_description = "Unwrap while keeping uv coordinate"
     bl_options = {'REGISTER', 'UNDO'}

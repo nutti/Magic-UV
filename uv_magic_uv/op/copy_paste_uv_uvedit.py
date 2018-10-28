@@ -34,9 +34,9 @@ from .. import common
 
 
 __all__ = [
-    'MUV_CPUVIE',
-    'MUV_CPUVIECopyUV',
-    'MUV_CPUVIEPasteUV',
+    'Properties',
+    'OperatorCopyUV',
+    'OperatorPasteUV',
 ]
 
 
@@ -63,25 +63,25 @@ def is_valid_context(context):
     return True
 
 
-class MUV_CPUVIE:
+class Properties:
     @classmethod
     def init_props(cls, scene):
         class Props():
             src_uvs = None
 
-        scene.muv_props.cpuv_ie = Props()
+        scene.muv_props.copy_paste_uv_uvedit = Props()
 
     @classmethod
     def del_props(cls, scene):
-        del scene.muv_props.cpuv_ie
+        del scene.muv_props.copy_paste_uv_uvedit
 
 
-class MUV_CPUVIECopyUV(bpy.types.Operator):
+class OperatorCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate on UV/Image Editor
     """
 
-    bl_idname = "uv.muv_cpuv_ie_copy_uv"
+    bl_idname = "uv.muv_copy_paste_uv_uvedit_operator_copy_uv"
     bl_label = "Copy UV (UV/Image Editor)"
     bl_description = "Copy UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -91,7 +91,7 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_ie
+        props = context.scene.muv_props.copy_paste_uv_uvedit
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
@@ -114,12 +114,12 @@ class MUV_CPUVIECopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVIEPasteUV(bpy.types.Operator):
+class OperatorPasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate on UV/Image Editor
     """
 
-    bl_idname = "uv.muv_cpuv_ie_paste_uv"
+    bl_idname = "uv.muv_copy_paste_uv_uvedit_operator_paste_uv"
     bl_label = "Paste UV (UV/Image Editor)"
     bl_description = "Paste UV coordinate (only selected in UV/Image Editor)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -127,13 +127,13 @@ class MUV_CPUVIEPasteUV(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv_ie
+        props = sc.muv_props.copy_paste_uv_uvedit
         if not props.src_uvs:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_ie
+        props = context.scene.muv_props.copy_paste_uv_uvedit
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()

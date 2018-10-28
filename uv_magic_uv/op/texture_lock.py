@@ -35,9 +35,10 @@ from .. import common
 
 
 __all__ = [
-    'MUV_TexLockLock',
-    'MUV_TexLockUnlock',
-    'MUV_TexLockIntr',
+    'Properties',
+    'OperatorLock',
+    'OperatorUnlock',
+    'OperatorIntr',
 ]
 
 
@@ -212,12 +213,55 @@ def is_valid_context(context):
     return True
 
 
-class MUV_TexLockLock(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            verts_orig = None
+
+        scene.muv_props.texture_lock = Props()
+
+        def get_func(_):
+            return OperatorIntr.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_texture_lock_operator_intr('INVOKE_REGION_WIN')
+
+        scene.muv_texture_lock_enabled = BoolProperty(
+            name="Texture Lock Enabled",
+            description="Texture Lock is enabled",
+            default=False
+        )
+        scene.muv_texture_lock_lock = BoolProperty(
+            name="Texture Lock Locked",
+            description="Texture Lock is locked",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_texture_lock_connect = BoolProperty(
+            name="Connect UV",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_props.texture_lock
+        del scene.muv_texture_lock_enabled
+        del scene.muv_texture_lock_lock
+        del scene.muv_texture_lock_connect
+
+
+class OperatorLock(bpy.types.Operator):
     """
     Operation class: Lock Texture
     """
 
-    bl_idname = "uv.muv_texlock_lock"
+    bl_idname = "uv.muv_texture_lock_operator_lock"
     bl_label = "Lock Texture"
     bl_description = "Lock Texture"
     bl_options = {'REGISTER', 'UNDO'}
@@ -229,13 +273,13 @@ class MUV_TexLockLock(bpy.types.Operator):
     @classmethod
     def is_ready(cls, context):
         sc = context.scene
-        props = sc.muv_props.texlock
+        props = sc.muv_props.texture_lock
         if props.verts_orig:
             return True
         return False
 
     def execute(self, context):
-        props = context.scene.muv_props.texlock
+        props = context.scene.muv_props.texture_lock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if common.check_version(2, 73, 0) >= 0:
@@ -255,12 +299,12 @@ class MUV_TexLockLock(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexLockUnlock(bpy.types.Operator):
+class OperatorUnlock(bpy.types.Operator):
     """
     Operation class: Unlock Texture
     """
 
-    bl_idname = "uv.muv_texlock_unlock"
+    bl_idname = "uv.muv_texture_lock_operator_unlock"
     bl_label = "Unlock Texture"
     bl_description = "Unlock Texture"
     bl_options = {'REGISTER', 'UNDO'}
@@ -273,14 +317,14 @@ class MUV_TexLockUnlock(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.texlock
+        props = sc.muv_props.texture_lock
         if not props.verts_orig:
             return False
-        return MUV_TexLockLock.is_ready(context) and is_valid_context(context)
+        return OperatorLock.is_ready(context) and is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
-        props = sc.muv_props.texlock
+        props = sc.muv_props.texture_lock
         obj = bpy.context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if common.check_version(2, 73, 0) >= 0:
@@ -333,12 +377,12 @@ class MUV_TexLockUnlock(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexLockIntr(bpy.types.Operator):
+class OperatorIntr(bpy.types.Operator):
     """
     Operation class: Texture Lock (Interactive mode)
     """
 
-    bl_idname = "uv.muv_texlock_intr"
+    bl_idname = "uv.muv_texture_lock_operator_intr"
     bl_label = "Texture Lock (Interactive mode)"
     bl_description = "Internal operation for Texture Lock (Interactive mode)"
 
@@ -347,41 +391,6 @@ class MUV_TexLockIntr(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return is_valid_context(context)
-
-    @classmethod
-    def init_props(cls, scene):
-        def get_func(_):
-            return MUV_TexLockIntr.is_running(bpy.context)
-
-        def set_func(_, __):
-            pass
-
-        def update_func(_, __):
-            bpy.ops.uv.muv_texlock_intr('INVOKE_REGION_WIN')
-
-        scene.muv_texlock_enabled = BoolProperty(
-            name="Texture Lock Enabled",
-            description="Texture Lock is enabled",
-            default=False
-        )
-        scene.muv_texlock_lock = BoolProperty(
-            name="Texture Lock Locked",
-            description="Texture Lock is locked",
-            default=False,
-            get=get_func,
-            set=set_func,
-            update=update_func
-        )
-        scene.muv_texlock_connect = BoolProperty(
-            name="Connect UV",
-            default=True
-        )
-
-    @classmethod
-    def del_props(cls, scene):
-        del scene.muv_texlock_enabled
-        del scene.muv_texlock_lock
-        del scene.muv_texlock_connect
 
     @classmethod
     def is_running(cls, _):
@@ -482,10 +491,10 @@ class MUV_TexLockIntr(bpy.types.Operator):
 
     def modal(self, context, event):
         if not is_valid_context(context):
-            MUV_TexLockIntr.handle_remove(context)
+            OperatorIntr.handle_remove(context)
             return {'FINISHED'}
 
-        if not MUV_TexLockIntr.is_running(context):
+        if not OperatorIntr.is_running(context):
             return {'FINISHED'}
 
         if context.area:
@@ -503,11 +512,11 @@ class MUV_TexLockIntr(bpy.types.Operator):
         if not is_valid_context(context):
             return {'CANCELLED'}
 
-        if not MUV_TexLockIntr.is_running(context):
-            MUV_TexLockIntr.handle_add(self, context)
+        if not OperatorIntr.is_running(context):
+            OperatorIntr.handle_add(self, context)
             return {'RUNNING_MODAL'}
         else:
-            MUV_TexLockIntr.handle_remove(context)
+            OperatorIntr.handle_remove(context)
 
         if context.area:
             context.area.tag_redraw()

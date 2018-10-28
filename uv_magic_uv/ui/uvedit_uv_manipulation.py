@@ -29,14 +29,15 @@ from ..op import uv_inspection
 from ..op import align_uv
 from ..op import smooth_uv
 from ..op import pack_uv
+from ..op import select_uv
 
 
 __all__ = [
-    'IMAGE_PT_MUV_UVManip',
+    'MenuUVManipulation',
 ]
 
 
-class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
+class MenuUVManipulation(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on UV/ImageEditor
     """
@@ -57,69 +58,69 @@ class IMAGE_PT_MUV_UVManip(bpy.types.Panel):
         layout = self.layout
 
         box = layout.box()
-        box.prop(sc, "muv_auv_enabled", text="Align UV")
-        if sc.muv_auv_enabled:
+        box.prop(sc, "muv_align_uv_enabled", text="Align UV")
+        if sc.muv_align_uv_enabled:
             col = box.column()
             row = col.row(align=True)
-            ops = row.operator(align_uv.MUV_AUVCircle.bl_idname, text="Circle")
-            ops.transmission = sc.muv_auv_transmission
-            ops.select = sc.muv_auv_select
-            ops = row.operator(align_uv.MUV_AUVStraighten.bl_idname,
+            ops = row.operator(align_uv.OperatorCircle.bl_idname, text="Circle")
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops = row.operator(align_uv.OperatorStraighten.bl_idname,
                                text="Straighten")
-            ops.transmission = sc.muv_auv_transmission
-            ops.select = sc.muv_auv_select
-            ops.vertical = sc.muv_auv_vertical
-            ops.horizontal = sc.muv_auv_horizontal
-            ops.mesh_infl = sc.muv_auv_mesh_infl
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops.vertical = sc.muv_align_uv_vertical
+            ops.horizontal = sc.muv_align_uv_horizontal
+            ops.mesh_infl = sc.muv_align_uv_mesh_infl
             row = col.row()
-            ops = row.operator(align_uv.MUV_AUVAxis.bl_idname, text="XY-axis")
-            ops.transmission = sc.muv_auv_transmission
-            ops.select = sc.muv_auv_select
-            ops.vertical = sc.muv_auv_vertical
-            ops.horizontal = sc.muv_auv_horizontal
-            ops.location = sc.muv_auv_location
-            ops.mesh_infl = sc.muv_auv_mesh_infl
-            row.prop(sc, "muv_auv_location", text="")
+            ops = row.operator(align_uv.OperatorAxis.bl_idname, text="XY-axis")
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops.vertical = sc.muv_align_uv_vertical
+            ops.horizontal = sc.muv_align_uv_horizontal
+            ops.location = sc.muv_align_uv_location
+            ops.mesh_infl = sc.muv_align_uv_mesh_infl
+            row.prop(sc, "muv_align_uv_location", text="")
 
             col = box.column(align=True)
             row = col.row(align=True)
-            row.prop(sc, "muv_auv_transmission", text="Transmission")
-            row.prop(sc, "muv_auv_select", text="Select")
+            row.prop(sc, "muv_align_uv_transmission", text="Transmission")
+            row.prop(sc, "muv_align_uv_select", text="Select")
             row = col.row(align=True)
-            row.prop(sc, "muv_auv_vertical", text="Vertical")
-            row.prop(sc, "muv_auv_horizontal", text="Horizontal")
-            col.prop(sc, "muv_auv_mesh_infl", text="Mesh Influence")
+            row.prop(sc, "muv_align_uv_vertical", text="Vertical")
+            row.prop(sc, "muv_align_uv_horizontal", text="Horizontal")
+            col.prop(sc, "muv_align_uv_mesh_infl", text="Mesh Influence")
 
         box = layout.box()
-        box.prop(sc, "muv_smuv_enabled", text="Smooth UV")
-        if sc.muv_smuv_enabled:
-            ops = box.operator(smooth_uv.MUV_AUVSmooth.bl_idname,
+        box.prop(sc, "muv_smooth_uv_enabled", text="Smooth UV")
+        if sc.muv_smooth_uv_enabled:
+            ops = box.operator(smooth_uv.Operator.bl_idname,
                                text="Smooth")
-            ops.transmission = sc.muv_smuv_transmission
-            ops.select = sc.muv_smuv_select
-            ops.mesh_infl = sc.muv_smuv_mesh_infl
+            ops.transmission = sc.muv_smooth_uv_transmission
+            ops.select = sc.muv_smooth_uv_select
+            ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
             col = box.column(align=True)
             row = col.row(align=True)
-            row.prop(sc, "muv_smuv_transmission", text="Transmission")
-            row.prop(sc, "muv_smuv_select", text="Select")
-            col.prop(sc, "muv_smuv_mesh_infl", text="Mesh Influence")
+            row.prop(sc, "muv_smooth_uv_transmission", text="Transmission")
+            row.prop(sc, "muv_smooth_uv_select", text="Select")
+            col.prop(sc, "muv_smooth_uv_mesh_infl", text="Mesh Influence")
 
         box = layout.box()
-        box.prop(sc, "muv_seluv_enabled", text="Select UV")
-        if sc.muv_seluv_enabled:
+        box.prop(sc, "muv_select_uv_enabled", text="Select UV")
+        if sc.muv_select_uv_enabled:
             row = box.row(align=True)
-            row.operator(uv_inspection.MUV_UVInspSelectOverlapped.bl_idname)
-            row.operator(uv_inspection.MUV_UVInspSelectFlipped.bl_idname)
+            row.operator(select_uv.OperatorSelectOverlapped.bl_idname)
+            row.operator(select_uv.OperatorSelectFlipped.bl_idname)
 
         box = layout.box()
-        box.prop(sc, "muv_packuv_enabled", text="Pack UV (Extension)")
-        if sc.muv_packuv_enabled:
-            ops = box.operator(pack_uv.MUV_PackUV.bl_idname, text="Pack UV")
+        box.prop(sc, "muv_pack_uv_enabled", text="Pack UV (Extension)")
+        if sc.muv_pack_uv_enabled:
+            ops = box.operator(pack_uv.Operator.bl_idname, text="Pack UV")
             ops.allowable_center_deviation = \
-                sc.muv_packuv_allowable_center_deviation
+                sc.muv_pack_uv_allowable_center_deviation
             ops.allowable_size_deviation = \
-                sc.muv_packuv_allowable_size_deviation
+                sc.muv_pack_uv_allowable_size_deviation
             box.label("Allowable Center Deviation:")
-            box.prop(sc, "muv_packuv_allowable_center_deviation", text="")
+            box.prop(sc, "muv_pack_uv_allowable_center_deviation", text="")
             box.label("Allowable Size Deviation:")
-            box.prop(sc, "muv_packuv_allowable_size_deviation", text="")
+            box.prop(sc, "muv_pack_uv_allowable_size_deviation", text="")

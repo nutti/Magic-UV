@@ -26,10 +26,12 @@ __date__ = "24 Feb 2018"
 import bpy
 import bmesh
 from mathutils import Vector
+from bpy.props import BoolProperty
 
 
 __all__ = [
-    'MUV_MVUV',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -54,12 +56,26 @@ def is_valid_context(context):
     return True
 
 
-class MUV_MVUV(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_move_uv_enabled = BoolProperty(
+            name="Move UV Enabled",
+            description="Move UV is enabled",
+            default=False
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_move_uv_enabled
+
+
+class Operator(bpy.types.Operator):
     """
     Operator class: Move UV
     """
 
-    bl_idname = "view3d.muv_mvuv"
+    bl_idname = "view3d.muv_move_uv_operator"
     bl_label = "Move UV"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -144,17 +160,17 @@ class MUV_MVUV(bpy.types.Operator):
         if event.type == cancel_btn and event.value == 'PRESS':
             for (fidx, vidx), uv in zip(self.__topology_dict, self.__ini_uvs):
                 bm.faces[fidx].loops[vidx][active_uv].uv = uv
-            MUV_MVUV.__running = False
+            Operator.__running = False
             return {'FINISHED'}
         # confirmed
         if event.type == confirm_btn and event.value == 'PRESS':
-            MUV_MVUV.__running = False
+            Operator.__running = False
             return {'FINISHED'}
 
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
-        MUV_MVUV.__running = True
+        Operator.__running = True
         self.__operating = False
         self.__first_time = True
 

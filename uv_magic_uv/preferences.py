@@ -50,50 +50,50 @@ def view3d_uvmap_menu_fn(self, context):
     layout.separator()
     layout.label("Copy/Paste UV", icon='IMAGE_COL')
     # Copy/Paste UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_CPUVMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuCopyPasteUV.bl_idname,
                 text="Copy/Paste UV")
     # Transfer UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TransUVMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuTransferUV.bl_idname,
                 text="Transfer UV")
 
     layout.separator()
     layout.label("UV Manipulation", icon='IMAGE_COL')
     # Flip/Rotate UV
-    ops = layout.operator(op.flip_rotate_uv.MUV_FlipRot.bl_idname,
+    ops = layout.operator(op.flip_rotate_uv.Operator.bl_idname,
                           text="Flip/Rotate UV")
-    ops.seams = sc.muv_fliprot_seams
+    ops.seams = sc.muv_flip_rotate_uv_seams
     # Mirror UV
-    ops = layout.operator(op.mirror_uv.MUV_MirrorUV.bl_idname, text="Mirror UV")
-    ops.axis = sc.muv_mirroruv_axis
+    ops = layout.operator(op.mirror_uv.Operator.bl_idname, text="Mirror UV")
+    ops.axis = sc.muv_mirror_uv_axis
     # Move UV
-    layout.operator(op.move_uv.MUV_MVUV.bl_idname, text="Move UV")
+    layout.operator(op.move_uv.Operator.bl_idname, text="Move UV")
     # World Scale UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_WSUVMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuWorldScaleUV.bl_idname,
                 text="World Scale UV")
     # Preserve UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_PreserveUVMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuPreserveUVAspect.bl_idname,
                 text="Preserve UV")
     # Texture Lock
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexLockMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuTextureLock.bl_idname,
                 text="Texture Lock")
     # Texture Wrap
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexWrapMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuTextureWrap.bl_idname,
                 text="Texture Wrap")
     # UV Sculpt
-    layout.prop(sc, "muv_uvsculpt_enable", text="UV Sculpt")
+    layout.prop(sc, "muv_uv_sculpt_enable", text="UV Sculpt")
 
     layout.separator()
     layout.label("UV Mapping", icon='IMAGE_COL')
     # Unwrap Constraint
-    ops = layout.operator(op.unwrap_constraint.MUV_UnwrapConstraint.bl_idname,
+    ops = layout.operator(op.unwrap_constraint.Operator.bl_idname,
                           text="Unwrap Constraint")
-    ops.u_const = sc.muv_unwrapconst_u_const
-    ops.v_const = sc.muv_unwrapconst_v_const
+    ops.u_const = sc.muv_unwrap_constraint_u_const
+    ops.v_const = sc.muv_unwrap_constraint_v_const
     # Texture Projection
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_TexProjMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuTextureProjection.bl_idname,
                 text="Texture Projection")
     # UVW
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_UVWMenu.bl_idname, text="UVW")
+    layout.menu(ui.VIEW3D_MT_uv_map.MenuUVW.bl_idname, text="UVW")
 
 
 def view3d_object_menu_fn(self, _):
@@ -101,7 +101,7 @@ def view3d_object_menu_fn(self, _):
 
     layout.separator()
     # Copy/Paste UV (Among Objecct)
-    layout.menu(ui.VIEW3D_MT_object.MUV_CPUVObjMenu.bl_idname,
+    layout.menu(ui.VIEW3D_MT_object.MenuCopyPasteUVObject.bl_idname,
                 text="Copy/Paste UV")
     layout.label("Copy/Paste UV", icon='IMAGE_COL')
 
@@ -112,32 +112,32 @@ def image_uvs_menu_fn(self, context):
 
     layout.separator()
     # Align UV Cursor
-    layout.menu(ui.IMAGE_MT_uvs.MUV_AUVCMenu.bl_idname, text="Align UV Cursor")
+    layout.menu(ui.IMAGE_MT_uvs.MenuAlignUVCursor.bl_idname, text="Align UV Cursor")
     # UV Bounding Box
-    layout.prop(sc, "muv_uvbb_show", text="UV Bounding Box")
+    layout.prop(sc, "muv_uv_bounding_box_show", text="UV Bounding Box")
     # UV Inspection
-    layout.menu(ui.IMAGE_MT_uvs.MUV_UVInspMenu.bl_idname, text="UV Inspection")
+    layout.menu(ui.IMAGE_MT_uvs.MenuUVInspection.bl_idname, text="UV Inspection")
     layout.label("Editor Enhancement", icon='IMAGE_COL')
 
     layout.separator()
     # Align UV
-    layout.menu(ui.IMAGE_MT_uvs.MUV_AUVMenu.bl_idname, text="Align UV")
+    layout.menu(ui.IMAGE_MT_uvs.MenuAlignUV.bl_idname, text="Align UV")
     # Smooth UV
-    ops = layout.operator(op.smooth_uv.MUV_AUVSmooth.bl_idname, text="Smooth")
-    ops.transmission = sc.muv_smuv_transmission
-    ops.select = sc.muv_smuv_select
-    ops.mesh_infl = sc.muv_smuv_mesh_infl
+    ops = layout.operator(op.smooth_uv.Operator.bl_idname, text="Smooth")
+    ops.transmission = sc.muv_smooth_uv_transmission
+    ops.select = sc.muv_smooth_uv_select
+    ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
     # Select UV
-    layout.menu(ui.IMAGE_MT_uvs.MUV_SelUVMenu.bl_idname, text="Select UV")
+    layout.menu(ui.IMAGE_MT_uvs.MenuSelectUV.bl_idname, text="Select UV")
     # Pack UV
-    ops = layout.operator(op.pack_uv.MUV_PackUV.bl_idname, text="Pack UV")
-    ops.allowable_center_deviation = sc.muv_packuv_allowable_center_deviation
-    ops.allowable_size_deviation = sc.muv_packuv_allowable_size_deviation
+    ops = layout.operator(op.pack_uv.Operator.bl_idname, text="Pack UV")
+    ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
+    ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
     layout.label("UV Manipulation", icon='IMAGE_COL')
 
     layout.separator()
     # Copy/Paste UV (on UV/Image Editor)
-    layout.menu(ui.IMAGE_MT_uvs.MUV_UVCPUVMenu.bl_idname, text="Copy/Paste UV")
+    layout.menu(ui.IMAGE_MT_uvs.MenuCopyPasteUVUVEdit.bl_idname, text="Copy/Paste UV")
     layout.label("Copy/Paste UV", icon='IMAGE_COL')
 
 
@@ -174,7 +174,7 @@ class MUV_Preferences(AddonPreferences):
     )
 
     # for UV Sculpt
-    uvsculpt_brush_color = FloatVectorProperty(
+    uv_sculpt_brush_color = FloatVectorProperty(
         name="Color",
         description="Color",
         default=(1.0, 0.4, 0.4, 1.0),
@@ -185,7 +185,7 @@ class MUV_Preferences(AddonPreferences):
     )
 
     # for Overlapped UV
-    uvinsp_overlapped_color = FloatVectorProperty(
+    uv_inspection_overlapped_color = FloatVectorProperty(
         name="Color",
         description="Color",
         default=(0.0, 0.0, 1.0, 0.3),
@@ -196,7 +196,7 @@ class MUV_Preferences(AddonPreferences):
     )
 
     # for Flipped UV
-    uvinsp_flipped_color = FloatVectorProperty(
+    uv_inspection_flipped_color = FloatVectorProperty(
         name="Color",
         description="Color",
         default=(1.0, 0.0, 0.0, 0.3),
@@ -207,7 +207,7 @@ class MUV_Preferences(AddonPreferences):
     )
 
     # for Texture Projection
-    texproj_canvas_padding = FloatVectorProperty(
+    texture_projection_canvas_padding = FloatVectorProperty(
         name="Canvas Padding",
         description="Canvas Padding",
         size=2,
@@ -216,13 +216,13 @@ class MUV_Preferences(AddonPreferences):
         default=(20.0, 20.0))
 
     # for UV Bounding Box
-    uvbb_cp_size = FloatProperty(
+    uv_bounding_box_cp_size = FloatProperty(
         name="Size",
         description="Control Point Size",
         default=6.0,
         min=3.0,
         max=100.0)
-    uvbb_cp_react_size = FloatProperty(
+    uv_bounding_box_cp_react_size = FloatProperty(
         name="React Size",
         description="Size event fired",
         default=10.0,
@@ -249,22 +249,22 @@ class MUV_Preferences(AddonPreferences):
         description="Location",
         default=False
     )
-    conf_uvsculpt_expanded = BoolProperty(
+    conf_uv_sculpt_expanded = BoolProperty(
         name="UV Sculpt",
         description="UV Sculpt",
         default=False
     )
-    conf_uvinsp_expanded = BoolProperty(
+    conf_uv_inspection_expanded = BoolProperty(
         name="UV Inspection",
         description="UV Inspection",
         default=False
     )
-    conf_texproj_expanded = BoolProperty(
+    conf_texture_projection_expanded = BoolProperty(
         name="Texture Projection",
         description="Texture Projection",
         default=False
     )
-    conf_uvbb_expanded = BoolProperty(
+    conf_uv_bounding_box_expanded = BoolProperty(
         name="UV Bounding Box",
         description="UV Bounding Box",
         default=False
@@ -273,7 +273,6 @@ class MUV_Preferences(AddonPreferences):
     def draw(self, context):
         layout = self.layout
         sc = context.scene
-        props = sc.muv_props
 
         layout.row().prop(self, "category", expand=True)
 
@@ -362,53 +361,53 @@ class MUV_Preferences(AddonPreferences):
             layout.separator()
 
             layout.prop(
-                self, "conf_uvsculpt_expanded", text="UV Sculpt",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvsculpt_expanded else 'DISCLOSURE_TRI_RIGHT')
-            if self.conf_uvsculpt_expanded:
+                self, "conf_uv_sculpt_expanded", text="UV Sculpt",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_sculpt_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uv_sculpt_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
                 sp = sp.split(percentage=0.3)
                 col = sp.column()
                 col.label("Brush Color:")
-                col.prop(self, "uvsculpt_brush_color", text="")
+                col.prop(self, "uv_sculpt_brush_color", text="")
                 layout.separator()
 
             layout.prop(
-                self, "conf_uvinsp_expanded", text="UV Inspection",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvinsp_expanded else 'DISCLOSURE_TRI_RIGHT')
-            if self.conf_uvinsp_expanded:
+                self, "conf_uv_inspection_expanded", text="UV Inspection",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_inspection_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uv_inspection_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
                 sp = sp.split(percentage=0.3)
                 col = sp.column()
                 col.label("Overlapped UV Color:")
-                col.prop(self, "uvinsp_overlapped_color", text="")
+                col.prop(self, "uv_inspection_overlapped_color", text="")
                 sp = sp.split(percentage=0.45)
                 col = sp.column()
                 col.label("Flipped UV Color:")
-                col.prop(self, "uvinsp_flipped_color", text="")
+                col.prop(self, "uv_inspection_flipped_color", text="")
                 layout.separator()
 
             layout.prop(
-                self, "conf_texproj_expanded", text="Texture Projection",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_texproj_expanded else 'DISCLOSURE_TRI_RIGHT')
-            if self.conf_texproj_expanded:
+                self, "conf_texture_projection_expanded", text="Texture Projection",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_texture_projection_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_texture_projection_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer
                 sp = sp.split(percentage=0.3)
                 col = sp.column()
-                col.prop(self, "texproj_canvas_padding")
+                col.prop(self, "texture_projection_canvas_padding")
                 layout.separator()
 
             layout.prop(
-                self, "conf_uvbb_expanded", text="UV Bounding Box",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uvbb_expanded else 'DISCLOSURE_TRI_RIGHT')
-            if self.conf_uvbb_expanded:
+                self, "conf_uv_bounding_box_expanded", text="UV Bounding Box",
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_bounding_box_expanded else 'DISCLOSURE_TRI_RIGHT')
+            if self.conf_uv_bounding_box_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer
                 sp = sp.split(percentage=0.3)
                 col = sp.column()
                 col.label("Control Point:")
-                col.prop(self, "uvbb_cp_size")
-                col.prop(self, "uvbb_cp_react_size")
+                col.prop(self, "uv_bounding_box_cp_size")
+                col.prop(self, "uv_bounding_box_cp_react_size")
                 layout.separator()

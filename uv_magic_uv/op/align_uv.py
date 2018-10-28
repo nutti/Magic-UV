@@ -35,9 +35,10 @@ from .. import common
 
 
 __all__ = [
-    'MUV_AUVCircle',
-    'MUV_AUVStraighten',
-    'MUV_AUVAxis',
+    'Properties',
+    'OperatorCircle',
+    'OperatorStraighten',
+    'OperatorAxis',
 ]
 
 
@@ -116,9 +117,68 @@ def calc_v_on_circle(v, center, radius):
     return new_v
 
 
-class MUV_AUVCircle(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_align_uv_enabled = BoolProperty(
+            name="Aline UV Enabled",
+            description="Align UV is enabled",
+            default=False
+        )
+        scene.muv_align_uv_transmission = BoolProperty(
+            name="Transmission",
+            description="Align linked UVs",
+            default=False
+        )
+        scene.muv_align_uv_select = BoolProperty(
+            name="Select",
+            description="Select UVs which are aligned",
+            default=False
+        )
+        scene.muv_align_uv_vertical = BoolProperty(
+            name="Vert-Infl (Vertical)",
+            description="Align vertical direction influenced "
+                        "by mesh vertex proportion",
+            default=False
+        )
+        scene.muv_align_uv_horizontal = BoolProperty(
+            name="Vert-Infl (Horizontal)",
+            description="Align horizontal direction influenced "
+                        "by mesh vertex proportion",
+            default=False
+        )
+        scene.muv_align_uv_mesh_infl = FloatProperty(
+            name="Mesh Influence",
+            description="Influence rate of mesh vertex",
+            min=0.0,
+            max=1.0,
+            default=0.0
+        )
+        scene.muv_align_uv_location = EnumProperty(
+            name="Location",
+            description="Align location",
+            items=[
+                ('LEFT_TOP', "Left/Top", "Align to Left or Top"),
+                ('MIDDLE', "Middle", "Align to middle"),
+                ('RIGHT_BOTTOM', "Right/Bottom", "Align to Right or Bottom")
+            ],
+            default='MIDDLE'
+        )
 
-    bl_idname = "uv.muv_auv_circle"
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_align_uv_enabled
+        del scene.muv_align_uv_transmission
+        del scene.muv_align_uv_select
+        del scene.muv_align_uv_vertical
+        del scene.muv_align_uv_horizontal
+        del scene.muv_align_uv_mesh_infl
+        del scene.muv_align_uv_location
+
+
+class OperatorCircle(bpy.types.Operator):
+
+    bl_idname = "uv.muv_align_uv_operator_circle"
     bl_label = "Align UV (Circle)"
     bl_description = "Align UV coordinates to Circle"
     bl_options = {'REGISTER', 'UNDO'}
@@ -367,9 +427,9 @@ def get_vdiff_uv(uv_layer, loop_seqs, vidx, hidx):
     return int((vidx + 1) / 2) * v_uv / (len(hseq) / 2)
 
 
-class MUV_AUVStraighten(bpy.types.Operator):
+class OperatorStraighten(bpy.types.Operator):
 
-    bl_idname = "uv.muv_auv_straighten"
+    bl_idname = "uv.muv_align_uv_operator_straighten"
     bl_label = "Align UV (Straighten)"
     bl_description = "Straighten UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}
@@ -512,9 +572,9 @@ class MUV_AUVStraighten(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_AUVAxis(bpy.types.Operator):
+class OperatorAxis(bpy.types.Operator):
 
-    bl_idname = "uv.muv_auv_axis"
+    bl_idname = "uv.muv_align_uv_operator_axis"
     bl_label = "Align UV (XY-Axis)"
     bl_description = "Align UV to XY-axis"
     bl_options = {'REGISTER', 'UNDO'}

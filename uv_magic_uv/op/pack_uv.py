@@ -39,7 +39,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_PackUV',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -66,7 +67,39 @@ def is_valid_context(context):
     return True
 
 
-class MUV_PackUV(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_pack_uv_enabled = BoolProperty(
+            name="Pack UV Enabled",
+            description="Pack UV is enabled",
+            default=False
+        )
+        scene.muv_pack_uv_allowable_center_deviation = FloatVectorProperty(
+            name="Allowable Center Deviation",
+            description="Allowable center deviation to judge same UV island",
+            min=0.000001,
+            max=0.1,
+            default=(0.001, 0.001),
+            size=2
+        )
+        scene.muv_pack_uv_allowable_size_deviation = FloatVectorProperty(
+            name="Allowable Size Deviation",
+            description="Allowable sizse deviation to judge same UV island",
+            min=0.000001,
+            max=0.1,
+            default=(0.001, 0.001),
+            size=2
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_pack_uv_enabled
+        del scene.muv_pack_uv_allowable_center_deviation
+        del scene.muv_pack_uv_allowable_size_deviation
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Pack UV with same UV islands are integrated
     Island matching algorithm
@@ -75,7 +108,7 @@ class MUV_PackUV(bpy.types.Operator):
      - Same number of UV
     """
 
-    bl_idname = "uv.muv_packuv"
+    bl_idname = "uv.muv_pack_uv_operator"
     bl_label = "Pack UV"
     bl_description = "Pack UV (Same UV Islands are integrated)"
     bl_options = {'REGISTER', 'UNDO'}

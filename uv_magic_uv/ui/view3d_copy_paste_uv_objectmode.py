@@ -29,11 +29,11 @@ from ..op import copy_paste_uv_object
 
 
 __all__ = [
-    'OBJECT_PT_MUV_CPUVObj',
+    'PanelCopyPasteUV',
 ]
 
 
-class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
+class PanelCopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D
     """
@@ -54,8 +54,8 @@ class OBJECT_PT_MUV_CPUVObj(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.menu(copy_paste_uv_object.MUV_CPUVObjCopyUVMenu.bl_idname,
+        row.menu(copy_paste_uv_object.MenuCopyUV.bl_idname,
                  text="Copy")
-        row.menu(copy_paste_uv_object.MUV_CPUVObjPasteUVMenu.bl_idname,
+        row.menu(copy_paste_uv_object.MenuPasteUV.bl_idname,
                  text="Paste")
-        layout.prop(sc, "muv_cpuv_obj_copy_seams", text="Copy Seams")
+        layout.prop(sc, "muv_copy_paste_uv_object_copy_seams", text="Copy Seams")

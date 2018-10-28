@@ -28,23 +28,23 @@ from ..op import copy_paste_uv_object
 
 
 __all__ = [
-    'MUV_CPUVObjMenu',
+    'MenuCopyPasteUVObject',
 ]
 
 
-class MUV_CPUVObjMenu(bpy.types.Menu):
+class MenuCopyPasteUVObject(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate among object
     """
 
-    bl_idname = "uv.muv_cpuv_obj_menu"
+    bl_idname = "uv.muv_copy_paste_uv_object_menu"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate among object"
 
     def draw(self, _):
         layout = self.layout
 
-        layout.menu(copy_paste_uv_object.MUV_CPUVObjCopyUVMenu.bl_idname,
+        layout.menu(copy_paste_uv_object.MenuCopyUV.bl_idname,
                     text="Copy")
-        layout.menu(copy_paste_uv_object.MUV_CPUVObjPasteUVMenu.bl_idname,
+        layout.menu(copy_paste_uv_object.MenuPasteUV.bl_idname,
                     text="Paste")

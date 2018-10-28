@@ -25,14 +25,15 @@ __date__ = "24 Feb 2018"
 
 import bpy
 import bmesh
-from bpy.props import StringProperty, EnumProperty
+from bpy.props import StringProperty, EnumProperty, BoolProperty
 from mathutils import Vector
 
 from .. import common
 
 
 __all__ = [
-    'MUV_PreserveUVAspect',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -57,12 +58,55 @@ def is_valid_context(context):
     return True
 
 
-class MUV_PreserveUVAspect(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        def get_loaded_texture_name(_, __):
+            items = [(key, key, "") for key in bpy.data.images.keys()]
+            items.append(("None", "None", ""))
+            return items
+
+        scene.muv_preserve_uv_aspect_enabled = BoolProperty(
+            name="Preserve UV Aspect Enabled",
+            description="Preserve UV Aspect is enabled",
+            default=False
+        )
+        scene.muv_preserve_uv_aspect_tex_image = EnumProperty(
+            name="Image",
+            description="Texture Image",
+            items=get_loaded_texture_name
+        )
+        scene.muv_preserve_uv_aspect_origin = EnumProperty(
+            name="Origin",
+            description="Aspect Origin",
+            items=[
+                ('CENTER', 'Center', 'Center'),
+                ('LEFT_TOP', 'Left Top', 'Left Bottom'),
+                ('LEFT_CENTER', 'Left Center', 'Left Center'),
+                ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
+                ('CENTER_TOP', 'Center Top', 'Center Top'),
+                ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
+                ('RIGHT_TOP', 'Right Top', 'Right Top'),
+                ('RIGHT_CENTER', 'Right Center', 'Right Center'),
+                ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+
+            ],
+            default="CENTER"
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_preserve_uv_aspect_enabled
+        del scene.muv_preserve_uv_aspect_tex_image
+        del scene.muv_preserve_uv_aspect_origin
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Preserve UV Aspect
     """
 
-    bl_idname = "uv.muv_preserve_uv_aspect"
+    bl_idname = "uv.muv_preserve_uv_aspect_operator"
     bl_label = "Preserve UV Aspect"
     bl_description = "Choose Image"
     bl_options = {'REGISTER', 'UNDO'}

@@ -31,7 +31,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_AUVSmooth',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -58,9 +59,43 @@ def is_valid_context(context):
     return True
 
 
-class MUV_AUVSmooth(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_smooth_uv_enabled = BoolProperty(
+            name="Smooth UV Enabled",
+            description="Smooth UV is enabled",
+            default=False
+        )
+        scene.muv_smooth_uv_transmission = BoolProperty(
+            name="Transmission",
+            description="Smooth linked UVs",
+            default=False
+        )
+        scene.muv_smooth_uv_mesh_infl = FloatProperty(
+            name="Mesh Influence",
+            description="Influence rate of mesh vertex",
+            min=0.0,
+            max=1.0,
+            default=0.0
+        )
+        scene.muv_smooth_uv_select = BoolProperty(
+            name="Select",
+            description="Select UVs which are smoothed",
+            default=False
+        )
 
-    bl_idname = "uv.muv_auv_smooth"
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_smooth_uv_enabled
+        del scene.muv_smooth_uv_transmission
+        del scene.muv_smooth_uv_mesh_infl
+        del scene.muv_smooth_uv_select
+
+
+class Operator(bpy.types.Operator):
+
+    bl_idname = "uv.muv_smooth_uv_operator"
     bl_label = "Smooth"
     bl_description = "Smooth UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}

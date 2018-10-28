@@ -33,8 +33,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_TransUVCopy',
-    'MUV_TransUVPaste',
+    'OperatorCopy',
+    'OperatorPaste',
 ]
 
 
@@ -59,13 +59,44 @@ def is_valid_context(context):
     return True
 
 
-class MUV_TransUVCopy(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            topology_copied = None
+
+        scene.muv_props.transfer_uv = Props()
+
+        scene.muv_transfer_uv_enabled = BoolProperty(
+            name="Transfer UV Enabled",
+            description="Transfer UV is enabled",
+            default=False
+        )
+        scene.muv_transfer_uv_invert_normals = BoolProperty(
+            name="Invert Normals",
+            description="Invert Normals",
+            default=False
+        )
+        scene.muv_transfer_uv_copy_seams = BoolProperty(
+            name="Copy Seams",
+            description="Copy Seams",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_transfer_uv_enabled
+        del scene.muv_transfer_uv_invert_normals
+        del scene.muv_transfer_uv_copy_seams
+
+
+class OperatorCopy(bpy.types.Operator):
     """
         Operation class: Transfer UV copy
         Topological based copy
     """
 
-    bl_idname = "uv.muv_transuv_copy"
+    bl_idname = "uv.muv_transfer_uv_operator_copy"
     bl_label = "Transfer UV Copy"
     bl_description = "Transfer UV Copy (Topological based copy)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -75,7 +106,7 @@ class MUV_TransUVCopy(bpy.types.Operator):
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.transuv
+        props = context.scene.muv_props.transfer_uv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
         if common.check_version(2, 73, 0) >= 0:
@@ -119,13 +150,13 @@ class MUV_TransUVCopy(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TransUVPaste(bpy.types.Operator):
+class OperatorPaste(bpy.types.Operator):
     """
         Operation class: Transfer UV paste
         Topological based paste
     """
 
-    bl_idname = "uv.muv_transuv_paste"
+    bl_idname = "uv.muv_transfer_uv_operator_paste"
     bl_label = "Transfer UV Paste"
     bl_description = "Transfer UV Paste (Topological based paste)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -144,13 +175,13 @@ class MUV_TransUVPaste(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.transuv
+        props = sc.muv_props.transfer_uv
         if not props.topology_copied:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.transuv
+        props = context.scene.muv_props.transfer_uv
         active_obj = context.scene.objects.active
         bm = bmesh.from_edit_mesh(active_obj.data)
         if common.check_version(2, 73, 0) >= 0:

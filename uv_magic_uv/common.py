@@ -53,7 +53,7 @@ __all__ = [
 ]
 
 
-DEBUG = True
+DEBUG = False
 
 
 def debug_print(*s):
@@ -695,3 +695,380 @@ def get_loop_sequences(bm, uv_layer, closed=False):
         return None, err
 
     return loop_seqs, ""
+
+
+def __is_segment_intersect(start1, end1, start2, end2):
+    seg1 = end1 - start1
+    seg2 = end2 - start2
+
+    a1 = -seg1.y
+    b1 = seg1.x
+    d1 = -(a1 * start1.x + b1 * start1.y)
+
+    a2 = -seg2.y
+    b2 = seg2.x
+    d2 = -(a2 * start2.x + b2 * start2.y)
+
+    seg1_line2_start = a2 * start1.x + b2 * start1.y + d2
+    seg1_line2_end = a2 * end1.x + b2 * end1.y + d2
+
+    seg2_line1_start = a1 * start2.x + b1 * start2.y + d1
+    seg2_line1_end = a1 * end2.x + b1 * end2.y + d1
+
+    if (seg1_line2_start * seg1_line2_end >= 0) or \
+            (seg2_line1_start * seg2_line1_end >= 0):
+        return False, None
+
+    u = seg1_line2_start / (seg1_line2_start - seg1_line2_end)
+    out = start1 + u * seg1
+
+    return True, out
+
+
+class RingBuffer:
+    def __init__(self, arr):
+        self.__buffer = arr.copy()
+        self.__pointer = 0
+
+    def __repr__(self):
+        return repr(self.__buffer)
+
+    def __len__(self):
+        return len(self.__buffer)
+
+    def insert(self, val, offset=0):
+        self.__buffer.insert(self.__pointer + offset, val)
+
+    def head(self):
+        return self.__buffer[0]
+
+    def tail(self):
+        return self.__buffer[-1]
+
+    def get(self, offset=0):
+        size = len(self.__buffer)
+        val = self.__buffer[(self.__pointer + offset) % size]
+        return val
+
+    def next(self):
+        size = len(self.__buffer)
+        self.__pointer = (self.__pointer + 1) % size
+
+    def reset(self):
+        self.__pointer = 0
+
+    def find(self, obj):
+        try:
+            idx = self.__buffer.index(obj)
+        except ValueError:
+            return None
+        return self.__buffer[idx]
+
+    def find_and_next(self, obj):
+        size = len(self.__buffer)
+        idx = self.__buffer.index(obj)
+        self.__pointer = (idx + 1) % size
+
+    def find_and_set(self, obj):
+        idx = self.__buffer.index(obj)
+        self.__pointer = idx
+
+    def as_list(self):
+        return self.__buffer.copy()
+
+    def reverse(self):
+        self.__buffer.reverse()
+        self.reset()
+
+
+# clip: reference polygon
+# subject: tested polygon
+def __do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
+
+    clip_uvs = RingBuffer([l[uv_layer].uv.copy() for l in clip.loops])
+    if __is_polygon_flipped(clip_uvs):
+        clip_uvs.reverse()
+    subject_uvs = RingBuffer([l[uv_layer].uv.copy() for l in subject.loops])
+    if __is_polygon_flipped(subject_uvs):
+        subject_uvs.reverse()
+
+    debug_print("===== Clip UV List =====")
+    debug_print(clip_uvs)
+    debug_print("===== Subject UV List =====")
+    debug_print(subject_uvs)
+
+    # check if clip and subject is overlapped completely
+    if __is_polygon_same(clip_uvs, subject_uvs):
+        polygons = [subject_uvs.as_list()]
+        debug_print("===== Polygons Overlapped Completely =====")
+        debug_print(polygons)
+        return True, polygons
+
+    # check if subject is in clip
+    if __is_points_in_polygon(subject_uvs, clip_uvs):
+        polygons = [subject_uvs.as_list()]
+        return True, polygons
+
+    # check if clip is in subject
+    if __is_points_in_polygon(clip_uvs, subject_uvs):
+        polygons = [subject_uvs.as_list()]
+        return True, polygons
+
+    # check if clip and subject is overlapped partially
+    intersections = []
+    while True:
+        subject_uvs.reset()
+        while True:
+            uv_start1 = clip_uvs.get()
+            uv_end1 = clip_uvs.get(1)
+            uv_start2 = subject_uvs.get()
+            uv_end2 = subject_uvs.get(1)
+            intersected, point = __is_segment_intersect(uv_start1, uv_end1,
+                                                        uv_start2, uv_end2)
+            if intersected:
+                clip_uvs.insert(point, 1)
+                subject_uvs.insert(point, 1)
+                intersections.append([point,
+                                      [clip_uvs.get(), clip_uvs.get(1)]])
+            subject_uvs.next()
+            if subject_uvs.get() == subject_uvs.head():
+                break
+        clip_uvs.next()
+        if clip_uvs.get() == clip_uvs.head():
+            break
+
+    debug_print("===== Intersection List =====")
+    debug_print(intersections)
+
+    # no intersection, so subject and clip is not overlapped
+    if not intersections:
+        return False, None
+
+    def get_intersection_pair(intersects, key):
+        for sect in intersects:
+            if sect[0] == key:
+                return sect[1]
+
+        return None
+
+    # make enter/exit pair
+    subject_uvs.reset()
+    subject_entering = []
+    subject_exiting = []
+    clip_entering = []
+    clip_exiting = []
+    intersect_uv_list = []
+    while True:
+        pair = get_intersection_pair(intersections, subject_uvs.get())
+        if pair:
+            sub = subject_uvs.get(1) - subject_uvs.get(-1)
+            inter = pair[1] - pair[0]
+            cross = sub.x * inter.y - inter.x * sub.y
+            if cross < 0:
+                subject_entering.append(subject_uvs.get())
+                clip_exiting.append(subject_uvs.get())
+            else:
+                subject_exiting.append(subject_uvs.get())
+                clip_entering.append(subject_uvs.get())
+            intersect_uv_list.append(subject_uvs.get())
+
+        subject_uvs.next()
+        if subject_uvs.get() == subject_uvs.head():
+            break
+
+    debug_print("===== Enter List =====")
+    debug_print(clip_entering)
+    debug_print(subject_entering)
+    debug_print("===== Exit List =====")
+    debug_print(clip_exiting)
+    debug_print(subject_exiting)
+
+    # for now, can't handle the situation when fulfill all below conditions
+    #        * two faces have common edge
+    #        * each face is intersected
+    #        * Show Mode is "Part"
+    #       so for now, ignore this situation
+    if len(subject_entering) != len(subject_exiting):
+        if mode == 'FACE':
+            polygons = [subject_uvs.as_list()]
+            return True, polygons
+        return False, None
+
+    def traverse(current_list, entering, exiting, p, current, other_list):
+        result = current_list.find(current)
+        if not result:
+            return None
+        if result != current:
+            print("Internal Error")
+            return None
+
+        # enter
+        if entering.count(current) >= 1:
+            entering.remove(current)
+
+        current_list.find_and_next(current)
+        current = current_list.get()
+
+        while exiting.count(current) == 0:
+            p.append(current.copy())
+            current_list.find_and_next(current)
+            current = current_list.get()
+
+        # exit
+        p.append(current.copy())
+        exiting.remove(current)
+
+        other_list.find_and_set(current)
+        return other_list.get()
+
+    # Traverse
+    polygons = []
+    current_uv_list = subject_uvs
+    other_uv_list = clip_uvs
+    current_entering = subject_entering
+    current_exiting = subject_exiting
+
+    poly = []
+    current_uv = current_entering[0]
+
+    while True:
+        current_uv = traverse(current_uv_list, current_entering,
+                              current_exiting, poly, current_uv, other_uv_list)
+
+        if current_uv_list == subject_uvs:
+            current_uv_list = clip_uvs
+            other_uv_list = subject_uvs
+            current_entering = clip_entering
+            current_exiting = clip_exiting
+            debug_print("-- Next: Clip --")
+        else:
+            current_uv_list = subject_uvs
+            other_uv_list = clip_uvs
+            current_entering = subject_entering
+            current_exiting = subject_exiting
+            debug_print("-- Next: Subject --")
+
+        debug_print(clip_entering)
+        debug_print(clip_exiting)
+        debug_print(subject_entering)
+        debug_print(subject_exiting)
+
+        if not clip_entering and not clip_exiting \
+                and not subject_entering and not subject_exiting:
+            break
+
+    polygons.append(poly)
+
+    debug_print("===== Polygons Overlapped Partially =====")
+    debug_print(polygons)
+
+    return True, polygons
+
+
+def __is_polygon_flipped(points):
+    area = 0.0
+    for i in range(len(points)):
+        uv1 = points.get(i)
+        uv2 = points.get(i + 1)
+        a = uv1.x * uv2.y - uv1.y * uv2.x
+        area = area + a
+    if area < 0:
+        # clock-wise
+        return True
+    return False
+
+
+def __is_point_in_polygon(point, subject_points):
+    count = 0
+    for i in range(len(subject_points)):
+        uv_start1 = subject_points.get(i)
+        uv_end1 = subject_points.get(i + 1)
+        uv_start2 = point
+        uv_end2 = Vector((1000000.0, point.y))
+        intersected, _ = __is_segment_intersect(uv_start1, uv_end1,
+                                                uv_start2, uv_end2)
+        if intersected:
+            count = count + 1
+
+    return count % 2
+
+
+def __is_points_in_polygon(points, subject_points):
+    for i in range(len(points)):
+        internal = __is_point_in_polygon(points.get(i), subject_points)
+        if not internal:
+            return False
+
+    return True
+
+
+def get_overlapped_uv_info(bm, faces, uv_layer, mode):
+    # at first, check island overlapped
+    isl = get_island_info_from_faces(bm, faces, uv_layer)
+    overlapped_isl_pairs = []
+    for i, i1 in enumerate(isl):
+        for i2 in isl[i + 1:]:
+            if (i1["max"].x < i2["min"].x) or (i2["max"].x < i1["min"].x) or \
+               (i1["max"].y < i2["min"].y) or (i2["max"].y < i1["min"].y):
+                continue
+            overlapped_isl_pairs.append([i1, i2])
+
+    # next, check polygon overlapped
+    overlapped_uvs = []
+    for oip in overlapped_isl_pairs:
+        for clip in oip[0]["faces"]:
+            f_clip = clip["face"]
+            for subject in oip[1]["faces"]:
+                f_subject = subject["face"]
+
+                # fast operation, apply bounding box algorithm
+                if (clip["max_uv"].x < subject["min_uv"].x) or \
+                   (subject["max_uv"].x < clip["min_uv"].x) or \
+                   (clip["max_uv"].y < subject["min_uv"].y) or \
+                   (subject["max_uv"].y < clip["min_uv"].y):
+                    continue
+
+                # slow operation, apply Weiler-Atherton cliping algorithm
+                result, polygons = __do_weiler_atherton_cliping(f_clip,
+                                                                f_subject,
+                                                                uv_layer, mode)
+                if result:
+                    subject_uvs = [l[uv_layer].uv.copy()
+                                   for l in f_subject.loops]
+                    overlapped_uvs.append({"clip_face": f_clip,
+                                           "subject_face": f_subject,
+                                           "subject_uvs": subject_uvs,
+                                           "polygons": polygons})
+
+    return overlapped_uvs
+
+
+def get_flipped_uv_info(faces, uv_layer):
+    flipped_uvs = []
+    for f in faces:
+        polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
+        if __is_polygon_flipped(polygon):
+            uvs = [l[uv_layer].uv.copy() for l in f.loops]
+            flipped_uvs.append({"face": f, "uvs": uvs,
+                                "polygons": [polygon.as_list()]})
+
+    return flipped_uvs
+
+
+def __is_polygon_same(points1, points2):
+    if len(points1) != len(points2):
+        return False
+
+    pts1 = points1.as_list()
+    pts2 = points2.as_list()
+
+    for p1 in pts1:
+        for p2 in pts2:
+            diff = p2 - p1
+            if diff.length < 0.0000001:
+                pts2.remove(p2)
+                break
+        else:
+            return False
+
+    return True

@@ -35,23 +35,23 @@ from ..op import preserve_uv_aspect
 
 
 __all__ = [
-    'MUV_CPUVMenu',
-    'MUV_TransUVMenu',
-    'MUV_TexLockMenu',
-    'MUV_WSUVMenu',
-    'MUV_TexWrapMenu',
-    'MUV_UVWMenu',
-    'MUV_TexProjMenu',
-    'MUV_PreserveUVMenu',
+    'MenuCopyPasteUV',
+    'MenuTransferUV',
+    'MenuTextureLock',
+    'MenuWorldScaleUV',
+    'MenuTextureWrap',
+    'MenuUVW',
+    'MenuTextureProjection',
+    'MenuPreserveUVAspect',
 ]
 
 
-class MUV_CPUVMenu(bpy.types.Menu):
+class MenuCopyPasteUV(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate
     """
 
-    bl_idname = "uv.muv_cpuv_menu"
+    bl_idname = "uv.muv_copy_paste_uv_menu"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate"
 
@@ -59,24 +59,24 @@ class MUV_CPUVMenu(bpy.types.Menu):
         layout = self.layout
 
         layout.label("Default")
-        layout.menu(copy_paste_uv.MUV_CPUVCopyUVMenu.bl_idname, text="Copy")
-        layout.menu(copy_paste_uv.MUV_CPUVPasteUVMenu.bl_idname, text="Paste")
+        layout.menu(copy_paste_uv.MenuCopyUV.bl_idname, text="Copy")
+        layout.menu(copy_paste_uv.MenuPasteUV.bl_idname, text="Paste")
 
         layout.separator()
 
         layout.label("Selection Sequence")
-        layout.menu(copy_paste_uv.MUV_CPUVSelSeqCopyUVMenu.bl_idname,
+        layout.menu(copy_paste_uv.MenuSelSeqCopyUV.bl_idname,
                     text="Copy")
-        layout.menu(copy_paste_uv.MUV_CPUVSelSeqPasteUVMenu.bl_idname,
+        layout.menu(copy_paste_uv.MenuSelSeqPasteUV.bl_idname,
                     text="Paste")
 
 
-class MUV_TransUVMenu(bpy.types.Menu):
+class MenuTransferUV(bpy.types.Menu):
     """
     Menu class: Master menu of Transfer UV coordinate
     """
 
-    bl_idname = "uv.muv_transuv_menu"
+    bl_idname = "uv.muv_transfer_uv_menu"
     bl_label = "Transfer UV"
     bl_description = "Transfer UV coordinate"
 
@@ -84,19 +84,19 @@ class MUV_TransUVMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(transfer_uv.MUV_TransUVCopy.bl_idname, text="Copy")
-        ops = layout.operator(transfer_uv.MUV_TransUVPaste.bl_idname,
+        layout.operator(transfer_uv.OperatorCopy.bl_idname, text="Copy")
+        ops = layout.operator(transfer_uv.OperatorPaste.bl_idname,
                               text="Paste")
-        ops.invert_normals = sc.muv_transuv_invert_normals
-        ops.copy_seams = sc.muv_transuv_copy_seams
+        ops.invert_normals = sc.muv_transfer_uv_invert_normals
+        ops.copy_seams = sc.muv_transfer_uv_copy_seams
 
 
-class MUV_TexLockMenu(bpy.types.Menu):
+class MenuTextureLock(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Lock
     """
 
-    bl_idname = "uv.muv_texlock_menu"
+    bl_idname = "uv.muv_texture_lock_menu"
     bl_label = "Texture Lock"
     bl_description = "Lock texture when vertices of mesh (Preserve UV)"
 
@@ -105,24 +105,24 @@ class MUV_TexLockMenu(bpy.types.Menu):
         sc = context.scene
 
         layout.label("Normal Mode")
-        layout.operator(texture_lock.MUV_TexLockLock.bl_idname,
-                        text="Lock" if not texture_lock.MUV_TexLockLock.is_ready(context) else "ReLock")
-        ops = layout.operator(texture_lock.MUV_TexLockUnlock.bl_idname,
+        layout.operator(texture_lock.OperatorLock.bl_idname,
+                        text="Lock" if not texture_lock.OperatorLock.is_ready(context) else "ReLock")
+        ops = layout.operator(texture_lock.OperatorUnlock.bl_idname,
                               text="Unlock")
-        ops.connect = sc.muv_texlock_connect
+        ops.connect = sc.muv_texture_lock_connect
 
         layout.separator()
 
         layout.label("Interactive Mode")
-        layout.prop(sc, "muv_texlock_lock", text="Lock")
+        layout.prop(sc, "muv_texture_lock_lock", text="Lock")
 
 
-class MUV_WSUVMenu(bpy.types.Menu):
+class MenuWorldScaleUV(bpy.types.Menu):
     """
     Menu class: Master menu of world scale UV
     """
 
-    bl_idname = "uv.muv_wsuv_menu"
+    bl_idname = "uv.muv_world_scale_uv_menu"
     bl_label = "World Scale UV"
     bl_description = ""
 
@@ -130,50 +130,50 @@ class MUV_WSUVMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(world_scale_uv.MUV_WSUVMeasure.bl_idname,
+        layout.operator(world_scale_uv.OperatorMeasure.bl_idname,
                         text="Measure")
 
-        layout.operator(world_scale_uv.MUV_WSUVApplyManual.bl_idname,
+        layout.operator(world_scale_uv.OperatorApplyManual.bl_idname,
                         text="Apply (Manual)")
 
         ops = layout.operator(
-            world_scale_uv.MUV_WSUVApplyScalingDensity.bl_idname,
+            world_scale_uv.OperatorApplyScalingDensity.bl_idname,
             text="Apply (Same Desity)")
-        ops.src_density = sc.muv_wsuv_src_density
+        ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = True
 
         ops = layout.operator(
-            world_scale_uv.MUV_WSUVApplyScalingDensity.bl_idname,
+            world_scale_uv.OperatorApplyScalingDensity.bl_idname,
             text="Apply (Scaling Desity)")
-        ops.src_density = sc.muv_wsuv_src_density
+        ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = False
-        ops.tgt_scaling_factor = sc.muv_wsuv_tgt_scaling_factor
+        ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
 
-        ops = layout.operator(world_scale_uv.MUV_WSUVApplyProportionalToMesh.bl_idname,
+        ops = layout.operator(world_scale_uv.OperatorApplyProportionalToMesh.bl_idname,
                               text="Apply (Proportional to Mesh)")
-        ops.src_density = sc.muv_wsuv_src_density
-        ops.src_uv_area = sc.muv_wsuv_src_uv_area
-        ops.src_mesh_area = sc.muv_wsuv_src_mesh_area
-        ops.origin = sc.muv_wsuv_origin
+        ops.src_density = sc.muv_world_scale_uv_src_density
+        ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
+        ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
+        ops.origin = sc.muv_world_scale_uv_origin
 
 
-class MUV_TexWrapMenu(bpy.types.Menu):
+class MenuTextureWrap(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Wrap
     """
 
-    bl_idname = "uv.muv_texwrap_menu"
+    bl_idname = "uv.muv_texture_wrap_menu"
     bl_label = "Texture Wrap"
     bl_description = ""
 
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(texture_wrap.MUV_TexWrapRefer.bl_idname, text="Refer")
-        layout.operator(texture_wrap.MUV_TexWrapSet.bl_idname, text="Set")
+        layout.operator(texture_wrap.OperatorRefer.bl_idname, text="Refer")
+        layout.operator(texture_wrap.OperatorSet.bl_idname, text="Set")
 
 
-class MUV_UVWMenu(bpy.types.Menu):
+class MenuUVW(bpy.types.Menu):
     """
     Menu class: Master menu of UVW
     """
@@ -186,20 +186,20 @@ class MUV_UVWMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(uvw.MUV_UVWBoxMap.bl_idname, text="Box")
+        ops = layout.operator(uvw.OperatorBoxMap.bl_idname, text="Box")
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
 
-        ops = layout.operator(uvw.MUV_UVWBestPlanerMap.bl_idname,
+        ops = layout.operator(uvw.OperatorBestPlanerMap.bl_idname,
                               text="Best Planner")
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
 
 
-class MUV_TexProjMenu(bpy.types.Menu):
+class MenuTextureProjection(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Projection
     """
 
-    bl_idname = "uv.muv_texproj_menu"
+    bl_idname = "uv.muv_texture_projection_menu"
     bl_label = "Texture Projection"
     bl_description = ""
 
@@ -207,12 +207,12 @@ class MUV_TexProjMenu(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.prop(sc, "muv_texproj_enable", text="Texture Projection")
-        layout.operator(texture_projection.MUV_TexProjProject.bl_idname,
+        layout.prop(sc, "muv_texture_projection_enable", text="Texture Projection")
+        layout.operator(texture_projection.OperatorProject.bl_idname,
                         text="Project")
 
 
-class MUV_PreserveUVMenu(bpy.types.Menu):
+class MenuPreserveUVAspect(bpy.types.Menu):
     """
     Menu class: Master menu of Preserve UV Aspect
     """
@@ -227,6 +227,6 @@ class MUV_PreserveUVMenu(bpy.types.Menu):
 
         for key in bpy.data.images.keys():
             ops = layout.operator(
-                preserve_uv_aspect.MUV_PreserveUVAspect.bl_idname, text=key)
+                preserve_uv_aspect.Operator.bl_idname, text=key)
             ops.dest_img_name = key
-            ops.origin = sc.muv_preserve_uv_origin
+            ops.origin = sc.muv_preserve_uv_aspect_origin

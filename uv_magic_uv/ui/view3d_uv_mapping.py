@@ -31,11 +31,11 @@ from ..op import uvw
 
 
 __all__ = [
-    'OBJECT_PT_MUV_UVMapping',
+    'UVMapping',
 ]
 
 
-class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
+class UVMapping(bpy.types.Panel):
     """
     Panel class: UV Mapping on Property Panel on View3D
     """
@@ -53,48 +53,47 @@ class OBJECT_PT_MUV_UVMapping(bpy.types.Panel):
 
     def draw(self, context):
         sc = context.scene
-        props = sc.muv_props
         layout = self.layout
 
         box = layout.box()
-        box.prop(sc, "muv_unwrapconst_enabled", text="Unwrap Constraint")
-        if sc.muv_unwrapconst_enabled:
+        box.prop(sc, "muv_unwrap_constraint_enabled", text="Unwrap Constraint")
+        if sc.muv_unwrap_constraint_enabled:
             ops = box.operator(
-                unwrap_constraint.MUV_UnwrapConstraint.bl_idname,
+                unwrap_constraint.Operator.bl_idname,
                 text="Unwrap")
-            ops.u_const = sc.muv_unwrapconst_u_const
-            ops.v_const = sc.muv_unwrapconst_v_const
+            ops.u_const = sc.muv_unwrap_constraint_u_const
+            ops.v_const = sc.muv_unwrap_constraint_v_const
             row = box.row(align=True)
-            row.prop(sc, "muv_unwrapconst_u_const", text="U-Constraint")
-            row.prop(sc, "muv_unwrapconst_v_const", text="V-Constraint")
+            row.prop(sc, "muv_unwrap_constraint_u_const", text="U-Constraint")
+            row.prop(sc, "muv_unwrap_constraint_v_const", text="V-Constraint")
 
         box = layout.box()
-        box.prop(sc, "muv_texproj_enabled", text="Texture Projection")
-        if sc.muv_texproj_enabled:
+        box.prop(sc, "muv_texture_projection_enabled", text="Texture Projection")
+        if sc.muv_texture_projection_enabled:
             row = box.row()
-            row.prop(sc, "muv_texproj_enable",
-                     text="Disable" if texture_projection.MUV_TexProj.is_running(context) else "Enable",
-                     icon='RESTRICT_VIEW_OFF' if texture_projection.MUV_TexProj.is_running(context) else 'RESTRICT_VIEW_ON')
-            row.prop(sc, "muv_texproj_tex_image", text="")
-            box.prop(sc, "muv_texproj_tex_transparency", text="Transparency")
+            row.prop(sc, "muv_texture_projection_enable",
+                     text="Disable" if texture_projection.Operator.is_running(context) else "Enable",
+                     icon='RESTRICT_VIEW_OFF' if texture_projection.Operator.is_running(context) else 'RESTRICT_VIEW_ON')
+            row.prop(sc, "muv_texture_projection_tex_image", text="")
+            box.prop(sc, "muv_texture_projection_tex_transparency", text="Transparency")
             col = box.column(align=True)
             row = col.row()
-            row.prop(sc, "muv_texproj_adjust_window", text="Adjust Window")
-            if not sc.muv_texproj_adjust_window:
-                row.prop(sc, "muv_texproj_tex_magnitude", text="Magnitude")
-            col.prop(sc, "muv_texproj_apply_tex_aspect",
+            row.prop(sc, "muv_texture_projection_adjust_window", text="Adjust Window")
+            if not sc.muv_texture_projection_adjust_window:
+                row.prop(sc, "muv_texture_projection_tex_magnitude", text="Magnitude")
+            col.prop(sc, "muv_texture_projection_apply_tex_aspect",
                      text="Texture Aspect Ratio")
-            col.prop(sc, "muv_texproj_assign_uvmap", text="Assign UVMap")
-            box.operator(texture_projection.MUV_TexProjProject.bl_idname,
+            col.prop(sc, "muv_texture_projection_assign_uvmap", text="Assign UVMap")
+            box.operator(texture_projection.OperatorProject.bl_idname,
                          text="Project")
 
         box = layout.box()
         box.prop(sc, "muv_uvw_enabled", text="UVW")
         if sc.muv_uvw_enabled:
             row = box.row(align=True)
-            ops = row.operator(uvw.MUV_UVWBoxMap.bl_idname, text="Box")
+            ops = row.operator(uvw.OperatorBoxMap.bl_idname, text="Box")
             ops.assign_uvmap = sc.muv_uvw_assign_uvmap
-            ops = row.operator(uvw.MUV_UVWBestPlanerMap.bl_idname,
+            ops = row.operator(uvw.OperatorBestPlanerMap.bl_idname,
                                text="Best Planner")
             ops.assign_uvmap = sc.muv_uvw_assign_uvmap
             box.prop(sc, "muv_uvw_assign_uvmap", text="Assign UVMap")

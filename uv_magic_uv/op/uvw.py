@@ -38,8 +38,9 @@ from .. import common
 
 
 __all__ = [
-    'MUV_UVWBoxMap',
-    'MUV_UVWBestPlanerMap',
+    'Properties',
+    'OperatorBoxMap',
+    'OperatorBestPlanerMap',
 ]
 
 
@@ -64,8 +65,28 @@ def is_valid_context(context):
     return True
 
 
-class MUV_UVWBoxMap(bpy.types.Operator):
-    bl_idname = "uv.muv_uvw_box_map"
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_uvw_enabled = BoolProperty(
+            name="UVW Enabled",
+            description="UVW is enabled",
+            default=False
+        )
+        scene.muv_uvw_assign_uvmap = BoolProperty(
+            name="Assign UVMap",
+            description="Assign UVMap when no UVmaps are available",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_uvw_enabled
+        del scene.muv_uvw_assign_uvmap
+
+
+class OperatorBoxMap(bpy.types.Operator):
+    bl_idname = "uv.muv_uvw_operator_box_map"
     bl_label = "Box Map"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -177,8 +198,8 @@ class MUV_UVWBoxMap(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_UVWBestPlanerMap(bpy.types.Operator):
-    bl_idname = "uv.muv_uvw_best_planer_map"
+class OperatorBestPlanerMap(bpy.types.Operator):
+    bl_idname = "uv.muv_uvw_operator_best_planer_map"
     bl_label = "Best Planer Map"
     bl_options = {'REGISTER', 'UNDO'}
 

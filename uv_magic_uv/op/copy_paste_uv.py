@@ -40,15 +40,15 @@ from .. import common
 
 
 __all__ = [
-    'MUV_CPUV',
-    'MUV_CPUVCopyUV',
-    'MUV_CPUVCopyUVMenu',
-    'MUV_CPUVPasteUV',
-    'MUV_CPUVPasteUVMenu',
-    'MUV_CPUVSelSeqCopyUV',
-    'MUV_CPUVSelSeqCopyUVMenu',
-    'MUV_CPUVSelSeqPasteUV',
-    'MUV_CPUVSelSeqPasteUVMenu',
+    'Properties',
+    'OpeartorCopyUV',
+    'MenuCopyUV',
+    'OperatorPasteUV',
+    'MenuPasteUV',
+    'OperatorSelSeqCopyUV',
+    'MenuSelSeqCopyUV',
+    'OperatorSelSeqPasteUV',
+    'MenuSelSeqPasteUV',
 ]
 
 
@@ -180,26 +180,26 @@ def paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
     return 0
 
 
-class MUV_CPUV:
+class Properties:
     @classmethod
     def init_props(cls, scene):
         class Props():
             src_info = None
 
-        scene.muv_props.cpuv = Props()
-        scene.muv_props.cpuv_selseq = Props()
+        scene.muv_props.copy_paste_uv = Props()
+        scene.muv_props.copy_paste_uv_selseq = Props()
 
-        scene.muv_cpuv_enabled = BoolProperty(
+        scene.muv_copy_paste_uv_enabled = BoolProperty(
             name="Copy/Paste UV Enabled",
             description="Copy/Paste UV is enabled",
             default=False
         )
-        scene.muv_cpuv_copy_seams = BoolProperty(
+        scene.muv_copy_paste_uv_copy_seams = BoolProperty(
             name="Copy Seams",
             description="Copy Seams",
             default=True
         )
-        scene.muv_cpuv_mode = EnumProperty(
+        scene.muv_copy_paste_uv_mode = EnumProperty(
             items=[
                 ('DEFAULT', "Default", "Default Mode"),
                 ('SEL_SEQ', "Selection Sequence", "Selection Sequence Mode")
@@ -208,7 +208,7 @@ class MUV_CPUV:
             description="Copy/Paste UV Mode",
             default='DEFAULT'
         )
-        scene.muv_cpuv_strategy = EnumProperty(
+        scene.muv_copy_paste_uv_strategy = EnumProperty(
             name="Strategy",
             description="Paste Strategy",
             items=[
@@ -220,20 +220,20 @@ class MUV_CPUV:
 
     @classmethod
     def del_props(cls, scene):
-        del scene.muv_props.cpuv
-        del scene.muv_props.cpuv_selseq
-        del scene.muv_cpuv_enabled
-        del scene.muv_cpuv_copy_seams
-        del scene.muv_cpuv_mode
-        del scene.muv_cpuv_strategy
+        del scene.muv_props.copy_paste_uv
+        del scene.muv_props.copy_paste_uv_selseq
+        del scene.muv_copy_paste_uv_enabled
+        del scene.muv_copy_paste_uv_copy_seams
+        del scene.muv_copy_paste_uv_mode
+        del scene.muv_copy_paste_uv_strategy
 
 
-class MUV_CPUVCopyUV(bpy.types.Operator):
+class OpeartorCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate
     """
 
-    bl_idname = "uv.muv_cpuv_copy_uv"
+    bl_idname = "uv.muv_copy_paste_uv_operator_copy_uv"
     bl_label = "Copy UV"
     bl_description = "Copy UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
@@ -245,7 +245,7 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv
+        props = context.scene.muv_props.copy_paste_uv
         obj = context.active_object
         bm = common.create_bmesh(obj)
 
@@ -277,12 +277,12 @@ class MUV_CPUVCopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVCopyUVMenu(bpy.types.Menu):
+class MenuCopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate
     """
 
-    bl_idname = "uv.muv_cpuv_copy_uv_menu"
+    bl_idname = "uv.muv_copy_paste_uv_menu_copy_uv"
     bl_label = "Copy UV (Menu)"
     bl_description = "Menu of Copy UV coordinate"
 
@@ -297,23 +297,23 @@ class MUV_CPUVCopyUVMenu(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(OpeartorCopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text="[All]")
+        ops = layout.operator(OpeartorCopyUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVCopyUV.bl_idname, text=m)
+            ops = layout.operator(OpeartorCopyUV.bl_idname, text=m)
             ops.uv_map = m
 
 
-class MUV_CPUVPasteUV(bpy.types.Operator):
+class OperatorPasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate
     """
 
-    bl_idname = "uv.muv_cpuv_paste_uv"
+    bl_idname = "uv.muv_copy_paste_uv_operator_paste_uv"
     bl_label = "Paste UV"
     bl_description = "Paste UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
@@ -348,13 +348,13 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv
+        props = sc.muv_props.copy_paste_uv
         if not props.src_info:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv
+        props = context.scene.muv_props.copy_paste_uv
         if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
@@ -406,19 +406,19 @@ class MUV_CPUVPasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVPasteUVMenu(bpy.types.Menu):
+class MenuPasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate
     """
 
-    bl_idname = "uv.muv_cpuv_paste_uv_menu"
+    bl_idname = "uv.muv_copy_paste_uv_menu_paste_uv"
     bl_label = "Paste UV (Menu)"
     bl_description = "Menu of Paste UV coordinate"
 
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv
+        props = sc.muv_props.copy_paste_uv
         if not props.src_info:
             return False
         return is_valid_context(context)
@@ -431,34 +431,34 @@ class MUV_CPUVPasteUVMenu(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[New]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[New]")
         ops.uv_map = "__new"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text="[All]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVPasteUV.bl_idname, text=m)
+            ops = layout.operator(OperatorPasteUV.bl_idname, text=m)
             ops.uv_map = m
-            ops.copy_seams = sc.muv_cpuv_copy_seams
-            ops.strategy = sc.muv_cpuv_strategy
+            ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+            ops.strategy = sc.muv_copy_paste_uv_strategy
 
 
-class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
+class OperatorSelSeqCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_cpuv_selseq_copy_uv"
+    bl_idname = "uv.muv_copy_paste_uv_selseq_operator_copy_uv"
     bl_label = "Copy UV (Selection Sequence)"
     bl_description = "Copy UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
@@ -470,7 +470,7 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_selseq
+        props = context.scene.muv_props.copy_paste_uv_selseq
         obj = context.active_object
         bm = common.create_bmesh(obj)
 
@@ -502,12 +502,12 @@ class MUV_CPUVSelSeqCopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
+class MenuSelSeqCopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_cpuv_selseq_copy_uv_menu"
+    bl_idname = "uv.muv_copy_paste_uv_selseq_menu_copy_uv"
     bl_label = "Copy UV (Selection Sequence) (Menu)"
     bl_description = "Menu of Copy UV coordinate by selection sequence"
 
@@ -521,23 +521,23 @@ class MUV_CPUVSelSeqCopyUVMenu(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorSelSeqCopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text="[All]")
+        ops = layout.operator(OperatorSelSeqCopyUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVSelSeqCopyUV.bl_idname, text=m)
+            ops = layout.operator(OperatorSelSeqCopyUV.bl_idname, text=m)
             ops.uv_map = m
 
 
-class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
+class OperatorSelSeqPasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_cpuv_selseq_paste_uv"
+    bl_idname = "uv.muv_copy_paste_uv_selseq_operator_paste_uv"
     bl_label = "Paste UV (Selection Sequence)"
     bl_description = "Paste UV coordinate by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
@@ -572,13 +572,13 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv_selseq
+        props = sc.muv_props.copy_paste_uv_selseq
         if not props.src_info:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_selseq
+        props = context.scene.muv_props.copy_paste_uv_selseq
         if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
@@ -630,19 +630,19 @@ class MUV_CPUVSelSeqPasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
+class MenuSelSeqPasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_cpuv_selseq_paste_uv_menu"
+    bl_idname = "uv.muv_copy_paste_uv_selseq_menu_paste_uv"
     bl_label = "Paste UV (Selection Sequence) (Menu)"
     bl_description = "Menu of Paste UV coordinate by selection sequence"
 
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv_selseq
+        props = sc.muv_props.copy_paste_uv_selseq
         if not props.src_uvs or not props.src_pin_uvs:
             return False
         return is_valid_context(context)
@@ -655,23 +655,23 @@ class MUV_CPUVSelSeqPasteUVMenu(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorSelSeqPasteUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[New]")
+        ops = layout.operator(OperatorSelSeqPasteUV.bl_idname, text="[New]")
         ops.uv_map = "__new"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text="[All]")
+        ops = layout.operator(OperatorSelSeqPasteUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
-        ops.copy_seams = sc.muv_cpuv_copy_seams
-        ops.strategy = sc.muv_cpuv_strategy
+        ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+        ops.strategy = sc.muv_copy_paste_uv_strategy
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVSelSeqPasteUV.bl_idname, text=m)
+            ops = layout.operator(OperatorSelSeqPasteUV.bl_idname, text=m)
             ops.uv_map = m
-            ops.copy_seams = sc.muv_cpuv_copy_seams
-            ops.strategy = sc.muv_cpuv_strategy
+            ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
+            ops.strategy = sc.muv_copy_paste_uv_strategy

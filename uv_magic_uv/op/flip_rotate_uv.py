@@ -34,7 +34,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_FlipRot',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -59,12 +60,32 @@ def is_valid_context(context):
     return True
 
 
-class MUV_FlipRot(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_flip_rotate_uv_enabled = BoolProperty(
+            name="Flip/Rotate UV Enabled",
+            description="Flip/Rotate UV is enabled",
+            default=False
+        )
+        scene.muv_flip_rotate_uv_seams = BoolProperty(
+            name="Seams",
+            description="Seams",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_flip_rotate_uv_enabled
+        del scene.muv_flip_rotate_uv_seams
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate
     """
 
-    bl_idname = "uv.muv_fliprot"
+    bl_idname = "uv.muv_flip_rotate_uv_operator"
     bl_label = "Flip/Rotate UV"
     bl_description = "Flip/Rotate UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}

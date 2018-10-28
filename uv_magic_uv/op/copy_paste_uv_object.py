@@ -39,11 +39,11 @@ from .copy_paste_uv import (
 
 
 __all__ = [
-    'MUV_CPUVObj',
-    'MUV_CPUVObjCopyUV',
-    'MUV_CPUVObjCopyUVMenu',
-    'MUV_CPUVObjPasteUV',
-    'MUV_CPUVObjPasteUVMenu',
+    'Properties',
+    'OperatorCopyUV',
+    'MenuCopyUV',
+    'OperatorPasteUV',
+    'MenuPasteUV',
 ]
 
 
@@ -77,15 +77,15 @@ def memorize_view_3d_mode(fn):
     return __memorize_view_3d_mode
 
 
-class MUV_CPUVObj:
+class Properties:
     @classmethod
     def init_props(cls, scene):
         class Props():
             src_info = None
 
-        scene.muv_props.cpuv_obj = Props()
+        scene.muv_props.copy_paste_uv_object = Props()
 
-        scene.muv_cpuv_obj_copy_seams = BoolProperty(
+        scene.muv_copy_paste_uv_object_copy_seams = BoolProperty(
             name="Copy Seams",
             description="Copy Seams",
             default=True
@@ -93,16 +93,16 @@ class MUV_CPUVObj:
 
     @classmethod
     def del_props(cls, scene):
-        del scene.muv_props.cpuv_obj
-        del scene.muv_cpuv_obj_copy_seams
+        del scene.muv_props.copy_paste_uv_object
+        del scene.muv_copy_paste_uv_object_copy_seams
 
 
-class MUV_CPUVObjCopyUV(bpy.types.Operator):
+class OperatorCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate among objects
     """
 
-    bl_idname = "object.muv_cpuv_obj_copy_uv"
+    bl_idname = "object.muv_copy_paste_uv_object_operator_copy_uv"
     bl_label = "Copy UV (Among Objects)"
     bl_description = "Copy UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -115,7 +115,7 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
 
     @memorize_view_3d_mode
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_obj
+        props = context.scene.muv_props.copy_paste_uv_object
         bpy.ops.object.mode_set(mode='EDIT')
         obj = context.active_object
         bm = common.create_bmesh(obj)
@@ -144,12 +144,12 @@ class MUV_CPUVObjCopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
+class MenuCopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate among objects
     """
 
-    bl_idname = "object.muv_cpuv_obj_copy_uv_menu"
+    bl_idname = "object.muv_copy_paste_uv_object_menu_copy_uv"
     bl_label = "Copy UV (Among Objects) (Menu)"
     bl_description = "Menu of Copy UV coordinate (Among Objects)"
 
@@ -162,23 +162,23 @@ class MUV_CPUVObjCopyUVMenu(bpy.types.Menu):
         # create sub menu
         uv_maps = bpy.context.active_object.data.uv_textures.keys()
 
-        ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorCopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text="[All]")
+        ops = layout.operator(OperatorCopyUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVObjCopyUV.bl_idname, text=m)
+            ops = layout.operator(OperatorCopyUV.bl_idname, text=m)
             ops.uv_map = m
 
 
-class MUV_CPUVObjPasteUV(bpy.types.Operator):
+class OperatorPasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate among objects
     """
 
-    bl_idname = "object.muv_cpuv_obj_paste_uv"
+    bl_idname = "object.muv_copy_paste_uv_object_operator_paste_uv"
     bl_label = "Paste UV (Among Objects)"
     bl_description = "Paste UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -193,14 +193,14 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv_obj
+        props = sc.muv_props.copy_paste_uv_object
         if not props.src_info:
             return False
         return is_valid_context(context)
 
     @memorize_view_3d_mode
     def execute(self, context):
-        props = context.scene.muv_props.cpuv_obj
+        props = context.scene.muv_props.copy_paste_uv_object
         if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
@@ -257,19 +257,19 @@ class MUV_CPUVObjPasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
+class MenuPasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate among objects
     """
 
-    bl_idname = "object.muv_cpuv_obj_paste_uv_menu"
+    bl_idname = "object.muv_copy_paste_uv_object_menu_paste_uv"
     bl_label = "Paste UV (Among Objects) (Menu)"
     bl_description = "Menu of Paste UV coordinate (Among Objects)"
 
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.cpuv_obj
+        props = sc.muv_props.copy_paste_uv_object
         if not props.src_info:
             return False
         return is_valid_context(context)
@@ -283,19 +283,19 @@ class MUV_CPUVObjPasteUVMenu(bpy.types.Menu):
             if hasattr(obj.data, "uv_textures") and obj.select:
                 uv_maps.extend(obj.data.uv_textures.keys())
 
-        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
-        ops.copy_seams = sc.muv_cpuv_obj_copy_seams
+        ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
-        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[New]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[New]")
         ops.uv_map = "__new"
-        ops.copy_seams = sc.muv_cpuv_obj_copy_seams
+        ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
-        ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text="[All]")
+        ops = layout.operator(OperatorPasteUV.bl_idname, text="[All]")
         ops.uv_map = "__all"
-        ops.copy_seams = sc.muv_cpuv_obj_copy_seams
+        ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
         for m in uv_maps:
-            ops = layout.operator(MUV_CPUVObjPasteUV.bl_idname, text=m)
+            ops = layout.operator(OperatorPasteUV.bl_idname, text=m)
             ops.uv_map = m
-            ops.copy_seams = sc.muv_cpuv_obj_copy_seams
+            ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams

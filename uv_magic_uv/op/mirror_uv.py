@@ -27,6 +27,7 @@ import bpy
 from bpy.props import (
     EnumProperty,
     FloatProperty,
+    BoolProperty,
 )
 import bmesh
 from mathutils import Vector
@@ -35,7 +36,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_MirrorUV',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -60,12 +62,37 @@ def is_valid_context(context):
     return True
 
 
-class MUV_MirrorUV(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        scene.muv_mirror_uv_enabled = BoolProperty(
+            name="Mirror UV Enabled",
+            description="Mirror UV is enabled",
+            default=False
+        )
+        scene.muv_mirror_uv_axis = EnumProperty(
+            items=[
+                ('X', "X", "Mirror Along X axis"),
+                ('Y', "Y", "Mirror Along Y axis"),
+                ('Z', "Z", "Mirror Along Z axis")
+            ],
+            name="Axis",
+            description="Mirror Axis",
+            default='X'
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_mirror_uv_enabled
+        del scene.muv_mirror_uv_axis
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Mirror UV
     """
 
-    bl_idname = "uv.muv_mirror_uv"
+    bl_idname = "uv.muv_mirror_uv_operator"
     bl_label = "Mirror UV"
     bl_options = {'REGISTER', 'UNDO'}
 

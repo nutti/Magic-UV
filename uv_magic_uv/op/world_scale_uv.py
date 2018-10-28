@@ -39,11 +39,11 @@ from .. import common
 
 
 __all__ = [
-    'MUV_WSUV',
-    'MUV_WSUVMeasure',
-    'MUV_WSUVApplyManual',
-    'MUV_WSUVApplyScalingDensity',
-    'MUV_WSUVApplyProportionalToMesh',
+    'Properties',
+    'OperatorMeasure',
+    'OperatorApplyManual',
+    'OperatorApplyScalingDensity',
+    'OperatorApplyProportionalToMesh',
 ]
 
 
@@ -83,52 +83,52 @@ def measure_wsuv_info(obj, tex_size=None):
     return uv_area, mesh_area, density
 
 
-class MUV_WSUV:
+class Properties:
     @classmethod
     def init_props(cls, scene):
-        scene.muv_wsuv_enabled = BoolProperty(
+        scene.muv_world_scale_uv_enabled = BoolProperty(
             name="World Scale UV Enabled",
             description="World Scale UV is enabled",
             default=False
         )
-        scene.muv_wsuv_src_mesh_area = FloatProperty(
+        scene.muv_world_scale_uv_src_mesh_area = FloatProperty(
             name="Mesh Area",
             description="Source Mesh Area",
             default=0.0,
             min=0.0
         )
-        scene.muv_wsuv_src_uv_area = FloatProperty(
+        scene.muv_world_scale_uv_src_uv_area = FloatProperty(
             name="UV Area",
             description="Source UV Area",
             default=0.0,
             min=0.0
         )
-        scene.muv_wsuv_src_density = FloatProperty(
+        scene.muv_world_scale_uv_src_density = FloatProperty(
             name="Density",
             description="Source Texel Density",
             default=0.0,
             min=0.0
         )
-        scene.muv_wsuv_tgt_density = FloatProperty(
+        scene.muv_world_scale_uv_tgt_density = FloatProperty(
             name="Density",
             description="Target Texel Density",
             default=0.0,
             min=0.0
         )
-        scene.muv_wsuv_tgt_scaling_factor = FloatProperty(
+        scene.muv_world_scale_uv_tgt_scaling_factor = FloatProperty(
             name="Scaling Factor",
             default=1.0,
             max=1000.0,
             min=0.00001
         )
-        scene.muv_wsuv_tgt_texture_size = IntVectorProperty(
+        scene.muv_world_scale_uv_tgt_texture_size = IntVectorProperty(
             name="Texture Size",
             size=2,
             min=1,
             soft_max=10240,
             default=(1024, 1024),
         )
-        scene.muv_wsuv_mode = EnumProperty(
+        scene.muv_world_scale_uv_mode = EnumProperty(
             name="Mode",
             description="Density calculation mode",
             items=[
@@ -139,7 +139,7 @@ class MUV_WSUV:
             ],
             default='MANUAL'
         )
-        scene.muv_wsuv_origin = EnumProperty(
+        scene.muv_world_scale_uv_origin = EnumProperty(
             name="Origin",
             description="Aspect Origin",
             items=[
@@ -159,22 +159,22 @@ class MUV_WSUV:
 
     @classmethod
     def del_props(cls, scene):
-        del scene.muv_wsuv_enabled
-        del scene.muv_wsuv_src_mesh_area
-        del scene.muv_wsuv_src_uv_area
-        del scene.muv_wsuv_src_density
-        del scene.muv_wsuv_tgt_density
-        del scene.muv_wsuv_tgt_scaling_factor
-        del scene.muv_wsuv_mode
-        del scene.muv_wsuv_origin
+        del scene.muv_world_scale_uv_enabled
+        del scene.muv_world_scale_uv_src_mesh_area
+        del scene.muv_world_scale_uv_src_uv_area
+        del scene.muv_world_scale_uv_src_density
+        del scene.muv_world_scale_uv_tgt_density
+        del scene.muv_world_scale_uv_tgt_scaling_factor
+        del scene.muv_world_scale_uv_mode
+        del scene.muv_world_scale_uv_origin
 
 
-class MUV_WSUVMeasure(bpy.types.Operator):
+class OperatorMeasure(bpy.types.Operator):
     """
     Operation class: Measure face size
     """
 
-    bl_idname = "uv.muv_wsuv_measure"
+    bl_idname = "uv.muv_world_scale_uv_operator_measure"
     bl_label = "Measure World Scale UV"
     bl_description = "Measure face size for scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
@@ -193,9 +193,9 @@ class MUV_WSUVMeasure(bpy.types.Operator):
                         "Object must have more than one UV map and texture")
             return {'CANCELLED'}
 
-        sc.muv_wsuv_src_uv_area = uv_area
-        sc.muv_wsuv_src_mesh_area = mesh_area
-        sc.muv_wsuv_src_density = density
+        sc.muv_world_scale_uv_src_uv_area = uv_area
+        sc.muv_world_scale_uv_src_mesh_area = mesh_area
+        sc.muv_world_scale_uv_src_density = density
 
         self.report({'INFO'},
                     "UV Area: {0}, Mesh Area: {1}, Texel Density: {2}"
@@ -304,12 +304,12 @@ def apply(obj, origin, factor):
     bmesh.update_edit_mesh(obj.data)
 
 
-class MUV_WSUVApplyManual(bpy.types.Operator):
+class OperatorApplyManual(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Manual)
     """
 
-    bl_idname = "uv.muv_wsuv_apply_manual"
+    bl_idname = "uv.muv_world_scale_uv_operator_apply_manual"
     bl_label = "Apply World Scale UV (Manual)"
     bl_description = "Apply scaled UV based on user specification"
     bl_options = {'REGISTER', 'UNDO'}
@@ -398,12 +398,12 @@ class MUV_WSUVApplyManual(bpy.types.Operator):
         return self.__apply_manual(context)
 
 
-class MUV_WSUVApplyScalingDensity(bpy.types.Operator):
+class OperatorApplyScalingDensity(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Scaling Density)
     """
 
-    bl_idname = "uv.muv_wsuv_apply_scaling_density"
+    bl_idname = "uv.muv_world_scale_uv_operator_apply_scaling_density"
     bl_label = "Apply World Scale UV (Scaling Density)"
     bl_description = "Apply scaled UV with scaling density"
     bl_options = {'REGISTER', 'UNDO'}
@@ -502,8 +502,8 @@ class MUV_WSUVApplyScalingDensity(bpy.types.Operator):
             if self.same_density:
                 self.tgt_scaling_factor = 1.0
             else:
-                self.tgt_scaling_factor = sc.muv_wsuv_tgt_scaling_factor
-            self.src_density = sc.muv_wsuv_src_density
+                self.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
+            self.src_density = sc.muv_world_scale_uv_src_density
 
             return wm.invoke_props_dialog(self)
 
@@ -516,12 +516,12 @@ class MUV_WSUVApplyScalingDensity(bpy.types.Operator):
         return self.__apply_scaling_density(context)
 
 
-class MUV_WSUVApplyProportionalToMesh(bpy.types.Operator):
+class OperatorApplyProportionalToMesh(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Proportional to mesh)
     """
 
-    bl_idname = "uv.muv_wsuv_apply_proportional_to_mesh"
+    bl_idname = "uv.muv_world_scale_uv_operator_apply_proportional_to_mesh"
     bl_label = "Apply World Scale UV (Proportional to mesh)"
     bl_description = "Apply scaled UV proportionaled to mesh"
     bl_options = {'REGISTER', 'UNDO'}
@@ -619,8 +619,8 @@ class MUV_WSUVApplyProportionalToMesh(bpy.types.Operator):
             wm = context.window_manager
             sc = context.scene
 
-            self.src_density = sc.muv_wsuv_src_density
-            self.src_mesh_area = sc.muv_wsuv_src_mesh_area
+            self.src_density = sc.muv_world_scale_uv_src_density
+            self.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
 
             return wm.invoke_props_dialog(self)
 

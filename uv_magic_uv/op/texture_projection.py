@@ -40,10 +40,9 @@ from .. import common
 
 
 __all__ = [
-    'MUV_TexProjRenderer',
-    'MUV_TexProjStart',
-    'MUV_TexProjStop',
-    'MUV_TexProjProject',
+    'Properties',
+    'Operator',
+    'OperatorProject',
 ]
 
 
@@ -69,17 +68,17 @@ def get_canvas(context, magnitude):
     canvas_w = region_w - prefs.texproj_canvas_padding[0] * 2.0
     canvas_h = region_h - prefs.texproj_canvas_padding[1] * 2.0
 
-    img = bpy.data.images[sc.muv_texproj_tex_image]
+    img = bpy.data.images[sc.muv_texture_projection_tex_image]
     tex_w = img.size[0]
     tex_h = img.size[1]
 
     center_x = region_w * 0.5
     center_y = region_h * 0.5
 
-    if sc.muv_texproj_adjust_window:
+    if sc.muv_texture_projection_adjust_window:
         ratio_x = canvas_w / tex_w
         ratio_y = canvas_h / tex_h
-        if sc.muv_texproj_apply_tex_aspect:
+        if sc.muv_texture_projection_apply_tex_aspect:
             ratio = ratio_y if ratio_x > ratio_y else ratio_x
             len_x = ratio * tex_w
             len_y = ratio * tex_h
@@ -87,7 +86,7 @@ def get_canvas(context, magnitude):
             len_x = canvas_w
             len_y = canvas_h
     else:
-        if sc.muv_texproj_apply_tex_aspect:
+        if sc.muv_texture_projection_apply_tex_aspect:
             len_x = tex_w * magnitude
             len_y = tex_h * magnitude
         else:
@@ -144,13 +143,86 @@ def is_valid_context(context):
     return True
 
 
-class MUV_TexProj(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        def get_func(_):
+            return Operator.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_texture_projection_operator('INVOKE_REGION_WIN')
+
+        scene.muv_texture_projection_enabled = BoolProperty(
+            name="Texture Projection Enabled",
+            description="Texture Projection is enabled",
+            default=False
+        )
+        scene.muv_texture_projection_enable = BoolProperty(
+            name="Texture Projection Enabled",
+            description="Texture Projection is enabled",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_texture_projection_tex_magnitude = FloatProperty(
+            name="Magnitude",
+            description="Texture Magnitude",
+            default=0.5,
+            min=0.0,
+            max=100.0
+        )
+        scene.muv_texture_projection_tex_image = EnumProperty(
+            name="Image",
+            description="Texture Image",
+            items=get_loaded_texture_name
+        )
+        scene.muv_texture_projection_tex_transparency = FloatProperty(
+            name="Transparency",
+            description="Texture Transparency",
+            default=0.2,
+            min=0.0,
+            max=1.0
+        )
+        scene.muv_texture_projection_adjust_window = BoolProperty(
+            name="Adjust Window",
+            description="Size of renderered texture is fitted to window",
+            default=True
+        )
+        scene.muv_texture_projection_apply_tex_aspect = BoolProperty(
+            name="Texture Aspect Ratio",
+            description="Apply Texture Aspect ratio to displayed texture",
+            default=True
+        )
+        scene.muv_texture_projection_assign_uvmap = BoolProperty(
+            name="Assign UVMap",
+            description="Assign UVMap when no UVmaps are available",
+            default=True
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_texture_projection_enabled
+        del scene.muv_texture_projection_tex_magnitude
+        del scene.muv_texture_projection_tex_image
+        del scene.muv_texture_projection_tex_transparency
+        del scene.muv_texture_projection_adjust_window
+        del scene.muv_texture_projection_apply_tex_aspect
+        del scene.muv_texture_projection_assign_uvmap
+
+
+
+
+class Operator(bpy.types.Operator):
     """
     Operation class: Texture Projection
     Render texture
     """
 
-    bl_idname = "uv.muv_texproj"
+    bl_idname = "uv.muv_texture_projection_operator"
     bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
@@ -161,82 +233,13 @@ class MUV_TexProj(bpy.types.Operator):
         return is_valid_context(context)
 
     @classmethod
-    def init_props(cls, scene):
-        def get_func(_):
-            return MUV_TexProj.is_running(bpy.context)
-
-        def set_func(_, __):
-            pass
-
-        def update_func(_, __):
-            bpy.ops.uv.muv_texproj('INVOKE_REGION_WIN')
-
-        scene.muv_texproj_enabled = BoolProperty(
-            name="Texture Projection Enabled",
-            description="Texture Projection is enabled",
-            default=False
-        )
-        scene.muv_texproj_enable = BoolProperty(
-            name="Texture Projection Enabled",
-            description="Texture Projection is enabled",
-            default=False,
-            get=get_func,
-            set=set_func,
-            update=update_func
-        )
-        scene.muv_texproj_tex_magnitude = FloatProperty(
-            name="Magnitude",
-            description="Texture Magnitude",
-            default=0.5,
-            min=0.0,
-            max=100.0
-        )
-        scene.muv_texproj_tex_image = EnumProperty(
-            name="Image",
-            description="Texture Image",
-            items=get_loaded_texture_name
-        )
-        scene.muv_texproj_tex_transparency = FloatProperty(
-            name="Transparency",
-            description="Texture Transparency",
-            default=0.2,
-            min=0.0,
-            max=1.0
-        )
-        scene.muv_texproj_adjust_window = BoolProperty(
-            name="Adjust Window",
-            description="Size of renderered texture is fitted to window",
-            default=True
-        )
-        scene.muv_texproj_apply_tex_aspect = BoolProperty(
-            name="Texture Aspect Ratio",
-            description="Apply Texture Aspect ratio to displayed texture",
-            default=True
-        )
-        scene.muv_texproj_assign_uvmap = BoolProperty(
-            name="Assign UVMap",
-            description="Assign UVMap when no UVmaps are available",
-            default=True
-        )
-
-    @classmethod
-    def del_props(cls, scene):
-        del scene.muv_texproj_enabled
-        del scene.muv_texproj_tex_magnitude
-        del scene.muv_texproj_tex_image
-        del scene.muv_texproj_tex_transparency
-        del scene.muv_texproj_adjust_window
-        del scene.muv_texproj_apply_tex_aspect
-        del scene.muv_texproj_assign_uvmap
-
-    @classmethod
     def is_running(cls, _):
         return 1 if cls.__handle else 0
 
     @classmethod
     def handle_add(cls, obj, context):
         cls.__handle = bpy.types.SpaceView3D.draw_handler_add(
-            MUV_TexProj.draw_texture,
+            Operator.draw_texture,
             (obj, context), 'WINDOW', 'POST_PIXEL')
 
     @classmethod
@@ -253,14 +256,14 @@ class MUV_TexProj(bpy.types.Operator):
             return
 
         # no textures are selected
-        if sc.muv_texproj_tex_image == "None":
+        if sc.muv_texture_projection_tex_image == "None":
             return
 
         # get texture to be renderred
-        img = bpy.data.images[sc.muv_texproj_tex_image]
+        img = bpy.data.images[sc.muv_texture_projection_tex_image]
 
         # setup rendering region
-        rect = get_canvas(context, sc.muv_texproj_tex_magnitude)
+        rect = get_canvas(context, sc.muv_texture_projection_tex_magnitude)
         positions = [
             [rect.x0, rect.y0],
             [rect.x0, rect.y1],
@@ -289,17 +292,17 @@ class MUV_TexProj(bpy.types.Operator):
 
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texproj_tex_transparency)
+        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
         bgl.glEnd()
 
     def invoke(self, context, _):
-        if not MUV_TexProj.is_running(context):
-            MUV_TexProj.handle_add(self, context)
+        if not Operator.is_running(context):
+            Operator.handle_add(self, context)
         else:
-            MUV_TexProj.handle_remove()
+            Operator.handle_remove()
 
         if context.area:
             context.area.tag_redraw()
@@ -307,26 +310,26 @@ class MUV_TexProj(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexProjProject(bpy.types.Operator):
+class OperatorProject(bpy.types.Operator):
     """
     Operation class: Project texture
     """
 
-    bl_idname = "uv.muv_texproj_project"
+    bl_idname = "uv.muv_texture_projection_operator_project"
     bl_label = "Project Texture"
     bl_description = "Project Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
-        if not MUV_TexProj.is_running(context):
+        if not Operator.is_running(context):
             return False
         return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
 
-        if sc.muv_texproj_tex_image == "None":
+        if sc.muv_texture_projection_tex_image == "None":
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
 
@@ -342,7 +345,7 @@ class MUV_TexProjProject(bpy.types.Operator):
 
         # get UV and texture layer
         if not bm.loops.layers.uv:
-            if sc.muv_texproj_assign_uvmap:
+            if sc.muv_texture_projection_assign_uvmap:
                 bm.loops.layers.uv.new()
             else:
                 self.report({'WARNING'},
@@ -367,14 +370,14 @@ class MUV_TexProjProject(bpy.types.Operator):
         v_canvas = [
             region_to_canvas(
                 v,
-                get_canvas(bpy.context, sc.muv_texproj_tex_magnitude))
+                get_canvas(bpy.context, sc.muv_texture_projection_tex_magnitude))
             for v in v_screen
         ]
 
         # project texture to object
         i = 0
         for f in sel_faces:
-            f[tex_layer].image = bpy.data.images[sc.muv_texproj_tex_image]
+            f[tex_layer].image = bpy.data.images[sc.muv_texture_projection_tex_image]
             for l in f.loops:
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1

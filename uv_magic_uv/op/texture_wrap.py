@@ -25,13 +25,17 @@ __date__ = "24 Feb 2018"
 
 import bpy
 import bmesh
+from bpy.props import (
+    BoolProperty,
+)
 
 from .. import common
 
 
 __all__ = [
-    'MUV_TexWrapRefer',
-    'MUV_TexWrapSet',
+    'Properties',
+    'OperatorRefer',
+    'OperatorSet',
 ]
 
 
@@ -56,12 +60,45 @@ def is_valid_context(context):
     return True
 
 
-class MUV_TexWrapRefer(bpy.types.Operator):
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            ref_face_index = -1
+            ref_obj = None
+
+        scene.muv_props.texture_wrap = Props()
+
+        scene.muv_texture_wrap_enabled = BoolProperty(
+            name="Texture Wrap",
+            description="Texture Wrap is enabled",
+            default=False
+        )
+        scene.muv_texture_wrap_set_and_refer = BoolProperty(
+            name="Set and Refer",
+            description="Refer and set UV",
+            default=True
+        )
+        scene.muv_texture_wrap_selseq = BoolProperty(
+            name="Selection Sequence",
+            description="Set UV sequentially",
+            default=False
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_props.texture_wrap
+        del scene.muv_texture_wrap_enabled
+        del scene.muv_texture_wrap_set_and_refer
+        del scene.muv_texture_wrap_selseq
+
+
+class OperatorRefer(bpy.types.Operator):
     """
     Operation class: Refer UV
     """
 
-    bl_idname = "uv.muv_texwrap_refer"
+    bl_idname = "uv.muv_texture_wrap_operator_refer"
     bl_label = "Refer"
     bl_description = "Refer UV"
     bl_options = {'REGISTER', 'UNDO'}
@@ -71,7 +108,7 @@ class MUV_TexWrapRefer(bpy.types.Operator):
         return is_valid_context(context)
 
     def execute(self, context):
-        props = context.scene.muv_props.texwrap
+        props = context.scene.muv_props.texture_wrap
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if common.check_version(2, 73, 0) >= 0:
@@ -92,12 +129,12 @@ class MUV_TexWrapRefer(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MUV_TexWrapSet(bpy.types.Operator):
+class OperatorSet(bpy.types.Operator):
     """
     Operation class: Set UV
     """
 
-    bl_idname = "uv.muv_texwrap_set"
+    bl_idname = "uv.muv_texture_wrap_operator_set"
     bl_label = "Set"
     bl_description = "Set UV"
     bl_options = {'REGISTER', 'UNDO'}
@@ -105,14 +142,14 @@ class MUV_TexWrapSet(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         sc = context.scene
-        props = sc.muv_props.texwrap
+        props = sc.muv_props.texture_wrap
         if not props.ref_obj:
             return False
         return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
-        props = sc.muv_props.texwrap
+        props = sc.muv_props.texture_wrap
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
         if common.check_version(2, 73, 0) >= 0:
@@ -123,7 +160,7 @@ class MUV_TexWrapSet(bpy.types.Operator):
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 
-        if sc.muv_texwrap_selseq:
+        if sc.muv_texture_wrap_selseq:
             sel_faces = []
             for hist in bm.select_history:
                 if isinstance(hist, bmesh.types.BMFace) and hist.select:
@@ -245,7 +282,7 @@ class MUV_TexWrapSet(bpy.types.Operator):
 
             ref_face_index = tgt_face_index
 
-        if sc.muv_texwrap_set_and_refer:
+        if sc.muv_texture_wrap_set_and_refer:
             props.ref_face_index = tgt_face_index
 
         return {'FINISHED'}

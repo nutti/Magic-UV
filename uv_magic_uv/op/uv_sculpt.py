@@ -43,7 +43,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_UVSculpt',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -68,40 +69,24 @@ def is_valid_context(context):
     return True
 
 
-class MUV_UVSculpt(bpy.types.Operator):
-    """
-    Operation class: UV Sculpt in View3D
-    """
-
-    bl_idname = "uv.muv_uvsculpt"
-    bl_label = "UV Sculpt"
-    bl_description = "UV Sculpt in View3D"
-    bl_options = {'REGISTER'}
-
-    __handle = None
-    __timer = None
-
-    @classmethod
-    def poll(cls, context):
-        return is_valid_context(context)
-
+class Properties:
     @classmethod
     def init_props(cls, scene):
         def get_func(_):
-            return MUV_UVSculpt.is_running(bpy.context)
+            return Operator.is_running(bpy.context)
 
         def set_func(_, __):
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_uvsculpt('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_uv_sculpt_operator('INVOKE_REGION_WIN')
 
-        scene.muv_uvsculpt_enabled = BoolProperty(
+        scene.muv_uv_sculpt_enabled = BoolProperty(
             name="UV Sculpt",
             description="UV Sculpt is enabled",
             default=False
         )
-        scene.muv_uvsculpt_enable = BoolProperty(
+        scene.muv_uv_sculpt_enable = BoolProperty(
             name="UV Sculpt Showed",
             description="UV Sculpt is enabled",
             default=False,
@@ -109,21 +94,21 @@ class MUV_UVSculpt(bpy.types.Operator):
             set=set_func,
             update=update_func
         )
-        scene.muv_uvsculpt_radius = IntProperty(
+        scene.muv_uv_sculpt_radius = IntProperty(
             name="Radius",
             description="Radius of the brush",
             min=1,
             max=500,
             default=30
         )
-        scene.muv_uvsculpt_strength = FloatProperty(
+        scene.muv_uv_sculpt_strength = FloatProperty(
             name="Strength",
             description="How powerful the effect of the brush when applied",
             min=0.0,
             max=1.0,
             default=0.03,
         )
-        scene.muv_uvsculpt_tools = EnumProperty(
+        scene.muv_uv_sculpt_tools = EnumProperty(
             name="Tools",
             description="Select Tools for the UV sculpt brushes",
             items=[
@@ -133,17 +118,17 @@ class MUV_UVSculpt(bpy.types.Operator):
             ],
             default='GRAB'
         )
-        scene.muv_uvsculpt_show_brush = BoolProperty(
+        scene.muv_uv_sculpt_show_brush = BoolProperty(
             name="Show Brush",
             description="Show Brush",
             default=True
         )
-        scene.muv_uvsculpt_pinch_invert = BoolProperty(
+        scene.muv_uv_sculpt_pinch_invert = BoolProperty(
             name="Invert",
             description="Pinch UV to invert direction",
             default=False
         )
-        scene.muv_uvsculpt_relax_method = EnumProperty(
+        scene.muv_uv_sculpt_relax_method = EnumProperty(
             name="Method",
             description="Algorithm used for relaxation",
             items=[
@@ -155,14 +140,32 @@ class MUV_UVSculpt(bpy.types.Operator):
 
     @classmethod
     def del_props(cls, scene):
-        del scene.muv_uvsculpt_enabled
-        del scene.muv_uvsculpt_enable
-        del scene.muv_uvsculpt_radius
-        del scene.muv_uvsculpt_strength
-        del scene.muv_uvsculpt_tools
-        del scene.muv_uvsculpt_show_brush
-        del scene.muv_uvsculpt_pinch_invert
-        del scene.muv_uvsculpt_relax_method
+        del scene.muv_uv_sculpt_enabled
+        del scene.muv_uv_sculpt_enable
+        del scene.muv_uv_sculpt_radius
+        del scene.muv_uv_sculpt_strength
+        del scene.muv_uv_sculpt_tools
+        del scene.muv_uv_sculpt_show_brush
+        del scene.muv_uv_sculpt_pinch_invert
+        del scene.muv_uv_sculpt_relax_method
+
+
+class Operator(bpy.types.Operator):
+    """
+    Operation class: UV Sculpt in View3D
+    """
+
+    bl_idname = "uv.muv_uv_sculpt_operator"
+    bl_label = "UV Sculpt"
+    bl_description = "UV Sculpt in View3D"
+    bl_options = {'REGISTER'}
+
+    __handle = None
+    __timer = None
+
+    @classmethod
+    def poll(cls, context):
+        return is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -202,8 +205,8 @@ class MUV_UVSculpt(bpy.types.Operator):
 
         bgl.glBegin(bgl.GL_LINE_STRIP)
         bgl.glColor4f(color[0], color[1], color[2], color[3])
-        x = sc.muv_uvsculpt_radius * cos(0.0)
-        y = sc.muv_uvsculpt_radius * sin(0.0)
+        x = sc.muv_uv_sculpt_radius * cos(0.0)
+        y = sc.muv_uv_sculpt_radius * sin(0.0)
         for _ in range(num_segment):
             bgl.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
             tx = -y
@@ -251,7 +254,7 @@ class MUV_UVSculpt(bpy.types.Operator):
                 loc_2d = view3d_utils.location_3d_to_region_2d(
                     region, space.region_3d, world_mat * l.vert.co)
                 diff = loc_2d - self.__initial_mco
-                if diff.length < sc.muv_uvsculpt_radius:
+                if diff.length < sc.muv_uv_sculpt_radius:
                     info = {
                         "face_idx": f.index,
                         "loop_idx": i,
@@ -259,8 +262,8 @@ class MUV_UVSculpt(bpy.types.Operator):
                         "initial_vco_2d": loc_2d,
                         "initial_uv": l[uv_layer].uv.copy(),
                         "strength": self.__get_strength(
-                            diff.length, sc.muv_uvsculpt_radius,
-                            sc.muv_uvsculpt_strength)
+                            diff.length, sc.muv_uv_sculpt_radius,
+                            sc.muv_uv_sculpt_strength)
                     }
                     self.__loop_info.append(info)
 
@@ -272,13 +275,13 @@ class MUV_UVSculpt(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
         mco = self.current_mco
 
-        if sc.muv_uvsculpt_tools == 'GRAB':
+        if sc.muv_uv_sculpt_tools == 'GRAB':
             for info in self.__loop_info:
                 diff_uv = (mco - self.__initial_mco) * info["strength"]
                 l = bm.faces[info["face_idx"]].loops[info["loop_idx"]]
                 l[uv_layer].uv = info["initial_uv"] + diff_uv / 100.0
 
-        elif sc.muv_uvsculpt_tools == 'PINCH':
+        elif sc.muv_uv_sculpt_tools == 'PINCH':
             _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
             loop_info = []
             for f in bm.faces:
@@ -288,7 +291,7 @@ class MUV_UVSculpt(bpy.types.Operator):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
                         region, space.region_3d, world_mat * l.vert.co)
                     diff = loc_2d - self.__initial_mco
-                    if diff.length < sc.muv_uvsculpt_radius:
+                    if diff.length < sc.muv_uv_sculpt_radius:
                         info = {
                             "face_idx": f.index,
                             "loop_idx": i,
@@ -296,8 +299,8 @@ class MUV_UVSculpt(bpy.types.Operator):
                             "initial_vco_2d": loc_2d,
                             "initial_uv": l[uv_layer].uv.copy(),
                             "strength": self.__get_strength(
-                                diff.length, sc.muv_uvsculpt_radius,
-                                sc.muv_uvsculpt_strength)
+                                diff.length, sc.muv_uv_sculpt_radius,
+                                sc.muv_uv_sculpt_strength)
                         }
                         loop_info.append(info)
 
@@ -329,13 +332,13 @@ class MUV_UVSculpt(bpy.types.Operator):
             # move to target UV coordinate
             for info in loop_info:
                 l = bm.faces[info["face_idx"]].loops[info["loop_idx"]]
-                if sc.muv_uvsculpt_pinch_invert:
+                if sc.muv_uv_sculpt_pinch_invert:
                     diff_uv = (l[uv_layer].uv - target_uv) * info["strength"]
                 else:
                     diff_uv = (target_uv - l[uv_layer].uv) * info["strength"]
                 l[uv_layer].uv = l[uv_layer].uv + diff_uv / 10.0
 
-        elif sc.muv_uvsculpt_tools == 'RELAX':
+        elif sc.muv_uv_sculpt_tools == 'RELAX':
             _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
             # get vertex and loop relation
@@ -379,19 +382,19 @@ class MUV_UVSculpt(bpy.types.Operator):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
                         region, space.region_3d, world_mat * l.vert.co)
                     diff = loc_2d - self.__initial_mco
-                    if diff.length >= sc.muv_uvsculpt_radius:
+                    if diff.length >= sc.muv_uv_sculpt_radius:
                         continue
                     db = vert_db[l.vert]
                     strength = self.__get_strength(diff.length,
-                                                   sc.muv_uvsculpt_radius,
-                                                   sc.muv_uvsculpt_strength)
+                                                   sc.muv_uv_sculpt_radius,
+                                                   sc.muv_uv_sculpt_strength)
 
                     base = (1.0 - strength) * l[uv_layer].uv
-                    if sc.muv_uvsculpt_relax_method == 'HC':
+                    if sc.muv_uv_sculpt_relax_method == 'HC':
                         t = 0.5 * (db["uv_b"] + db["uv_sum_b"] / d["uv_count"])
                         diff = strength * (db["uv_p"] - t)
                         target_uv = base + diff
-                    elif sc.muv_uvsculpt_relax_method == 'LAPLACIAN':
+                    elif sc.muv_uv_sculpt_relax_method == 'LAPLACIAN':
                         diff = strength * db["uv_p"]
                         target_uv = base + diff
                     else:
@@ -408,7 +411,7 @@ class MUV_UVSculpt(bpy.types.Operator):
         uv_layer = bm.loops.layers.uv.verify()
         mco = self.current_mco
 
-        if sc.muv_uvsculpt_tools == 'GRAB':
+        if sc.muv_uv_sculpt_tools == 'GRAB':
             for info in self.__loop_info:
                 diff_uv = (mco - self.__initial_mco) * info["strength"]
                 l = bm.faces[info["face_idx"]].loops[info["loop_idx"]]
@@ -420,8 +423,8 @@ class MUV_UVSculpt(bpy.types.Operator):
         if context.area:
             context.area.tag_redraw()
 
-        if not MUV_UVSculpt.is_running(context):
-            MUV_UVSculpt.handle_remove(context)
+        if not Operator.is_running(context):
+            Operator.handle_remove(context)
 
             return {'FINISHED'}
 
@@ -462,9 +465,9 @@ class MUV_UVSculpt(bpy.types.Operator):
         if context.area:
             context.area.tag_redraw()
 
-        if MUV_UVSculpt.is_running(context):
-            MUV_UVSculpt.handle_remove(context)
+        if Operator.is_running(context):
+            Operator.handle_remove(context)
         else:
-            MUV_UVSculpt.handle_add(self, context)
+            Operator.handle_add(self, context)
 
         return {'RUNNING_MODAL'}

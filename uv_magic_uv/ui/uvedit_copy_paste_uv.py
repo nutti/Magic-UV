@@ -29,11 +29,11 @@ from ..op import copy_paste_uv_uvedit
 
 
 __all__ = [
-    'IMAGE_PT_MUV_CPUV',
+    'PanelCopyPasteUV',
 ]
 
 
-class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
+class PanelCopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on UV/ImageEditor
     """
@@ -53,7 +53,7 @@ class IMAGE_PT_MUV_CPUV(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.operator(copy_paste_uv_uvedit.MUV_CPUVIECopyUV.bl_idname,
+        row.operator(copy_paste_uv_uvedit.OperatorCopyUV.bl_idname,
                      text="Copy")
-        row.operator(copy_paste_uv_uvedit.MUV_CPUVIEPasteUV.bl_idname,
+        row.operator(copy_paste_uv_uvedit.OperatorPasteUV.bl_idname,
                      text="Paste")

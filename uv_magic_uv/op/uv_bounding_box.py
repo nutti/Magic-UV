@@ -36,7 +36,8 @@ from .. import common
 
 
 __all__ = [
-    'MUV_UVBB',
+    'Properties',
+    'Operator',
 ]
 
 
@@ -66,7 +67,64 @@ def is_valid_context(context):
     return True
 
 
-class MUV_UVBBCmd():
+class Properties:
+    @classmethod
+    def init_props(cls, scene):
+        class Props():
+            uv_info_ini = []
+            ctrl_points_ini = []
+            ctrl_points = []
+
+        scene.muv_props.uv_bounding_box = Props()
+
+        def get_func(_):
+            return Operator.is_running(bpy.context)
+
+        def set_func(_, __):
+            pass
+
+        def update_func(_, __):
+            bpy.ops.uv.muv_uv_bounding_box_operator('INVOKE_REGION_WIN')
+
+        scene.muv_uv_bounding_box_enabled = BoolProperty(
+            name="UV Bounding Box Enabled",
+            description="UV Bounding Box is enabled",
+            default=False
+        )
+        scene.muv_uv_bounding_box_show = BoolProperty(
+            name="UV Bounding Box Showed",
+            description="UV Bounding Box is showed",
+            default=False,
+            get=get_func,
+            set=set_func,
+            update=update_func
+        )
+        scene.muv_uv_bounding_box_uniform_scaling = BoolProperty(
+            name="Uniform Scaling",
+            description="Enable Uniform Scaling",
+            default=False
+        )
+        scene.muv_uv_bounding_box_boundary = EnumProperty(
+            name="Boundary",
+            description="Boundary",
+            default='UV_SEL',
+            items=[
+                ('UV', "UV", "Boundary is decided by UV"),
+                (
+                'UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
+            ]
+        )
+
+    @classmethod
+    def del_props(cls, scene):
+        del scene.muv_props.uv_bounding_box
+        del scene.muv_uv_bounding_box_enabled
+        del scene.muv_uv_bounding_box_show
+        del scene.muv_uv_bounding_box_uniform_scaling
+        del scene.muv_uv_bounding_box_boundary
+
+
+class CommandBase():
     """
     Custom class: Base class of command
     """
@@ -81,7 +139,7 @@ class MUV_UVBBCmd():
         return mat
 
 
-class MUV_UVBBTranslationCmd(MUV_UVBBCmd):
+class TranslationCommand(CommandBase):
     """
     Custom class: Translation operation
     """
@@ -105,7 +163,7 @@ class MUV_UVBBTranslationCmd(MUV_UVBBCmd):
         self.__y = y
 
 
-class MUV_UVBBRotationCmd(MUV_UVBBCmd):
+class RotationCommand(CommandBase):
     """
     Custom class: Rotation operation
     """
@@ -136,7 +194,7 @@ class MUV_UVBBRotationCmd(MUV_UVBBCmd):
         self.__y = y
 
 
-class MUV_UVBBScalingCmd(MUV_UVBBCmd):
+class ScalingCommand(CommandBase):
     """
     Custom class: Scaling operation
     """
@@ -187,7 +245,7 @@ class MUV_UVBBScalingCmd(MUV_UVBBCmd):
         self.__y = y
 
 
-class MUV_UVBBUniformScalingCmd(MUV_UVBBCmd):
+class UniformScalingCommand(CommandBase):
     """
     Custom class: Uniform Scaling operation
     """
@@ -251,7 +309,7 @@ class MUV_UVBBUniformScalingCmd(MUV_UVBBCmd):
         self.__y = y
 
 
-class MUV_UVBBCmdExecuter():
+class CommandExecuter():
     """
     Custom class: manage command history and execute command
     """
@@ -317,7 +375,7 @@ class MUV_UVBBCmdExecuter():
         self.__cmd_list.append(cmd)
 
 
-class MUV_UVBBState(IntEnum):
+class State(IntEnum):
     """
     Enum: State definition used by MUV_UVBBStateMgr
     """
@@ -338,7 +396,7 @@ class MUV_UVBBState(IntEnum):
     UNIFORM_SCALING_4 = 14
 
 
-class MUV_UVBBStateBase():
+class StateBase():
     """
     Custom class: Base class of state
     """
@@ -350,7 +408,7 @@ class MUV_UVBBStateBase():
         raise NotImplementedError
 
 
-class MUV_UVBBStateNone(MUV_UVBBStateBase):
+class StateNone(StateBase):
     """
     Custom class:
     No state
@@ -366,8 +424,8 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
         Update state
         """
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        cp_react_size = prefs.uvbb_cp_react_size
-        is_uscaling = context.scene.muv_uvbb_uniform_scaling
+        cp_react_size = prefs.uv_bounding_box_cp_react_size
+        is_uscaling = context.scene.muv_uv_bounding_box_uniform_scaling
         if (event.type == 'LEFTMOUSE') and (event.value == 'PRESS'):
             x, y = context.region.view2d.view_to_region(
                 mouse_view.x, mouse_view.y)
@@ -382,16 +440,16 @@ class MUV_UVBBStateNone(MUV_UVBBStateBase):
                         arr = [1, 3, 6, 8]
                         if i in arr:
                             return (
-                                MUV_UVBBState.UNIFORM_SCALING_1 +
+                                State.UNIFORM_SCALING_1 +
                                 arr.index(i)
                             )
                     else:
-                        return MUV_UVBBState.TRANSLATING + i
+                        return State.TRANSLATING + i
 
-        return MUV_UVBBState.NONE
+        return State.NONE
 
 
-class MUV_UVBBStateTranslating(MUV_UVBBStateBase):
+class StateTranslating(StateBase):
     """
     Custom class: Translating state
     """
@@ -400,19 +458,19 @@ class MUV_UVBBStateTranslating(MUV_UVBBStateBase):
         super().__init__()
         self.__cmd_exec = cmd_exec
         ix, iy = ctrl_points[0].x, ctrl_points[0].y
-        self.__cmd_exec.append(MUV_UVBBTranslationCmd(ix, iy))
+        self.__cmd_exec.append(TranslationCommand(ix, iy))
 
     def update(self, context, event, ctrl_points, mouse_view):
         if event.type == 'LEFTMOUSE':
             if event.value == 'RELEASE':
-                return MUV_UVBBState.NONE
+                return State.NONE
         if event.type == 'MOUSEMOVE':
             x, y = mouse_view.x, mouse_view.y
             self.__cmd_exec.top().set(x, y)
-        return MUV_UVBBState.TRANSLATING
+        return State.TRANSLATING
 
 
-class MUV_UVBBStateScaling(MUV_UVBBStateBase):
+class StateScaling(StateBase):
     """
     Custom class: Scaling state
     """
@@ -429,19 +487,19 @@ class MUV_UVBBStateScaling(MUV_UVBBStateBase):
         dir_x, dir_y = dir_x_list[idx], dir_y_list[idx]
         mat = self.__cmd_exec.execute(end=self.__cmd_exec.undo_size())
         self.__cmd_exec.append(
-            MUV_UVBBScalingCmd(ix, iy, ox, oy, dir_x, dir_y, mat.inverted()))
+            ScalingCommand(ix, iy, ox, oy, dir_x, dir_y, mat.inverted()))
 
     def update(self, context, event, ctrl_points, mouse_view):
         if event.type == 'LEFTMOUSE':
             if event.value == 'RELEASE':
-                return MUV_UVBBState.NONE
+                return State.NONE
         if event.type == 'MOUSEMOVE':
             x, y = mouse_view.x, mouse_view.y
             self.__cmd_exec.top().set(x, y)
         return self.__state
 
 
-class MUV_UVBBStateUniformScaling(MUV_UVBBStateBase):
+class StateUniformScaling(StateBase):
     """
     Custom class: Uniform Scaling state
     """
@@ -452,17 +510,17 @@ class MUV_UVBBStateUniformScaling(MUV_UVBBStateBase):
         self.__cmd_exec = cmd_exec
         icp_idx = [1, 3, 6, 8]
         ocp_idx = [8, 6, 3, 1]
-        idx = state - MUV_UVBBState.UNIFORM_SCALING_1
+        idx = state - State.UNIFORM_SCALING_1
         ix, iy = ctrl_points[icp_idx[idx]].x, ctrl_points[icp_idx[idx]].y
         ox, oy = ctrl_points[ocp_idx[idx]].x, ctrl_points[ocp_idx[idx]].y
         mat = self.__cmd_exec.execute(end=self.__cmd_exec.undo_size())
-        self.__cmd_exec.append(MUV_UVBBUniformScalingCmd(
+        self.__cmd_exec.append(UniformScalingCommand(
             ix, iy, ox, oy, mat.inverted()))
 
     def update(self, context, event, ctrl_points, mouse_view):
         if event.type == 'LEFTMOUSE':
             if event.value == 'RELEASE':
-                return MUV_UVBBState.NONE
+                return State.NONE
         if event.type == 'MOUSEMOVE':
             x, y = mouse_view.x, mouse_view.y
             self.__cmd_exec.top().set(x, y)
@@ -470,7 +528,7 @@ class MUV_UVBBStateUniformScaling(MUV_UVBBStateBase):
         return self.__state
 
 
-class MUV_UVBBStateRotating(MUV_UVBBStateBase):
+class StateRotating(StateBase):
     """
     Custom class: Rotating state
     """
@@ -480,27 +538,27 @@ class MUV_UVBBStateRotating(MUV_UVBBStateBase):
         self.__cmd_exec = cmd_exec
         ix, iy = ctrl_points[9].x, ctrl_points[9].y
         ox, oy = ctrl_points[0].x, ctrl_points[0].y
-        self.__cmd_exec.append(MUV_UVBBRotationCmd(ix, iy, ox, oy))
+        self.__cmd_exec.append(RotationCommand(ix, iy, ox, oy))
 
     def update(self, context, event, ctrl_points, mouse_view):
         if event.type == 'LEFTMOUSE':
             if event.value == 'RELEASE':
-                return MUV_UVBBState.NONE
+                return State.NONE
         if event.type == 'MOUSEMOVE':
             x, y = mouse_view.x, mouse_view.y
             self.__cmd_exec.top().set(x, y)
-        return MUV_UVBBState.ROTATING
+        return State.ROTATING
 
 
-class MUV_UVBBStateMgr():
+class StateManager():
     """
     Custom class: Manage state about this feature
     """
 
     def __init__(self, cmd_exec):
         self.__cmd_exec = cmd_exec          # command executer
-        self.__state = MUV_UVBBState.NONE   # current state
-        self.__state_obj = MUV_UVBBStateNone(self.__cmd_exec)
+        self.__state = State.NONE   # current state
+        self.__state_obj = StateNone(self.__cmd_exec)
 
     def __update_state(self, next_state, ctrl_points):
         """
@@ -510,18 +568,18 @@ class MUV_UVBBStateMgr():
         if next_state == self.__state:
             return
         obj = None
-        if next_state == MUV_UVBBState.TRANSLATING:
-            obj = MUV_UVBBStateTranslating(self.__cmd_exec, ctrl_points)
-        elif MUV_UVBBState.SCALING_1 <= next_state <= MUV_UVBBState.SCALING_8:
-            obj = MUV_UVBBStateScaling(
+        if next_state == State.TRANSLATING:
+            obj = StateTranslating(self.__cmd_exec, ctrl_points)
+        elif State.SCALING_1 <= next_state <= State.SCALING_8:
+            obj = StateScaling(
                 self.__cmd_exec, next_state, ctrl_points)
-        elif next_state == MUV_UVBBState.ROTATING:
-            obj = MUV_UVBBStateRotating(self.__cmd_exec, ctrl_points)
-        elif next_state == MUV_UVBBState.NONE:
-            obj = MUV_UVBBStateNone(self.__cmd_exec)
-        elif (MUV_UVBBState.UNIFORM_SCALING_1 <= next_state <=
-              MUV_UVBBState.UNIFORM_SCALING_4):
-            obj = MUV_UVBBStateUniformScaling(
+        elif next_state == State.ROTATING:
+            obj = StateRotating(self.__cmd_exec, ctrl_points)
+        elif next_state == State.NONE:
+            obj = StateNone(self.__cmd_exec)
+        elif (State.UNIFORM_SCALING_1 <= next_state <=
+              State.UNIFORM_SCALING_4):
+            obj = StateUniformScaling(
                 self.__cmd_exec, next_state, ctrl_points)
 
         if obj is not None:
@@ -541,20 +599,20 @@ class MUV_UVBBStateMgr():
         return self.__state
 
 
-class MUV_UVBB(bpy.types.Operator):
+class Operator(bpy.types.Operator):
     """
     Operation class: UV Bounding Box
     """
 
-    bl_idname = "uv.muv_uvbb"
+    bl_idname = "uv.muv_uv_bounding_box_operator"
     bl_label = "UV Bounding Box"
     bl_description = "Internal operation for UV Bounding Box"
     bl_options = {'REGISTER', 'UNDO'}
 
     def __init__(self):
         self.__timer = None
-        self.__cmd_exec = MUV_UVBBCmdExecuter()         # Command executor
-        self.__state_mgr = MUV_UVBBStateMgr(self.__cmd_exec)    # State Manager
+        self.__cmd_exec = CommandExecuter()         # Command executor
+        self.__state_mgr = StateManager(self.__cmd_exec)    # State Manager
 
     __handle = None
     __timer = None
@@ -562,53 +620,6 @@ class MUV_UVBB(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return is_valid_context(context)
-
-    @classmethod
-    def init_props(cls, scene):
-        def get_func(_):
-            return MUV_UVBB.is_running(bpy.context)
-
-        def set_func(_, __):
-            pass
-
-        def update_func(_, __):
-            bpy.ops.uv.muv_uvbb('INVOKE_REGION_WIN')
-
-        scene.muv_uvbb_enabled = BoolProperty(
-            name="UV Bounding Box Enabled",
-            description="UV Bounding Box is enabled",
-            default=False
-        )
-        scene.muv_uvbb_show = BoolProperty(
-            name="UV Bounding Box Showed",
-            description="UV Bounding Box is showed",
-            default=False,
-            get=get_func,
-            set=set_func,
-            update=update_func
-        )
-        scene.muv_uvbb_uniform_scaling = BoolProperty(
-            name="Uniform Scaling",
-            description="Enable Uniform Scaling",
-            default=False
-        )
-        scene.muv_uvbb_boundary = EnumProperty(
-            name="Boundary",
-            description="Boundary",
-            default='UV_SEL',
-            items=[
-                ('UV', "UV", "Boundary is decided by UV"),
-                (
-                'UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
-            ]
-        )
-
-    @classmethod
-    def del_props(cls, scene):
-        del scene.muv_uvbb_enabled
-        del scene.muv_uvbb_show
-        del scene.muv_uvbb_uniform_scaling
-        del scene.muv_uvbb_boundary
 
     @classmethod
     def is_running(cls, _):
@@ -641,7 +652,7 @@ class MUV_UVBB(bpy.types.Operator):
         Draw control point
         """
         prefs = context.user_preferences.addons["uv_magic_uv"].preferences
-        cp_size = prefs.uvbb_cp_size
+        cp_size = prefs.uv_bounding_box_cp_size
         offset = cp_size / 2
         verts = [
             [pos.x - offset, pos.y - offset],
@@ -661,9 +672,9 @@ class MUV_UVBB(bpy.types.Operator):
         """
         Draw bounding box
         """
-        props = context.scene.muv_props.uvbb
+        props = context.scene.muv_props.uv_bounding_box
 
-        if not MUV_UVBB.is_running(context):
+        if not Operator.is_running(context):
             return
 
         if not is_valid_context(context):
@@ -691,10 +702,10 @@ class MUV_UVBB(bpy.types.Operator):
             if not f.select:
                 continue
             for i, l in enumerate(f.loops):
-                if sc.muv_uvbb_boundary == 'UV_SEL':
+                if sc.muv_uv_bounding_box_boundary == 'UV_SEL':
                     if l[uv_layer].select:
                         uv_info.append((f.index, i, l[uv_layer].uv.copy()))
-                elif sc.muv_uvbb_boundary == 'UV':
+                elif sc.muv_uv_bounding_box_boundary == 'UV':
                     uv_info.append((f.index, i, l[uv_layer].uv.copy()))
         if not uv_info:
             return None
@@ -764,14 +775,14 @@ class MUV_UVBB(bpy.types.Operator):
         return [trans_mat * cp for cp in ctrl_points_ini]
 
     def modal(self, context, event):
-        props = context.scene.muv_props.uvbb
+        props = context.scene.muv_props.uv_bounding_box
         common.redraw_all_areas()
 
-        if not MUV_UVBB.is_running(context):
+        if not Operator.is_running(context):
             return {'FINISHED'}
 
         if not is_valid_context(context):
-            MUV_UVBB.handle_remove(context)
+            Operator.handle_remove(context)
             return {'FINISHED'}
 
         region_types = [
@@ -790,23 +801,23 @@ class MUV_UVBB(bpy.types.Operator):
                 props.ctrl_points_ini, trans_mat)
 
         state = self.__state_mgr.update(context, props.ctrl_points, event)
-        if state == MUV_UVBBState.NONE:
+        if state == State.NONE:
             return {'PASS_THROUGH'}
 
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, _):
-        props = context.scene.muv_props.uvbb
+        props = context.scene.muv_props.uv_bounding_box
 
-        if MUV_UVBB.is_running(context):
-            MUV_UVBB.handle_remove(context)
+        if Operator.is_running(context):
+            Operator.handle_remove(context)
             return {'FINISHED'}
 
         props.uv_info_ini = self.__get_uv_info(context)
         if props.uv_info_ini is None:
             return {'CANCELLED'}
 
-        MUV_UVBB.handle_add(self, context)
+        Operator.handle_add(self, context)
 
         props.ctrl_points_ini = self.__get_ctrl_point(props.uv_info_ini)
         trans_mat = self.__cmd_exec.execute()
