@@ -25,7 +25,6 @@ __date__ = "24 Feb 2018"
 
 import bpy
 
-from ..op import uv_inspection
 from ..op import align_uv
 from ..op import smooth_uv
 from ..op import pack_uv
@@ -62,7 +61,8 @@ class MenuUVManipulation(bpy.types.Panel):
         if sc.muv_align_uv_enabled:
             col = box.column()
             row = col.row(align=True)
-            ops = row.operator(align_uv.OperatorCircle.bl_idname, text="Circle")
+            ops = row.operator(align_uv.OperatorCircle.bl_idname,
+                               text="Circle")
             ops.transmission = sc.muv_align_uv_transmission
             ops.select = sc.muv_align_uv_select
             ops = row.operator(align_uv.OperatorStraighten.bl_idname,

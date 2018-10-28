@@ -39,7 +39,7 @@ from . import op
 __all__ = [
     'add_builtin_menu',
     'remove_builtin_menu',
-    'MUV_Preferences'
+    'Preferences'
 ]
 
 
@@ -112,11 +112,13 @@ def image_uvs_menu_fn(self, context):
 
     layout.separator()
     # Align UV Cursor
-    layout.menu(ui.IMAGE_MT_uvs.MenuAlignUVCursor.bl_idname, text="Align UV Cursor")
+    layout.menu(ui.IMAGE_MT_uvs.MenuAlignUVCursor.bl_idname,
+                text="Align UV Cursor")
     # UV Bounding Box
     layout.prop(sc, "muv_uv_bounding_box_show", text="UV Bounding Box")
     # UV Inspection
-    layout.menu(ui.IMAGE_MT_uvs.MenuUVInspection.bl_idname, text="UV Inspection")
+    layout.menu(ui.IMAGE_MT_uvs.MenuUVInspection.bl_idname,
+                text="UV Inspection")
     layout.label("Editor Enhancement", icon='IMAGE_COL')
 
     layout.separator()
@@ -137,9 +139,9 @@ def image_uvs_menu_fn(self, context):
 
     layout.separator()
     # Copy/Paste UV (on UV/Image Editor)
-    layout.menu(ui.IMAGE_MT_uvs.MenuCopyPasteUVUVEdit.bl_idname, text="Copy/Paste UV")
+    layout.menu(ui.IMAGE_MT_uvs.MenuCopyPasteUVUVEdit.bl_idname,
+                text="Copy/Paste UV")
     layout.label("Copy/Paste UV", icon='IMAGE_COL')
-
 
 
 def add_builtin_menu():
@@ -154,7 +156,7 @@ def remove_builtin_menu():
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
 
 
-class MUV_Preferences(AddonPreferences):
+class Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
     bl_idname = __package__
@@ -270,25 +272,28 @@ class MUV_Preferences(AddonPreferences):
         default=False
     )
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
-        sc = context.scene
 
         layout.row().prop(self, "category", expand=True)
 
         if self.category == 'INFO':
             layout.prop(
                 self, "info_desc_expanded", text="Description",
-                icon='DISCLOSURE_TRI_DOWN' if self.info_desc_expanded else 'DISCLOSURE_TRI_RIGHT')
+                icon='DISCLOSURE_TRI_DOWN' if self.info_desc_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.info_desc_expanded:
                 column = layout.column(align=True)
-                column.label("Magic UV is composed of many UV editing features.")
-                column.label("See tutorial page if you are new to this add-on.")
+                column.label("Magic UV is composed of many UV editing" +
+                             " features.")
+                column.label("See tutorial page if you are new to this" +
+                             " add-on.")
                 column.label("https://github.com/nutti/Magic-UV/wiki/Tutorial")
 
             layout.prop(
                 self, "info_loc_expanded", text="Location",
-                icon='DISCLOSURE_TRI_DOWN' if self.info_loc_expanded else 'DISCLOSURE_TRI_RIGHT')
+                icon='DISCLOSURE_TRI_DOWN' if self.info_loc_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.info_loc_expanded:
                 row = layout.row(align=True)
                 sp = row.split(percentage=0.5)
@@ -362,7 +367,8 @@ class MUV_Preferences(AddonPreferences):
 
             layout.prop(
                 self, "conf_uv_sculpt_expanded", text="UV Sculpt",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_sculpt_expanded else 'DISCLOSURE_TRI_RIGHT')
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_sculpt_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_sculpt_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
@@ -374,7 +380,8 @@ class MUV_Preferences(AddonPreferences):
 
             layout.prop(
                 self, "conf_uv_inspection_expanded", text="UV Inspection",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_inspection_expanded else 'DISCLOSURE_TRI_RIGHT')
+                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_inspection_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_inspection_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()  # spacer
@@ -389,8 +396,11 @@ class MUV_Preferences(AddonPreferences):
                 layout.separator()
 
             layout.prop(
-                self, "conf_texture_projection_expanded", text="Texture Projection",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_texture_projection_expanded else 'DISCLOSURE_TRI_RIGHT')
+                self, "conf_texture_projection_expanded",
+                text="Texture Projection",
+                icon='DISCLOSURE_TRI_DOWN'
+                if self.conf_texture_projection_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_texture_projection_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer
@@ -401,7 +411,9 @@ class MUV_Preferences(AddonPreferences):
 
             layout.prop(
                 self, "conf_uv_bounding_box_expanded", text="UV Bounding Box",
-                icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_bounding_box_expanded else 'DISCLOSURE_TRI_RIGHT')
+                icon='DISCLOSURE_TRI_DOWN'
+                if self.conf_uv_bounding_box_expanded
+                else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_bounding_box_expanded:
                 sp = layout.split(percentage=0.05)
                 col = sp.column()       # spacer

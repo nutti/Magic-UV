@@ -382,28 +382,37 @@ def measure_uv_area(obj, tex_size=None):
         uvs = [l[uv_layer].uv for l in f.loops]
         f_uv_area = calc_polygon_2d_area(uvs)
 
+        # user specified
         if tex_size:
-            img_size = tex_size
-        else:
-            if not tex_layer:
-                return None
-            img = f[tex_layer].image
-            # not found, try to search from node
-            if not img:
-                for mat in obj.material_slots:
-                    if not mat.material.node_tree:
-                        return None
-                    for node in mat.material.node_tree.nodes:
-                        tex_node_types = [
-                            'TEX_ENVIRONMENT',
-                            'TEX_IMAGE',
-                        ]
-                        if (node.type in tex_node_types) and node.image:
-                            img = node.image
-            if not img:
-                return None
-            img_size = img.size
+            uv_area = uv_area + f_uv_area * tex_size[0] * tex_size[1]
+            continue
 
+        # try to find from texture_layer
+        img = None
+        if not tex_layer:
+            img = f[tex_layer].image
+
+        # not found, then try to search from node
+        if not img:
+            for mat in obj.material_slots:
+                if not mat.material.node_tree:
+                    continue
+                for node in mat.material.node_tree.nodes:
+                    tex_node_types = [
+                        'TEX_ENVIRONMENT',
+                        'TEX_IMAGE',
+                    ]
+                    if node.type not in tex_node_types:
+                        continue
+                    if not node.image:
+                        continue
+                    img = node.image
+
+        # can not find from node, so we can not get texture size
+        if not img:
+            return None
+
+        img_size = img.size
         uv_area = uv_area + f_uv_area * img_size[0] * img_size[1]
 
     return uv_area

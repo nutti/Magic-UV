@@ -214,8 +214,6 @@ class Properties:
         del scene.muv_texture_projection_assign_uvmap
 
 
-
-
 class Operator(bpy.types.Operator):
     """
     Operation class: Texture Projection
@@ -292,7 +290,8 @@ class Operator(bpy.types.Operator):
 
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, sc.muv_texture_projection_tex_transparency)
+        bgl.glColor4f(1.0, 1.0, 1.0,
+                      sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
@@ -370,14 +369,16 @@ class OperatorProject(bpy.types.Operator):
         v_canvas = [
             region_to_canvas(
                 v,
-                get_canvas(bpy.context, sc.muv_texture_projection_tex_magnitude))
-            for v in v_screen
+                get_canvas(bpy.context,
+                           sc.muv_texture_projection_tex_magnitude)
+            ) for v in v_screen
         ]
 
         # project texture to object
         i = 0
         for f in sel_faces:
-            f[tex_layer].image = bpy.data.images[sc.muv_texture_projection_tex_image]
+            f[tex_layer].image = \
+                bpy.data.images[sc.muv_texture_projection_tex_image]
             for l in f.loops:
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1

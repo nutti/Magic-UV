@@ -318,8 +318,10 @@ def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
             break
         elif i == (len(accum_uvlens[:-1]) - 1):
             if accum_uvlens[i + 1] != target_length:
-                raise Exception("Internal Error: horizontal_target_length={} is not equal to {}"
-                                .format(target_length, accum_uvlens[-1]))
+                raise Exception(
+                    "Internal Error: horizontal_target_length={}"
+                    " is not equal to {}"
+                    .format(target_length, accum_uvlens[-1]))
             tgt_seg_len = target_length - accum_uvlens[i]
             seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
             uv1 = orig_uvs[i]
@@ -327,13 +329,15 @@ def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
             target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
             break
     else:
-        raise Exception("Internal Error: horizontal_target_length={} is not in range {} to {}"
-                        .format(target_length, accum_uvlens[0], accum_uvlens[-1]))
+        raise Exception("Internal Error: horizontal_target_length={}"
+                        " is not in range {} to {}"
+                        .format(target_length, accum_uvlens[0],
+                                accum_uvlens[-1]))
 
     return target_uv
 
 
-###################### LOOP STRUCTURE ######################
+# --------------------- LOOP STRUCTURE ----------------------
 #
 #  loops[hidx][vidx][pidx]
 #     hidx: horizontal index
@@ -355,7 +359,7 @@ def get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
 #              |            (hidx, vidx, pidx) = (1, 0, 1)
 #              (hidx, vidx, pidx) = (0, 0, 0)
 #
-############################################################
+# -----------------------------------------------------------
 
 
 # get vertical differential of UV influenced by mesh vertex
@@ -395,7 +399,8 @@ def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
             break
         elif i == (len(accum_uvlens[:-1]) - 1):
             if accum_uvlens[i + 1] != target_length:
-                raise Exception("Internal Error: horizontal_target_length={} is not equal to {}"
+                raise Exception("Internal Error: horizontal_target_length={}"
+                                " is not equal to {}"
                                 .format(target_length, accum_uvlens[-1]))
             tgt_seg_len = target_length - accum_uvlens[i]
             seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
@@ -404,8 +409,10 @@ def get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
             target_uv = (uv1 - base_uv) + (uv2 - uv1) * tgt_seg_len / seg_len
             break
     else:
-        raise Exception("Internal Error: horizontal_target_length={} is not in range {} to {}"
-                        .format(target_length, accum_uvlens[0], accum_uvlens[-1]))
+        raise Exception("Internal Error: horizontal_target_length={}"
+                        " is not in range {} to {}"
+                        .format(target_length, accum_uvlens[0],
+                                accum_uvlens[-1]))
 
     return target_uv
 
@@ -499,8 +506,10 @@ class OperatorStraighten(bpy.types.Operator):
                     ]
                 if self.vertical:
                     vdiff_uvs = [
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0, self.mesh_infl),
-                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1, self.mesh_infl),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 0,
+                                           self.mesh_infl),
+                        get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, 1,
+                                           self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,
                                            hidx, 0, self.mesh_infl),
                         get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx + 1,

@@ -82,5 +82,6 @@ class PanelCopyPasteUV(bpy.types.Panel):
             ops.invert_normals = sc.muv_transfer_uv_invert_normals
             ops.copy_seams = sc.muv_transfer_uv_copy_seams
             row = box.row()
-            row.prop(sc, "muv_transfer_uv_invert_normals", text="Invert Normals")
+            row.prop(sc, "muv_transfer_uv_invert_normals",
+                     text="Invert Normals")
             row.prop(sc, "muv_transfer_uv_copy_seams", text="Seams")

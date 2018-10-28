@@ -96,14 +96,15 @@ class PanelUVManipulation(bpy.types.Panel):
             if sc.muv_world_scale_uv_mode == 'MANUAL':
                 sp = box.split(percentage=0.5)
                 col = sp.column()
-                col.prop(sc, "muv_world_scale_uv_tgt_texture_size", text="Texture Size")
+                col.prop(sc, "muv_world_scale_uv_tgt_texture_size",
+                         text="Texture Size")
                 sp = sp.split(percentage=1.0)
                 col = sp.column()
                 col.label("Density:")
                 col.prop(sc, "muv_world_scale_uv_tgt_density", text="")
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
-                ops = box.operator(world_scale_uv.OperatorApplyManual.bl_idname,
-                                   text="Apply")
+                ops = box.operator(
+                    world_scale_uv.OperatorApplyManual.bl_idname, text="Apply")
                 ops.tgt_density = sc.muv_world_scale_uv_tgt_density
                 ops.tgt_texture_size = sc.muv_world_scale_uv_tgt_texture_size
                 ops.origin = sc.muv_world_scale_uv_origin
@@ -128,8 +129,9 @@ class PanelUVManipulation(bpy.types.Panel):
 
                 box.separator()
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
-                ops = box.operator(world_scale_uv.OperatorApplyScalingDensity.bl_idname,
-                                   text="Apply")
+                ops = box.operator(
+                    world_scale_uv.OperatorApplyScalingDensity.bl_idname,
+                    text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.origin = sc.muv_world_scale_uv_origin
                 ops.same_density = True
@@ -153,15 +155,18 @@ class PanelUVManipulation(bpy.types.Panel):
                 col.label("px2/cm2")
 
                 box.separator()
-                box.prop(sc, "muv_world_scale_uv_tgt_scaling_factor", text="Scaling Factor")
+                box.prop(sc, "muv_world_scale_uv_tgt_scaling_factor",
+                         text="Scaling Factor")
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
-                ops = box.operator(world_scale_uv.OperatorApplyScalingDensity.bl_idname,
-                                   text="Apply")
+                ops = box.operator(
+                    world_scale_uv.OperatorApplyScalingDensity.bl_idname,
+                    text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.origin = sc.muv_world_scale_uv_origin
                 ops.same_density = False
                 ops.show_dialog = False
-                ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
+                ops.tgt_scaling_factor = \
+                    sc.muv_world_scale_uv_tgt_scaling_factor
 
             elif sc.muv_world_scale_uv_mode == 'PROPORTIONAL_TO_MESH':
                 sp = box.split(percentage=0.4)
@@ -174,7 +179,8 @@ class PanelUVManipulation(bpy.types.Panel):
 
                 sp = box.split(percentage=0.7)
                 col = sp.column(align=True)
-                col.prop(sc, "muv_world_scale_uv_src_mesh_area", text="Mesh Area")
+                col.prop(sc, "muv_world_scale_uv_src_mesh_area",
+                         text="Mesh Area")
                 col.prop(sc, "muv_world_scale_uv_src_uv_area", text="UV Area")
                 col.prop(sc, "muv_world_scale_uv_src_density", text="Density")
                 col.enabled = False
@@ -187,8 +193,9 @@ class PanelUVManipulation(bpy.types.Panel):
 
                 box.separator()
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
-                ops = box.operator(world_scale_uv.OperatorApplyProportionalToMesh.bl_idname,
-                                   text="Apply")
+                ops = box.operator(
+                    world_scale_uv.OperatorApplyProportionalToMesh.bl_idname,
+                    text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
                 ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
@@ -196,7 +203,8 @@ class PanelUVManipulation(bpy.types.Panel):
                 ops.show_dialog = False
 
         box = layout.box()
-        box.prop(sc, "muv_preserve_uv_aspect_enabled", text="Preserve UV Aspect")
+        box.prop(sc, "muv_preserve_uv_aspect_enabled",
+                 text="Preserve UV Aspect")
         if sc.muv_preserve_uv_aspect_enabled:
             row = box.row()
             ops = row.operator(
@@ -215,7 +223,9 @@ class PanelUVManipulation(bpy.types.Panel):
             col.label("Normal Mode:")
             col = row.column(align=True)
             col.operator(texture_lock.OperatorLock.bl_idname,
-                         text="Lock" if not texture_lock.OperatorLock.is_ready(context) else "ReLock")
+                         text="Lock"
+                         if not texture_lock.OperatorLock.is_ready(context)
+                         else "ReLock")
             ops = col.operator(texture_lock.OperatorUnlock.bl_idname,
                                text="Unlock")
             ops.connect = sc.muv_texture_lock_connect
@@ -224,8 +234,12 @@ class PanelUVManipulation(bpy.types.Panel):
             row = box.row(align=True)
             row.label("Interactive Mode:")
             box.prop(sc, "muv_texture_lock_lock",
-                     text="Unlock" if texture_lock.OperatorIntr.is_running(context) else "Lock",
-                     icon='RESTRICT_VIEW_OFF' if texture_lock.OperatorIntr.is_running(context) else 'RESTRICT_VIEW_ON')
+                     text="Unlock"
+                     if texture_lock.OperatorIntr.is_running(context)
+                     else "Lock",
+                     icon='RESTRICT_VIEW_OFF'
+                     if texture_lock.OperatorIntr.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
 
         box = layout.box()
         box.prop(sc, "muv_texture_wrap_enabled", text="Texture Wrap")
@@ -240,8 +254,11 @@ class PanelUVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_uv_sculpt_enabled", text="UV Sculpt")
         if sc.muv_uv_sculpt_enabled:
             box.prop(sc, "muv_uv_sculpt_enable",
-                     text="Disable" if uv_sculpt.Operator.is_running(context) else "Enable",
-                     icon='RESTRICT_VIEW_OFF' if uv_sculpt.Operator.is_running(context) else 'RESTRICT_VIEW_ON')
+                     text="Disable"if uv_sculpt.Operator.is_running(context)
+                     else "Enable",
+                     icon='RESTRICT_VIEW_OFF'
+                     if uv_sculpt.Operator.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
             col = box.column()
             col.label("Brush:")
             col.prop(sc, "muv_uv_sculpt_radius")

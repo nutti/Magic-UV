@@ -132,10 +132,13 @@ class Properties:
             name="Mode",
             description="Density calculation mode",
             items=[
-                ('PROPORTIONAL_TO_MESH', 'Proportional to Mesh', 'Apply density proportionaled by mesh size'),
-                ('SCALING_DENSITY', 'Scaling Density', 'Apply scaled density from source'),
-                ('SAME_DENSITY', 'Same Density', 'Apply same density of source'),
-                ('MANUAL', 'Manual', 'Specify density and size by manual'),
+                ('PROPORTIONAL_TO_MESH', "Proportional to Mesh",
+                 "Apply density proportionaled by mesh size"),
+                ('SCALING_DENSITY', "Scaling Density",
+                 "Apply scaled density from source"),
+                ('SAME_DENSITY', "Same Density",
+                 "Apply same density of source"),
+                ('MANUAL', "Manual", "Specify density and size by manual"),
             ],
             default='MANUAL'
         )
@@ -143,15 +146,15 @@ class Properties:
             name="Origin",
             description="Aspect Origin",
             items=[
-                ('CENTER', 'Center', 'Center'),
-                ('LEFT_TOP', 'Left Top', 'Left Bottom'),
-                ('LEFT_CENTER', 'Left Center', 'Left Center'),
-                ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
-                ('CENTER_TOP', 'Center Top', 'Center Top'),
-                ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
-                ('RIGHT_TOP', 'Right Top', 'Right Top'),
-                ('RIGHT_CENTER', 'Right Center', 'Right Center'),
-                ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+                ('CENTER', "Center", "Center"),
+                ('LEFT_TOP', "Left Top", "Left Bottom"),
+                ('LEFT_CENTER', "Left Center", "Left Center"),
+                ('LEFT_BOTTOM', "Left Bottom", "Left Bottom"),
+                ('CENTER_TOP', "Center Top", "Center Top"),
+                ('CENTER_BOTTOM', "Center Bottom", "Center Bottom"),
+                ('RIGHT_TOP', "Right Top", "Right Top"),
+                ('RIGHT_CENTER', "Right Center", "Right Center"),
+                ('RIGHT_BOTTOM', "Right Bottom", "Right Bottom")
 
             ],
             default='CENTER'
@@ -331,18 +334,18 @@ class OperatorApplyManual(bpy.types.Operator):
         name="Origin",
         description="Aspect Origin",
         items=[
-            ('CENTER', 'Center', 'Center'),
-            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
-            ('LEFT_CENTER', 'Left Center', 'Left Center'),
-            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
-            ('CENTER_TOP', 'Center Top', 'Center Top'),
-            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
-            ('RIGHT_TOP', 'Right Top', 'Right Top'),
-            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
-            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+            ('CENTER', "Center", "Center"),
+            ('LEFT_TOP', "Left Top", "Left Bottom"),
+            ('LEFT_CENTER', "Left Center", "Left Center"),
+            ('LEFT_BOTTOM', "Left Bottom", "Left Bottom"),
+            ('CENTER_TOP', "Center Top", "Center Top"),
+            ('CENTER_BOTTOM', "Center Bottom", "Center Bottom"),
+            ('RIGHT_TOP', "Right Top", "Right Top"),
+            ('RIGHT_CENTER', "Right Center", "Right Center"),
+            ('RIGHT_BOTTOM', "Right Bottom", "Right Bottom")
 
         ],
-        default="CENTER"
+        default='CENTER'
     )
     show_dialog = BoolProperty(
         name="Show Diaglog Menu",
@@ -364,7 +367,7 @@ class OperatorApplyManual(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         tex_size = self.tgt_texture_size
-        uv_area, mesh_area, density = measure_wsuv_info(obj, tex_size)
+        uv_area, _, density = measure_wsuv_info(obj, tex_size)
         if not uv_area:
             self.report({'WARNING'},
                         "Object must have more than one UV map")
@@ -418,18 +421,18 @@ class OperatorApplyScalingDensity(bpy.types.Operator):
         name="Origin",
         description="Aspect Origin",
         items=[
-            ('CENTER', 'Center', 'Center'),
-            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
-            ('LEFT_CENTER', 'Left Center', 'Left Center'),
-            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
-            ('CENTER_TOP', 'Center Top', 'Center Top'),
-            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
-            ('RIGHT_TOP', 'Right Top', 'Right Top'),
-            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
-            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+            ('CENTER', "Center", "Center"),
+            ('LEFT_TOP', "Left Top", "Left Bottom"),
+            ('LEFT_CENTER', "Left Center", "Left Center"),
+            ('LEFT_BOTTOM', "Left Bottom", "Left Bottom"),
+            ('CENTER_TOP', "Center Top", "Center Top"),
+            ('CENTER_BOTTOM', "Center Bottom", "Center Bottom"),
+            ('RIGHT_TOP', "Right Top", "Right Top"),
+            ('RIGHT_CENTER', "Right Center", "Right Center"),
+            ('RIGHT_BOTTOM', "Right Bottom", "Right Bottom")
 
         ],
-        default="CENTER"
+        default='CENTER'
     )
     src_density = FloatProperty(
         name="Density",
@@ -463,7 +466,7 @@ class OperatorApplyScalingDensity(bpy.types.Operator):
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
 
-        uv_area, mesh_area, density = measure_wsuv_info(obj)
+        uv_area, _, density = measure_wsuv_info(obj)
         if not uv_area:
             self.report({'WARNING'},
                         "Object must have more than one UV map and texture")
@@ -502,7 +505,8 @@ class OperatorApplyScalingDensity(bpy.types.Operator):
             if self.same_density:
                 self.tgt_scaling_factor = 1.0
             else:
-                self.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
+                self.tgt_scaling_factor = \
+                    sc.muv_world_scale_uv_tgt_scaling_factor
             self.src_density = sc.muv_world_scale_uv_src_density
 
             return wm.invoke_props_dialog(self)
@@ -530,18 +534,18 @@ class OperatorApplyProportionalToMesh(bpy.types.Operator):
         name="Origin",
         description="Aspect Origin",
         items=[
-            ('CENTER', 'Center', 'Center'),
-            ('LEFT_TOP', 'Left Top', 'Left Bottom'),
-            ('LEFT_CENTER', 'Left Center', 'Left Center'),
-            ('LEFT_BOTTOM', 'Left Bottom', 'Left Bottom'),
-            ('CENTER_TOP', 'Center Top', 'Center Top'),
-            ('CENTER_BOTTOM', 'Center Bottom', 'Center Bottom'),
-            ('RIGHT_TOP', 'Right Top', 'Right Top'),
-            ('RIGHT_CENTER', 'Right Center', 'Right Center'),
-            ('RIGHT_BOTTOM', 'Right Bottom', 'Right Bottom')
+            ('CENTER', "Center", "Center"),
+            ('LEFT_TOP', "Left Top", "Left Bottom"),
+            ('LEFT_CENTER', "Left Center", "Left Center"),
+            ('LEFT_BOTTOM', "Left Bottom", "Left Bottom"),
+            ('CENTER_TOP', "Center Top", "Center Top"),
+            ('CENTER_BOTTOM', "Center Bottom", "Center Bottom"),
+            ('RIGHT_TOP', "Right Top", "Right Top"),
+            ('RIGHT_CENTER', "Right Center", "Right Center"),
+            ('RIGHT_BOTTOM', "Right Bottom", "Right Bottom")
 
         ],
-        default="CENTER"
+        default='CENTER'
     )
     src_density = FloatProperty(
         name="Source Density",
@@ -628,4 +632,3 @@ class OperatorApplyProportionalToMesh(bpy.types.Operator):
 
     def execute(self, context):
         return self.__apply_proportional_to_mesh(context)
-

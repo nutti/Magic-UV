@@ -133,7 +133,8 @@ class Properties:
             description="Algorithm used for relaxation",
             items=[
                 ('HC', "HC", "Use HC method for relaxation"),
-                ('LAPLACIAN', "Laplacian", "Use laplacian method for relaxation")
+                ('LAPLACIAN', "Laplacian",
+                 "Use laplacian method for relaxation")
             ],
             default='HC'
         )

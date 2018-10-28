@@ -139,7 +139,8 @@ class OperatorCopyUV(bpy.types.Operator):
                     face_info.append(info)
             props.src_info[layer.name] = face_info
 
-        self.report({'INFO'}, "{}'s UV coordinates are copied".format(obj.name))
+        self.report({'INFO'},
+                    "{}'s UV coordinates are copied".format(obj.name))
 
         return {'FINISHED'}
 
@@ -231,13 +232,15 @@ class OperatorPasteUV(bpy.types.Operator):
                             "uvs": [l[layer].uv.copy() for l in face.loops],
                         }
                         face_info.append(info)
-                src_face_count = len(props.src_info[list(props.src_info.keys())[0]])
+                key = list(props.src_info.keys())[0]
+                src_face_count = len(props.src_info[key])
                 dest_face_count = len(face_info)
                 if src_face_count != dest_face_count:
                     self.report(
                         {'WARNING'},
                         "Number of selected faces is different from copied" +
-                        "(src:{}, dest:{})".format(src_face_count,dest_face_count))
+                        "(src:{}, dest:{})"
+                        .format(src_face_count, dest_face_count))
                     return {'CANCELLED'}
                 dest_info[layer.name] = face_info
 

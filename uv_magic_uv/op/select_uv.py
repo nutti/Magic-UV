@@ -25,7 +25,7 @@ __date__ = "24 Feb 2018"
 
 import bpy
 import bmesh
-from bpy.props import BoolProperty, EnumProperty
+from bpy.props import BoolProperty
 
 from .. import common
 
@@ -100,8 +100,8 @@ class OperatorSelectOverlapped(bpy.types.Operator):
         else:
             sel_faces = [f for f in bm.faces if f.select]
 
-        overlapped_info = common.get_overlapped_uv_info(bm, sel_faces, uv_layer,
-                                                        'FACE')
+        overlapped_info = common.get_overlapped_uv_info(bm, sel_faces,
+                                                        uv_layer, 'FACE')
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:

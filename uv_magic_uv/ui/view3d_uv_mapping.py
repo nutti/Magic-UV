@@ -68,22 +68,31 @@ class UVMapping(bpy.types.Panel):
             row.prop(sc, "muv_unwrap_constraint_v_const", text="V-Constraint")
 
         box = layout.box()
-        box.prop(sc, "muv_texture_projection_enabled", text="Texture Projection")
+        box.prop(sc, "muv_texture_projection_enabled",
+                 text="Texture Projection")
         if sc.muv_texture_projection_enabled:
             row = box.row()
             row.prop(sc, "muv_texture_projection_enable",
-                     text="Disable" if texture_projection.Operator.is_running(context) else "Enable",
-                     icon='RESTRICT_VIEW_OFF' if texture_projection.Operator.is_running(context) else 'RESTRICT_VIEW_ON')
+                     text="Disable"
+                     if texture_projection.Operator.is_running(context)
+                     else "Enable",
+                     icon='RESTRICT_VIEW_OFF'
+                     if texture_projection.Operator.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
             row.prop(sc, "muv_texture_projection_tex_image", text="")
-            box.prop(sc, "muv_texture_projection_tex_transparency", text="Transparency")
+            box.prop(sc, "muv_texture_projection_tex_transparency",
+                     text="Transparency")
             col = box.column(align=True)
             row = col.row()
-            row.prop(sc, "muv_texture_projection_adjust_window", text="Adjust Window")
+            row.prop(sc, "muv_texture_projection_adjust_window",
+                     text="Adjust Window")
             if not sc.muv_texture_projection_adjust_window:
-                row.prop(sc, "muv_texture_projection_tex_magnitude", text="Magnitude")
+                row.prop(sc, "muv_texture_projection_tex_magnitude",
+                         text="Magnitude")
             col.prop(sc, "muv_texture_projection_apply_tex_aspect",
                      text="Texture Aspect Ratio")
-            col.prop(sc, "muv_texture_projection_assign_uvmap", text="Assign UVMap")
+            col.prop(sc, "muv_texture_projection_assign_uvmap",
+                     text="Assign UVMap")
             box.operator(texture_projection.OperatorProject.bl_idname,
                          text="Project")
 

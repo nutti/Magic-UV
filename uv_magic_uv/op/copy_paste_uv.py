@@ -23,8 +23,6 @@ __status__ = "production"
 __version__ = "5.1"
 __date__ = "24 Feb 2018"
 
-import math
-from math import atan2, sin, cos
 
 import bpy
 import bmesh
@@ -34,7 +32,6 @@ from bpy.props import (
     IntProperty,
     EnumProperty,
 )
-from mathutils import Vector
 
 from .. import common
 
@@ -380,13 +377,15 @@ class OperatorPasteUV(bpy.types.Operator):
             if not face_info:
                 self.report({'WARNING'}, "No faces are selected")
                 return {'CANCELLED'}
-            src_face_count = len(props.src_info[list(props.src_info.keys())[0]])
+            key = list(props.src_info.keys())[0]
+            src_face_count = len(props.src_info[key])
             dest_face_count = len(face_info)
             if self.strategy == 'N_N' and src_face_count != dest_face_count:
                 self.report(
                     {'WARNING'},
                     "Number of selected faces is different from copied" +
-                    "(src:{}, dest:{})".format(src_face_count, dest_face_count))
+                    "(src:{}, dest:{})"
+                    .format(src_face_count, dest_face_count))
                 return {'CANCELLED'}
             dest_info[layer.name] = face_info
 
@@ -604,13 +603,15 @@ class OperatorSelSeqPasteUV(bpy.types.Operator):
             if not face_info:
                 self.report({'WARNING'}, "No faces are selected")
                 return {'CANCELLED'}
-            src_face_count = len(props.src_info[list(props.src_info.keys())[0]])
+            key = list(props.src_info.keys())[0]
+            src_face_count = len(props.src_info[key])
             dest_face_count = len(face_info)
             if self.strategy == 'N_N' and src_face_count != dest_face_count:
                 self.report(
                     {'WARNING'},
                     "Number of selected faces is different from copied" +
-                    "(src:{}, dest:{})".format(src_face_count, dest_face_count))
+                    "(src:{}, dest:{})"
+                    .format(src_face_count, dest_face_count))
                 return {'CANCELLED'}
             dest_info[layer.name] = face_info
 
@@ -655,7 +656,8 @@ class MenuSelSeqPasteUV(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(OperatorSelSeqPasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(OperatorSelSeqPasteUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy

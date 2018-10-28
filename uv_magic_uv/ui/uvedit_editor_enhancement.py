@@ -105,7 +105,8 @@ class PanelEditorEnhancement(bpy.types.Panel):
             ops.base = sc.muv_align_uv_cursor_align_method
 
         box = layout.box()
-        box.prop(sc, "muv_uv_cursor_location_enabled", text="UV Cursor Location")
+        box.prop(sc, "muv_uv_cursor_location_enabled",
+                 text="UV Cursor Location")
         if sc.muv_uv_cursor_location_enabled:
             box.prop(sc, "muv_align_uv_cursor_cursor_loc", text="")
 
@@ -113,9 +114,14 @@ class PanelEditorEnhancement(bpy.types.Panel):
         box.prop(sc, "muv_uv_bounding_box_enabled", text="UV Bounding Box")
         if sc.muv_uv_bounding_box_enabled:
             box.prop(sc, "muv_uv_bounding_box_show",
-                     text="Hide" if uv_bounding_box.Operator.is_running(context) else "Show",
-                     icon='RESTRICT_VIEW_OFF' if uv_bounding_box.Operator.is_running(context) else 'RESTRICT_VIEW_ON')
-            box.prop(sc, "muv_uv_bounding_box_uniform_scaling", text="Uniform Scaling")
+                     text="Hide"
+                     if uv_bounding_box.Operator.is_running(context)
+                     else "Show",
+                     icon='RESTRICT_VIEW_OFF'
+                     if uv_bounding_box.Operator.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
+            box.prop(sc, "muv_uv_bounding_box_uniform_scaling",
+                     text="Uniform Scaling")
             box.prop(sc, "muv_uv_bounding_box_boundary", text="Boundary")
 
         box = layout.box()
@@ -123,8 +129,12 @@ class PanelEditorEnhancement(bpy.types.Panel):
         if sc.muv_uv_inspection_enabled:
             row = box.row()
             row.prop(sc, "muv_uv_inspection_show",
-                     text="Hide" if uv_inspection.OperatorRender.is_running(context) else "Show",
-                     icon='RESTRICT_VIEW_OFF' if uv_inspection.OperatorRender.is_running(context) else 'RESTRICT_VIEW_ON')
+                     text="Hide"
+                     if uv_inspection.OperatorRender.is_running(context)
+                     else "Show",
+                     icon='RESTRICT_VIEW_OFF'
+                     if uv_inspection.OperatorRender.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
             row.operator(uv_inspection.OperatorUpdate.bl_idname,
                          text="Update")
             row = box.row()

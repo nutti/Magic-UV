@@ -35,8 +35,6 @@ __all__ = [
     'Properties',
     'OperatorRender',
     'OperatorUpdate',
-    'MUV_UVInspSelectFlipped',
-    'MUV_UVInspSelectOverlapped',
 ]
 
 
@@ -239,7 +237,7 @@ def update_uvinsp_info(context):
     else:
         sel_faces = [f for f in bm.faces if f.select]
     props.overlapped_info = common.get_overlapped_uv_info(
-        bm, sel_faces, uv_layer,sc.muv_uv_inspection_show_mode)
+        bm, sel_faces, uv_layer, sc.muv_uv_inspection_show_mode)
     props.flipped_info = common.get_flipped_uv_info(sel_faces, uv_layer)
 
 

@@ -106,7 +106,9 @@ class MenuTextureLock(bpy.types.Menu):
 
         layout.label("Normal Mode")
         layout.operator(texture_lock.OperatorLock.bl_idname,
-                        text="Lock" if not texture_lock.OperatorLock.is_ready(context) else "ReLock")
+                        text="Lock"
+                        if not texture_lock.OperatorLock.is_ready(context)
+                        else "ReLock")
         ops = layout.operator(texture_lock.OperatorUnlock.bl_idname,
                               text="Unlock")
         ops.connect = sc.muv_texture_lock_connect
@@ -149,8 +151,9 @@ class MenuWorldScaleUV(bpy.types.Menu):
         ops.same_density = False
         ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
 
-        ops = layout.operator(world_scale_uv.OperatorApplyProportionalToMesh.bl_idname,
-                              text="Apply (Proportional to Mesh)")
+        ops = layout.operator(
+            world_scale_uv.OperatorApplyProportionalToMesh.bl_idname,
+            text="Apply (Proportional to Mesh)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
         ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
@@ -207,7 +210,8 @@ class MenuTextureProjection(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.prop(sc, "muv_texture_projection_enable", text="Texture Projection")
+        layout.prop(sc, "muv_texture_projection_enable",
+                    text="Texture Projection")
         layout.operator(texture_projection.OperatorProject.bl_idname,
                         text="Project")
 

@@ -58,4 +58,5 @@ class PanelCopyPasteUV(bpy.types.Panel):
                  text="Copy")
         row.menu(copy_paste_uv_object.MenuPasteUV.bl_idname,
                  text="Paste")
-        layout.prop(sc, "muv_copy_paste_uv_object_copy_seams", text="Copy Seams")
+        layout.prop(sc, "muv_copy_paste_uv_object_copy_seams",
+                    text="Copy Seams")

@@ -110,8 +110,8 @@ class Properties:
             default='UV_SEL',
             items=[
                 ('UV', "UV", "Boundary is decided by UV"),
-                (
-                'UV_SEL', "UV (Selected)", "Boundary is decided by Selected UV")
+                ('UV_SEL', "UV (Selected)",
+                 "Boundary is decided by Selected UV")
             ]
         )
 
