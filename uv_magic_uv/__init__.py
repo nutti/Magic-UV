@@ -47,17 +47,22 @@ if "bpy" in locals():
     importlib.reload(common)
     importlib.reload(preferences)
     importlib.reload(properites)
+    importlib.reload(addon_updater_ops)
+    importlib.reload(addon_updater)
 else:
     from . import op
     from . import ui
     from . import common
     from . import preferences
     from . import properites
+    from . import addon_updater_ops
+    from . import addon_updater
 
 import bpy
 
 
 def register():
+    addon_updater_ops.register(bl_info)
     properites.init_props(bpy.types.Scene)
     bpy.utils.register_module(__name__)
     if preferences.Preferences.enable_builtin_menu:
@@ -69,6 +74,7 @@ def unregister():
         preferences.remove_builtin_menu()
     bpy.utils.unregister_module(__name__)
     properites.clear_props(bpy.types.Scene)
+    addon_updater_ops.unregister()
 
 
 if __name__ == "__main__":

@@ -29,11 +29,13 @@ from bpy.props import (
     FloatVectorProperty,
     BoolProperty,
     EnumProperty,
+    IntProperty,
 )
 from bpy.types import AddonPreferences
 
 from . import ui
 from . import op
+from . import addon_updater_ops
 
 
 __all__ = [
@@ -238,6 +240,7 @@ class Preferences(AddonPreferences):
         items=[
             ('INFO', "Information", "Information about this add-on"),
             ('CONFIG', "Configuration", "Configuration about this add-on"),
+            ('UPDATE', "Update", "Update this add-on"),
         ],
         default='INFO'
     )
@@ -272,7 +275,40 @@ class Preferences(AddonPreferences):
         default=False
     )
 
-    def draw(self, _):
+    # for add-on updater
+    auto_check_update = BoolProperty(
+        name="Auto-check for Update",
+        description="If enabled, auto-check for updates using an interval",
+        default=False
+    )
+    updater_intrval_months = IntProperty(
+        name='Months',
+        description="Number of months between checking for updates",
+        default=0,
+        min=0
+    )
+    updater_intrval_days = IntProperty(
+        name='Days',
+        description="Number of days between checking for updates",
+        default=7,
+        min=0
+    )
+    updater_intrval_hours = IntProperty(
+        name='Hours',
+        description="Number of hours between checking for updates",
+        default=0,
+        min=0,
+        max=23
+    )
+    updater_intrval_minutes = IntProperty(
+        name='Minutes',
+        description="Number of minutes between checking for updates",
+        default=0,
+        min=0,
+        max=59
+    )
+
+    def draw(self, context):
         layout = self.layout
 
         layout.row().prop(self, "category", expand=True)
@@ -423,3 +459,6 @@ class Preferences(AddonPreferences):
                 col.prop(self, "uv_bounding_box_cp_size")
                 col.prop(self, "uv_bounding_box_cp_react_size")
                 layout.separator()
+
+        elif self.category == 'UPDATE':
+            addon_updater_ops.update_settings_ui(self, context)
