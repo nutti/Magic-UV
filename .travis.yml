@@ -3,6 +3,10 @@ language: python
 python:
   - "3.4"
 
+env:
+  global:
+    MUV_CONSOLE_MODE="True"
+
 branches:
   only:
     - master

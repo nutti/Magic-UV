@@ -196,6 +196,9 @@ class OperatorCircle(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -473,6 +476,9 @@ class OperatorStraighten(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     # selected and paralleled UV loop sequence will be aligned
@@ -630,6 +636,9 @@ class OperatorAxis(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     # get min/max of UV

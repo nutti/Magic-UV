@@ -33,8 +33,8 @@ from .. import common
 
 
 __all__ = [
-    'OperatorCopy',
-    'OperatorPaste',
+    'OperatorCopyUV',
+    'OperatorPasteUV',
 ]
 
 
@@ -90,19 +90,22 @@ class Properties:
         del scene.muv_transfer_uv_copy_seams
 
 
-class OperatorCopy(bpy.types.Operator):
+class OperatorCopyUV(bpy.types.Operator):
     """
         Operation class: Transfer UV copy
         Topological based copy
     """
 
-    bl_idname = "uv.muv_transfer_uv_operator_copy"
-    bl_label = "Transfer UV Copy"
-    bl_description = "Transfer UV Copy (Topological based copy)"
+    bl_idname = "uv.muv_transfer_uv_operator_copy_uv"
+    bl_label = "Transfer UV Copy UV"
+    bl_description = "Transfer UV Copy UV (Topological based copy)"
     bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -144,21 +147,23 @@ class OperatorCopy(bpy.types.Operator):
                 pin_uvs = [l.pin_uv for l in uv_loops]
                 seams = [e.seam for e in edges]
                 props.topology_copied.append([uvs, pin_uvs, seams])
+        else:
+            return {'CANCELLED'}
 
         bmesh.update_edit_mesh(active_obj.data)
 
         return {'FINISHED'}
 
 
-class OperatorPaste(bpy.types.Operator):
+class OperatorPasteUV(bpy.types.Operator):
     """
         Operation class: Transfer UV paste
         Topological based paste
     """
 
-    bl_idname = "uv.muv_transfer_uv_operator_paste"
-    bl_label = "Transfer UV Paste"
-    bl_description = "Transfer UV Paste (Topological based paste)"
+    bl_idname = "uv.muv_transfer_uv_operator_paste_uv"
+    bl_label = "Transfer UV Paste UV"
+    bl_description = "Transfer UV Paste UV (Topological based paste)"
     bl_options = {'REGISTER', 'UNDO'}
 
     invert_normals = BoolProperty(
@@ -174,6 +179,9 @@ class OperatorPaste(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         sc = context.scene
         props = sc.muv_props.transfer_uv
         if not props.topology_copied:
@@ -223,7 +231,7 @@ class OperatorPaste(bpy.types.Operator):
                         {'WARNING'},
                         "Mesh has different amount of faces"
                     )
-                    return {'FINISHED'}
+                    return {'CANCELLED'}
 
                 for j, face_data in enumerate(all_sorted_faces.values()):
                     copied_data = props.topology_copied[j]
@@ -245,6 +253,8 @@ class OperatorPaste(bpy.types.Operator):
                         uvloop.pin_uv = copied_data[1][k]
                         if self.copy_seams:
                             edge.seam = copied_data[2][k]
+            else:
+                return {'CANCELLED'}
 
         bmesh.update_edit_mesh(active_obj.data)
         if self.copy_seams:
@@ -372,7 +382,7 @@ def parse_faces(
                 used_verts.update(shared_face.verts)
                 used_edges.update(shared_face.edges)
 
-                if common.DEBUG:
+                if common.is_debug_mode():
                     shared_face.select = True  # test which faces are parsed
 
                 new_shared_faces.append(shared_face)

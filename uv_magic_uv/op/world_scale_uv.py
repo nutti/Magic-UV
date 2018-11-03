@@ -184,6 +184,9 @@ class OperatorMeasure(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -356,6 +359,9 @@ class OperatorApplyManual(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def __apply_manual(self, context):
@@ -456,6 +462,9 @@ class OperatorApplyScalingDensity(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def __apply_scaling_density(self, context):
@@ -577,6 +586,9 @@ class OperatorApplyProportionalToMesh(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def __apply_proportional_to_mesh(self, context):

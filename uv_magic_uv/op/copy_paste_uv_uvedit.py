@@ -88,6 +88,9 @@ class OperatorCopyUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -126,6 +129,9 @@ class OperatorPasteUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         sc = context.scene
         props = sc.muv_props.copy_paste_uv_uvedit
         if not props.src_uvs:

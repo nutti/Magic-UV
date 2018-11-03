@@ -118,6 +118,9 @@ class OperatorBoxMap(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -230,6 +233,9 @@ class OperatorBestPlanerMap(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):

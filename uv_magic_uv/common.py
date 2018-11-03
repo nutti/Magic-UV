@@ -26,6 +26,7 @@ __date__ = "24 Feb 2018"
 from collections import defaultdict
 from pprint import pprint
 from math import fabs, sqrt
+import os
 
 import bpy
 from mathutils import Vector
@@ -33,7 +34,9 @@ import bmesh
 
 
 __all__ = [
-    'DEBUG',
+    'is_console_mode',
+    'enable_console_mode',
+    'disable_console_mode',
     'debug_print',
     'check_version',
     'redraw_all_areas',
@@ -53,7 +56,27 @@ __all__ = [
 ]
 
 
-DEBUG = False
+_debug_mode = False
+
+
+def is_console_mode():
+    if not os.environ["MUV_CONSOLE_MODE"]:
+        return False
+    return os.environ["MUV_CONSOLE_MODE"] == "True"
+
+
+def is_debug_mode():
+    return _debug_mode
+
+
+def enable_debugg_mode():
+    global _debug_mode
+    _debug_mode = True
+
+
+def disable_debug_mode():
+    global _debug_mode
+    _debug_mode = False
 
 
 def debug_print(*s):
@@ -61,7 +84,7 @@ def debug_print(*s):
     Print message to console in debugging mode
     """
 
-    if DEBUG:
+    if is_debug_mode():
         pprint(s)
 
 
@@ -389,7 +412,7 @@ def measure_uv_area(obj, tex_size=None):
 
         # try to find from texture_layer
         img = None
-        if not tex_layer:
+        if tex_layer:
             img = f[tex_layer].image
 
         # not found, then try to search from node

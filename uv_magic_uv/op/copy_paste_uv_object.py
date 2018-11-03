@@ -107,10 +107,13 @@ class OperatorCopyUV(bpy.types.Operator):
     bl_description = "Copy UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     @memorize_view_3d_mode
@@ -184,7 +187,7 @@ class OperatorPasteUV(bpy.types.Operator):
     bl_description = "Paste UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
     copy_seams = BoolProperty(
         name="Copy Seams",
         description="Copy Seams",
@@ -193,6 +196,9 @@ class OperatorPasteUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         sc = context.scene
         props = sc.muv_props.copy_paste_uv_object
         if not props.src_info:

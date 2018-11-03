@@ -84,8 +84,8 @@ class MenuTransferUV(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(transfer_uv.OperatorCopy.bl_idname, text="Copy")
-        ops = layout.operator(transfer_uv.OperatorPaste.bl_idname,
+        layout.operator(transfer_uv.OperatorCopyUV.bl_idname, text="Copy")
+        ops = layout.operator(transfer_uv.OperatorPasteUV.bl_idname,
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
         ops.copy_seams = sc.muv_transfer_uv_copy_seams

@@ -235,10 +235,13 @@ class OpeartorCopyUV(bpy.types.Operator):
     bl_description = "Copy UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -315,7 +318,7 @@ class OperatorPasteUV(bpy.types.Operator):
     bl_description = "Paste UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
     strategy = EnumProperty(
         name="Strategy",
         description="Paste Strategy",
@@ -344,6 +347,9 @@ class OperatorPasteUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         sc = context.scene
         props = sc.muv_props.copy_paste_uv
         if not props.src_info:
@@ -457,15 +463,18 @@ class OperatorSelSeqCopyUV(bpy.types.Operator):
     Operation class: Copy UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_selseq_operator_copy_uv"
+    bl_idname = "uv.muv_copy_paste_uv_operator_selseq_copy_uv"
     bl_label = "Copy UV (Selection Sequence)"
     bl_description = "Copy UV data by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         return is_valid_context(context)
 
     def execute(self, context):
@@ -506,7 +515,7 @@ class MenuSelSeqCopyUV(bpy.types.Menu):
     Menu class: Copy UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_selseq_menu_copy_uv"
+    bl_idname = "uv.muv_copy_paste_uv_menu_selseq_copy_uv"
     bl_label = "Copy UV (Selection Sequence) (Menu)"
     bl_description = "Menu of Copy UV coordinate by selection sequence"
 
@@ -536,12 +545,12 @@ class OperatorSelSeqPasteUV(bpy.types.Operator):
     Operation class: Paste UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_selseq_operator_paste_uv"
+    bl_idname = "uv.muv_copy_paste_uv_operator_selseq_paste_uv"
     bl_label = "Paste UV (Selection Sequence)"
     bl_description = "Paste UV coordinate by selection sequence"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
     strategy = EnumProperty(
         name="Strategy",
         description="Paste Strategy",
@@ -570,6 +579,9 @@ class OperatorSelSeqPasteUV(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         sc = context.scene
         props = sc.muv_props.copy_paste_uv_selseq
         if not props.src_info:
@@ -636,7 +648,7 @@ class MenuSelSeqPasteUV(bpy.types.Menu):
     Menu class: Paste UV coordinate by selection sequence
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_selseq_menu_paste_uv"
+    bl_idname = "uv.muv_copy_paste_uv_menu_selseq_paste_uv"
     bl_label = "Paste UV (Selection Sequence) (Menu)"
     bl_description = "Menu of Paste UV coordinate by selection sequence"
 

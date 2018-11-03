@@ -28,6 +28,7 @@ import bmesh
 from mathutils import Vector
 from bpy.props import BoolProperty
 
+from .. import common
 
 __all__ = [
     'Properties',
@@ -75,7 +76,7 @@ class Operator(bpy.types.Operator):
     Operator class: Move UV
     """
 
-    bl_idname = "view3d.muv_move_uv_operator"
+    bl_idname = "uv.muv_move_uv_operator"
     bl_label = "Move UV"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -92,6 +93,9 @@ class Operator(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return False
         if cls.is_running(context):
             return False
         return is_valid_context(context)

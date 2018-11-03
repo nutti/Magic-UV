@@ -136,6 +136,9 @@ class OperatorRender(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return False
         return is_valid_context(context)
 
     @classmethod
@@ -253,6 +256,9 @@ class OperatorUpdate(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
         if not OperatorRender.is_running(context):
             return False
         return is_valid_context(context)
