@@ -1,7 +1,31 @@
 # Change log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/master...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v5.2...develop)
+
+
+## [Version 5.2](https://github.com/nutti/Magic-UV/compare/v5.1...v5.2) - 2018.2.24
+
+### Added features
+
+* Bulit-in menu preferences
+* Add-on updater
+
+### Updated features
+
+* Copy/Paste UV
+  * Add option "[New]" for pasting to newly allocated UV map
+  * Add option "[All]" for pasting all UV maps at once
+* Align UV
+  * Add option "Mesh Influence"
+* World Scale UV
+  * Add mode option "Manual" to allow the user specify the density manually
+
+### Other updates
+
+* Improve UI
+* Cleanup documents
+* Fix bugs
 
 
 ## [Version 5.1](https://github.com/nutti/Magic-UV/compare/v5.0...v5.1) - 2018.2.24

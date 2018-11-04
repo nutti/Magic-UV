@@ -17,6 +17,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|5.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.2)|
 |5.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.1)|
 |5.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.0)|
 |4.5|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.5)|
@@ -69,31 +70,19 @@ If you want to try newest but unstable version, you can download it from [unstab
 
 ## Tutorials
 
-See [Wiki Pages](https://github.com/nutti/Magic-UV/wiki/Tutorial) .
+See [Wiki Pages](https://github.com/nutti/Magic-UV/wiki/Tutorial).
 
-## Related Links
-
-You can discuss "Magic UV" at other places.
-See the link below for further details.
-
-* [Blender Wiki page](https://wiki.blender.org/index.php/Extensions:2.6/Py/Scripts/UV/Magic_UV)
-* [Blender Artist Thread](https://blenderartists.org/forum/showthread.php?391573-Add-on-Magic-UV-v4-5)
-* [Google+](https://plus.google.com/100058529622539760372/posts/82eS2tGE6Nc)
 
 ## Change Log
 
 See [CHANGELOG.md](CHANGELOG.md)
 
 
-## Bug report / Feature request
+## Bug report / Feature request / Disscussions
 
-If you want to report problem or request feature, please make issues.
+If you want to report bug, request features or discuss about this add-on, see [ISSUES.md](ISSUES.md).
 
-https://github.com/nutti/Magic-UV/issues
 
 ## Contribution
 
-If you want to contribute this project, please send pull request to **develop** branch.
-**DO NOT** send pull request to **master** branch.  
-
-https://github.com/nutti/Magic-UV/tree/develop
+If you want to contribute to this project, see [CONTRIBUTING.md](CONTRIBUTING.md).
