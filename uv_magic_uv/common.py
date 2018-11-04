@@ -35,8 +35,6 @@ import bmesh
 
 __all__ = [
     'is_console_mode',
-    'enable_console_mode',
-    'disable_console_mode',
     'debug_print',
     'check_version',
     'redraw_all_areas',
@@ -56,7 +54,7 @@ __all__ = [
 ]
 
 
-_debug_mode = False
+__DEBUG_MODE = False
 
 
 def is_console_mode():
@@ -66,17 +64,19 @@ def is_console_mode():
 
 
 def is_debug_mode():
-    return _debug_mode
+    return __DEBUG_MODE
 
 
 def enable_debugg_mode():
-    global _debug_mode
-    _debug_mode = True
+    # pylint: disable=W0603
+    global __DEBUG_MODE
+    __DEBUG_MODE = True
 
 
 def disable_debug_mode():
-    global _debug_mode
-    _debug_mode = False
+    # pylint: disable=W0603
+    global __DEBUG_MODE
+    __DEBUG_MODE = False
 
 
 def debug_print(*s):

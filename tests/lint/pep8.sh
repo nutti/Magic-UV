@@ -8,7 +8,7 @@ fi
 tgt=${1}
 
 files=`find ${tgt} -name "*.py"`
-ignores=("__init__.py")
+ignores=("__init__.py" "addon_updater.py" "addon_updater_ops.py")
 
 # pep8
 for file in ${files[@]}; do
