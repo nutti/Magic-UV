@@ -27,3 +27,4 @@ attr-rgx=[a-z_][a-z0-9_]{0,30}$
 ignored-modules=uv_magic_uv.common
 class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,40}|(__.*__))$
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9_]+))$
+method-rgx=[a-z_][a-z0-9_]{2,40}$

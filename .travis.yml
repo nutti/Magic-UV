@@ -27,4 +27,4 @@ before_script:
   - bash tests/lint/pylint.sh uv_magic_uv
   - bash tests/lint/pep8.sh uv_magic_uv
 
-script: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/run_tests.py
+script: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py

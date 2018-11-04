@@ -58,6 +58,7 @@ __all__ = [
 
 
 # Properties used in this add-on.
+# pylint: disable=W0612
 class MUV_Properties():
     def __init__(self):
         self.prefs = MUV_Prefs()
