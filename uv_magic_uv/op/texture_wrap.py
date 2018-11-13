@@ -206,7 +206,7 @@ class OperatorSet(bpy.types.Operator):
 
             if len(common_verts) != 2:
                 self.report({'WARNING'},
-                            "2 verticies must be shared among faces")
+                            "2 vertices must be shared among faces")
                 return {'CANCELLED'}
 
             # get reference other vertices info
@@ -281,7 +281,7 @@ class OperatorSet(bpy.types.Operator):
             for info in tgt_other_verts:
                 info["loop"][uv_layer].uv = info["target_uv"]
 
-            common.debug_print("===== Target Other Verticies =====")
+            common.debug_print("===== Target Other Vertices =====")
             common.debug_print(tgt_other_verts)
 
             bmesh.update_edit_mesh(obj.data)

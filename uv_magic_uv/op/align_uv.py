@@ -121,7 +121,7 @@ class Properties:
     @classmethod
     def init_props(cls, scene):
         scene.muv_align_uv_enabled = BoolProperty(
-            name="Aline UV Enabled",
+            name="Align UV Enabled",
             description="Align UV is enabled",
             default=False
         )
