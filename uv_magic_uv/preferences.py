@@ -173,7 +173,7 @@ class Preferences(AddonPreferences):
     enable_builtin_menu = BoolProperty(
         name="Built-in Menu",
         description="Enable built-in menu",
-        default=False,
+        default=True,
         update=update_enable_builtin_menu
     )
 

@@ -58,7 +58,7 @@ __DEBUG_MODE = False
 
 
 def is_console_mode():
-    if not os.environ["MUV_CONSOLE_MODE"]:
+    if not "MUV_CONSOLE_MODE" in os.environ:
         return False
     return os.environ["MUV_CONSOLE_MODE"] == "True"
 

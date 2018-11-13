@@ -65,8 +65,8 @@ def get_canvas(context, magnitude):
 
     region_w = context.region.width
     region_h = context.region.height
-    canvas_w = region_w - prefs.texproj_canvas_padding[0] * 2.0
-    canvas_h = region_h - prefs.texproj_canvas_padding[1] * 2.0
+    canvas_w = region_w - prefs.texture_projection_canvas_padding[0] * 2.0
+    canvas_h = region_h - prefs.texture_projection_canvas_padding[1] * 2.0
 
     img = bpy.data.images[sc.muv_texture_projection_tex_image]
     tex_w = img.size[0]

@@ -34,7 +34,7 @@ __all__ = [
 ]
 
 
-class PanelCopyPasteUV(bpy.types.Panel):
+class PanelCopyPasteUVEditMode(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D
     """

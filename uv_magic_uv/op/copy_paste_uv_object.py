@@ -86,7 +86,7 @@ class Properties:
         scene.muv_props.copy_paste_uv_object = Props()
 
         scene.muv_copy_paste_uv_object_copy_seams = BoolProperty(
-            name="Copy Seams",
+            name="Seams",
             description="Copy Seams",
             default=True
         )
@@ -189,7 +189,7 @@ class OperatorPasteUV(bpy.types.Operator):
 
     uv_map = StringProperty(default="__default", options={'HIDDEN'})
     copy_seams = BoolProperty(
-        name="Copy Seams",
+        name="Seams",
         description="Copy Seams",
         default=True
     )

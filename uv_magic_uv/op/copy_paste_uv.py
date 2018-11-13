@@ -192,7 +192,7 @@ class Properties:
             default=False
         )
         scene.muv_copy_paste_uv_copy_seams = BoolProperty(
-            name="Copy Seams",
+            name="Seams",
             description="Copy Seams",
             default=True
         )
@@ -340,7 +340,7 @@ class OperatorPasteUV(bpy.types.Operator):
         max=30
     )
     copy_seams = BoolProperty(
-        name="Copy Seams",
+        name="Seams",
         description="Copy Seams",
         default=True
     )
@@ -572,7 +572,7 @@ class OperatorSelSeqPasteUV(bpy.types.Operator):
         max=30
     )
     copy_seams = BoolProperty(
-        name="Copy Seams",
+        name="Seams",
         description="Copy Seams",
         default=True
     )

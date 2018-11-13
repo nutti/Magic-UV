@@ -33,7 +33,7 @@ __all__ = [
 ]
 
 
-class PanelCopyPasteUV(bpy.types.Panel):
+class PanelCopyPasteUVObjectMode(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D
     """
@@ -59,4 +59,4 @@ class PanelCopyPasteUV(bpy.types.Panel):
         row.menu(copy_paste_uv_object.MenuPasteUV.bl_idname,
                  text="Paste")
         layout.prop(sc, "muv_copy_paste_uv_object_copy_seams",
-                    text="Copy Seams")
+                    text="Seams")

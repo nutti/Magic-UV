@@ -205,7 +205,7 @@ class Operator(bpy.types.Operator):
         theta = 2 * pi / num_segment
         fact_t = tan(theta)
         fact_r = cos(theta)
-        color = prefs.uvsculpt_brush_color
+        color = prefs.uv_sculpt_brush_color
 
         bgl.glBegin(bgl.GL_LINE_STRIP)
         bgl.glColor4f(color[0], color[1], color[2], color[3])
