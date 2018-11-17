@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "4.5"
-__date__ = "19 Nov 2017"
+__version__ = "5.2"
+__date__ = "17 Nov 2018"
 
 import bpy
 from ..op import copy_paste_uv_object

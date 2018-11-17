@@ -4,7 +4,7 @@
 ## [Unreleased](https://github.com/nutti/Magic-UV/compare/v5.2...develop)
 
 
-## [Version 5.2](https://github.com/nutti/Magic-UV/compare/v5.1...v5.2) - 2018.2.24
+## [Version 5.2](https://github.com/nutti/Magic-UV/compare/v5.1...v5.2) - 2018.11.17
 
 ### Added features
 
