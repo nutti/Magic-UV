@@ -30,7 +30,7 @@ from ..op import transfer_uv
 
 
 __all__ = [
-    'PanelCopyPasteUV',
+    'PanelCopyPasteUVEditMode',
 ]
 
 

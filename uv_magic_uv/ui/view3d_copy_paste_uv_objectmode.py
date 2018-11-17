@@ -29,7 +29,7 @@ from ..op import copy_paste_uv_object
 
 
 __all__ = [
-    'PanelCopyPasteUV',
+    'PanelCopyPasteUVObjectMode',
 ]
 
 
