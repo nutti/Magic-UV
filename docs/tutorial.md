@@ -1,6 +1,6 @@
 # Tutorials
 
-## Contents
+## Features
 
 * [Copy/Pate UV](#copypaste-uv)
 * [Transfer UV](#transfer-uv)
@@ -24,13 +24,15 @@
 * [UV Bounding Box](#uv-bounding-box)
 * [UV Inspection](#uv-inspection)
 
-## Tutorial Video
+## Tutorial (Video)
 
 [![](https://img.youtube.com/vi/0Gj0xvt7Jdc/0.jpg)](https://www.youtube.com/watch?v=0Gj0xvt7Jdc)
 
-## Copy/Paste UV
+## Tutorial (Text)
 
-### Among faces (in 3D View)
+### Copy/Paste UV
+
+#### Among faces (in 3D View)
 
 Copy and paste UV coordinates among same/different object's faces in 3D View.  
 Copy/Paste UV sometimes fails to paste UV correctly because of the incorrect UV index. Instead, you can try Transfer UV which you can copy and paste based on the topology.
@@ -57,7 +59,7 @@ Copy/Paste UV sometimes fails to paste UV correctly because of the incorrect UV 
 * **Strategy** option provides a way to decide copy/paste UV repeatedly if a number of copied faces is differs from pasted faces
 * You can flip or rotate UV by changing **Flip Copied UV** option or **Rotate Copied UV** option in Tool shelf option
 
-### Among faces (in UV/Image Editor)
+#### Among faces (in UV/Image Editor)
 
 Copy and paste UV coordinates among same/different object's faces in UV/Image Editor. This feature is derived from below add-on.  
 [[AddOn] UV_Tool](https://blenderartists.org/forum/showthread.php?294904-AddOn-UV_Tool)
@@ -76,7 +78,7 @@ Copy and paste UV coordinates among same/different object's faces in UV/Image Ed
 
 *NOTICE: You must select UVs which consist closed loop (i.e. face)*
 
-### Among objects
+#### Among objects
 
 Copy and paste UV coordinates among same topology objects.
 
@@ -100,7 +102,7 @@ Copy and paste UV coordinates among same topology objects.
 * You can paste UV to the multiple objects
 
 
-## Transfer UV
+### Transfer UV
 
 Copy and paste UV coordinates based on the mesh's topology.  
 Transfer UV can solve the Copy/Paste UV issue raised when the meshes don't have same UV indices. However, Transfer UV also can not solve the issue raised when you try the meshes which don't have same topology.
@@ -126,7 +128,7 @@ Transfer UV can solve the Copy/Paste UV issue raised when the meshes don't have 
 * If **Invert Normals** option is enabled, you can copy/paste to the mirrored mesh
 
 
-## Flip/Rotate UV
+### Flip/Rotate UV
 
 Flip or rotate UV.
 
@@ -145,7 +147,7 @@ Flip or rotate UV.
 * If **Seams** option is enabled, you can also flip/rotate seams
 
 
-## Mirror UV
+### Mirror UV
 
 Make mirrored UV. This feature is derived from below add-on.  
 [Addon: Copy UVs from Mirror](http://blenderaddonlist.blogspot.jp/2015/05/addon-copy-uvs-from-mirror.html)
@@ -164,7 +166,7 @@ Make mirrored UV. This feature is derived from below add-on.
 
 * **Error** option in Tool shelf option can change the error threshold for mirror
 
-## Move UV
+### Move UV
 
 | | |
 |---|---|
@@ -186,7 +188,7 @@ Move UV with a mouse in 3D View. This feature is derived from below add-on.
 * If you want to cancel moving UV, press **Mouse Right Button**
 
 
-## World Scale UV
+### World Scale UV
 
 Measure and set texel density. This feature is derived from below add-on.  
 [[Addon] World Scale UV](https://blenderartists.org/forum/showthread.php?275652-Addon-World-Scale-UV)
@@ -198,7 +200,7 @@ Measure and set texel density. This feature is derived from below add-on.
 |Mode|**Edit**|
 
 
-### Mode: Manual
+#### Mode: Manual
 
 [Usage]
 1. Click check box **World Scale UV** to show World Scale UV menu
@@ -210,7 +212,7 @@ Measure and set texel density. This feature is derived from below add-on.
 
 * **Origin** option changes the UV origin after applying texel density
 
-### Mode: Same Density
+#### Mode: Same Density
 
 [Usage]
 1. Click check box **World Scale UV** to show World Scale UV menu
@@ -223,7 +225,7 @@ Measure and set texel density. This feature is derived from below add-on.
 
 * **Origin** option changes the UV origin after applying texel density
 
-### Mode: Scaling Density
+#### Mode: Scaling Density
 
 [Usage]
 1. Click check box **World Scale UV** to show World Scale UV menu
@@ -237,7 +239,7 @@ Measure and set texel density. This feature is derived from below add-on.
 
 * **Origin** option changes the UV origin after applying texel density
 
-### Mode: Proportional to Mesh
+#### Mode: Proportional to Mesh
 
 [Usage]
 1. Click check box **World Scale UV** to show World Scale UV menu
@@ -251,7 +253,7 @@ Measure and set texel density. This feature is derived from below add-on.
 * **Origin** option changes the UV origin after applying texel density
 
 
-## Preserve UV Aspect
+### Preserve UV Aspect
 
 Change assigned texture with preserving UV aspect.
 
@@ -270,7 +272,7 @@ Change assigned texture with preserving UV aspect.
 * **Origin** option changes the UV origin after changing texture
 
 
-## Texture Lock
+### Texture Lock
 
 Preserve UV while you edit the mesh.
 This feature is same as "Preserve UVs" feature on 3dsmax.  
@@ -281,7 +283,7 @@ This feature is same as "Preserve UVs" feature on 3dsmax.
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
-### Normal Mode
+#### Normal Mode
 
 [Usage]
 1. Click check box **Texture Lock** to show Texture Lock menu
@@ -292,7 +294,7 @@ This feature is same as "Preserve UVs" feature on 3dsmax.
 
 * If **connect** option is enabled, you can keep UV connection by changing other face's UV.
 
-### Interactive mode
+#### Interactive mode
 
 [Usage]
 1. Click check box **Texture Lock** to show Texture Lock menu
@@ -302,7 +304,7 @@ This feature is same as "Preserve UVs" feature on 3dsmax.
 5. Click **Unlock**
 
 
-## Texture Wrap
+### Texture Wrap
 
 Set texture coordinate along to the mesh structure.
 
@@ -323,7 +325,7 @@ Set texture coordinate along to the mesh structure.
 * If **Selection Sequence** option is enabled, you can select multiple faces and apply **Set** at once. The application order follows the selection sequence
 
 
-## UV Sculpt
+### UV Sculpt
 
 UV Sculpt in 3D View. Same features are supported as the UV sculpt in UV/Image Editor.
 
@@ -354,7 +356,7 @@ UV Sculpt in 3D View. Same features are supported as the UV sculpt in UV/Image E
 * If **Invert** option (only available on Pinch tool) is enabled, the direction of pinch will be inverted
 
 
-## Unwrap Constraint
+### Unwrap Constraint
 
 Unwrap UV with an axis fixed. This feature is same as "Unfold Constraints" feature on Maya.
 
@@ -373,7 +375,7 @@ Unwrap UV with an axis fixed. This feature is same as "Unfold Constraints" featu
 * Default Unwrap option is available from Tool shelf option
 
 
-## Texture Projection
+### Texture Projection
 
 Project the texture to the mesh while displaying texture image in 3D View.
 
@@ -399,7 +401,7 @@ Project the texture to the mesh while displaying texture image in 3D View.
 * If **Assign UV Map** option is enabled, assign new UV map when no UV is assigned to the mesh
 
 
-## UVW
+### UVW
 
 UVW mapping.
 
@@ -418,7 +420,7 @@ UVW mapping.
 * From Tool shelf option, you can tweak mapping configuration
 
 
-## Align UV
+### Align UV
 
 Align UV. This feature is derived from below add-on.  
 [[AddOn] UV_Tool](https://blenderartists.org/forum/showthread.php?294904-AddOn-UV_Tool)
@@ -448,7 +450,7 @@ Align UV. This feature is derived from below add-on.
 * In case of XY-axis alignment, you can change the location (Middle, Right/Bottom, Left/Top) after UV alignment
 
 
-## Smooth UV
+### Smooth UV
 
 Smooth UV. This feature is derived from below add-on.  
 [[AddOn] UV_Tool](https://blenderartists.org/forum/showthread.php?294904-AddOn-UV_Tool)
@@ -469,7 +471,7 @@ Smooth UV. This feature is derived from below add-on.
 * **Mesh Influence** option provides a way to change the influence of mesh structure
 
 
-## Select UV
+### Select UV
 
 Select UV under the specific condition.
 
@@ -489,7 +491,7 @@ Select UV under the specific condition.
 |Flipped|Select all flipped UVs|
 
 
-## Pack UV (Extension)
+### Pack UV (Extension)
 
 Apply island packing and integrate islands which have same shape.
 
@@ -509,7 +511,7 @@ Apply island packing and integrate islands which have same shape.
 * Default Pack Islands option is available from Tool shelf option in 3D View
 
 
-## Align UV Cursor
+### Align UV Cursor
 
 Align UV cursor (2D Cursor in UV/Image Editor).
 
@@ -531,7 +533,7 @@ Align UV cursor (2D Cursor in UV/Image Editor).
 |UV (Selected)|Displayed UV (only selected UV)|
 
 
-## UV Cursor Location
+### UV Cursor Location
 
 Set and display UV Cursor (2D Cursor in UV/Image Editor) location.
 
@@ -545,7 +547,7 @@ Set and display UV Cursor (2D Cursor in UV/Image Editor) location.
 2. UV cursor location is displayed, and you can set the new location as you like
 
 
-## UV Bounding Box
+### UV Bounding Box
 
 Transform UV with Bounding Box like a Photoshop/GIMP's Bounding Box.
 
@@ -565,7 +567,7 @@ Transform UV with Bounding Box like a Photoshop/GIMP's Bounding Box.
 * **Boundary** option specify the boundary of the bounding box
 
 
-## UV Inspection
+### UV Inspection
 
 Inspect UV and help you to find which UV is on the abnormal condition.
 
