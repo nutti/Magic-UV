@@ -1,7 +1,7 @@
 # Blender Add-on: Magic UV
 
-This is a blender add-on "Magic UV". (a.k.a. Copy/Paste UV for older version)  
-"Magic UV" consists of many UV manipulation features which Blender lacks of.
+This is a blender add-on **Magic UV** consisted of many UV manipulation features which Blender lack of.  
+Magic UV is also known as Copy/Paste UV for older version.
 
 ![Magic UV Thumbnail](https://raw.githubusercontent.com/wiki/nutti/Magic-UV/images/magic_uv_thumbnail.png)
 
@@ -12,28 +12,14 @@ Of course, you can also download older version.
 If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/develop.zip).
 
 
-## Release URL
+## Download
 
-|Version|Download URL|
-|---|---|
-|*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
-|5.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.2)|
-|5.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.1)|
-|5.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.0)|
-|4.5|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.5)|
-|4.4|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.4)|
-|4.3|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.3)|
-|4.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.2)|
-|4.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.1)|
-|4.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v4.0)|
-|3.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.2)|
-|3.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.1)|
-|3.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v3.0)|
-|2.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v2.2)|
-|2.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v2.1)|
-|2.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v2.0)|
-|1.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v1.1)|
-|1.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v1.0)|
+Magic UV is in **Release** support level, so it is included on Blender itself. (**Contrib** support level in Blender version <2.79)
+Of course, you can also download older version.
+
+You can all released version from [Release Page](https://github.com/nutti/Magic-UV/releases).
+
+If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/develop.zip).
 
 
 ## Support languages
@@ -43,7 +29,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 
 ## Features
 
-"Magic UV" have features as follows.
+Magic UV have features as follows.
 
 * Copy/Paste UV
 * Transfer UV
@@ -70,7 +56,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 
 ## Tutorials
 
-See [Wiki Pages](https://github.com/nutti/Magic-UV/wiki/Tutorial).
+See [Wiki Page](https://github.com/nutti/Magic-UV/wiki/Tutorial).
 
 
 ## Change Log
