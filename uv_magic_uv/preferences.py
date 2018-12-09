@@ -57,6 +57,10 @@ def view3d_uvmap_menu_fn(self, context):
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TransferUV.bl_idname,
                 text="Transfer UV")
 
+    layout.separator()
+    # UVW
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_UVW.bl_idname, text="UVW")
+
 
 def view3d_object_menu_fn(self, _):
     layout = self.layout

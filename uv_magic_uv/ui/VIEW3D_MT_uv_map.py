@@ -28,6 +28,7 @@ import bpy.utils
 from ..op import (
     copy_paste_uv,
     transfer_uv,
+    uvw,
 )
 from .. import common
 
@@ -82,3 +83,25 @@ class MUV_MT_TransferUV(bpy.types.Menu):
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
+
+
+@common.BlClassRegistry()
+class MUV_MT_UVW(bpy.types.Menu):
+    """
+    Menu class: Master menu of UVW
+    """
+
+    bl_idname = "uv.muv_uvw_menu"
+    bl_label = "UVW"
+    bl_description = ""
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        ops = layout.operator(uvw.MUV_OT_UVW_BoxMap.bl_idname, text="Box")
+        ops.assign_uvmap = sc.muv_uvw_assign_uvmap
+
+        ops = layout.operator(uvw.MUV_OT_UVW_BestPlanerMap.bl_idname,
+                              text="Best Planner")
+        ops.assign_uvmap = sc.muv_uvw_assign_uvmap

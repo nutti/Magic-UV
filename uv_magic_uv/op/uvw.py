@@ -31,8 +31,8 @@ from bpy.props import (
     BoolProperty
 )
 
-from ... import common
-from ...impl import uvw_impl as impl
+from .. import common
+from ..impl import uvw_impl as impl
 
 
 __all__ = [
@@ -62,33 +62,33 @@ class Properties:
         del scene.muv_uvw_assign_uvmap
 
 
-@common.BlClassRegistry(legacy=True)
+@common.BlClassRegistry()
 class MUV_OT_UVW_BoxMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_box_map"
     bl_label = "Box Map"
     bl_options = {'REGISTER', 'UNDO'}
 
-    size = FloatProperty(
+    size: FloatProperty(
         name="Size",
         default=1.0,
         precision=4
     )
-    rotation = FloatVectorProperty(
+    rotation: FloatVectorProperty(
         name="XYZ Rotation",
         size=3,
         default=(0.0, 0.0, 0.0)
     )
-    offset = FloatVectorProperty(
+    offset: FloatVectorProperty(
         name="XYZ Offset",
         size=3,
         default=(0.0, 0.0, 0.0)
     )
-    tex_aspect = FloatProperty(
+    tex_aspect: FloatProperty(
         name="Texture Aspect",
         default=1.0,
         precision=4
     )
-    assign_uvmap = BoolProperty(
+    assign_uvmap: BoolProperty(
         name="Assign UVMap",
         description="Assign UVMap when no UVmaps are available",
         default=True
@@ -119,32 +119,32 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@common.BlClassRegistry()
 class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_best_planer_map"
     bl_label = "Best Planer Map"
     bl_options = {'REGISTER', 'UNDO'}
 
-    size = FloatProperty(
+    size: FloatProperty(
         name="Size",
         default=1.0,
         precision=4
     )
-    rotation = FloatProperty(
+    rotation: FloatProperty(
         name="XY Rotation",
         default=0.0
     )
-    offset = FloatVectorProperty(
+    offset: FloatVectorProperty(
         name="XY Offset",
         size=2,
         default=(0.0, 0.0)
     )
-    tex_aspect = FloatProperty(
+    tex_aspect: FloatProperty(
         name="Texture Aspect",
         default=1.0,
         precision=4
     )
-    assign_uvmap = BoolProperty(
+    assign_uvmap: BoolProperty(
         name="Assign UVMap",
         description="Assign UVMap when no UVmaps are available",
         default=True

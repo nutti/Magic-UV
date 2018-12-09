@@ -68,7 +68,7 @@ def get_uv_layer(ops_obj, bm):
     # get UV layer
     if not bm.loops.layers.uv:
         ops_obj.report({'WARNING'}, "Object must have more than one UV map")
-        return {'CANCELLED'}
+        return None
     uv_layer = bm.loops.layers.uv.verify()
 
     return uv_layer
