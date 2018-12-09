@@ -25,7 +25,10 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import copy_paste_uv
+from ..op import (
+    copy_paste_uv,
+    transfer_uv,
+)
 from .. import common
 
 __all__ = [
@@ -72,4 +75,18 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
             box.prop(sc, "muv_copy_paste_uv_copy_seams", text="Seams")
             box.prop(sc, "muv_copy_paste_uv_strategy", text="Strategy")
 
-        return
+        box = layout.box()
+        box.prop(sc, "muv_transfer_uv_enabled", text="Transfer UV")
+        if sc.muv_transfer_uv_enabled:
+            row = box.row(align=True)
+            row.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname,
+                         text="Copy")
+            ops = row.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
+                               text="Paste")
+            ops.invert_normals = sc.muv_transfer_uv_invert_normals
+            ops.copy_seams = sc.muv_transfer_uv_copy_seams
+            row = box.row()
+            row.prop(sc, "muv_transfer_uv_invert_normals",
+                     text="Invert Normals")
+            row.prop(sc, "muv_transfer_uv_copy_seams", text="Seams")
+

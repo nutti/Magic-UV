@@ -25,7 +25,10 @@ __date__ = "17 Nov 2018"
 
 import bpy.utils
 
-from ..op import copy_paste_uv
+from ..op import (
+    copy_paste_uv,
+    transfer_uv,
+)
 from .. import common
 
 __all__ = [
@@ -57,3 +60,25 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
                     text="Copy")
         layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
                     text="Paste")
+
+
+@common.BlClassRegistry()
+class MUV_MT_TransferUV(bpy.types.Menu):
+    """
+    Menu class: Master menu of Transfer UV coordinate
+    """
+
+    bl_idname = "uv.muv_transfer_uv_menu"
+    bl_label = "Transfer UV"
+    bl_description = "Transfer UV coordinate"
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        layout.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname,
+                        text="Copy")
+        ops = layout.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
+                              text="Paste")
+        ops.invert_normals = sc.muv_transfer_uv_invert_normals
+        ops.copy_seams = sc.muv_transfer_uv_copy_seams

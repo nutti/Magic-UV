@@ -53,6 +53,9 @@ def view3d_uvmap_menu_fn(self, context):
     # Copy/Paste UV
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_CopyPasteUV.bl_idname,
                 text="Copy/Paste UV")
+    # Transfer UV
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TransferUV.bl_idname,
+                text="Transfer UV")
 
 
 def view3d_object_menu_fn(self, _):

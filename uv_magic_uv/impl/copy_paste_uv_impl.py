@@ -26,7 +26,7 @@ __date__ = "17 Nov 2018"
 
 import bmesh
 
-from uv_magic_uv import common
+from .. import common
 
 
 __all__ = [
