@@ -25,22 +25,25 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import copy_paste_uv
-from .. import common
+from ..op import (
+    transfer_uv,
+    copy_paste_uv,
+)
+from ... import common
 
 __all__ = [
-    'MUV_PT_CopyPasteUVEditMode',
+    'MUV_PT_View3D_Edit_CopyPasteUV',
 ]
 
 
-@common.BlClassRegistry()
-class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
+@common.BlClassRegistry(legacy=True)
+class MUV_PT_View3D_Edit_CopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D
     """
 
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_region_type = 'TOOLS'
     bl_label = "Copy/Paste UV"
     bl_category = "Magic UV"
     bl_context = 'mesh_edit'
@@ -48,7 +51,7 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon='IMAGE_COL')
 
     def draw(self, context):
         sc = context.scene
@@ -72,4 +75,17 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
             box.prop(sc, "muv_copy_paste_uv_copy_seams", text="Seams")
             box.prop(sc, "muv_copy_paste_uv_strategy", text="Strategy")
 
-        return
+        box = layout.box()
+        box.prop(sc, "muv_transfer_uv_enabled", text="Transfer UV")
+        if sc.muv_transfer_uv_enabled:
+            row = box.row(align=True)
+            row.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname, text="Copy")
+            ops = row.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
+                               text="Paste")
+            ops.invert_normals = sc.muv_transfer_uv_invert_normals
+            ops.copy_seams = sc.muv_transfer_uv_copy_seams
+            row = box.row()
+            row.prop(sc, "muv_transfer_uv_invert_normals",
+                     text="Invert Normals")
+            row.prop(sc, "muv_transfer_uv_copy_seams", text="Seams")
+

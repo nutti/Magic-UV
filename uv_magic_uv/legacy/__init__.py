@@ -23,43 +23,16 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
+if "bpy" in locals():
+    import importlib
+    importlib.reload(op)
+    importlib.reload(ui)
+    importlib.reload(properites)
+    importlib.reload(preferences)
+else:
+    from . import op
+    from . import ui
+    from . import properites
+    from . import preferences
 
-from .op import (
-    copy_paste_uv,
-)
-
-__all__ = [
-    'MUV_Properties',
-    'init_props',
-    'clear_props',
-]
-
-
-# Properties used in this add-on.
-# pylint: disable=W0612
-class MUV_Properties():
-    def __init__(self):
-        self.prefs = MUV_Prefs()
-
-
-class MUV_Prefs():
-    expanded = {
-        "info_desc": False,
-        "info_loc": False,
-        "conf_uvsculpt": False,
-        "conf_uvinsp": False,
-        "conf_texproj": False,
-        "conf_uvbb": False
-    }
-
-
-def init_props(scene):
-    scene.muv_props = MUV_Properties()
-
-    copy_paste_uv.Properties.init_props(scene)
-
-
-def clear_props(scene):
-    copy_paste_uv.Properties.del_props(scene)
-
-    del scene.muv_props
+import bpy

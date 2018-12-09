@@ -28,8 +28,8 @@ bl_info = {
     "name": "Magic UV",
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs"
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, Alexander Milovsky",
-    "version": (5, 2, 0),
-    "blender": (2, 79, 0),
+    "version": (5, 3, 0),
+    "blender": (2, 80, 0),
     "location": "See Add-ons Preferences",
     "description": "UV Toolset. See Add-ons Preferences for details",
     "warning": "",
@@ -40,43 +40,77 @@ bl_info = {
     "category": "UV"
 }
 
+def check_version(major, minor, _):
+    """
+    Check blender version
+    """
+
+    if bpy.app.version[0] == major and bpy.app.version[1] == minor:
+        return 0
+    if bpy.app.version[0] > major:
+        return 1
+    if bpy.app.version[1] > minor:
+        return 1
+    return -1
+
+
 if "bpy" in locals():
     import importlib
-    importlib.reload(op)
-    importlib.reload(ui)
     importlib.reload(common)
-    importlib.reload(preferences)
-    importlib.reload(properites)
-    importlib.reload(addon_updater_ops)
-    importlib.reload(addon_updater)
+    common.BlClassRegistry.cleanup()
+    if check_version(2, 80, 0) >= 0:
+        importlib.reload(op)
+        importlib.reload(ui)
+        importlib.reload(properites)
+        importlib.reload(preferences)
+        importlib.reload(addon_updater_ops)
+        importlib.reload(addon_updater)
+    else:
+        importlib.reload(legacy)
 else:
-    from . import op
-    from . import ui
+    import bpy
+    if check_version(2, 80, 0) >= 0:
+        from . import op
+        from . import ui
+        from . import properites
+        from . import preferences
+        from . import addon_updater_ops
+        from . import addon_updater
+    else:
+        from . import legacy
     from . import common
-    from . import preferences
-    from . import properites
-    from . import addon_updater_ops
-    from . import addon_updater
 
 import bpy
 
 
 def register():
-    if not common.is_console_mode():
-        addon_updater_ops.register(bl_info)
-    properites.init_props(bpy.types.Scene)
-    bpy.utils.register_module(__name__)
-    if preferences.Preferences.enable_builtin_menu:
-        preferences.add_builtin_menu()
+    if common.check_version(2, 80, 0) >= 0:
+        common.BlClassRegistry.register()
+        properites.init_props(bpy.types.Scene)
+        if preferences.Preferences.enable_builtin_menu:
+            preferences.add_builtin_menu()
+    else:
+        common.BlClassRegistry.register()
+        legacy.properites.init_props(bpy.types.Scene)
+        if legacy.preferences.Preferences.enable_builtin_menu:
+            legacy.preferences.add_builtin_menu()
+        if not common.is_console_mode():
+            addon_updater_ops.register(bl_info)
 
 
 def unregister():
-    if preferences.Preferences.enable_builtin_menu:
-        preferences.remove_builtin_menu()
-    bpy.utils.unregister_module(__name__)
-    properites.clear_props(bpy.types.Scene)
-    if not common.is_console_mode():
-        addon_updater_ops.unregister()
+    if common.check_version(2, 80, 0) >= 0:
+        if preferences.Preferences.enable_builtin_menu:
+            preferences.remove_builtin_menu()
+        properites.clear_props(bpy.types.Scene)
+        common.BlClassRegistry.unregister()
+    else:
+        if not common.is_console_mode():
+            addon_updater_ops.unregister()
+        if legacy.preferences.Preferences.enable_builtin_menu:
+            legacy.preferences.remove_builtin_menu()
+        legacy.properites.clear_props(bpy.types.Scene)
+        common.BlClassRegistry.unregister()
 
 
 if __name__ == "__main__":

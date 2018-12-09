@@ -23,37 +23,38 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-import bpy.utils
+import bpy
 
-from ..op import copy_paste_uv
-from .. import common
+from ..op import copy_paste_uv_uvedit
+from ... import common
 
 __all__ = [
-    'MUV_MT_CopyPasteUV',
+    'MUV_PT_UVEdit_CopyPasteUV',
 ]
 
 
-@common.BlClassRegistry()
-class MUV_MT_CopyPasteUV(bpy.types.Menu):
+@common.BlClassRegistry(legacy=True)
+class MUV_PT_UVEdit_CopyPasteUV(bpy.types.Panel):
     """
-    Menu class: Master menu of Copy/Paste UV coordinate
+    Panel class: Copy/Paste UV on Property Panel on UV/ImageEditor
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_menu"
+    bl_space_type = 'IMAGE_EDITOR'
+    bl_region_type = 'TOOLS'
     bl_label = "Copy/Paste UV"
-    bl_description = "Copy and Paste UV coordinate"
+    bl_category = "Magic UV"
+    bl_context = 'mesh_edit'
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw_header(self, _):
+        layout = self.layout
+        layout.label(text="", icon='IMAGE_COL')
 
     def draw(self, _):
         layout = self.layout
 
-        layout.label(text="Default")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname, text="Copy")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname, text="Paste")
-
-        layout.separator()
-
-        layout.label(text="Selection Sequence")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname,
-                    text="Copy")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
-                    text="Paste")
+        row = layout.row(align=True)
+        row.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
+                     text="Copy")
+        row.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
+                     text="Paste")
