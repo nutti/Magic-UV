@@ -36,7 +36,7 @@ from ..op import (
     uvw,
     world_scale_uv
 )
-from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_MT_CopyPasteUV',
@@ -50,7 +50,7 @@ __all__ = [
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate
@@ -76,7 +76,7 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
                     text="Paste")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_TransferUV(bpy.types.Menu):
     """
     Menu class: Master menu of Transfer UV coordinate
@@ -97,7 +97,7 @@ class MUV_MT_TransferUV(bpy.types.Menu):
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_TextureLock(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Lock
@@ -126,7 +126,7 @@ class MUV_MT_TextureLock(bpy.types.Menu):
         layout.prop(sc, "muv_texture_lock_lock", text="Lock")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_WorldScaleUV(bpy.types.Menu):
     """
     Menu class: Master menu of world scale UV
@@ -168,7 +168,7 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         ops.origin = sc.muv_world_scale_uv_origin
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_TextureWrap(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Wrap
@@ -185,7 +185,7 @@ class MUV_MT_TextureWrap(bpy.types.Menu):
         layout.operator(texture_wrap.MUV_OT_TextureWrap_Set.bl_idname, text="Set")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_UVW(bpy.types.Menu):
     """
     Menu class: Master menu of UVW
@@ -207,7 +207,7 @@ class MUV_MT_UVW(bpy.types.Menu):
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_TextureProjection(bpy.types.Menu):
     """
     Menu class: Master menu of Texture Projection
@@ -227,7 +227,7 @@ class MUV_MT_TextureProjection(bpy.types.Menu):
                         text="Project")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_PreserveUVAspect(bpy.types.Menu):
     """
     Menu class: Master menu of Preserve UV Aspect

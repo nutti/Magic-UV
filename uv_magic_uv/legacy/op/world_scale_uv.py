@@ -36,6 +36,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -172,7 +173,7 @@ class Properties:
         del scene.muv_world_scale_uv_origin
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_WorldScaleUV_Measure(bpy.types.Operator):
     """
     Operation class: Measure face size
@@ -311,7 +312,7 @@ def apply(obj, origin, factor):
     bmesh.update_edit_mesh(obj.data)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Manual)
@@ -409,7 +410,7 @@ class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
         return self.__apply_manual(context)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Scaling Density)
@@ -532,7 +533,7 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
         return self.__apply_scaling_density(context)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
     """
     Operation class: Apply scaled UV (Proportional to mesh)

@@ -37,6 +37,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -214,7 +215,7 @@ class Properties:
         del scene.muv_texture_projection_assign_uvmap
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureProjection(bpy.types.Operator):
     """
     Operation class: Texture Projection
@@ -313,7 +314,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureProjection_Project(bpy.types.Operator):
     """
     Operation class: Project texture

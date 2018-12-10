@@ -28,14 +28,14 @@ import bpy
 from ..op import (
     uvw,
 )
-from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_View3D_UVMapping',
 ]
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_PT_View3D_UVMapping(bpy.types.Panel):
     """
     Panel class: UV Mapping on Property Panel on View3D

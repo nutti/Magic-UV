@@ -57,7 +57,8 @@ def check_version(major, minor, _):
 if "bpy" in locals():
     import importlib
     importlib.reload(common)
-    common.BlClassRegistry.cleanup()
+    importlib.reload(utils)
+    utils.bl_class_registry.BlClassRegistry.cleanup()
     if check_version(2, 80, 0) >= 0:
         importlib.reload(op)
         importlib.reload(ui)
@@ -69,6 +70,8 @@ if "bpy" in locals():
         importlib.reload(legacy)
 else:
     import bpy
+    from . import common
+    from . import utils
     if check_version(2, 80, 0) >= 0:
         from . import op
         from . import ui
@@ -78,19 +81,19 @@ else:
         from . import addon_updater
     else:
         from . import legacy
-    from . import common
+
 
 import bpy
 
 
 def register():
     if common.check_version(2, 80, 0) >= 0:
-        common.BlClassRegistry.register()
+        utils.bl_class_registry.BlClassRegistry.register()
         properites.init_props(bpy.types.Scene)
         if preferences.Preferences.enable_builtin_menu:
             preferences.add_builtin_menu()
     else:
-        common.BlClassRegistry.register()
+        utils.bl_class_registry.BlClassRegistry.register()
         legacy.properites.init_props(bpy.types.Scene)
         if legacy.preferences.Preferences.enable_builtin_menu:
             legacy.preferences.add_builtin_menu()
@@ -103,14 +106,14 @@ def unregister():
         if preferences.Preferences.enable_builtin_menu:
             preferences.remove_builtin_menu()
         properites.clear_props(bpy.types.Scene)
-        common.BlClassRegistry.unregister()
+        utils.bl_class_registry.BlClassRegistry.unregister()
     else:
         if not common.is_console_mode():
             addon_updater_ops.unregister()
         if legacy.preferences.Preferences.enable_builtin_menu:
             legacy.preferences.remove_builtin_menu()
         legacy.properites.clear_props(bpy.types.Scene)
-        common.BlClassRegistry.unregister()
+        utils.bl_class_registry.BlClassRegistry.unregister()
 
 
 if __name__ == "__main__":

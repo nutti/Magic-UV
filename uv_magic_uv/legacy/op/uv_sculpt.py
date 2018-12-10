@@ -40,6 +40,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -151,7 +152,7 @@ class Properties:
         del scene.muv_uv_sculpt_relax_method
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_UVSculpt(bpy.types.Operator):
     """
     Operation class: UV Sculpt in View3D

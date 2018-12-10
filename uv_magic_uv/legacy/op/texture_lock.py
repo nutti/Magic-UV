@@ -32,6 +32,7 @@ from mathutils import Vector
 from bpy.props import BoolProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -256,7 +257,7 @@ class Properties:
         del scene.muv_texture_lock_connect
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureLock_Lock(bpy.types.Operator):
     """
     Operation class: Lock Texture
@@ -303,7 +304,7 @@ class MUV_OT_TextureLock_Lock(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
     """
     Operation class: Unlock Texture
@@ -385,7 +386,7 @@ class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureLock_Intr(bpy.types.Operator):
     """
     Operation class: Texture Lock (Interactive mode)

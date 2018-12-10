@@ -29,6 +29,7 @@ from bpy.props import StringProperty, EnumProperty, BoolProperty
 from mathutils import Vector
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -101,7 +102,7 @@ class Properties:
         del scene.muv_preserve_uv_aspect_origin
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     """
     Operation class: Preserve UV Aspect

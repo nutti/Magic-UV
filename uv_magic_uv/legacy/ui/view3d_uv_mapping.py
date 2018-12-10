@@ -30,14 +30,14 @@ from ..op import (
     texture_projection,
     unwrap_constraint,
 )
-from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_View3D_UVMapping',
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_PT_View3D_UVMapping(bpy.types.Panel):
     """
     Panel class: UV Mapping on Property Panel on View3D

@@ -23,30 +23,10 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
+if "bpy" in locals():
+    import importlib
+    importlib.reload(bl_class_registry)
+else:
+    from . import bl_class_registry
+
 import bpy
-
-from ..op import copy_paste_uv_object
-from ...utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_MT_CopyPasteUV_Object',
-]
-
-
-@BlClassRegistry(legacy=True)
-class MUV_MT_CopyPasteUV_Object(bpy.types.Menu):
-    """
-    Menu class: Master menu of Copy/Paste UV coordinate among object
-    """
-
-    bl_idname = "uv.muv_copy_paste_uv_object_menu"
-    bl_label = "Copy/Paste UV"
-    bl_description = "Copy and Paste UV coordinate among object"
-
-    def draw(self, _):
-        layout = self.layout
-
-        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
-                    text="Copy")
-        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
-                    text="Paste")

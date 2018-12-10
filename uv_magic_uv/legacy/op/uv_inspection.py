@@ -29,6 +29,7 @@ import bgl
 from bpy.props import BoolProperty, EnumProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -122,7 +123,7 @@ class Properties:
         del scene.muv_uv_inspection_show_mode
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_UVInspection_Render(bpy.types.Operator):
     """
     Operation class: Render UV Inspection
@@ -245,7 +246,7 @@ def update_uvinsp_info(context):
     props.flipped_info = common.get_flipped_uv_info(sel_faces, uv_layer)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_UVInspection_Update(bpy.types.Operator):
     """
     Operation class: Update

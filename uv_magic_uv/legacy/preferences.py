@@ -36,7 +36,7 @@ from bpy.types import AddonPreferences
 from . import op
 from . import ui
 from .. import addon_updater_ops
-from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'add_builtin_menu',
@@ -158,7 +158,7 @@ def remove_builtin_menu():
     bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 

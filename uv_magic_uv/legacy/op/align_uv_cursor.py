@@ -29,6 +29,7 @@ from bpy.props import EnumProperty, BoolProperty, FloatVectorProperty
 import bmesh
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -121,7 +122,7 @@ class Properties:
         del scene.muv_uv_cursor_location_enabled
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_AlignUVCursor(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_cursor_operator"

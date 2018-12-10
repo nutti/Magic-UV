@@ -32,6 +32,7 @@ from mathutils import Vector
 from bpy.props import EnumProperty, BoolProperty, FloatProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -176,7 +177,7 @@ def calc_v_on_circle(v, center, radius):
     return new_v
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_AlignUV_Circle(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_operator_circle"
@@ -438,7 +439,7 @@ def get_vdiff_uv(uv_layer, loop_seqs, vidx, hidx):
     return int((vidx + 1) / 2) * v_uv / (len(hseq) / 2)
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_AlignUV_Straighten(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_operator_straighten"
@@ -589,7 +590,7 @@ class MUV_OT_AlignUV_Straighten(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_AlignUV_Axis(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_operator_axis"

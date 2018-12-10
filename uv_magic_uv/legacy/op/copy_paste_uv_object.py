@@ -36,6 +36,7 @@ from ...impl.copy_paste_uv_impl import (
     paste_uv
 )
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'Properties',
@@ -97,7 +98,7 @@ def memorize_view_3d_mode(fn):
     return __memorize_view_3d_mode
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate among objects
@@ -149,7 +150,7 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate among objects
@@ -179,7 +180,7 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
             ops.uv_map = m
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate among objects
@@ -270,7 +271,7 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate among objects

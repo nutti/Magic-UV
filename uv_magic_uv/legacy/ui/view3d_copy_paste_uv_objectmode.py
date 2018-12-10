@@ -26,14 +26,14 @@ __date__ = "17 Nov 2018"
 import bpy
 
 from ..op import copy_paste_uv_object
-from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_View3D_Object_CopyPasteUV',
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_PT_View3D_Object_CopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D

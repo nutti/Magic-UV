@@ -30,6 +30,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -93,7 +94,7 @@ class Properties:
         del scene.muv_texture_wrap_selseq
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureWrap_Refer(bpy.types.Operator):
     """
     Operation class: Refer UV
@@ -133,7 +134,7 @@ class MUV_OT_TextureWrap_Refer(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TextureWrap_Set(bpy.types.Operator):
     """
     Operation class: Set UV

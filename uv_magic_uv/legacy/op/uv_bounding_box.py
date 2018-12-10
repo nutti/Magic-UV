@@ -33,6 +33,7 @@ import bmesh
 from bpy.props import BoolProperty, EnumProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -599,7 +600,7 @@ class StateManager():
         return self.__state
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_UVBoundingBox(bpy.types.Operator):
     """
     Operation class: UV Bounding Box

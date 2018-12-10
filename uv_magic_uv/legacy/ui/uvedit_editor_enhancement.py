@@ -31,13 +31,14 @@ from ..op import (
     uv_inspection,
 )
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_UVEdit_EditorEnhancement',
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
     """
     Panel class: UV/Image Editor Enhancement

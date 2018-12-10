@@ -31,6 +31,7 @@ import bmesh
 from mathutils import Vector
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -76,7 +77,7 @@ class Properties:
         del scene.muv_props.copy_paste_uv_uvedit
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUVUVEdit_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate on UV/Image Editor
@@ -118,7 +119,7 @@ class MUV_OT_CopyPasteUVUVEdit_CopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUVUVEdit_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate on UV/Image Editor

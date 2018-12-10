@@ -31,14 +31,14 @@ from ..op import (
     pack_uv,
     select_uv,
 )
-from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_UVEdit_UVManipulation',
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on UV/ImageEditor

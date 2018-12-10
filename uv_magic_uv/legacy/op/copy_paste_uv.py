@@ -25,7 +25,6 @@ __date__ = "17 Nov 2018"
 
 
 import bmesh
-import bpy
 import bpy.utils
 from bpy.props import (
     StringProperty,
@@ -36,6 +35,7 @@ from bpy.props import (
 
 from ...impl import copy_paste_uv_impl as impl
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'Properties',
@@ -98,7 +98,7 @@ class Properties:
         del scene.muv_copy_paste_uv_strategy
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUV_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate
@@ -140,7 +140,7 @@ class MUV_OT_CopyPasteUV_CopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV_CopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate
@@ -172,7 +172,7 @@ class MUV_MT_CopyPasteUV_CopyUV(bpy.types.Menu):
             ops.uv_map = m
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate
@@ -259,7 +259,7 @@ class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV_PasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate
@@ -307,7 +307,7 @@ class MUV_MT_CopyPasteUV_PasteUV(bpy.types.Menu):
             ops.strategy = sc.muv_copy_paste_uv_strategy
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUV_SelSeqCopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate by selection sequence
@@ -349,7 +349,7 @@ class MUV_OT_CopyPasteUV_SelSeqCopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV_SelSeqCopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate by selection sequence
@@ -380,7 +380,7 @@ class MUV_MT_CopyPasteUV_SelSeqCopyUV(bpy.types.Menu):
             ops.uv_map = m
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_CopyPasteUV_SelSeqPasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate by selection sequence
@@ -467,7 +467,7 @@ class MUV_OT_CopyPasteUV_SelSeqPasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV_SelSeqPasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate by selection sequence

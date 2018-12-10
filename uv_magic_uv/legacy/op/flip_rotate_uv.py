@@ -31,6 +31,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -80,7 +81,7 @@ class Properties:
         del scene.muv_flip_rotate_uv_seams
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_FlipRotate(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate

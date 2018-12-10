@@ -35,14 +35,14 @@ from ..op import (
     uv_sculpt,
     world_scale_uv,
 )
-from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_View3D_UVManipulation',
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on View3D

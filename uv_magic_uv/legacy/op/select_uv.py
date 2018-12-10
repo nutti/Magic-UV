@@ -28,6 +28,7 @@ import bmesh
 from bpy.props import BoolProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -74,7 +75,7 @@ class Properties:
         del scene.muv_select_uv_enabled
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
     """
     Operation class: Select faces which have overlapped UVs
@@ -119,7 +120,7 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
     """
     Operation class: Select faces which have flipped UVs

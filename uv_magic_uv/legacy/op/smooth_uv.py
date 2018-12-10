@@ -28,6 +28,7 @@ import bmesh
 from bpy.props import BoolProperty, FloatProperty
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -93,7 +94,7 @@ class Properties:
         del scene.muv_smooth_uv_select
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_SmoothUV(bpy.types.Operator):
 
     bl_idname = "uv.muv_smooth_uv_operator"

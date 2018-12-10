@@ -29,14 +29,14 @@ from ..op import (
     copy_paste_uv,
     transfer_uv,
 )
-from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_PT_CopyPasteUVEditMode',
 ]
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D

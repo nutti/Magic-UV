@@ -33,6 +33,7 @@ import bmesh
 from mathutils import Vector
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -87,7 +88,7 @@ class Properties:
         del scene.muv_mirror_uv_axis
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_MirrorUV(bpy.types.Operator):
     """
     Operation class: Mirror UV

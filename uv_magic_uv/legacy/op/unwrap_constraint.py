@@ -30,6 +30,7 @@ from bpy.props import (
 )
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -85,7 +86,7 @@ class Properties:
         del scene.muv_unwrap_constraint_v_const
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_UnwrapConstraint(bpy.types.Operator):
     """
     Operation class: Unwrap with constrain UV coordinate

@@ -33,6 +33,7 @@ from bpy.props import (
 
 from .. import common
 from ..impl import uvw_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -62,7 +63,7 @@ class Properties:
         del scene.muv_uvw_assign_uvmap
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_OT_UVW_BoxMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_box_map"
     bl_label = "Box Map"
@@ -119,7 +120,7 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_best_planer_map"
     bl_label = "Best Planer Map"

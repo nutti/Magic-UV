@@ -36,6 +36,7 @@ from bpy.props import (
 from mathutils import Vector
 
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -99,7 +100,7 @@ class Properties:
         del scene.muv_pack_uv_allowable_size_deviation
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_PackUV(bpy.types.Operator):
     """
     Operation class: Pack UV with same UV islands are integrated

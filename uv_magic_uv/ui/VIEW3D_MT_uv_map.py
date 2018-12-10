@@ -30,14 +30,14 @@ from ..op import (
     transfer_uv,
     uvw,
 )
-from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_MT_CopyPasteUV',
 ]
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_MT_CopyPasteUV(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate
@@ -63,7 +63,7 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
                     text="Paste")
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_MT_TransferUV(bpy.types.Menu):
     """
     Menu class: Master menu of Transfer UV coordinate
@@ -85,7 +85,7 @@ class MUV_MT_TransferUV(bpy.types.Menu):
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
 
 
-@common.BlClassRegistry()
+@BlClassRegistry()
 class MUV_MT_UVW(bpy.types.Menu):
     """
     Menu class: Master menu of UVW

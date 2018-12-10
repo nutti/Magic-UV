@@ -33,6 +33,7 @@ from ..op import (
     uv_inspection
 )
 from ... import common
+from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_MT_CopyPasteUV_UVEdit',
@@ -43,7 +44,7 @@ __all__ = [
 ]
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
     """
     Menu class: Master menu of Copy/Paste UV coordinate on UV/ImageEditor
@@ -62,7 +63,7 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
                         text="Paste")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_AlignUV(bpy.types.Menu):
     """
     Menu class: Master menu of Align UV
@@ -96,7 +97,7 @@ class MUV_MT_AlignUV(bpy.types.Menu):
         ops.location = sc.muv_align_uv_location
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_SelectUV(bpy.types.Menu):
     """
     Menu class: Master menu of Select UV
@@ -115,7 +116,7 @@ class MUV_MT_SelectUV(bpy.types.Menu):
                         text="Flipped")
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_AlignUVCursor(bpy.types.Menu):
     """
     Menu class: Master menu of Align UV Cursor
@@ -175,7 +176,7 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
         ops.base = sc.muv_align_uv_cursor_align_method
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_MT_UVInspection(bpy.types.Menu):
     """
     Menu class: Master menu of UV Inspection

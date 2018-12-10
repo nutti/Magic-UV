@@ -29,6 +29,7 @@ from bpy.props import BoolProperty
 
 from ... import common
 from ...impl import transfer_uv_impl as impl
+from ...utils.bl_class_registry import BlClassRegistry
 
 
 __all__ = [
@@ -68,7 +69,7 @@ class Properties:
         del scene.muv_transfer_uv_copy_seams
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
     """
         Operation class: Transfer UV copy
@@ -108,7 +109,7 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@common.BlClassRegistry(legacy=True)
+@BlClassRegistry(legacy=True)
 class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
     """
         Operation class: Transfer UV paste
