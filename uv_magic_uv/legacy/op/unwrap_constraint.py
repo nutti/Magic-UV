@@ -31,6 +31,7 @@ from bpy.props import (
 
 from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -60,7 +61,10 @@ def is_valid_context(context):
     return True
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "unwrap_constraint"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_unwrap_constraint_enabled = BoolProperty(

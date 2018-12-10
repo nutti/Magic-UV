@@ -34,6 +34,7 @@ from bpy.props import (
 from ... import common
 from ...impl import uvw_impl as impl
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -43,7 +44,10 @@ __all__ = [
 ]
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "uvw"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_uvw_enabled = BoolProperty(

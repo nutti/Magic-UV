@@ -23,13 +23,14 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-
 from .op import (
     copy_paste_uv,
     move_uv,
     transfer_uv,
     uvw,
 )
+from .utils.property_class_registry import PropertyClassRegistry
+
 
 __all__ = [
     'MUV_Properties',
@@ -58,17 +59,9 @@ class MUV_Prefs():
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
-
-    copy_paste_uv.Properties.init_props(scene)
-    move_uv.Properties.init_props(scene)
-    transfer_uv.Properties.init_props(scene)
-    uvw.Properties.init_props(scene)
+    PropertyClassRegistry.init_props(scene)
 
 
 def clear_props(scene):
-    uvw.Properties.del_props(scene)
-    transfer_uv.Properties.del_props(scene)
-    move_uv.Properties.del_props(scene)
-    copy_paste_uv.Properties.del_props(scene)
-
+    PropertyClassRegistry.del_props(scene)
     del scene.muv_props

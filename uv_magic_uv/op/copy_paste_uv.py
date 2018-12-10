@@ -36,6 +36,7 @@ from bpy.props import (
 from ..impl import copy_paste_uv_impl as impl
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
 
 __all__ = [
     'Properties',
@@ -50,7 +51,10 @@ __all__ = [
 ]
 
 
+@PropertyClassRegistry()
 class Properties:
+    idname = "copy_paste_uv"
+
     @classmethod
     def init_props(cls, scene):
         class Props():

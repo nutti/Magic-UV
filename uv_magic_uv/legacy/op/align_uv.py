@@ -33,6 +33,7 @@ from bpy.props import EnumProperty, BoolProperty, FloatProperty
 
 from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -66,7 +67,10 @@ def is_valid_context(context):
     return True
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "align_uv"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_align_uv_enabled = BoolProperty(

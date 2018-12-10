@@ -28,6 +28,7 @@ from bpy.props import BoolProperty
 
 from ...impl import move_uv_impl as impl
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -36,7 +37,10 @@ __all__ = [
 ]
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "move_uv"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_move_uv_enabled = BoolProperty(

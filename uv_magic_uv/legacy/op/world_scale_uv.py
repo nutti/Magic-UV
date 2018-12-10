@@ -37,6 +37,7 @@ from bpy.props import (
 
 from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -84,7 +85,10 @@ def measure_wsuv_info(obj, tex_size=None):
     return uv_area, mesh_area, density
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "world_scale_uv"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_world_scale_uv_enabled = BoolProperty(

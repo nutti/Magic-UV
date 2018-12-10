@@ -29,6 +29,7 @@ from bpy.props import BoolProperty
 
 from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
+from ...utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
@@ -61,7 +62,10 @@ def is_valid_context(context):
     return True
 
 
+@PropertyClassRegistry(legacy=True)
 class Properties:
+    idname = "select_uv"
+
     @classmethod
     def init_props(cls, scene):
         scene.muv_select_uv_enabled = BoolProperty(

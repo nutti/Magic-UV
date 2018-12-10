@@ -24,30 +24,7 @@ __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
 
-from .op import (
-    align_uv,
-    align_uv_cursor,
-    copy_paste_uv,
-    copy_paste_uv_object,
-    move_uv,
-    smooth_uv,
-    texture_lock,
-    uv_sculpt,
-    uv_bounding_box,
-    uvw,
-    texture_wrap,
-    copy_paste_uv_uvedit,
-    transfer_uv,
-    select_uv,
-    preserve_uv_aspect,
-    flip_rotate_uv,
-    mirror_uv,
-    texture_projection,
-    unwrap_constraint,
-    uv_inspection,
-    world_scale_uv,
-    pack_uv
-)
+from ..utils.property_class_registry import PropertyClassRegistry
 
 __all__ = [
     'MUV_Properties',
@@ -76,53 +53,10 @@ class MUV_Prefs():
 
 def init_props(scene):
     scene.muv_props = MUV_Properties()
+    PropertyClassRegistry.init_props(scene)
 
-    align_uv.Properties.init_props(scene)
-    align_uv_cursor.Properties.init_props(scene)
-    copy_paste_uv.Properties.init_props(scene)
-    copy_paste_uv_object.Properties.init_props(scene)
-    copy_paste_uv_uvedit.Properties.init_props(scene)
-    flip_rotate_uv.Properties.init_props(scene)
-    mirror_uv.Properties.init_props(scene)
-    move_uv.Properties.init_props(scene)
-    pack_uv.Properties.init_props(scene)
-    preserve_uv_aspect.Properties.init_props(scene)
-    select_uv.Properties.init_props(scene)
-    smooth_uv.Properties.init_props(scene)
-    texture_lock.Properties.init_props(scene)
-    texture_projection.Properties.init_props(scene)
-    texture_wrap.Properties.init_props(scene)
-    transfer_uv.Properties.init_props(scene)
-    unwrap_constraint.Properties.init_props(scene)
-    uv_bounding_box.Properties.init_props(scene)
-    uv_inspection.Properties.init_props(scene)
-    uv_sculpt.Properties.init_props(scene)
-    uvw.Properties.init_props(scene)
-    world_scale_uv.Properties.init_props(scene)
 
 
 def clear_props(scene):
-    align_uv.Properties.del_props(scene)
-    align_uv_cursor.Properties.del_props(scene)
-    copy_paste_uv.Properties.del_props(scene)
-    copy_paste_uv_object.Properties.del_props(scene)
-    copy_paste_uv_uvedit.Properties.del_props(scene)
-    flip_rotate_uv.Properties.del_props(scene)
-    mirror_uv.Properties.del_props(scene)
-    move_uv.Properties.del_props(scene)
-    pack_uv.Properties.del_props(scene)
-    preserve_uv_aspect.Properties.del_props(scene)
-    select_uv.Properties.del_props(scene)
-    smooth_uv.Properties.del_props(scene)
-    texture_lock.Properties.del_props(scene)
-    texture_projection.Properties.del_props(scene)
-    texture_wrap.Properties.del_props(scene)
-    transfer_uv.Properties.del_props(scene)
-    unwrap_constraint.Properties.del_props(scene)
-    uv_bounding_box.Properties.del_props(scene)
-    uv_inspection.Properties.del_props(scene)
-    uv_sculpt.Properties.del_props(scene)
-    uvw.Properties.del_props(scene)
-    world_scale_uv.Properties.del_props(scene)
-
+    PropertyClassRegistry.del_props(scene)
     del scene.muv_props
