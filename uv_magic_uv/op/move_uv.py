@@ -26,8 +26,8 @@ __date__ = "17 Nov 2018"
 import bpy
 from bpy.props import BoolProperty
 
-from ... import common
-from ...impl import move_uv_impl as impl
+from .. import common
+from ..impl import move_uv_impl as impl
 
 
 __all__ = [
@@ -50,7 +50,7 @@ class Properties:
         del scene.muv_move_uv_enabled
 
 
-@common.BlClassRegistry(legacy=True)
+@common.BlClassRegistry()
 class MUV_OT_MoveUV(bpy.types.Operator):
     """
     Operator class: Move UV

@@ -58,6 +58,11 @@ def view3d_uvmap_menu_fn(self, context):
                 text="Transfer UV")
 
     layout.separator()
+    layout.label("UV Manipulation", icon='IMAGE')
+    # Move UV
+    layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
+
+    layout.separator()
     # UVW
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_UVW.bl_idname, text="UVW")
 

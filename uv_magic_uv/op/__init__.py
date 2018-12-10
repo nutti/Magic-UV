@@ -26,9 +26,13 @@ __date__ = "17 Nov 2018"
 if "bpy" in locals():
     import importlib
     importlib.reload(copy_paste_uv)
+    importlib.reload(move_uv)
     importlib.reload(transfer_uv)
+    importlib.reload(uvw)
 else:
     from . import copy_paste_uv
+    from . import move_uv
     from . import transfer_uv
+    from . import uvw
 
 import bpy
