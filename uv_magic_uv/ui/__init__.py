@@ -26,13 +26,17 @@ __date__ = "17 Nov 2018"
 if "bpy" in locals():
     import importlib
     importlib.reload(view3d_copy_paste_uv_editmode)
+    importlib.reload(view3d_copy_paste_uv_objectmode)
     importlib.reload(view3d_uv_manipulation)
     importlib.reload(view3d_uv_mapping)
+    importlib.reload(VIEW3D_MT_object)
     importlib.reload(VIEW3D_MT_uv_map)
 else:
     from . import view3d_copy_paste_uv_editmode
+    from . import view3d_copy_paste_uv_objectmode
     from . import view3d_uv_manipulation
     from . import view3d_uv_mapping
+    from . import VIEW3D_MT_object
     from . import VIEW3D_MT_uv_map
 
 import bpy

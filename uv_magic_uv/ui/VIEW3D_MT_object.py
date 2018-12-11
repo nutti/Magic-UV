@@ -23,40 +23,30 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
+import bpy
 
-from .utils.property_class_registry import PropertyClassRegistry
-
+from ..op import copy_paste_uv_object
+from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
-    'MUV_Properties',
-    'init_props',
-    'clear_props',
+    'MUV_MT_CopyPasteUV_Object',
 ]
 
 
-# Properties used in this add-on.
-# pylint: disable=W0612
-class MUV_Properties():
-    def __init__(self):
-        self.prefs = MUV_Prefs()
+@BlClassRegistry()
+class MUV_MT_CopyPasteUV_Object(bpy.types.Menu):
+    """
+    Menu class: Master menu of Copy/Paste UV coordinate among object
+    """
 
+    bl_idname = "uv.muv_copy_paste_uv_object_menu"
+    bl_label = "Copy/Paste UV"
+    bl_description = "Copy and Paste UV coordinate among object"
 
-class MUV_Prefs():
-    expanded = {
-        "info_desc": False,
-        "info_loc": False,
-        "conf_uvsculpt": False,
-        "conf_uvinsp": False,
-        "conf_texproj": False,
-        "conf_uvbb": False
-    }
+    def draw(self, _):
+        layout = self.layout
 
-
-def init_props(scene):
-    scene.muv_props = MUV_Properties()
-    PropertyClassRegistry.init_props(scene)
-
-
-def clear_props(scene):
-    PropertyClassRegistry.del_props(scene)
-    del scene.muv_props
+        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
+                    text="Copy")
+        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
+                    text="Paste")

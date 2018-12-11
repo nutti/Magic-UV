@@ -119,12 +119,12 @@ def get_paste_uv_layers(ops_obj, obj, bm, src_info, uv_map):
     return uv_layers
 
 
-def get_select_src_face_info(ops_obj, bm, uv_layers):
+def get_src_face_info(ops_obj, bm, uv_layers, only_select=False):
     src_info = {}
     for layer in uv_layers:
         face_info = []
         for face in bm.faces:
-            if face.select:
+            if not only_select or face.select:
                 info = {
                     "index": face.index,
                     "uvs": [l[layer].uv.copy() for l in face.loops],
@@ -140,12 +140,13 @@ def get_select_src_face_info(ops_obj, bm, uv_layers):
     return src_info
 
 
-def get_select_dest_face_info(ops_obj, bm, uv_layers, src_info, strategy):
+def get_dest_face_info(ops_obj, bm, uv_layers, src_info, strategy,
+                       only_select=False):
     dest_info = {}
     for layer in uv_layers:
         face_info = []
         for idx, face in enumerate(bm.faces):
-            if face.select:
+            if not only_select or face.select:
                 info = {
                     "index": face.index,
                     "uvs": [l[layer].uv.copy() for l in face.loops],

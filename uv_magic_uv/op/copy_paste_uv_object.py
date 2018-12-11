@@ -30,10 +30,10 @@ from bpy.props import (
     BoolProperty,
 )
 
-from ...impl import copy_paste_uv_impl as impl
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
+from ..impl import copy_paste_uv_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
 
 __all__ = [
     'Properties',
@@ -65,7 +65,7 @@ def is_valid_context(context):
     return True
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "copy_paste_uv_object"
 
@@ -98,7 +98,7 @@ def memorize_view_3d_mode(fn):
     return __memorize_view_3d_mode
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate among objects
@@ -109,7 +109,7 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     bl_description = "Copy UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(default="__default", options={'HIDDEN'})
+    uv_map: StringProperty(default="__default", options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
@@ -142,7 +142,7 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
     """
     Menu class: Copy UV coordinate among objects
@@ -159,7 +159,7 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
         # create sub menu
-        uv_maps = bpy.context.active_object.data.uv_textures.keys()
+        uv_maps = bpy.context.active_object.data.uv_layers.keys()
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"
@@ -172,7 +172,7 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
             ops.uv_map = m
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate among objects
@@ -183,8 +183,8 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     bl_description = "Paste UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map = StringProperty(default="__default", options={'HIDDEN'})
-    copy_seams = BoolProperty(
+    uv_map: StringProperty(default="__default", options={'HIDDEN'})
+    copy_seams: BoolProperty(
         name="Seams",
         description="Copy Seams",
         default=True
@@ -209,11 +209,11 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         for o in bpy.data.objects:
-            if not hasattr(o.data, "uv_textures") or not o.select:
+            if not hasattr(o.data, "uv_layers") or not o.select_get():
                 continue
 
             bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.scene.objects.active = o
+            bpy.context.view_layer.objects.active = o
             bpy.ops.object.mode_set(mode='EDIT')
 
             obj = context.active_object
@@ -238,8 +238,6 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
                 return {'CANCELLED'}
 
             bmesh.update_edit_mesh(obj.data)
-            if self.copy_seams is True:
-                obj.data.show_edge_seams = True
 
             self.report(
                 {'INFO'}, "{}'s UV coordinates are pasted".format(obj.name))
@@ -247,7 +245,7 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
     """
     Menu class: Paste UV coordinate among objects
@@ -271,8 +269,8 @@ class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
         # create sub menu
         uv_maps = []
         for obj in bpy.data.objects:
-            if hasattr(obj.data, "uv_textures") and obj.select:
-                uv_maps.extend(obj.data.uv_textures.keys())
+            if hasattr(obj.data, "uv_layers") and obj.select_get():
+                uv_maps.extend(obj.data.uv_layers.keys())
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname, text="[Default]")
         ops.uv_map = "__default"

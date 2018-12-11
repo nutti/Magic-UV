@@ -133,7 +133,7 @@ class MUV_OT_CopyPasteUV_CopyUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         # get selected face
-        src_info = impl.get_select_src_face_info(self, bm, uv_layers)
+        src_info = impl.get_src_face_info(self, bm, uv_layers, True)
         if src_info is None:
             return {'CANCELLED'}
         props.src_info = src_info
@@ -240,9 +240,8 @@ class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         # get selected face
-        dest_info = impl.get_select_dest_face_info(self, bm, uv_layers,
-                                                   props.src_info,
-                                                   self.strategy)
+        dest_info = impl.get_dest_face_info(self, bm, uv_layers, props.src_info,
+                                            self.strategy, True)
         if dest_info is None:
             return {'CANCELLED'}
 
