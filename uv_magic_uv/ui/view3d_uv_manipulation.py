@@ -27,6 +27,7 @@ import bpy
 
 from ..op import (
     flip_rotate_uv,
+    mirror_uv,
     move_uv,
 )
 from ..utils.bl_class_registry import BlClassRegistry
@@ -65,6 +66,14 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                                text="Flip/Rotate")
             ops.seams = sc.muv_flip_rotate_uv_seams
             row.prop(sc, "muv_flip_rotate_uv_seams", text="Seams")
+
+        box = layout.box()
+        box.prop(sc, "muv_mirror_uv_enabled", text="Mirror UV")
+        if sc.muv_mirror_uv_enabled:
+            row = box.row()
+            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname, text="Mirror")
+            ops.axis = sc.muv_mirror_uv_axis
+            row.prop(sc, "muv_mirror_uv_axis", text="")
 
         box = layout.box()
         box.prop(sc, "muv_move_uv_enabled", text="Move UV")

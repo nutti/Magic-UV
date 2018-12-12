@@ -30,9 +30,9 @@ from bpy.props import (
     BoolProperty,
 )
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import mirror_uv_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import mirror_uv_impl as impl
 
 
 __all__ = [
@@ -41,7 +41,7 @@ __all__ = [
 ]
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "mirror_uv"
 
@@ -69,7 +69,7 @@ class Properties:
         del scene.muv_mirror_uv_axis
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_MirrorUV(bpy.types.Operator):
     """
     Operation class: Mirror UV
@@ -79,7 +79,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
     bl_label = "Mirror UV"
     bl_options = {'REGISTER', 'UNDO'}
 
-    axis = EnumProperty(
+    axis: EnumProperty(
         items=(
             ('X', "X", "Mirror Along X axis"),
             ('Y', "Y", "Mirror Along Y axis"),
@@ -89,7 +89,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
         description="Mirror Axis",
         default='X'
     )
-    error = FloatProperty(
+    error: FloatProperty(
         name="Error",
         description="Error threshold",
         default=0.001,
