@@ -59,6 +59,10 @@ def view3d_uvmap_menu_fn(self, context):
 
     layout.separator()
     layout.label(text="UV Manipulation", icon='IMAGE')
+    # Flip/Rotate UV
+    ops = layout.operator(op.flip_rotate_uv.MUV_OT_FlipRotate.bl_idname,
+                          text="Flip/Rotate UV")
+    ops.seams = sc.muv_flip_rotate_uv_seams
     # Move UV
     layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
 

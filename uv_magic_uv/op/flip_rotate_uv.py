@@ -30,10 +30,10 @@ from bpy.props import (
     IntProperty,
 )
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import flip_rotate_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import flip_rotate_impl as impl
 
 __all__ = [
     'Properties',
@@ -41,7 +41,7 @@ __all__ = [
 ]
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "flip_rotate_uv"
 
@@ -64,7 +64,7 @@ class Properties:
         del scene.muv_flip_rotate_uv_seams
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_FlipRotate(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate
@@ -75,18 +75,18 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
     bl_description = "Flip/Rotate UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
-    flip = BoolProperty(
+    flip: BoolProperty(
         name="Flip UV",
         description="Flip UV...",
         default=False
     )
-    rotate = IntProperty(
+    rotate: IntProperty(
         default=0,
         name="Rotate UV",
         min=0,
         max=30
     )
-    seams = BoolProperty(
+    seams: BoolProperty(
         name="Seams",
         description="Seams",
         default=True
@@ -126,7 +126,5 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
             return {'CANCELLED'}
 
         bmesh.update_edit_mesh(obj.data)
-        if self.seams is True:
-            obj.data.show_edge_seams = True
 
         return {'FINISHED'}

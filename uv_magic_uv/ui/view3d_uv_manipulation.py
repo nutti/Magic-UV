@@ -26,6 +26,7 @@ __date__ = "17 Nov 2018"
 import bpy
 
 from ..op import (
+    flip_rotate_uv,
     move_uv,
 )
 from ..utils.bl_class_registry import BlClassRegistry
@@ -55,6 +56,15 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+
+        box = layout.box()
+        box.prop(sc, "muv_flip_rotate_uv_enabled", text="Flip/Rotate UV")
+        if sc.muv_flip_rotate_uv_enabled:
+            row = box.row()
+            ops = row.operator(flip_rotate_uv.MUV_OT_FlipRotate.bl_idname,
+                               text="Flip/Rotate")
+            ops.seams = sc.muv_flip_rotate_uv_seams
+            row.prop(sc, "muv_flip_rotate_uv_seams", text="Seams")
 
         box = layout.box()
         box.prop(sc, "muv_move_uv_enabled", text="Move UV")
