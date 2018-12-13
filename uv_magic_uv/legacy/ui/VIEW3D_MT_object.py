@@ -46,7 +46,9 @@ class MUV_MT_CopyPasteUV_Object(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
-        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
-                    text="Copy")
-        layout.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
-                    text="Paste")
+        layout.menu(
+            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
+            text="Copy")
+        layout.menu(
+            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
+            text="Paste")

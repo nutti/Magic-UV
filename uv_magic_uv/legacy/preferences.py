@@ -65,7 +65,8 @@ def view3d_uvmap_menu_fn(self, context):
                           text="Flip/Rotate UV")
     ops.seams = sc.muv_flip_rotate_uv_seams
     # Mirror UV
-    ops = layout.operator(op.mirror_uv.MUV_OT_MirrorUV.bl_idname, text="Mirror UV")
+    ops = layout.operator(op.mirror_uv.MUV_OT_MirrorUV.bl_idname,
+                          text="Mirror UV")
     ops.axis = sc.muv_mirror_uv_axis
     # Move UV
     layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
@@ -87,8 +88,9 @@ def view3d_uvmap_menu_fn(self, context):
     layout.separator()
     layout.label("UV Mapping", icon='IMAGE_COL')
     # Unwrap Constraint
-    ops = layout.operator(op.unwrap_constraint.MUV_OT_UnwrapConstraint.bl_idname,
-                          text="Unwrap Constraint")
+    ops = layout.operator(
+        op.unwrap_constraint.MUV_OT_UnwrapConstraint.bl_idname,
+        text="Unwrap Constraint")
     ops.u_const = sc.muv_unwrap_constraint_u_const
     ops.v_const = sc.muv_unwrap_constraint_v_const
     # Texture Projection
@@ -127,7 +129,8 @@ def image_uvs_menu_fn(self, context):
     # Align UV
     layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUV.bl_idname, text="Align UV")
     # Smooth UV
-    ops = layout.operator(op.smooth_uv.MUV_OT_SmoothUV.bl_idname, text="Smooth")
+    ops = layout.operator(op.smooth_uv.MUV_OT_SmoothUV.bl_idname,
+                          text="Smooth")
     ops.transmission = sc.muv_smooth_uv_transmission
     ops.select = sc.muv_smooth_uv_select
     ops.mesh_infl = sc.muv_smooth_uv_mesh_infl

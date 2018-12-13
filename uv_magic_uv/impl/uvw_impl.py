@@ -56,7 +56,8 @@ def get_uv_layer(ops_obj, bm, assign_uvmap):
         if assign_uvmap:
             bm.loops.layers.uv.new()
         else:
-            ops_obj.report({'WARNING'}, "Object must have more than one UV map")
+            ops_obj.report({'WARNING'},
+                           "Object must have more than one UV map")
             return None
     uv_layer = bm.loops.layers.uv.verify()
 

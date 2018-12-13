@@ -32,7 +32,6 @@ from ..op import (
     select_uv,
     uv_inspection
 )
-from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -57,10 +56,12 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
-                        text="Copy")
-        layout.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
-                        text="Paste")
+        layout.operator(
+            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
+            text="Copy")
+        layout.operator(
+            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
+            text="Paste")
 
 
 @BlClassRegistry(legacy=True)
@@ -77,7 +78,8 @@ class MUV_MT_AlignUV(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(align_uv.MUV_OT_AlignUV_Circle.bl_idname, text="Circle")
+        ops = layout.operator(align_uv.MUV_OT_AlignUV_Circle.bl_idname,
+                              text="Circle")
         ops.transmission = sc.muv_align_uv_transmission
         ops.select = sc.muv_align_uv_select
 

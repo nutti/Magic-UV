@@ -67,10 +67,12 @@ class MUV_PT_View3D_Edit_CopyPasteUV(bpy.types.Panel):
                 row.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname,
                          text="Paste")
             elif sc.muv_copy_paste_uv_mode == 'SEL_SEQ':
-                row.menu(copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname,
-                         text="Copy")
-                row.menu(copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
-                         text="Paste")
+                row.menu(
+                    copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname,
+                    text="Copy")
+                row.menu(
+                    copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
+                    text="Paste")
             box.prop(sc, "muv_copy_paste_uv_mode", expand=True)
             box.prop(sc, "muv_copy_paste_uv_copy_seams", text="Seams")
             box.prop(sc, "muv_copy_paste_uv_strategy", text="Strategy")
@@ -79,7 +81,8 @@ class MUV_PT_View3D_Edit_CopyPasteUV(bpy.types.Panel):
         box.prop(sc, "muv_transfer_uv_enabled", text="Transfer UV")
         if sc.muv_transfer_uv_enabled:
             row = box.row(align=True)
-            row.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname, text="Copy")
+            row.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname,
+                         text="Copy")
             ops = row.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
                                text="Paste")
             ops.invert_normals = sc.muv_transfer_uv_invert_normals
@@ -88,4 +91,3 @@ class MUV_PT_View3D_Edit_CopyPasteUV(bpy.types.Panel):
             row.prop(sc, "muv_transfer_uv_invert_normals",
                      text="Invert Normals")
             row.prop(sc, "muv_transfer_uv_copy_seams", text="Seams")
-

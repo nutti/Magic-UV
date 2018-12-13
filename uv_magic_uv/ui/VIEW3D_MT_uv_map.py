@@ -34,6 +34,8 @@ from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
     'MUV_MT_CopyPasteUV',
+    'MUV_MT_TransferUV',
+    'MUV_MT_UVW',
 ]
 
 
@@ -51,8 +53,10 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
         layout = self.layout
 
         layout.label(text="Default")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname, text="Copy")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname, text="Paste")
+        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname,
+                    text="Copy")
+        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname,
+                    text="Paste")
 
         layout.separator()
 

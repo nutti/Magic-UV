@@ -76,7 +76,8 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
             ops.horizontal = sc.muv_align_uv_horizontal
             ops.mesh_infl = sc.muv_align_uv_mesh_infl
             row = col.row()
-            ops = row.operator(align_uv.MUV_OT_AlignUV_Axis.bl_idname, text="XY-axis")
+            ops = row.operator(align_uv.MUV_OT_AlignUV_Axis.bl_idname,
+                               text="XY-axis")
             ops.transmission = sc.muv_align_uv_transmission
             ops.select = sc.muv_align_uv_select
             ops.vertical = sc.muv_align_uv_vertical

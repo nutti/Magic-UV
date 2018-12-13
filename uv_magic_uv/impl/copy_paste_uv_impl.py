@@ -33,8 +33,8 @@ __all__ = [
     'is_valid_context',
     'get_copy_uv_layers',
     'get_paste_uv_layers',
-    'get_select_src_face_info',
-    'get_select_dest_face_info',
+    'get_src_face_info',
+    'get_dest_face_info',
     'get_select_history_src_face_info',
     'get_select_history_dest_face_info',
     'paste_uv',
@@ -145,7 +145,7 @@ def get_dest_face_info(ops_obj, bm, uv_layers, src_info, strategy,
     dest_info = {}
     for layer in uv_layers:
         face_info = []
-        for idx, face in enumerate(bm.faces):
+        for face in bm.faces:
             if not only_select or face.select:
                 info = {
                     "index": face.index,
@@ -261,8 +261,8 @@ def paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
                 ss_fr.insert(0, s)
 
             # paste UVs
-            for l, suv, spuv, ss in zip(bm.faces[dinfo["index"]].loops, suvs_fr,
-                                        spuvs_fr, ss_fr):
+            for l, suv, spuv, ss in zip(bm.faces[dinfo["index"]].loops,
+                                        suvs_fr, spuvs_fr, ss_fr):
                 l[dlayer].uv = suv
                 l[dlayer].pin_uv = spuv
                 if copy_seams is True:

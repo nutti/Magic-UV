@@ -25,11 +25,15 @@ __date__ = "17 Nov 2018"
 
 from .. import common
 
+__all__ = [
+    'PropertyClassRegistry',
+]
+
 
 class PropertyClassRegistry:
     class_list = []
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *_, **kwargs):
         self.legacy = kwargs.get('legacy', False)
 
     def __call__(self, cls):

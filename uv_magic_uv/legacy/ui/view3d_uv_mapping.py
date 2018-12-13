@@ -30,6 +30,9 @@ from ..op import (
     texture_projection,
     unwrap_constraint,
 )
+from ..op.texture_projection import (
+    MUV_OT_TextureProjection
+)
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -75,13 +78,14 @@ class MUV_PT_View3D_UVMapping(bpy.types.Panel):
                  text="Texture Projection")
         if sc.muv_texture_projection_enabled:
             row = box.row()
-            row.prop(sc, "muv_texture_projection_enable",
-                     text="Disable"
-                     if texture_projection.MUV_OT_TextureProjection.is_running(context)
-                     else "Enable",
-                     icon='RESTRICT_VIEW_OFF'
-                     if texture_projection.MUV_OT_TextureProjection.is_running(context)
-                     else 'RESTRICT_VIEW_ON')
+            row.prop(
+                sc, "muv_texture_projection_enable",
+                text="Disable"
+                if MUV_OT_TextureProjection.is_running(context)
+                else "Enable",
+                icon='RESTRICT_VIEW_OFF'
+                if MUV_OT_TextureProjection.is_running(context)
+                else 'RESTRICT_VIEW_ON')
             row.prop(sc, "muv_texture_projection_tex_image", text="")
             box.prop(sc, "muv_texture_projection_tex_transparency",
                      text="Transparency")
@@ -96,8 +100,9 @@ class MUV_PT_View3D_UVMapping(bpy.types.Panel):
                      text="Texture Aspect Ratio")
             col.prop(sc, "muv_texture_projection_assign_uvmap",
                      text="Assign UVMap")
-            box.operator(texture_projection.MUV_OT_TextureProjection_Project.bl_idname,
-                         text="Project")
+            box.operator(
+                texture_projection.MUV_OT_TextureProjection_Project.bl_idname,
+                text="Project")
 
         box = layout.box()
         box.prop(sc, "muv_uvw_enabled", text="UVW")

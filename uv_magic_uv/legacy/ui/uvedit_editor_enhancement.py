@@ -30,7 +30,6 @@ from ..op import (
     uv_bounding_box,
     uv_inspection,
 )
-from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -117,13 +116,14 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
         box = layout.box()
         box.prop(sc, "muv_uv_bounding_box_enabled", text="UV Bounding Box")
         if sc.muv_uv_bounding_box_enabled:
-            box.prop(sc, "muv_uv_bounding_box_show",
-                     text="Hide"
-                     if uv_bounding_box.MUV_OT_UVBoundingBox.is_running(context)
-                     else "Show",
-                     icon='RESTRICT_VIEW_OFF'
-                     if uv_bounding_box.MUV_OT_UVBoundingBox.is_running(context)
-                     else 'RESTRICT_VIEW_ON')
+            box.prop(
+                sc, "muv_uv_bounding_box_show",
+                text="Hide"
+                if uv_bounding_box.MUV_OT_UVBoundingBox.is_running(context)
+                else "Show",
+                icon='RESTRICT_VIEW_OFF'
+                if uv_bounding_box.MUV_OT_UVBoundingBox.is_running(context)
+                else 'RESTRICT_VIEW_ON')
             box.prop(sc, "muv_uv_bounding_box_uniform_scaling",
                      text="Uniform Scaling")
             box.prop(sc, "muv_uv_bounding_box_boundary", text="Boundary")
@@ -132,13 +132,14 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
         box.prop(sc, "muv_uv_inspection_enabled", text="UV Inspection")
         if sc.muv_uv_inspection_enabled:
             row = box.row()
-            row.prop(sc, "muv_uv_inspection_show",
-                     text="Hide"
-                     if uv_inspection.MUV_OT_UVInspection_Render.is_running(context)
-                     else "Show",
-                     icon='RESTRICT_VIEW_OFF'
-                     if uv_inspection.MUV_OT_UVInspection_Render.is_running(context)
-                     else 'RESTRICT_VIEW_ON')
+            row.prop(
+                sc, "muv_uv_inspection_show",
+                text="Hide"
+                if uv_inspection.MUV_OT_UVInspection_Render.is_running(context)
+                else "Show",
+                icon='RESTRICT_VIEW_OFF'
+                if uv_inspection.MUV_OT_UVInspection_Render.is_running(context)
+                else 'RESTRICT_VIEW_ON')
             row.operator(uv_inspection.MUV_OT_UVInspection_Update.bl_idname,
                          text="Update")
             row = box.row()

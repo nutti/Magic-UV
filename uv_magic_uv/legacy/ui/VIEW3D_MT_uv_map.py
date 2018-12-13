@@ -36,6 +36,7 @@ from ..op import (
     uvw,
     world_scale_uv
 )
+from ..op.world_scale_uv import MUV_OT_WorldScaleUV_ApplyProportionalToMesh
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -64,8 +65,10 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
         layout = self.layout
 
         layout.label(text="Default")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname, text="Copy")
-        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname, text="Paste")
+        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname,
+                    text="Copy")
+        layout.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname,
+                    text="Paste")
 
         layout.separator()
 
@@ -90,7 +93,8 @@ class MUV_MT_TransferUV(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname, text="Copy")
+        layout.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname,
+                        text="Copy")
         ops = layout.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
@@ -112,10 +116,11 @@ class MUV_MT_TextureLock(bpy.types.Menu):
         sc = context.scene
 
         layout.label("Normal Mode")
-        layout.operator(texture_lock.MUV_OT_TextureLock_Lock.bl_idname,
-                        text="Lock"
-                        if not texture_lock.MUV_OT_TextureLock_Lock.is_ready(context)
-                        else "ReLock")
+        layout.operator(
+            texture_lock.MUV_OT_TextureLock_Lock.bl_idname,
+            text="Lock"
+            if not texture_lock.MUV_OT_TextureLock_Lock.is_ready(context)
+            else "ReLock")
         ops = layout.operator(texture_lock.MUV_OT_TextureLock_Unlock.bl_idname,
                               text="Unlock")
         ops.connect = sc.muv_texture_lock_connect
@@ -143,8 +148,9 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         layout.operator(world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
                         text="Measure")
 
-        layout.operator(world_scale_uv.MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
-                        text="Apply (Manual)")
+        layout.operator(
+            world_scale_uv.MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
+            text="Apply (Manual)")
 
         ops = layout.operator(
             world_scale_uv.MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
@@ -160,7 +166,7 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
 
         ops = layout.operator(
-            world_scale_uv.MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
+            MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
             text="Apply (Proportional to Mesh)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
@@ -181,8 +187,10 @@ class MUV_MT_TextureWrap(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(texture_wrap.MUV_OT_TextureWrap_Refer.bl_idname, text="Refer")
-        layout.operator(texture_wrap.MUV_OT_TextureWrap_Set.bl_idname, text="Set")
+        layout.operator(texture_wrap.MUV_OT_TextureWrap_Refer.bl_idname,
+                        text="Refer")
+        layout.operator(texture_wrap.MUV_OT_TextureWrap_Set.bl_idname,
+                        text="Set")
 
 
 @BlClassRegistry(legacy=True)
@@ -223,8 +231,9 @@ class MUV_MT_TextureProjection(bpy.types.Menu):
 
         layout.prop(sc, "muv_texture_projection_enable",
                     text="Texture Projection")
-        layout.operator(texture_projection.MUV_OT_TextureProjection_Project.bl_idname,
-                        text="Project")
+        layout.operator(
+            texture_projection.MUV_OT_TextureProjection_Project.bl_idname,
+            text="Project")
 
 
 @BlClassRegistry(legacy=True)

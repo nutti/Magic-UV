@@ -56,7 +56,6 @@ def init_props(scene):
     PropertyClassRegistry.init_props(scene)
 
 
-
 def clear_props(scene):
     PropertyClassRegistry.del_props(scene)
     del scene.muv_props

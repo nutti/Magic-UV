@@ -33,12 +33,12 @@ from .. import common
 
 __all__ = [
     'is_valid_context',
-    'get_copy_uv_layers',
-    'get_paste_uv_layers',
-    'get_select_src_face_info',
-    'get_select_dest_face_info',
-    'get_select_history_src_face_info',
-    'get_select_history_dest_face_info',
+    'get_uv_layer',
+    'main_parse',
+    'parse_faces',
+    'get_new_shared_faces',
+    'get_other_verts_edges',
+    'get_selected_src_faces',
     'paste_uv',
 ]
 
@@ -296,8 +296,8 @@ def paste_uv(ops_obj, bm, uv_layer, src_faces, invert_normals, copy_seams):
         active_face_nor = active_face.normal.copy()
         if invert_normals:
             active_face_nor.negate()
-        all_sorted_faces = main_parse(ops_obj, uv_layer, sel_faces, active_face,
-                                      active_face_nor)
+        all_sorted_faces = main_parse(ops_obj, uv_layer, sel_faces,
+                                      active_face, active_face_nor)
 
         if all_sorted_faces:
             # check amount of copied/pasted faces
@@ -315,7 +315,7 @@ def paste_uv(ops_obj, bm, uv_layer, src_faces, invert_normals, copy_seams):
                     # select problematic face
                     list(all_sorted_faces.keys())[j].select = True
                     ops_obj.report({'WARNING'},
-                                    "Face have different amount of vertices")
+                                   "Face have different amount of vertices")
                     return 0
 
                 for k, (edge, uvloop) in enumerate(zip(face_data[1],

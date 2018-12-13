@@ -33,9 +33,9 @@ from .. import common
 
 
 __all__ = [
-    'Properties',
-    'MUV_OT_CopyPasteUVUVEdit_CopyUV',
-    'MUV_OT_CopyPasteUVUVEdit_PasteUV',
+    'is_valid_context',
+    'CopyUVImpl',
+    'PasteUVImpl',
 ]
 
 
@@ -70,7 +70,7 @@ class CopyUVImpl:
             return True
         return is_valid_context(context)
 
-    def execute(self, ops_obj, context):
+    def execute(self, _, context):
         props = context.scene.muv_props.copy_paste_uv_uvedit
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)
@@ -106,7 +106,7 @@ class PasteUVImpl:
             return False
         return is_valid_context(context)
 
-    def execute(self, ops_obj, context):
+    def execute(self, _, context):
         props = context.scene.muv_props.copy_paste_uv_uvedit
         obj = context.active_object
         bm = bmesh.from_edit_mesh(obj.data)

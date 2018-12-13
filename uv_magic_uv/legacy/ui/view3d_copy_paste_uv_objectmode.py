@@ -55,9 +55,11 @@ class MUV_PT_View3D_Object_CopyPasteUV(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
-                 text="Copy")
-        row.menu(copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
-                 text="Paste")
+        row.menu(
+            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
+            text="Copy")
+        row.menu(
+            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
+            text="Paste")
         layout.prop(sc, "muv_copy_paste_uv_object_copy_seams",
                     text="Seams")

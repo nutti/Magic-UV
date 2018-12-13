@@ -64,7 +64,8 @@ def view3d_uvmap_menu_fn(self, context):
                           text="Flip/Rotate UV")
     ops.seams = sc.muv_flip_rotate_uv_seams
     # Mirror UV
-    ops = layout.operator(op.mirror_uv.MUV_OT_MirrorUV.bl_idname, text="Mirror UV")
+    ops = layout.operator(op.mirror_uv.MUV_OT_MirrorUV.bl_idname,
+                          text="Mirror UV")
     ops.axis = sc.muv_mirror_uv_axis
     # Move UV
     layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
@@ -84,9 +85,8 @@ def view3d_object_menu_fn(self, _):
                 text="Copy/Paste UV")
 
 
-def image_uvs_menu_fn(self, context):
+def image_uvs_menu_fn(self, _):
     layout = self.layout
-    sc = context.scene
 
     layout.separator()
     # Copy/Paste UV (on UV/Image Editor)

@@ -1,2 +1,2 @@
 [pep8]
-ignore = E402, W503
+ignore = E402, W503, E701

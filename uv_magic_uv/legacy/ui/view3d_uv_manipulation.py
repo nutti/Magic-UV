@@ -35,6 +35,10 @@ from ..op import (
     uv_sculpt,
     world_scale_uv,
 )
+from ..op.world_scale_uv import (
+    MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
+    MUV_OT_WorldScaleUV_ApplyScalingDensity
+)
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -76,7 +80,8 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_mirror_uv_enabled", text="Mirror UV")
         if sc.muv_mirror_uv_enabled:
             row = box.row()
-            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname, text="Mirror")
+            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname,
+                               text="Mirror")
             ops.axis = sc.muv_mirror_uv_axis
             row.prop(sc, "muv_mirror_uv_axis", text="")
 
@@ -107,7 +112,8 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 col.prop(sc, "muv_world_scale_uv_tgt_density", text="")
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
                 ops = box.operator(
-                    world_scale_uv.MUV_OT_WorldScaleUV_ApplyManual.bl_idname, text="Apply")
+                    world_scale_uv.MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
+                    text="Apply")
                 ops.tgt_density = sc.muv_world_scale_uv_tgt_density
                 ops.tgt_texture_size = sc.muv_world_scale_uv_tgt_texture_size
                 ops.origin = sc.muv_world_scale_uv_origin
@@ -119,8 +125,9 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 col.label("Source:")
                 sp = sp.split(percentage=1.0)
                 col = sp.column(align=True)
-                col.operator(world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
-                             text="Measure")
+                col.operator(
+                    world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
+                    text="Measure")
 
                 sp = box.split(percentage=0.7)
                 col = sp.column(align=True)
@@ -133,7 +140,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 box.separator()
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
                 ops = box.operator(
-                    world_scale_uv.MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+                    MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
                     text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.origin = sc.muv_world_scale_uv_origin
@@ -146,8 +153,9 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 col.label("Source:")
                 sp = sp.split(percentage=1.0)
                 col = sp.column(align=True)
-                col.operator(world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
-                             text="Measure")
+                col.operator(
+                    world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
+                    text="Measure")
 
                 sp = box.split(percentage=0.7)
                 col = sp.column(align=True)
@@ -162,7 +170,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                          text="Scaling Factor")
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
                 ops = box.operator(
-                    world_scale_uv.MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+                    MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
                     text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.origin = sc.muv_world_scale_uv_origin
@@ -177,8 +185,9 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 col.label("Source:")
                 sp = sp.split(percentage=1.0)
                 col = sp.column(align=True)
-                col.operator(world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
-                             text="Measure")
+                col.operator(
+                    world_scale_uv.MUV_OT_WorldScaleUV_Measure.bl_idname,
+                    text="Measure")
 
                 sp = box.split(percentage=0.7)
                 col = sp.column(align=True)
@@ -197,7 +206,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 box.separator()
                 box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
                 ops = box.operator(
-                    world_scale_uv.MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
+                    MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
                     text="Apply")
                 ops.src_density = sc.muv_world_scale_uv_src_density
                 ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
@@ -225,43 +234,49 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             col = row.column(align=True)
             col.label("Normal Mode:")
             col = row.column(align=True)
-            col.operator(texture_lock.MUV_OT_TextureLock_Lock.bl_idname,
-                         text="Lock"
-                         if not texture_lock.MUV_OT_TextureLock_Lock.is_ready(context)
-                         else "ReLock")
-            ops = col.operator(texture_lock.MUV_OT_TextureLock_Unlock.bl_idname,
-                               text="Unlock")
+            col.operator(
+                texture_lock.MUV_OT_TextureLock_Lock.bl_idname,
+                text="Lock"
+                if not texture_lock.MUV_OT_TextureLock_Lock.is_ready(context)
+                else "ReLock")
+            ops = col.operator(
+                texture_lock.MUV_OT_TextureLock_Unlock.bl_idname,
+                text="Unlock")
             ops.connect = sc.muv_texture_lock_connect
             col.prop(sc, "muv_texture_lock_connect", text="Connect")
 
             row = box.row(align=True)
             row.label("Interactive Mode:")
-            box.prop(sc, "muv_texture_lock_lock",
-                     text="Unlock"
-                     if texture_lock.MUV_OT_TextureLock_Intr.is_running(context)
-                     else "Lock",
-                     icon='RESTRICT_VIEW_OFF'
-                     if texture_lock.MUV_OT_TextureLock_Intr.is_running(context)
-                     else 'RESTRICT_VIEW_ON')
+            box.prop(
+                sc, "muv_texture_lock_lock",
+                text="Unlock"
+                if texture_lock.MUV_OT_TextureLock_Intr.is_running(context)
+                else "Lock",
+                icon='RESTRICT_VIEW_OFF'
+                if texture_lock.MUV_OT_TextureLock_Intr.is_running(context)
+                else 'RESTRICT_VIEW_ON')
 
         box = layout.box()
         box.prop(sc, "muv_texture_wrap_enabled", text="Texture Wrap")
         if sc.muv_texture_wrap_enabled:
             row = box.row(align=True)
-            row.operator(texture_wrap.MUV_OT_TextureWrap_Refer.bl_idname, text="Refer")
-            row.operator(texture_wrap.MUV_OT_TextureWrap_Set.bl_idname, text="Set")
+            row.operator(texture_wrap.MUV_OT_TextureWrap_Refer.bl_idname,
+                         text="Refer")
+            row.operator(texture_wrap.MUV_OT_TextureWrap_Set.bl_idname,
+                         text="Set")
             box.prop(sc, "muv_texture_wrap_set_and_refer")
             box.prop(sc, "muv_texture_wrap_selseq")
 
         box = layout.box()
         box.prop(sc, "muv_uv_sculpt_enabled", text="UV Sculpt")
         if sc.muv_uv_sculpt_enabled:
-            box.prop(sc, "muv_uv_sculpt_enable",
-                     text="Disable"if uv_sculpt.MUV_OT_UVSculpt.is_running(context)
-                     else "Enable",
-                     icon='RESTRICT_VIEW_OFF'
-                     if uv_sculpt.MUV_OT_UVSculpt.is_running(context)
-                     else 'RESTRICT_VIEW_ON')
+            box.prop(
+                sc, "muv_uv_sculpt_enable",
+                text="Disable"if uv_sculpt.MUV_OT_UVSculpt.is_running(context)
+                else "Enable",
+                icon='RESTRICT_VIEW_OFF'
+                if uv_sculpt.MUV_OT_UVSculpt.is_running(context)
+                else 'RESTRICT_VIEW_ON')
             col = box.column()
             col.label("Brush:")
             col.prop(sc, "muv_uv_sculpt_radius")

@@ -333,7 +333,11 @@ class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
         props = sc.muv_props.texture_lock
         if not props.verts_orig:
             return False
-        return MUV_OT_TextureLock_Lock.is_ready(context) and is_valid_context(context)
+        if not MUV_OT_TextureLock_Lock.is_ready(context):
+            return False
+        if not is_valid_context(context):
+            return False
+        return True
 
     def execute(self, context):
         sc = context.scene

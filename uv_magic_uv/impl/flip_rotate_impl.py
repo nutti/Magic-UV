@@ -23,16 +23,11 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-from collections import OrderedDict
-
-import bpy
-import bmesh
-
-from .. import common
-
 
 __all__ = [
     'is_valid_context',
+    'get_uv_layer',
+    'get_src_face_info',
 ]
 
 
@@ -128,8 +123,8 @@ def paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
                 ss_fr.insert(0, s)
 
             # paste UVs
-            for l, suv, spuv, ss in zip(bm.faces[dinfo["index"]].loops, suvs_fr,
-                                        spuvs_fr, ss_fr):
+            for l, suv, spuv, ss in zip(bm.faces[dinfo["index"]].loops,
+                                        suvs_fr, spuvs_fr, ss_fr):
                 l[dlayer].uv = suv
                 l[dlayer].pin_uv = spuv
                 if copy_seams is True:

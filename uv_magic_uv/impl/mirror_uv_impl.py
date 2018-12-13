@@ -30,8 +30,11 @@ from .. import common
 
 
 __all__ = [
-    'Properties',
-    'MUV_OT_MirrorUV',
+    'is_valid_context',
+    'is_vector_similar',
+    'mirror_uvs',
+    'get_face_center',
+    'MirrorUVImpl',
 ]
 
 
@@ -83,7 +86,7 @@ def mirror_uvs(uv_layer, src, dst, axis, error):
             elif axis == 'Z':
                 dvco.z = -dvco.z
 
-            if  is_vector_similar(svco, dvco, error):
+            if is_vector_similar(svco, dvco, error):
                 dl[uv_layer].uv = suv.copy()
 
 
@@ -116,7 +119,8 @@ class MirrorUVImpl:
         if common.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
         if not bm.loops.layers.uv:
-            ops_obj.report({'WARNING'}, "Object must have more than one UV map")
+            ops_obj.report({'WARNING'},
+                           "Object must have more than one UV map")
             return {'CANCELLED'}
         uv_layer = bm.loops.layers.uv.verify()
 

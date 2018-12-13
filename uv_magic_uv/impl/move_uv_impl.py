@@ -23,11 +23,17 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-
 import bmesh
 from mathutils import Vector
 
 from .. import common
+
+
+__all__ = [
+    'is_valid_context',
+    'find_uv',
+    'MoveUVImpl',
+]
 
 
 def is_valid_context(context):
@@ -90,7 +96,7 @@ class MoveUVImpl():
     def is_running(cls, _):
         return cls.__running
 
-    def modal(self, ops_obj, context, event):
+    def modal(self, _, context, event):
         if self.__first_time is True:
             self.__prev_mouse = Vector((
                 event.mouse_region_x, event.mouse_region_y))

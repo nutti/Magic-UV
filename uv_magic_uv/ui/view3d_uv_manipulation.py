@@ -71,7 +71,8 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_mirror_uv_enabled", text="Mirror UV")
         if sc.muv_mirror_uv_enabled:
             row = box.row()
-            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname, text="Mirror")
+            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname,
+                               text="Mirror")
             ops.axis = sc.muv_mirror_uv_axis
             row.prop(sc, "muv_mirror_uv_axis", text="")
 

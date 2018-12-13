@@ -88,7 +88,6 @@ class Properties:
         del scene.muv_copy_paste_uv_object_copy_seams
 
 
-
 def memorize_view_3d_mode(fn):
     def __memorize_view_3d_mode(self, context):
         mode_orig = bpy.context.object.mode
@@ -161,14 +160,17 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
         # create sub menu
         uv_maps = bpy.context.active_object.data.uv_layers.keys()
 
-        ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
-            ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname, text=m)
+            ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
+                                  text=m)
             ops.uv_map = m
 
 
@@ -233,7 +235,7 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
 
             # paste
             ret = impl.paste_uv(self, bm, props.src_info, dest_info, uv_layers,
-                               'N_N', 0, 0, self.copy_seams)
+                                'N_N', 0, 0, self.copy_seams)
             if ret:
                 return {'CANCELLED'}
 
@@ -272,19 +274,23 @@ class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
             if hasattr(obj.data, "uv_layers") and obj.select_get():
                 uv_maps.extend(obj.data.uv_layers.keys())
 
-        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
         ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
-        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname, text="[New]")
+        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
+                              text="[New]")
         ops.uv_map = "__new"
         ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
-        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
         ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams
 
         for m in uv_maps:
-            ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname, text=m)
+            ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
+                                  text=m)
             ops.uv_map = m
             ops.copy_seams = sc.muv_copy_paste_uv_object_copy_seams

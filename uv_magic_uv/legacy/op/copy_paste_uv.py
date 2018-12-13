@@ -165,10 +165,12 @@ class MUV_MT_CopyPasteUV_CopyUV(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_CopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_CopyUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_CopyUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_CopyUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
@@ -240,15 +242,16 @@ class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         # get selected face
-        dest_info = impl.get_dest_face_info(self, bm, uv_layers, props.src_info,
-                                            self.strategy, True)
+        dest_info = impl.get_dest_face_info(self, bm, uv_layers,
+                                            props.src_info, self.strategy,
+                                            True)
         if dest_info is None:
             return {'CANCELLED'}
 
         # paste
         ret = impl.paste_uv(self, bm, props.src_info, dest_info, uv_layers,
-                       self.strategy, self.flip_copied_uv,
-                       self.rotate_copied_uv, self.copy_seams)
+                            self.strategy, self.flip_copied_uv,
+                            self.rotate_copied_uv, self.copy_seams)
         if ret:
             return {'CANCELLED'}
 
@@ -288,17 +291,20 @@ class MUV_MT_CopyPasteUV_PasteUV(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname, text="[New]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname,
+                              text="[New]")
         ops.uv_map = "__new"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_PasteUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
@@ -372,14 +378,17 @@ class MUV_MT_CopyPasteUV_SelSeqCopyUV(bpy.types.Menu):
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname, text="[Default]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname,
+                              text="[Default]")
         ops.uv_map = "__default"
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
 
         for m in uv_maps:
-            ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname, text=m)
+            ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqCopyUV.bl_idname,
+                                  text=m)
             ops.uv_map = m
 
 
@@ -455,8 +464,8 @@ class MUV_OT_CopyPasteUV_SelSeqPasteUV(bpy.types.Operator):
 
         # paste
         ret = impl.paste_uv(self, bm, props.src_info, dest_info, uv_layers,
-                           self.strategy, self.flip_copied_uv,
-                           self.rotate_copied_uv, self.copy_seams)
+                            self.strategy, self.flip_copied_uv,
+                            self.rotate_copied_uv, self.copy_seams)
         if ret:
             return {'CANCELLED'}
 
@@ -502,18 +511,21 @@ class MUV_MT_CopyPasteUV_SelSeqPasteUV(bpy.types.Menu):
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname, text="[New]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname,
+                              text="[New]")
         ops.uv_map = "__new"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
 
-        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname, text="[All]")
+        ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname,
+                              text="[All]")
         ops.uv_map = "__all"
         ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
         ops.strategy = sc.muv_copy_paste_uv_strategy
 
         for m in uv_maps:
-            ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname, text=m)
+            ops = layout.operator(MUV_OT_CopyPasteUV_SelSeqPasteUV.bl_idname,
+                                  text=m)
             ops.uv_map = m
             ops.copy_seams = sc.muv_copy_paste_uv_copy_seams
             ops.strategy = sc.muv_copy_paste_uv_strategy

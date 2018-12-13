@@ -35,10 +35,16 @@ import bmesh
 
 __all__ = [
     'is_console_mode',
+    'is_debug_mode',
+    'enable_debugg_mode',
+    'disable_debug_mode',
     'debug_print',
     'check_version',
     'redraw_all_areas',
     'get_space',
+    'mouse_on_region',
+    'mouse_on_area',
+    'mouse_on_regions',
     'create_bmesh',
     'create_new_uv_map',
     'get_island_info',
@@ -51,6 +57,8 @@ __all__ = [
     'measure_uv_area',
     'diff_point_to_segment',
     'get_loop_sequences',
+    'get_overlapped_uv_info',
+    'get_flipped_uv_info',
 ]
 
 

@@ -155,7 +155,8 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
     def handle_add(cls, obj, context):
         sie = bpy.types.SpaceImageEditor
         cls.__handle = sie.draw_handler_add(
-            MUV_OT_UVInspection_Render.draw, (obj, context), 'WINDOW', 'POST_PIXEL')
+            MUV_OT_UVInspection_Render.draw, (obj, context),
+            'WINDOW', 'POST_PIXEL')
 
     @classmethod
     def handle_remove(cls):

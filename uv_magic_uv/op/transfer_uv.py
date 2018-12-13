@@ -34,6 +34,7 @@ from ..utils.property_class_registry import PropertyClassRegistry
 
 
 __all__ = [
+    'Properties',
     'MUV_OT_TransferUV_CopyUV',
     'MUV_OT_TransferUV_PasteUV',
 ]
@@ -165,4 +166,3 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
         bmesh.update_edit_mesh(active_obj.data)
 
         return {'FINISHED'}
-
