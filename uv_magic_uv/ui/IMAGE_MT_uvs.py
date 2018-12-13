@@ -23,24 +23,32 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-if "bpy" in locals():
-    import importlib
-    importlib.reload(copy_paste_uv)
-    importlib.reload(copy_paste_uv_object)
-    importlib.reload(copy_paste_uv_uvedit)
-    importlib.reload(flip_rotate_uv)
-    importlib.reload(mirror_uv)
-    importlib.reload(move_uv)
-    importlib.reload(transfer_uv)
-    importlib.reload(uvw)
-else:
-    from . import copy_paste_uv
-    from . import copy_paste_uv_object
-    from . import copy_paste_uv_uvedit
-    from . import flip_rotate_uv
-    from . import mirror_uv
-    from . import move_uv
-    from . import transfer_uv
-    from . import uvw
-
 import bpy
+
+from ..op import (
+    copy_paste_uv_uvedit,
+)
+from ..utils.bl_class_registry import BlClassRegistry
+
+__all__ = [
+    'MUV_MT_CopyPasteUV_UVEdit',
+]
+
+
+@BlClassRegistry()
+class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
+    """
+    Menu class: Master menu of Copy/Paste UV coordinate on UV/ImageEditor
+    """
+
+    bl_idname = "uv.muv_copy_paste_uv_uvedit_menu"
+    bl_label = "Copy/Paste UV"
+    bl_description = "Copy and Paste UV coordinate among object"
+
+    def draw(self, _):
+        layout = self.layout
+
+        layout.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
+                        text="Copy")
+        layout.operator(copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
+                        text="Paste")

@@ -25,9 +25,9 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import copy_paste_uv_uvedit_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import copy_paste_uv_uvedit_impl as impl
 
 
 __all__ = [
@@ -37,7 +37,7 @@ __all__ = [
 ]
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "copy_paste_uv_uvedit"
 
@@ -53,7 +53,7 @@ class Properties:
         del scene.muv_props.copy_paste_uv_uvedit
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_CopyPasteUVUVEdit_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate on UV/Image Editor
@@ -75,7 +75,7 @@ class MUV_OT_CopyPasteUVUVEdit_CopyUV(bpy.types.Operator):
         return self.__impl.execute(self, context)
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_CopyPasteUVUVEdit_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate on UV/Image Editor

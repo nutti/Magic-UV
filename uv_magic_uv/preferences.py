@@ -88,13 +88,21 @@ def image_uvs_menu_fn(self, context):
     layout = self.layout
     sc = context.scene
 
+    layout.separator()
+    # Copy/Paste UV (on UV/Image Editor)
+    layout.label(text="Copy/Paste UV", icon='IMAGE')
+    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_CopyPasteUV_UVEdit.bl_idname,
+                text="Copy/Paste UV")
+
 
 def add_builtin_menu():
     bpy.types.VIEW3D_MT_uv_map.append(view3d_uvmap_menu_fn)
     bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
+    bpy.types.IMAGE_MT_uvs.append(image_uvs_menu_fn)
 
 
 def remove_builtin_menu():
+    bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
     bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
 

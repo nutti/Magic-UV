@@ -26,7 +26,6 @@ __date__ = "17 Nov 2018"
 import bpy
 
 from ..op import copy_paste_uv_uvedit
-from ... import common
 from ...utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
