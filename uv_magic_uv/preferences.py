@@ -69,6 +69,9 @@ def view3d_uvmap_menu_fn(self, context):
     ops.axis = sc.muv_mirror_uv_axis
     # Move UV
     layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
+    # Texture Wrap
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureWrap.bl_idname,
+                text="Texture Wrap")
 
     layout.separator()
     # UVW

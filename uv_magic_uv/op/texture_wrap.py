@@ -28,12 +28,12 @@ from bpy.props import (
     BoolProperty,
 )
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import texture_wrap_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import texture_wrap_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "texture_wrap"
 
@@ -69,7 +69,7 @@ class _Properties:
         del scene.muv_texture_wrap_selseq
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureWrap_Refer(bpy.types.Operator):
     """
     Operation class: Refer UV
@@ -91,7 +91,7 @@ class MUV_OT_TextureWrap_Refer(bpy.types.Operator):
         return self.__impl.execute(self, context)
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureWrap_Set(bpy.types.Operator):
     """
     Operation class: Set UV

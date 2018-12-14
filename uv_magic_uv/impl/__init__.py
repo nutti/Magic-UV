@@ -32,6 +32,7 @@ if "bpy" in locals():
     importlib.reload(mirror_uv_impl)
     importlib.reload(move_uv_impl)
     importlib.reload(pack_uv_impl)
+    importlib.reload(texture_wrap_impl)
     importlib.reload(transfer_uv_impl)
     importlib.reload(uvw_impl)
 else:
@@ -42,6 +43,7 @@ else:
     from . import mirror_uv_impl
     from . import move_uv_impl
     from . import pack_uv_impl
+    from . import texture_wrap_impl
     from . import transfer_uv_impl
     from . import uvw_impl
 

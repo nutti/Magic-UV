@@ -30,6 +30,10 @@ from ..op import (
     transfer_uv,
     uvw,
 )
+from ..op.texture_wrap import (
+    MUV_OT_TextureWrap_Refer,
+    MUV_OT_TextureWrap_Set,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -87,6 +91,23 @@ class MUV_MT_TransferUV(bpy.types.Menu):
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
+
+
+@BlClassRegistry()
+class MUV_MT_TextureWrap(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Wrap
+    """
+
+    bl_idname = "uv.muv_texture_wrap_menu"
+    bl_label = "Texture Wrap"
+    bl_description = ""
+
+    def draw(self, _):
+        layout = self.layout
+
+        layout.operator(MUV_OT_TextureWrap_Refer.bl_idname, text="Refer")
+        layout.operator(MUV_OT_TextureWrap_Set.bl_idname, text="Set")
 
 
 @BlClassRegistry()

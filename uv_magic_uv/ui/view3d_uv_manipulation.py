@@ -30,6 +30,10 @@ from ..op import (
     mirror_uv,
     move_uv,
 )
+from ..op.texture_wrap import (
+    MUV_OT_TextureWrap_Refer,
+    MUV_OT_TextureWrap_Set,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -86,3 +90,12 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             else:
                 col.operator(move_uv.MUV_OT_MoveUV.bl_idname, icon='PAUSE',
                              text="Stop")
+
+        box = layout.box()
+        box.prop(sc, "muv_texture_wrap_enabled", text="Texture Wrap")
+        if sc.muv_texture_wrap_enabled:
+            row = box.row(align=True)
+            row.operator(MUV_OT_TextureWrap_Refer.bl_idname, text="Refer")
+            row.operator(MUV_OT_TextureWrap_Set.bl_idname, text="Set")
+            box.prop(sc, "muv_texture_wrap_set_and_refer")
+            box.prop(sc, "muv_texture_wrap_selseq")
