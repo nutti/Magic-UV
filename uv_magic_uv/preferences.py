@@ -80,19 +80,27 @@ def view3d_object_menu_fn(self, _):
 
     layout.separator()
     layout.label(text="Copy/Paste UV", icon='IMAGE')
-    # Copy/Paste UV (Among Objecct)
+    # Copy/Paste UV (Among Object)
     layout.menu(ui.VIEW3D_MT_object.MUV_MT_CopyPasteUV_Object.bl_idname,
                 text="Copy/Paste UV")
 
 
-def image_uvs_menu_fn(self, _):
+def image_uvs_menu_fn(self, context):
     layout = self.layout
+    sc = context.scene
 
     layout.separator()
     # Copy/Paste UV (on UV/Image Editor)
     layout.label(text="Copy/Paste UV", icon='IMAGE')
     layout.menu(ui.IMAGE_MT_uvs.MUV_MT_CopyPasteUV_UVEdit.bl_idname,
                 text="Copy/Paste UV")
+
+    layout.separator()
+    # Pack UV
+    ops = layout.operator(op.pack_uv.MUV_OT_PackUV.bl_idname, text="Pack UV")
+    ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
+    ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
+    layout.label(text="UV Manipulation", icon='IMAGE')
 
 
 def add_builtin_menu():

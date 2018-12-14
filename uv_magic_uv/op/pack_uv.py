@@ -30,9 +30,9 @@ from bpy.props import (
     BoolProperty,
 )
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import pack_uv_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import pack_uv_impl as impl
 
 
 __all__ = [
@@ -41,7 +41,7 @@ __all__ = [
 ]
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "pack_uv"
 
@@ -76,7 +76,7 @@ class Properties:
         del scene.muv_pack_uv_allowable_size_deviation
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_PackUV(bpy.types.Operator):
     """
     Operation class: Pack UV with same UV islands are integrated
@@ -91,17 +91,17 @@ class MUV_OT_PackUV(bpy.types.Operator):
     bl_description = "Pack UV (Same UV Islands are integrated)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    rotate = BoolProperty(
+    rotate: BoolProperty(
         name="Rotate",
         description="Rotate option used by default pack UV function",
         default=False)
-    margin = FloatProperty(
+    margin: FloatProperty(
         name="Margin",
         description="Margin used by default pack UV function",
         min=0,
         max=1,
         default=0.001)
-    allowable_center_deviation = FloatVectorProperty(
+    allowable_center_deviation: FloatVectorProperty(
         name="Allowable Center Deviation",
         description="Allowable center deviation to judge same UV island",
         min=0.000001,
@@ -109,7 +109,7 @@ class MUV_OT_PackUV(bpy.types.Operator):
         default=(0.001, 0.001),
         size=2
     )
-    allowable_size_deviation = FloatVectorProperty(
+    allowable_size_deviation: FloatVectorProperty(
         name="Allowable Size Deviation",
         description="Allowable sizse deviation to judge same UV island",
         min=0.000001,

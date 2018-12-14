@@ -31,6 +31,7 @@ if "bpy" in locals():
     importlib.reload(flip_rotate_uv)
     importlib.reload(mirror_uv)
     importlib.reload(move_uv)
+    importlib.reload(pack_uv)
     importlib.reload(transfer_uv)
     importlib.reload(uvw)
 else:
@@ -40,6 +41,7 @@ else:
     from . import flip_rotate_uv
     from . import mirror_uv
     from . import move_uv
+    from . import pack_uv
     from . import transfer_uv
     from . import uvw
 
