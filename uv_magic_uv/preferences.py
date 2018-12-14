@@ -97,10 +97,16 @@ def image_uvs_menu_fn(self, context):
 
     layout.separator()
     # Pack UV
+    layout.label(text="UV Manipulation", icon='IMAGE')
     ops = layout.operator(op.pack_uv.MUV_OT_PackUV.bl_idname, text="Pack UV")
     ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
     ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
-    layout.label(text="UV Manipulation", icon='IMAGE')
+
+    layout.separator()
+    # Align UV Cursor
+    layout.label(text="Editor Enhancement", icon='IMAGE')
+    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUVCursor.bl_idname,
+                text="Align UV Cursor")
 
 
 def add_builtin_menu():

@@ -25,6 +25,7 @@ __date__ = "17 Nov 2018"
 
 if "bpy" in locals():
     import importlib
+    importlib.reload(align_uv_cursor)
     importlib.reload(copy_paste_uv)
     importlib.reload(copy_paste_uv_object)
     importlib.reload(copy_paste_uv_uvedit)
@@ -35,6 +36,7 @@ if "bpy" in locals():
     importlib.reload(transfer_uv)
     importlib.reload(uvw)
 else:
+    from . import align_uv_cursor
     from . import copy_paste_uv
     from . import copy_paste_uv_object
     from . import copy_paste_uv_uvedit

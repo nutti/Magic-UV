@@ -27,42 +27,30 @@ import bpy
 from mathutils import Vector
 from bpy.props import EnumProperty, BoolProperty, FloatVectorProperty
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import align_uv_cursor_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import align_uv_cursor_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "align_uv_cursor"
 
     @classmethod
     def init_props(cls, scene):
         def auvc_get_cursor_loc(self):
-            area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
-            bd_size = common.get_uvimg_editor_board_size(area)
+            _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                           'IMAGE_EDITOR')
             loc = space.cursor_location
-            if bd_size[0] < 0.000001:
-                cx = 0.0
-            else:
-                cx = loc[0] / bd_size[0]
-            if bd_size[1] < 0.000001:
-                cy = 0.0
-            else:
-                cy = loc[1] / bd_size[1]
-            self['muv_align_uv_cursor_cursor_loc'] = Vector((cx, cy))
+            self['muv_align_uv_cursor_cursor_loc'] = Vector((loc[0], loc[1]))
             return self.get('muv_align_uv_cursor_cursor_loc', (0.0, 0.0))
 
         def auvc_set_cursor_loc(self, value):
             self['muv_align_uv_cursor_cursor_loc'] = value
-            area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
-            bd_size = common.get_uvimg_editor_board_size(area)
-            cx = bd_size[0] * value[0]
-            cy = bd_size[1] * value[1]
-            space.cursor_location = Vector((cx, cy))
+            _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
+                                           'IMAGE_EDITOR')
+            space.cursor_location = Vector((value[0], value[1]))
 
         scene.muv_align_uv_cursor_enabled = BoolProperty(
             name="Align UV Cursor Enabled",
@@ -107,7 +95,7 @@ class _Properties:
         del scene.muv_uv_cursor_location_enabled
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_AlignUVCursor(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_cursor_operator"
@@ -115,7 +103,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
     bl_description = "Align cursor to the center of UV island"
     bl_options = {'REGISTER', 'UNDO'}
 
-    position = EnumProperty(
+    position: EnumProperty(
         items=(
             ('CENTER', "Center", "Align to Center"),
             ('LEFT_TOP', "Left Top", "Align to Left Top"),
@@ -131,7 +119,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         description="Align position",
         default='CENTER'
     )
-    base = EnumProperty(
+    base: EnumProperty(
         items=(
             ('TEXTURE', "Texture", "Align based on Texture"),
             ('UV', "UV", "Align to UV"),
@@ -143,11 +131,11 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
     )
 
     def __init__(self):
-        self.__impl = impl.AlignUVCursorLegacyImpl()
+        self.__impl = impl.AlignUVCursorImpl()
 
     @classmethod
     def poll(cls, context):
-        return impl.AlignUVCursorLegacyImpl.poll(context)
+        return impl.AlignUVCursorImpl.poll(context)
 
     def execute(self, context):
         return self.__impl.execute(self, context)
