@@ -28,12 +28,12 @@ from bpy.props import (
     FloatProperty,
 )
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import unwrap_constraint_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import unwrap_constraint_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "unwrap_constraint"
 
@@ -74,7 +74,7 @@ class MUV_OT_UnwrapConstraint(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # property for original unwrap
-    method = EnumProperty(
+    method: EnumProperty(
         name="Method",
         description="Unwrapping method",
         items=[
@@ -82,20 +82,20 @@ class MUV_OT_UnwrapConstraint(bpy.types.Operator):
             ('CONFORMAL', 'Conformal', 'Conformal')
         ],
         default='ANGLE_BASED')
-    fill_holes = BoolProperty(
+    fill_holes: BoolProperty(
         name="Fill Holes",
         description="Virtual fill holes in meshes before unwrapping",
         default=True)
-    correct_aspect = BoolProperty(
+    correct_aspect: BoolProperty(
         name="Correct Aspect",
         description="Map UVs taking image aspect ratio into account",
         default=True)
-    use_subsurf_data = BoolProperty(
+    use_subsurf_data: BoolProperty(
         name="Use Subsurf Modifier",
         description="""Map UVs taking vertex position after subsurf
                        into account""",
         default=False)
-    margin = FloatProperty(
+    margin: FloatProperty(
         name="Margin",
         description="Space between islands",
         max=1.0,
@@ -103,12 +103,12 @@ class MUV_OT_UnwrapConstraint(bpy.types.Operator):
         default=0.001)
 
     # property for this operation
-    u_const = BoolProperty(
+    u_const: BoolProperty(
         name="U-Constraint",
         description="Keep UV U-axis coordinate",
         default=False
     )
-    v_const = BoolProperty(
+    v_const: BoolProperty(
         name="V-Constraint",
         description="Keep UV V-axis coordinate",
         default=False

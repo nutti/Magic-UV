@@ -74,6 +74,13 @@ def view3d_uvmap_menu_fn(self, context):
                 text="Texture Wrap")
 
     layout.separator()
+    layout.label("UV Mapping", icon='IMAGE')
+    # Unwrap Constraint
+    ops = layout.operator(
+        op.unwrap_constraint.MUV_OT_UnwrapConstraint.bl_idname,
+        text="Unwrap Constraint")
+    ops.u_const = sc.muv_unwrap_constraint_u_const
+    ops.v_const = sc.muv_unwrap_constraint_v_const
     # UVW
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_UVW.bl_idname, text="UVW")
 

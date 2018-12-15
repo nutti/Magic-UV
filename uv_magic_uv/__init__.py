@@ -68,6 +68,7 @@ if "bpy" in locals():
         importlib.reload(addon_updater)
     else:
         importlib.reload(legacy)
+    importlib.reload(impl)
 else:
     import bpy
     from . import common
@@ -81,6 +82,7 @@ else:
         from . import addon_updater
     else:
         from . import legacy
+    from . import impl
 
 
 import bpy

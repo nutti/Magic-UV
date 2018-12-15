@@ -28,6 +28,7 @@ import bpy
 from ..op import (
     uvw,
 )
+from ..op.unwrap_constraint import MUV_OT_UnwrapConstraint
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -55,6 +56,17 @@ class MUV_PT_View3D_UVMapping(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+
+        box = layout.box()
+        box.prop(sc, "muv_unwrap_constraint_enabled", text="Unwrap Constraint")
+        if sc.muv_unwrap_constraint_enabled:
+            ops = box.operator(MUV_OT_UnwrapConstraint.bl_idname,
+                               text="Unwrap")
+            ops.u_const = sc.muv_unwrap_constraint_u_const
+            ops.v_const = sc.muv_unwrap_constraint_v_const
+            row = box.row(align=True)
+            row.prop(sc, "muv_unwrap_constraint_u_const", text="U-Constraint")
+            row.prop(sc, "muv_unwrap_constraint_v_const", text="V-Constraint")
 
         box = layout.box()
         box.prop(sc, "muv_uvw_enabled", text="UVW")
