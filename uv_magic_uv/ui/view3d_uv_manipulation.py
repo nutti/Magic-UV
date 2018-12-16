@@ -34,6 +34,9 @@ from ..op.texture_wrap import (
     MUV_OT_TextureWrap_Refer,
     MUV_OT_TextureWrap_Set,
 )
+from ..op.uv_sculpt import (
+    MUV_OT_UVSculpt,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -99,3 +102,22 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             row.operator(MUV_OT_TextureWrap_Set.bl_idname, text="Set")
             box.prop(sc, "muv_texture_wrap_set_and_refer")
             box.prop(sc, "muv_texture_wrap_selseq")
+
+        box.prop(sc, "muv_uv_sculpt_enabled", text="UV Sculpt")
+        if sc.muv_uv_sculpt_enabled:
+            box.prop(sc, "muv_uv_sculpt_enable",
+                     text="Disable"if MUV_OT_UVSculpt.is_running(context)
+                     else "Enable",
+                     icon='RESTRICT_VIEW_OFF'
+                     if MUV_OT_UVSculpt.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
+            col = box.column()
+            col.label(text="Brush:")
+            col.prop(sc, "muv_uv_sculpt_radius")
+            col.prop(sc, "muv_uv_sculpt_strength")
+            box.prop(sc, "muv_uv_sculpt_tools")
+            if sc.muv_uv_sculpt_tools == 'PINCH':
+                box.prop(sc, "muv_uv_sculpt_pinch_invert")
+            elif sc.muv_uv_sculpt_tools == 'RELAX':
+                box.prop(sc, "muv_uv_sculpt_relax_method")
+            box.prop(sc, "muv_uv_sculpt_show_brush")

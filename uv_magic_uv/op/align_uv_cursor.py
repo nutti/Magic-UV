@@ -40,16 +40,16 @@ class _Properties:
     @classmethod
     def init_props(cls, scene):
         def auvc_get_cursor_loc(self):
-            _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                           'IMAGE_EDITOR')
+            _, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                                  'IMAGE_EDITOR')
             loc = space.cursor_location
             self['muv_align_uv_cursor_cursor_loc'] = Vector((loc[0], loc[1]))
             return self.get('muv_align_uv_cursor_cursor_loc', (0.0, 0.0))
 
         def auvc_set_cursor_loc(self, value):
             self['muv_align_uv_cursor_cursor_loc'] = value
-            _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                           'IMAGE_EDITOR')
+            _, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                                  'IMAGE_EDITOR')
             space.cursor_location = Vector((value[0], value[1]))
 
         scene.muv_align_uv_cursor_enabled = BoolProperty(

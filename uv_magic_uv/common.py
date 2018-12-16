@@ -41,10 +41,10 @@ __all__ = [
     'debug_print',
     'check_version',
     'redraw_all_areas',
-    'get_space',
-    'mouse_on_region',
-    'mouse_on_area',
-    'mouse_on_regions',
+    'get_space_legacy',
+    'mouse_on_region_legacy',
+    'mouse_on_area_legacy',
+    'mouse_on_regions_legacy',
     'create_bmesh',
     'create_new_uv_map',
     'get_island_info',
@@ -119,7 +119,7 @@ def redraw_all_areas():
         area.tag_redraw()
 
 
-def get_space(area_type, region_type, space_type):
+def get_space_legacy(area_type, region_type, space_type):
     """
     Get current area/region/space
     """
@@ -139,6 +139,76 @@ def get_space(area_type, region_type, space_type):
     for space in area.spaces:
         if space.type == space_type:
             break
+
+    return (area, region, space)
+
+
+def mouse_on_region_legacy(event, area_type, region_type):
+    pos = Vector((event.mouse_x, event.mouse_y))
+
+    _, region, _ = get_space_legacy(area_type, region_type, "")
+    if region is None:
+        return False
+
+    if (pos.x > region.x) and (pos.x < region.x + region.width) and \
+       (pos.y > region.y) and (pos.y < region.y + region.height):
+        return True
+
+    return False
+
+
+def mouse_on_area_legacy(event, area_type):
+    pos = Vector((event.mouse_x, event.mouse_y))
+
+    area, _, _ = get_space_legacy(area_type, "", "")
+    if area is None:
+        return False
+
+    if (pos.x > area.x) and (pos.x < area.x + area.width) and \
+       (pos.y > area.y) and (pos.y < area.y + area.height):
+        return True
+
+    return False
+
+
+def mouse_on_regions_legacy(event, area_type, regions):
+    if not mouse_on_area_legacy(event, area_type):
+        return False
+
+    for region in regions:
+        result = mouse_on_region_legacy(event, area_type, region)
+        if result:
+            return True
+
+    return False
+
+
+def get_space(area_type, region_type, space_type):
+    """
+    Get current area/region/space
+    """
+
+    area = None
+    region = None
+    space = None
+
+    for area in bpy.context.screen.areas:
+        if area.type == area_type:
+            break
+    else:
+        return (None, None, None)
+    for region in area.regions:
+        if region.type == region_type:
+            if region.width <= 1 or region.height <= 1:
+                continue
+            break
+    else:
+        return (area, None, None)
+    for space in area.spaces:
+        if space.type == space_type:
+            break
+    else:
+        return (area, region, None)
 
     return (area, region, space)
 

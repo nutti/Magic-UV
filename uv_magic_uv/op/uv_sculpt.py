@@ -23,30 +23,30 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-
 from math import pi, cos, tan, sin
 
 import bpy
+import bmesh
+from mathutils import Vector
+from bpy_extras import view3d_utils
+from mathutils.bvhtree import BVHTree
+from mathutils.geometry import barycentric_transform
 from bpy.props import (
     BoolProperty,
     IntProperty,
     EnumProperty,
     FloatProperty,
 )
-import bmesh
-import bgl
-from mathutils import Vector
-from bpy_extras import view3d_utils
-from mathutils.bvhtree import BVHTree
-from mathutils.geometry import barycentric_transform
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import uv_sculpt_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import uv_sculpt_impl as impl
+
+from ..lib import bglx
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "uv_sculpt"
 
@@ -131,7 +131,7 @@ class _Properties:
         del scene.muv_uv_sculpt_relax_method
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_UVSculpt(bpy.types.Operator):
     """
     Operation class: UV Sculpt in View3D
@@ -188,19 +188,19 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
         fact_r = cos(theta)
         color = prefs.uv_sculpt_brush_color
 
-        bgl.glBegin(bgl.GL_LINE_STRIP)
-        bgl.glColor4f(color[0], color[1], color[2], color[3])
+        bglx.glBegin(bglx.GL_LINE_STRIP)
+        bglx.glColor4f(color[0], color[1], color[2], color[3])
         x = sc.muv_uv_sculpt_radius * cos(0.0)
         y = sc.muv_uv_sculpt_radius * sin(0.0)
         for _ in range(num_segment):
-            bgl.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
+            bglx.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
             tx = -y
             ty = x
             x = x + tx * fact_t
             y = y + ty * fact_t
             x = x * fact_r
             y = y * fact_r
-        bgl.glEnd()
+        bglx.glEnd()
 
     def __init__(self):
         self.__loop_info = []
@@ -218,8 +218,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
         world_mat = obj.matrix_world
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
-        _, region, space = common.get_space_legacy('VIEW_3D', 'WINDOW',
-                                                   'VIEW_3D')
+        _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         self.__loop_info = []
         for f in bm.faces:
@@ -227,7 +226,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                 continue
             for i, l in enumerate(f.loops):
                 loc_2d = view3d_utils.location_3d_to_region_2d(
-                    region, space.region_3d, world_mat * l.vert.co)
+                    region, space.region_3d, world_mat @ l.vert.co)
                 diff = loc_2d - self.__initial_mco
                 if diff.length < sc.muv_uv_sculpt_radius:
                     info = {
@@ -257,15 +256,14 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                 l[uv_layer].uv = info["initial_uv"] + diff_uv / 100.0
 
         elif sc.muv_uv_sculpt_tools == 'PINCH':
-            _, region, space = common.get_space_legacy('VIEW_3D', 'WINDOW',
-                                                       'VIEW_3D')
+            _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
             loop_info = []
             for f in bm.faces:
                 if not f.select:
                     continue
                 for i, l in enumerate(f.loops):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
-                        region, space.region_3d, world_mat * l.vert.co)
+                        region, space.region_3d, world_mat @ l.vert.co)
                     diff = loc_2d - self.__initial_mco
                     if diff.length < sc.muv_uv_sculpt_radius:
                         info = {
@@ -289,8 +287,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                                                            mco)
             ray_tgt = ray_orig + ray_vec * 1000000.0
             mwi = world_mat.inverted()
-            ray_orig_obj = mwi * ray_orig
-            ray_tgt_obj = mwi * ray_tgt
+            ray_orig_obj = mwi @ ray_orig
+            ray_tgt_obj = mwi @ ray_tgt
             ray_dir_obj = ray_tgt_obj - ray_orig_obj
             ray_dir_obj.normalize()
             tree = BVHTree.FromBMesh(bm)
@@ -315,8 +313,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                 l[uv_layer].uv = l[uv_layer].uv + diff_uv / 10.0
 
         elif sc.muv_uv_sculpt_tools == 'RELAX':
-            _, region, space = common.get_space_legacy('VIEW_3D', 'WINDOW',
-                                                       'VIEW_3D')
+            _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
             # get vertex and loop relation
             vert_db = {}
@@ -357,7 +354,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                     continue
                 for i, l in enumerate(f.loops):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
-                        region, space.region_3d, world_mat * l.vert.co)
+                        region, space.region_3d, world_mat @ l.vert.co)
                     diff = loc_2d - self.__initial_mco
                     if diff.length >= sc.muv_uv_sculpt_radius:
                         continue
@@ -402,7 +399,6 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
 
         if not MUV_OT_UVSculpt.is_running(context):
             MUV_OT_UVSculpt.handle_remove(context)
-
             return {'FINISHED'}
 
         self.current_mco = Vector((event.mouse_region_x, event.mouse_region_y))
@@ -413,8 +409,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
             'TOOLS',
             'TOOL_PROPS',
         ]
-        if not common.mouse_on_area_legacy(event, 'VIEW_3D') or \
-           common.mouse_on_regions_legacy(event, 'VIEW_3D', region_types):
+        if not common.mouse_on_area(event, 'VIEW_3D') or \
+           common.mouse_on_regions(event, 'VIEW_3D', region_types):
             return {'PASS_THROUGH'}
 
         if event.type == 'LEFTMOUSE':

@@ -51,8 +51,8 @@ class AlignUVCursorLegacyImpl:
         return _is_valid_context(context)
 
     def execute(self, ops_obj, context):
-        area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                          'IMAGE_EDITOR')
+        area, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                                 'IMAGE_EDITOR')
         bd_size = common.get_uvimg_editor_board_size(area)
 
         if ops_obj.base == 'UV':
@@ -150,8 +150,8 @@ class AlignUVCursorImpl:
         return _is_valid_context(context)
 
     def execute(self, ops_obj, context):
-        _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                       'IMAGE_EDITOR')
+        _, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                              'IMAGE_EDITOR')
 
         if ops_obj.base == 'UV':
             obj = context.active_object

@@ -799,8 +799,8 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             'UI',
             'TOOLS',
         ]
-        if not common.mouse_on_area(event, 'IMAGE_EDITOR') or \
-           common.mouse_on_regions(event, 'IMAGE_EDITOR', region_types):
+        if not common.mouse_on_area_legacy(event, 'IMAGE_EDITOR') or \
+           common.mouse_on_regions_legacy(event, 'IMAGE_EDITOR', region_types):
             return {'PASS_THROUGH'}
 
         if event.type == 'TIMER':

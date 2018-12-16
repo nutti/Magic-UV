@@ -40,8 +40,8 @@ class _Properties:
     @classmethod
     def init_props(cls, scene):
         def auvc_get_cursor_loc(self):
-            area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
+            area, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                                     'IMAGE_EDITOR')
             bd_size = common.get_uvimg_editor_board_size(area)
             loc = space.cursor_location
             if bd_size[0] < 0.000001:
@@ -57,8 +57,8 @@ class _Properties:
 
         def auvc_set_cursor_loc(self, value):
             self['muv_align_uv_cursor_cursor_loc'] = value
-            area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
-                                              'IMAGE_EDITOR')
+            area, _, space = common.get_space_legacy('IMAGE_EDITOR', 'WINDOW',
+                                                     'IMAGE_EDITOR')
             bd_size = common.get_uvimg_editor_board_size(area)
             cx = bd_size[0] * value[0]
             cy = bd_size[1] * value[1]

@@ -35,7 +35,8 @@ from bpy.types import AddonPreferences
 
 from . import op
 from . import ui
-from . import addon_updater_ops
+from .utils.bl_class_registry import BlClassRegistry
+
 
 __all__ = [
     'add_builtin_menu',
@@ -72,9 +73,11 @@ def view3d_uvmap_menu_fn(self, context):
     # Texture Wrap
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureWrap.bl_idname,
                 text="Texture Wrap")
+    # UV Sculpt
+    layout.prop(sc, "muv_uv_sculpt_enable", text="UV Sculpt")
 
     layout.separator()
-    layout.label("UV Mapping", icon='IMAGE')
+    layout.label(text="UV Mapping", icon='IMAGE')
     # Unwrap Constraint
     ops = layout.operator(
         op.unwrap_constraint.MUV_OT_UnwrapConstraint.bl_idname,
@@ -131,6 +134,7 @@ def remove_builtin_menu():
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
 
 
+@BlClassRegistry()
 class Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
@@ -281,7 +285,7 @@ class Preferences(AddonPreferences):
         max=59
     )
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
 
         layout.row().prop(self, "category", expand=True)
@@ -434,4 +438,4 @@ class Preferences(AddonPreferences):
                 layout.separator()
 
         elif self.category == 'UPDATE':
-            addon_updater_ops.update_settings_ui(self, context)
+            return

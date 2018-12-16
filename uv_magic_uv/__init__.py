@@ -60,6 +60,7 @@ if "bpy" in locals():
     importlib.reload(utils)
     utils.bl_class_registry.BlClassRegistry.cleanup()
     if check_version(2, 80, 0) >= 0:
+        importlib.reload(lib)
         importlib.reload(op)
         importlib.reload(ui)
         importlib.reload(properites)
@@ -74,6 +75,7 @@ else:
     from . import common
     from . import utils
     if check_version(2, 80, 0) >= 0:
+        from . import lib
         from . import op
         from . import ui
         from . import properites

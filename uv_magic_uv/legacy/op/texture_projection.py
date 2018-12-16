@@ -345,7 +345,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
 
-        _, region, space = common.get_space(
+        _, region, space = common.get_space_legacy(
             'VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         # get faces to be texture projected
