@@ -36,6 +36,7 @@ if "bpy" in locals():
     importlib.reload(transfer_uv_impl)
     importlib.reload(unwrap_constraint_impl)
     importlib.reload(uvw_impl)
+    importlib.reload(world_scale_uv_impl)
 else:
     from . import align_uv_cursor_impl
     from . import copy_paste_uv_impl
@@ -48,5 +49,6 @@ else:
     from . import transfer_uv_impl
     from . import unwrap_constraint_impl
     from . import uvw_impl
+    from . import world_scale_uv_impl
 
 import bpy

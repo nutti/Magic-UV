@@ -34,6 +34,12 @@ from ..op.texture_wrap import (
     MUV_OT_TextureWrap_Refer,
     MUV_OT_TextureWrap_Set,
 )
+from ..op.world_scale_uv import (
+    MUV_OT_WorldScaleUV_Measure,
+    MUV_OT_WorldScaleUV_ApplyManual,
+    MUV_OT_WorldScaleUV_ApplyScalingDensity,
+    MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -91,6 +97,48 @@ class MUV_MT_TransferUV(bpy.types.Menu):
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
+
+
+@BlClassRegistry()
+class MUV_MT_WorldScaleUV(bpy.types.Menu):
+    """
+    Menu class: Master menu of world scale UV
+    """
+
+    bl_idname = "uv.muv_world_scale_uv_menu"
+    bl_label = "World Scale UV"
+    bl_description = ""
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        layout.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
+                        text="Measure")
+
+        layout.operator(MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
+                        text="Apply (Manual)")
+
+        ops = layout.operator(
+            MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+            text="Apply (Same Desity)")
+        ops.src_density = sc.muv_world_scale_uv_src_density
+        ops.same_density = True
+
+        ops = layout.operator(
+            MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+            text="Apply (Scaling Desity)")
+        ops.src_density = sc.muv_world_scale_uv_src_density
+        ops.same_density = False
+        ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
+
+        ops = layout.operator(
+            MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
+            text="Apply (Proportional to Mesh)")
+        ops.src_density = sc.muv_world_scale_uv_src_density
+        ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
+        ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
+        ops.origin = sc.muv_world_scale_uv_origin
 
 
 @BlClassRegistry()

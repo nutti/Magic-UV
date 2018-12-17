@@ -37,6 +37,12 @@ from ..op.texture_wrap import (
 from ..op.uv_sculpt import (
     MUV_OT_UVSculpt,
 )
+from ..op.world_scale_uv import (
+    MUV_OT_WorldScaleUV_Measure,
+    MUV_OT_WorldScaleUV_ApplyManual,
+    MUV_OT_WorldScaleUV_ApplyScalingDensity,
+    MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -93,6 +99,120 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             else:
                 col.operator(move_uv.MUV_OT_MoveUV.bl_idname, icon='PAUSE',
                              text="Stop")
+
+        box = layout.box()
+        box.prop(sc, "muv_world_scale_uv_enabled", text="World Scale UV")
+        if sc.muv_world_scale_uv_enabled:
+            box.prop(sc, "muv_world_scale_uv_mode", text="")
+
+            if sc.muv_world_scale_uv_mode == 'MANUAL':
+                sp = box.split(factor=0.5)
+                col = sp.column()
+                col.prop(sc, "muv_world_scale_uv_tgt_texture_size",
+                         text="Texture Size")
+                sp = sp.split(factor=1.0)
+                col = sp.column()
+                col.label(text="Density:")
+                col.prop(sc, "muv_world_scale_uv_tgt_density", text="")
+                box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
+                ops = box.operator(MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
+                                   text="Apply")
+                ops.tgt_density = sc.muv_world_scale_uv_tgt_density
+                ops.tgt_texture_size = sc.muv_world_scale_uv_tgt_texture_size
+                ops.origin = sc.muv_world_scale_uv_origin
+                ops.show_dialog = False
+
+            elif sc.muv_world_scale_uv_mode == 'SAME_DENSITY':
+                sp = box.split(factor=0.4)
+                col = sp.column(align=True)
+                col.label(text="Source:")
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
+                             text="Measure")
+
+                sp = box.split(factor=0.7)
+                col = sp.column(align=True)
+                col.prop(sc, "muv_world_scale_uv_src_density", text="Density")
+                col.enabled = False
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.label(text="px2/cm2")
+
+                box.separator()
+                box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
+                ops = box.operator(
+                    MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+                    text="Apply")
+                ops.src_density = sc.muv_world_scale_uv_src_density
+                ops.origin = sc.muv_world_scale_uv_origin
+                ops.same_density = True
+                ops.show_dialog = False
+
+            elif sc.muv_world_scale_uv_mode == 'SCALING_DENSITY':
+                sp = box.split(factor=0.4)
+                col = sp.column(align=True)
+                col.label(text="Source:")
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
+                             text="Measure")
+
+                sp = box.split(factor=0.7)
+                col = sp.column(align=True)
+                col.prop(sc, "muv_world_scale_uv_src_density", text="Density")
+                col.enabled = False
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.label(text="px2/cm2")
+
+                box.separator()
+                box.prop(sc, "muv_world_scale_uv_tgt_scaling_factor",
+                         text="Scaling Factor")
+                box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
+                ops = box.operator(
+                    MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
+                    text="Apply")
+                ops.src_density = sc.muv_world_scale_uv_src_density
+                ops.origin = sc.muv_world_scale_uv_origin
+                ops.same_density = False
+                ops.show_dialog = False
+                ops.tgt_scaling_factor = \
+                    sc.muv_world_scale_uv_tgt_scaling_factor
+
+            elif sc.muv_world_scale_uv_mode == 'PROPORTIONAL_TO_MESH':
+                sp = box.split(factor=0.4)
+                col = sp.column(align=True)
+                col.label(text="Source:")
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
+                             text="Measure")
+
+                sp = box.split(factor=0.7)
+                col = sp.column(align=True)
+                col.prop(sc, "muv_world_scale_uv_src_mesh_area",
+                         text="Mesh Area")
+                col.prop(sc, "muv_world_scale_uv_src_uv_area", text="UV Area")
+                col.prop(sc, "muv_world_scale_uv_src_density", text="Density")
+                col.enabled = False
+                sp = sp.split(factor=1.0)
+                col = sp.column(align=True)
+                col.label(text="cm2")
+                col.label(text="px2")
+                col.label(text="px2/cm2")
+                col.enabled = False
+
+                box.separator()
+                box.prop(sc, "muv_world_scale_uv_origin", text="Origin")
+                ops = box.operator(
+                    MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
+                    text="Apply")
+                ops.src_density = sc.muv_world_scale_uv_src_density
+                ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
+                ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
+                ops.origin = sc.muv_world_scale_uv_origin
+                ops.show_dialog = False
 
         box = layout.box()
         box.prop(sc, "muv_texture_wrap_enabled", text="Texture Wrap")

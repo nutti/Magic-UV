@@ -54,7 +54,7 @@ __all__ = [
     'calc_polygon_2d_area',
     'calc_polygon_3d_area',
     'measure_mesh_area',
-    'measure_uv_area',
+    'measure_uv_area_legacy',
     'diff_point_to_segment',
     'get_loop_sequences',
     'get_overlapped_uv_info',
@@ -460,7 +460,7 @@ def measure_mesh_area(obj):
     return mesh_area
 
 
-def measure_uv_area(obj, tex_size=None):
+def measure_uv_area_legacy(obj, tex_size=None):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:
         bm.verts.ensure_lookup_table()
@@ -508,6 +508,78 @@ def measure_uv_area(obj, tex_size=None):
                     if not node.image:
                         continue
                     img = node.image
+
+        # can not find from node, so we can not get texture size
+        if not img:
+            return None
+
+        img_size = img.size
+        uv_area = uv_area + f_uv_area * img_size[0] * img_size[1]
+
+    return uv_area
+
+
+def find_texture_layer(bm):
+    if check_version(2, 80, 0) >= 0:
+        return None
+    if bm.faces.layers.tex is None:
+        return None
+
+    return bm.faces.layers.tex.verify()
+
+
+def find_image(obj, face=None, tex_layer=None):
+    # try to find from texture_layer
+    img = None
+    if tex_layer and face:
+        img = face[tex_layer].image
+
+    # not found, then try to search from node
+    if not img:
+        for mat in obj.material_slots:
+            if not mat.material.node_tree:
+                continue
+            for node in mat.material.node_tree.nodes:
+                tex_node_types = [
+                    'TEX_ENVIRONMENT',
+                    'TEX_IMAGE',
+                ]
+                if node.type not in tex_node_types:
+                    continue
+                if not node.image:
+                    continue
+                img = node.image
+
+    return img
+
+
+def measure_uv_area(obj, tex_size=None):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+    if not bm.loops.layers.uv:
+        return None
+    uv_layer = bm.loops.layers.uv.verify()
+
+    tex_layer = find_texture_layer(bm)
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # measure
+    uv_area = 0.0
+    for f in sel_faces:
+        uvs = [l[uv_layer].uv for l in f.loops]
+        f_uv_area = calc_polygon_2d_area(uvs)
+
+        # user specified
+        if tex_size:
+            uv_area = uv_area + f_uv_area * tex_size[0] * tex_size[1]
+            continue
+
+        img = find_image(obj, f, tex_layer)
 
         # can not find from node, so we can not get texture size
         if not img:

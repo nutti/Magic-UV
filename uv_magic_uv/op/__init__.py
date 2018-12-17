@@ -38,6 +38,7 @@ if "bpy" in locals():
     importlib.reload(unwrap_constraint)
     importlib.reload(uv_sculpt)
     importlib.reload(uvw)
+    importlib.reload(world_scale_uv)
 else:
     from . import align_uv_cursor
     from . import copy_paste_uv
@@ -52,5 +53,6 @@ else:
     from . import unwrap_constraint
     from . import uv_sculpt
     from . import uvw
+    from . import world_scale_uv
 
 import bpy
