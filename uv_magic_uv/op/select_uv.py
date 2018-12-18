@@ -26,12 +26,12 @@ __date__ = "17 Nov 2018"
 import bpy
 from bpy.props import BoolProperty
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import select_uv_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import select_uv_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "select_uv"
 
@@ -48,7 +48,7 @@ class _Properties:
         del scene.muv_select_uv_enabled
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
     """
     Operation class: Select faces which have overlapped UVs
@@ -70,7 +70,7 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         return self.__impl.execute(self, context)
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
     """
     Operation class: Select faces which have flipped UVs

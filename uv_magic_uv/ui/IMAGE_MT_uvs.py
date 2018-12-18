@@ -29,6 +29,10 @@ from ..op import (
     copy_paste_uv_uvedit,
 )
 from ..op.align_uv_cursor import MUV_OT_AlignUVCursor
+from ..op.select_uv import (
+    MUV_OT_SelectUV_SelectOverlapped,
+    MUV_OT_SelectUV_SelectFlipped,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -55,6 +59,25 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
         layout.operator(
             copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
             text="Paste")
+
+
+@BlClassRegistry()
+class MUV_MT_SelectUV(bpy.types.Menu):
+    """
+    Menu class: Master menu of Select UV
+    """
+
+    bl_idname = "uv.muv_select_uv_menu"
+    bl_label = "Select UV"
+    bl_description = "Select UV"
+
+    def draw(self, _):
+        layout = self.layout
+
+        layout.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname,
+                        text="Overlapped")
+        layout.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname,
+                        text="Flipped")
 
 
 @BlClassRegistry()

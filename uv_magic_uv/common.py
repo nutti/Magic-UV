@@ -1083,6 +1083,9 @@ def __do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         if result != current:
             print("Internal Error")
             return None
+        if not exiting:
+            print("Internal Error: No exiting UV")
+            return None
 
         # enter
         if entering.count(current) >= 1:
@@ -1091,10 +1094,20 @@ def __do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
         current_list.find_and_next(current)
         current = current_list.get()
 
+        prev = None
+        error = False
         while exiting.count(current) == 0:
             p.append(current.copy())
             current_list.find_and_next(current)
             current = current_list.get()
+            if prev == current:
+                error = True
+                break
+            prev = current
+
+        if error:
+            print("Internal Error: Infinite loop")
+            return None
 
         # exit
         p.append(current.copy())
@@ -1116,6 +1129,9 @@ def __do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
     while True:
         current_uv = traverse(current_uv_list, current_entering,
                               current_exiting, poly, current_uv, other_uv_list)
+
+        if current_uv is None:
+            break
 
         if current_uv_list == subject_uvs:
             current_uv_list = clip_uvs

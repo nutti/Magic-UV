@@ -26,11 +26,11 @@ __date__ = "17 Nov 2018"
 import bpy
 
 from ..op.pack_uv import MUV_OT_PackUV
+from ..op.select_uv import (
+    MUV_OT_SelectUV_SelectOverlapped,
+    MUV_OT_SelectUV_SelectFlipped,
+)
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_PT_UVEdit_UVManipulation',
-]
 
 
 @BlClassRegistry()
@@ -53,6 +53,13 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+
+        box = layout.box()
+        box.prop(sc, "muv_select_uv_enabled", text="Select UV")
+        if sc.muv_select_uv_enabled:
+            row = box.row(align=True)
+            row.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname)
+            row.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname)
 
         box = layout.box()
         box.prop(sc, "muv_pack_uv_enabled", text="Pack UV (Extension)")

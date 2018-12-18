@@ -117,6 +117,8 @@ def image_uvs_menu_fn(self, context):
     ops = layout.operator(op.pack_uv.MUV_OT_PackUV.bl_idname, text="Pack UV")
     ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
     ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
+    # Select UV
+    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_SelectUV.bl_idname, text="Select UV")
 
     layout.separator()
     # Align UV Cursor
