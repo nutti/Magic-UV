@@ -37,6 +37,7 @@ if "bpy" in locals():
     importlib.reload(texture_wrap)
     importlib.reload(transfer_uv)
     importlib.reload(unwrap_constraint)
+    importlib.reload(uv_inspection)
     importlib.reload(uv_sculpt)
     importlib.reload(uvw)
     importlib.reload(world_scale_uv)
@@ -53,6 +54,7 @@ else:
     from . import texture_wrap
     from . import transfer_uv
     from . import unwrap_constraint
+    from . import uv_inspection
     from . import uv_sculpt
     from . import uvw
     from . import world_scale_uv

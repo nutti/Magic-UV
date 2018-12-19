@@ -27,13 +27,15 @@ import bpy
 import bgl
 from bpy.props import BoolProperty, EnumProperty
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import uv_inspection_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import uv_inspection_impl as impl
+
+from ..lib import bglx
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "uv_inspection"
 
@@ -97,7 +99,7 @@ class _Properties:
         del scene.muv_uv_inspection_show_mode
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_UVInspection_Render(bpy.types.Operator):
     """
     Operation class: Render UV Inspection
@@ -153,20 +155,20 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
             for info in props.overlapped_info:
                 if sc.muv_uv_inspection_show_mode == 'PART':
                     for poly in info["polygons"]:
-                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-                        bgl.glColor4f(color[0], color[1], color[2], color[3])
+                        bglx.glBegin(bglx.GL_TRIANGLE_FAN)
+                        bglx.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
                                 uv.x, uv.y)
-                            bgl.glVertex2f(x, y)
-                        bgl.glEnd()
+                            bglx.glVertex2f(x, y)
+                        bglx.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
-                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    bglx.glBegin(bglx.GL_TRIANGLE_FAN)
+                    bglx.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["subject_uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                        bgl.glVertex2f(x, y)
-                    bgl.glEnd()
+                        bglx.glVertex2f(x, y)
+                    bglx.glEnd()
 
         # render flipped UV
         if sc.muv_uv_inspection_show_flipped:
@@ -174,20 +176,22 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
             for info in props.flipped_info:
                 if sc.muv_uv_inspection_show_mode == 'PART':
                     for poly in info["polygons"]:
-                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-                        bgl.glColor4f(color[0], color[1], color[2], color[3])
+                        bglx.glBegin(bglx.GL_TRIANGLE_FAN)
+                        bglx.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
                                 uv.x, uv.y)
-                            bgl.glVertex2f(x, y)
-                        bgl.glEnd()
+                            bglx.glVertex2f(x, y)
+                        bglx.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
-                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
-                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    bglx.glBegin(bglx.GL_TRIANGLE_FAN)
+                    bglx.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                        bgl.glVertex2f(x, y)
-                    bgl.glEnd()
+                        bglx.glVertex2f(x, y)
+                    bglx.glEnd()
+
+        bgl.glDisable(bgl.GL_BLEND)
 
     def invoke(self, context, _):
         if not MUV_OT_UVInspection_Render.is_running(context):
@@ -202,7 +206,7 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_UVInspection_Update(bpy.types.Operator):
     """
     Operation class: Update

@@ -26,6 +26,10 @@ __date__ = "17 Nov 2018"
 import bpy
 
 from ..op.align_uv_cursor import MUV_OT_AlignUVCursor
+from ..op.uv_inspection import (
+    MUV_OT_UVInspection_Render,
+    MUV_OT_UVInspection_Update,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -107,3 +111,22 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
                  text="UV Cursor Location")
         if sc.muv_uv_cursor_location_enabled:
             box.prop(sc, "muv_align_uv_cursor_cursor_loc", text="")
+
+        box = layout.box()
+        box.prop(sc, "muv_uv_inspection_enabled", text="UV Inspection")
+        if sc.muv_uv_inspection_enabled:
+            row = box.row()
+            row.prop(
+                sc, "muv_uv_inspection_show",
+                text="Hide"
+                if MUV_OT_UVInspection_Render.is_running(context)
+                else "Show",
+                icon='RESTRICT_VIEW_OFF'
+                if MUV_OT_UVInspection_Render.is_running(context)
+                else 'RESTRICT_VIEW_ON')
+            row.operator(MUV_OT_UVInspection_Update.bl_idname, text="Update")
+            row = box.row()
+            row.prop(sc, "muv_uv_inspection_show_overlapped")
+            row.prop(sc, "muv_uv_inspection_show_flipped")
+            row = box.row()
+            row.prop(sc, "muv_uv_inspection_show_mode")

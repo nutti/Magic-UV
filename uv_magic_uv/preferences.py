@@ -125,6 +125,9 @@ def image_uvs_menu_fn(self, context):
     layout.label(text="Editor Enhancement", icon='IMAGE')
     layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUVCursor.bl_idname,
                 text="Align UV Cursor")
+    # UV Inspection
+    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_UVInspection.bl_idname,
+                text="UV Inspection")
 
 
 def add_builtin_menu():

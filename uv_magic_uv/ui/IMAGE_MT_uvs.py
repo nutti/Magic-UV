@@ -33,6 +33,7 @@ from ..op.select_uv import (
     MUV_OT_SelectUV_SelectOverlapped,
     MUV_OT_SelectUV_SelectFlipped,
 )
+from ..op.uv_inspection import MUV_OT_UVInspection_Update
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -138,3 +139,21 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
                               text="Right Bottom")
         ops.position = 'RIGHT_BOTTOM'
         ops.base = sc.muv_align_uv_cursor_align_method
+
+
+@BlClassRegistry()
+class MUV_MT_UVInspection(bpy.types.Menu):
+    """
+    Menu class: Master menu of UV Inspection
+    """
+
+    bl_idname = "uv.muv_uv_inspection_menu"
+    bl_label = "UV Inspection"
+    bl_description = "UV Inspection"
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        layout.prop(sc, "muv_uv_inspection_show", text="UV Inspection")
+        layout.operator(MUV_OT_UVInspection_Update.bl_idname, text="Update")
