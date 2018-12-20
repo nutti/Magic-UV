@@ -25,6 +25,7 @@ __date__ = "17 Nov 2018"
 
 if "bpy" in locals():
     import importlib
+    importlib.reload(align_uv)
     importlib.reload(align_uv_cursor)
     importlib.reload(copy_paste_uv)
     importlib.reload(copy_paste_uv_object)
@@ -43,6 +44,7 @@ if "bpy" in locals():
     importlib.reload(uvw)
     importlib.reload(world_scale_uv)
 else:
+    from . import align_uv
     from . import align_uv_cursor
     from . import copy_paste_uv
     from . import copy_paste_uv_object

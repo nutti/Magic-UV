@@ -125,6 +125,8 @@ def image_uvs_menu_fn(self, context):
     ops.transmission = sc.muv_smooth_uv_transmission
     ops.select = sc.muv_smooth_uv_select
     ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
+    # Align UV
+    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUV.bl_idname, text="Align UV")
 
     layout.separator()
     # Align UV Cursor

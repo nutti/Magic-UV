@@ -25,6 +25,11 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
+from ..op.align_uv import (
+    MUV_OT_AlignUV_Circle,
+    MUV_OT_AlignUV_Straighten,
+    MUV_OT_AlignUV_Axis,
+)
 from ..op.smooth_uv import (
     MUV_OT_SmoothUV,
 )
@@ -56,6 +61,40 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+
+        box = layout.box()
+        box.prop(sc, "muv_align_uv_enabled", text="Align UV")
+        if sc.muv_align_uv_enabled:
+            col = box.column()
+            row = col.row(align=True)
+            ops = row.operator(MUV_OT_AlignUV_Circle.bl_idname, text="Circle")
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops = row.operator(MUV_OT_AlignUV_Straighten.bl_idname,
+                               text="Straighten")
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops.vertical = sc.muv_align_uv_vertical
+            ops.horizontal = sc.muv_align_uv_horizontal
+            ops.mesh_infl = sc.muv_align_uv_mesh_infl
+            row = col.row()
+            ops = row.operator(MUV_OT_AlignUV_Axis.bl_idname, text="XY-axis")
+            ops.transmission = sc.muv_align_uv_transmission
+            ops.select = sc.muv_align_uv_select
+            ops.vertical = sc.muv_align_uv_vertical
+            ops.horizontal = sc.muv_align_uv_horizontal
+            ops.location = sc.muv_align_uv_location
+            ops.mesh_infl = sc.muv_align_uv_mesh_infl
+            row.prop(sc, "muv_align_uv_location", text="")
+
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.prop(sc, "muv_align_uv_transmission", text="Transmission")
+            row.prop(sc, "muv_align_uv_select", text="Select")
+            row = col.row(align=True)
+            row.prop(sc, "muv_align_uv_vertical", text="Vertical")
+            row.prop(sc, "muv_align_uv_horizontal", text="Horizontal")
+            col.prop(sc, "muv_align_uv_mesh_infl", text="Mesh Influence")
 
         box = layout.box()
         box.prop(sc, "muv_smooth_uv_enabled", text="Smooth UV")
