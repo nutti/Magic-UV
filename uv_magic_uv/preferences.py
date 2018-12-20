@@ -119,6 +119,12 @@ def image_uvs_menu_fn(self, context):
     ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
     # Select UV
     layout.menu(ui.IMAGE_MT_uvs.MUV_MT_SelectUV.bl_idname, text="Select UV")
+    # Smooth UV
+    ops = layout.operator(op.smooth_uv.MUV_OT_SmoothUV.bl_idname,
+                          text="Smooth")
+    ops.transmission = sc.muv_smooth_uv_transmission
+    ops.select = sc.muv_smooth_uv_select
+    ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
 
     layout.separator()
     # Align UV Cursor

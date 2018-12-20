@@ -26,12 +26,12 @@ __date__ = "17 Nov 2018"
 import bpy
 from bpy.props import BoolProperty, FloatProperty
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import smooth_uv_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import smooth_uv_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "smooth_uv"
 
@@ -68,7 +68,7 @@ class _Properties:
         del scene.muv_smooth_uv_select
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_SmoothUV(bpy.types.Operator):
 
     bl_idname = "uv.muv_smooth_uv_operator"
@@ -76,19 +76,19 @@ class MUV_OT_SmoothUV(bpy.types.Operator):
     bl_description = "Smooth UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}
 
-    transmission = BoolProperty(
+    transmission: BoolProperty(
         name="Transmission",
         description="Smooth linked UVs",
         default=False
     )
-    mesh_infl = FloatProperty(
+    mesh_infl: FloatProperty(
         name="Mesh Influence",
         description="Influence rate of mesh vertex",
         min=0.0,
         max=1.0,
         default=0.0
     )
-    select = BoolProperty(
+    select: BoolProperty(
         name="Select",
         description="Select UVs which are smoothed",
         default=False

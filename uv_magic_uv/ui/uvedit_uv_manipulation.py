@@ -25,11 +25,14 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op.pack_uv import MUV_OT_PackUV
+from ..op.smooth_uv import (
+    MUV_OT_SmoothUV,
+)
 from ..op.select_uv import (
     MUV_OT_SelectUV_SelectOverlapped,
     MUV_OT_SelectUV_SelectFlipped,
 )
+from ..op.pack_uv import MUV_OT_PackUV
 from ..utils.bl_class_registry import BlClassRegistry
 
 
@@ -53,6 +56,19 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+
+        box = layout.box()
+        box.prop(sc, "muv_smooth_uv_enabled", text="Smooth UV")
+        if sc.muv_smooth_uv_enabled:
+            ops = box.operator(MUV_OT_SmoothUV.bl_idname, text="Smooth")
+            ops.transmission = sc.muv_smooth_uv_transmission
+            ops.select = sc.muv_smooth_uv_select
+            ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
+            col = box.column(align=True)
+            row = col.row(align=True)
+            row.prop(sc, "muv_smooth_uv_transmission", text="Transmission")
+            row.prop(sc, "muv_smooth_uv_select", text="Select")
+            col.prop(sc, "muv_smooth_uv_mesh_infl", text="Mesh Influence")
 
         box = layout.box()
         box.prop(sc, "muv_select_uv_enabled", text="Select UV")
