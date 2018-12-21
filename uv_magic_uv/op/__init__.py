@@ -36,6 +36,7 @@ if "bpy" in locals():
     importlib.reload(pack_uv)
     importlib.reload(select_uv)
     importlib.reload(smooth_uv)
+    importlib.reload(texture_lock)
     importlib.reload(texture_wrap)
     importlib.reload(transfer_uv)
     importlib.reload(unwrap_constraint)
@@ -55,6 +56,7 @@ else:
     from . import pack_uv
     from . import select_uv
     from . import smooth_uv
+    from . import texture_lock
     from . import texture_wrap
     from . import transfer_uv
     from . import unwrap_constraint

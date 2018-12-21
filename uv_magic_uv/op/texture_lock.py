@@ -26,12 +26,12 @@ __date__ = "17 Nov 2018"
 import bpy
 from bpy.props import BoolProperty
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import texture_lock_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import texture_lock_impl as impl
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "texture_lock"
 
@@ -77,7 +77,7 @@ class _Properties:
         del scene.muv_texture_lock_connect
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureLock_Lock(bpy.types.Operator):
     """
     Operation class: Lock Texture
@@ -103,7 +103,7 @@ class MUV_OT_TextureLock_Lock(bpy.types.Operator):
         return self.__impl.execute(self, context)
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
     """
     Operation class: Unlock Texture
@@ -114,7 +114,7 @@ class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
     bl_description = "Unlock Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
-    connect = BoolProperty(
+    connect: BoolProperty(
         name="Connect UV",
         default=True
     )
@@ -130,7 +130,7 @@ class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
         return self.__impl.execute(self, context)
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureLock_Intr(bpy.types.Operator):
     """
     Operation class: Texture Lock (Interactive mode)

@@ -30,6 +30,10 @@ from ..op import (
     transfer_uv,
     uvw,
 )
+from ..op.texture_lock import (
+    MUV_OT_TextureLock_Lock,
+    MUV_OT_TextureLock_Unlock,
+)
 from ..op.texture_wrap import (
     MUV_OT_TextureWrap_Refer,
     MUV_OT_TextureWrap_Set,
@@ -97,6 +101,36 @@ class MUV_MT_TransferUV(bpy.types.Menu):
                               text="Paste")
         ops.invert_normals = sc.muv_transfer_uv_invert_normals
         ops.copy_seams = sc.muv_transfer_uv_copy_seams
+
+
+@BlClassRegistry()
+class MUV_MT_TextureLock(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Lock
+    """
+
+    bl_idname = "uv.muv_texture_lock_menu"
+    bl_label = "Texture Lock"
+    bl_description = "Lock texture when vertices of mesh (Preserve UV)"
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        layout.label("Normal Mode")
+        layout.operator(
+            MUV_OT_TextureLock_Lock.bl_idname,
+            text="Lock"
+            if not MUV_OT_TextureLock_Lock.is_ready(context)
+            else "ReLock")
+        ops = layout.operator(MUV_OT_TextureLock_Unlock.bl_idname,
+                              text="Unlock")
+        ops.connect = sc.muv_texture_lock_connect
+
+        layout.separator()
+
+        layout.label("Interactive Mode")
+        layout.prop(sc, "muv_texture_lock_lock", text="Lock")
 
 
 @BlClassRegistry()

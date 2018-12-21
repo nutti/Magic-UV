@@ -30,6 +30,11 @@ from ..op import (
     mirror_uv,
     move_uv,
 )
+from ..op.texture_lock import (
+    MUV_OT_TextureLock_Lock,
+    MUV_OT_TextureLock_Unlock,
+    MUV_OT_TextureLock_Intr,
+)
 from ..op.texture_wrap import (
     MUV_OT_TextureWrap_Refer,
     MUV_OT_TextureWrap_Set,
@@ -215,6 +220,32 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 ops.show_dialog = False
 
         box = layout.box()
+        box.prop(sc, "muv_texture_lock_enabled", text="Texture Lock")
+        if sc.muv_texture_lock_enabled:
+            row = box.row(align=True)
+            col = row.column(align=True)
+            col.label(text="Normal Mode:")
+            col = row.column(align=True)
+            col.operator(MUV_OT_TextureLock_Lock.bl_idname,
+                         text="Lock"
+                         if not MUV_OT_TextureLock_Lock.is_ready(context)
+                         else "ReLock")
+            ops = col.operator(MUV_OT_TextureLock_Unlock.bl_idname,
+                               text="Unlock")
+            ops.connect = sc.muv_texture_lock_connect
+            col.prop(sc, "muv_texture_lock_connect", text="Connect")
+
+            row = box.row(align=True)
+            row.label(text="Interactive Mode:")
+            box.prop(sc, "muv_texture_lock_lock",
+                     text="Unlock"
+                     if MUV_OT_TextureLock_Intr.is_running(context)
+                     else "Lock",
+                     icon='RESTRICT_VIEW_OFF'
+                     if MUV_OT_TextureLock_Intr.is_running(context)
+                     else 'RESTRICT_VIEW_ON')
+
+        box = layout.box()
         box.prop(sc, "muv_texture_wrap_enabled", text="Texture Wrap")
         if sc.muv_texture_wrap_enabled:
             row = box.row(align=True)
@@ -223,6 +254,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             box.prop(sc, "muv_texture_wrap_set_and_refer")
             box.prop(sc, "muv_texture_wrap_selseq")
 
+        box = layout.box()
         box.prop(sc, "muv_uv_sculpt_enabled", text="UV Sculpt")
         if sc.muv_uv_sculpt_enabled:
             box.prop(sc, "muv_uv_sculpt_enable",
