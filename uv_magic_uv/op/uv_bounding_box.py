@@ -32,16 +32,18 @@ import mathutils
 import bmesh
 from bpy.props import BoolProperty, EnumProperty
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import uv_bounding_box_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import uv_bounding_box_impl as impl
+
+from ..lib import bglx
 
 
 MAX_VALUE = 100000.0
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class _Properties:
     idname = "uv_bounding_box"
 
@@ -164,7 +166,7 @@ class RotationCommand(CommandBase):
         mti = mathutils.Matrix.Translation((-self.__cx, -self.__cy, 0.0))
         mr = mathutils.Matrix.Rotation(angle, 4, 'Z')
         mt = mathutils.Matrix.Translation((self.__cx, self.__cy, 0.0))
-        return mt * mr * mti
+        return mt @ mr @ mti
 
     def set(self, x, y):
         self.__x = x
@@ -189,7 +191,7 @@ class ScalingCommand(CommandBase):
         self.__dir_y = dir_y    # direction of scaling y
         self.__mat = mat
         # initial origin of scaling = M(to original transform) * (ox, oy)
-        iov = mat * mathutils.Vector((ox, oy, 0.0))
+        iov = mat @ mathutils.Vector((ox, oy, 0.0))
         self.__iox = iov.x      # initial origin of scaling X
         self.__ioy = iov.y      # initial origin of scaling y
 
@@ -203,11 +205,11 @@ class ScalingCommand(CommandBase):
         mtoi = mathutils.Matrix.Translation((-self.__iox, -self.__ioy, 0.0))
         mto = mathutils.Matrix.Translation((self.__iox, self.__ioy, 0.0))
         # every point must be transformed to origin
-        t = m * mathutils.Vector((self.__ix, self.__iy, 0.0))
+        t = m @ mathutils.Vector((self.__ix, self.__iy, 0.0))
         tix, tiy = t.x, t.y
-        t = m * mathutils.Vector((self.__ox, self.__oy, 0.0))
+        t = m @ mathutils.Vector((self.__ox, self.__oy, 0.0))
         tox, toy = t.x, t.y
-        t = m * mathutils.Vector((self.__x, self.__y, 0.0))
+        t = m @ mathutils.Vector((self.__x, self.__y, 0.0))
         tx, ty = t.x, t.y
         ms = mathutils.Matrix()
         ms.identity()
@@ -215,7 +217,7 @@ class ScalingCommand(CommandBase):
             ms[0][0] = (tx - tox) * self.__dir_x / (tix - tox)
         if self.__dir_y == 1:
             ms[1][1] = (ty - toy) * self.__dir_y / (tiy - toy)
-        return mi * mto * ms * mtoi * m
+        return mi @ mto @ ms @ mtoi @ m
 
     def set(self, x, y):
         self.__x = x
@@ -238,7 +240,7 @@ class UniformScalingCommand(CommandBase):
         self.__oy = oy          # origin of scaling y
         self.__mat = mat
         # initial origin of scaling = M(to original transform) * (ox, oy)
-        iov = mat * mathutils.Vector((ox, oy, 0.0))
+        iov = mat @ mathutils.Vector((ox, oy, 0.0))
         self.__iox = iov.x      # initial origin of scaling x
         self.__ioy = iov.y      # initial origin of scaling y
         self.__dir_x = 1
@@ -254,11 +256,11 @@ class UniformScalingCommand(CommandBase):
         mtoi = mathutils.Matrix.Translation((-self.__iox, -self.__ioy, 0.0))
         mto = mathutils.Matrix.Translation((self.__iox, self.__ioy, 0.0))
         # every point must be transformed to origin
-        t = m * mathutils.Vector((self.__ix, self.__iy, 0.0))
+        t = m @ mathutils.Vector((self.__ix, self.__iy, 0.0))
         tix, tiy = t.x, t.y
-        t = m * mathutils.Vector((self.__ox, self.__oy, 0.0))
+        t = m @ mathutils.Vector((self.__ox, self.__oy, 0.0))
         tox, toy = t.x, t.y
-        t = m * mathutils.Vector((self.__x, self.__y, 0.0))
+        t = m @ mathutils.Vector((self.__x, self.__y, 0.0))
         tx, ty = t.x, t.y
         ms = mathutils.Matrix()
         ms.identity()
@@ -279,7 +281,7 @@ class UniformScalingCommand(CommandBase):
         ms[0][0] = sr * self.__dir_x
         ms[1][1] = sr * self.__dir_y
 
-        return mi * mto * ms * mtoi * m
+        return mi @ mto @ ms @ mtoi @ m
 
     def set(self, x, y):
         self.__x = x
@@ -303,7 +305,7 @@ class CommandExecuter:
         mat.identity()
         for i, cmd in enumerate(self.__cmd_list):
             if begin <= i and (end == -1 or i <= end):
-                mat = cmd.to_matrix() * mat
+                mat = cmd.to_matrix() @ mat
         return mat
 
     def undo_size(self):
@@ -576,7 +578,7 @@ class StateManager:
         return self.__state
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_UVBoundingBox(bpy.types.Operator):
     """
     Operation class: UV Bounding Box
@@ -642,11 +644,11 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             [pos.x + offset, pos.y - offset]
         ]
         bgl.glEnable(bgl.GL_BLEND)
-        bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
+        bglx.glBegin(bglx.GL_QUADS)
+        bglx.glColor4f(1.0, 1.0, 1.0, 1.0)
         for (x, y) in verts:
-            bgl.glVertex2f(x, y)
-        bgl.glEnd()
+            bglx.glVertex2f(x, y)
+        bglx.glEnd()
 
     @classmethod
     def draw_bb(cls, _, context):
@@ -745,15 +747,16 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             lidx = info[1]
             uv = info[2]
             v = mathutils.Vector((uv.x, uv.y, 0.0))
-            av = trans_mat * v
+            av = trans_mat @ v
             bm.faces[fidx].loops[lidx][uv_layer].uv = mathutils.Vector(
                 (av.x, av.y))
+        bmesh.update_edit_mesh(obj.data)
 
     def __update_ctrl_point(self, ctrl_points_ini, trans_mat):
         """
         Update control point
         """
-        return [trans_mat * cp for cp in ctrl_points_ini]
+        return [trans_mat @ cp for cp in ctrl_points_ini]
 
     def modal(self, context, event):
         props = context.scene.muv_props.uv_bounding_box

@@ -111,7 +111,7 @@ def glEnd():
     elif inst.get_prim_mode() == GL_QUADS:
         indices = []
         for i in range(0, len(coords), 4):
-            indices.append([i, i + 1, i + 2, i +3])
+            indices.extend([[i, i + 1, i + 2], [i + 2, i + 1, i + 3]])
         batch = batch_for_shader(shader, 'TRIS', {"pos": coords},
                                  indices=indices)
     else:
