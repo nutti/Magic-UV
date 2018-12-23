@@ -528,6 +528,25 @@ def find_texture_layer(bm):
     return bm.faces.layers.tex.verify()
 
 
+def find_texture_nodes(obj):
+    nodes = []
+    for mat in obj.material_slots:
+        if not mat.material.node_tree:
+            continue
+        for node in mat.material.node_tree.nodes:
+            tex_node_types = [
+                'TEX_ENVIRONMENT',
+                'TEX_IMAGE',
+            ]
+            if node.type not in tex_node_types:
+                continue
+            if not node.image:
+                continue
+            nodes.append(node)
+
+    return nodes
+
+
 def find_image(obj, face=None, tex_layer=None):
     # try to find from texture_layer
     img = None
@@ -536,19 +555,10 @@ def find_image(obj, face=None, tex_layer=None):
 
     # not found, then try to search from node
     if not img:
-        for mat in obj.material_slots:
-            if not mat.material.node_tree:
-                continue
-            for node in mat.material.node_tree.nodes:
-                tex_node_types = [
-                    'TEX_ENVIRONMENT',
-                    'TEX_IMAGE',
-                ]
-                if node.type not in tex_node_types:
-                    continue
-                if not node.image:
-                    continue
-                img = node.image
+        nodes = find_texture_nodes(obj)
+        if len(nodes) >= 2:
+            raise RuntimeError("Find more than 2 texture nodes")
+        img = nodes[0].image
 
     return img
 

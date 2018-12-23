@@ -26,9 +26,9 @@ __date__ = "17 Nov 2018"
 import bpy
 from bpy.props import StringProperty, EnumProperty, BoolProperty
 
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import preserve_uv_aspect_impl as impl
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import preserve_uv_aspect_impl as impl
 
 
 __all__ = [
@@ -37,8 +37,8 @@ __all__ = [
 ]
 
 
-@PropertyClassRegistry(legacy=True)
-class Properties:
+@PropertyClassRegistry()
+class _Properties:
     idname = "preserve_uv_aspect"
 
     @classmethod
@@ -83,7 +83,7 @@ class Properties:
         del scene.muv_preserve_uv_aspect_origin
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     """
     Operation class: Preserve UV Aspect
@@ -94,8 +94,8 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     bl_description = "Choose Image"
     bl_options = {'REGISTER', 'UNDO'}
 
-    dest_img_name = StringProperty(options={'HIDDEN'})
-    origin = EnumProperty(
+    dest_img_name: StringProperty(options={'HIDDEN'})
+    origin: EnumProperty(
         name="Origin",
         description="Aspect Origin",
         items=[
@@ -114,11 +114,11 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     )
 
     def __init__(self):
-        self.__impl = impl.PreserveUVAspectLegacyImpl()
+        self.__impl = impl.PreserveUVAspectImpl()
 
     @classmethod
     def poll(cls, context):
-        return impl.PreserveUVAspectLegacyImpl.poll(context)
+        return impl.PreserveUVAspectImpl.poll(context)
 
     def execute(self, context):
         return self.__impl.execute(self, context)

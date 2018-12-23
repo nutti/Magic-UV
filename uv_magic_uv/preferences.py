@@ -73,6 +73,9 @@ def view3d_uvmap_menu_fn(self, context):
     # World Scale UV
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_WorldScaleUV.bl_idname,
                 text="World Scale UV")
+    # Preserve UV
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_PreserveUVAspect.bl_idname,
+                text="Preserve UV")
     # Texture Lock
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureLock.bl_idname,
                 text="Texture Lock")

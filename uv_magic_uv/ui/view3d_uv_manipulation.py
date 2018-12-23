@@ -25,11 +25,6 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import (
-    flip_rotate_uv,
-    mirror_uv,
-    move_uv,
-)
 from ..op.texture_lock import (
     MUV_OT_TextureLock_Lock,
     MUV_OT_TextureLock_Unlock,
@@ -48,6 +43,10 @@ from ..op.world_scale_uv import (
     MUV_OT_WorldScaleUV_ApplyScalingDensity,
     MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
 )
+from ..op.flip_rotate_uv import MUV_OT_FlipRotate
+from ..op.mirror_uv import MUV_OT_MirrorUV
+from ..op.move_uv import MUV_OT_MoveUV
+from ..op.preserve_uv_aspect import MUV_OT_PreserveUVAspect
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -80,8 +79,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_flip_rotate_uv_enabled", text="Flip/Rotate UV")
         if sc.muv_flip_rotate_uv_enabled:
             row = box.row()
-            ops = row.operator(flip_rotate_uv.MUV_OT_FlipRotate.bl_idname,
-                               text="Flip/Rotate")
+            ops = row.operator(MUV_OT_FlipRotate.bl_idname, text="Flip/Rotate")
             ops.seams = sc.muv_flip_rotate_uv_seams
             row.prop(sc, "muv_flip_rotate_uv_seams", text="Seams")
 
@@ -89,8 +87,7 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_mirror_uv_enabled", text="Mirror UV")
         if sc.muv_mirror_uv_enabled:
             row = box.row()
-            ops = row.operator(mirror_uv.MUV_OT_MirrorUV.bl_idname,
-                               text="Mirror")
+            ops = row.operator(MUV_OT_MirrorUV.bl_idname, text="Mirror")
             ops.axis = sc.muv_mirror_uv_axis
             row.prop(sc, "muv_mirror_uv_axis", text="")
 
@@ -98,11 +95,11 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_move_uv_enabled", text="Move UV")
         if sc.muv_move_uv_enabled:
             col = box.column()
-            if not move_uv.MUV_OT_MoveUV.is_running(context):
-                col.operator(move_uv.MUV_OT_MoveUV.bl_idname, icon='PLAY',
+            if not MUV_OT_MoveUV.is_running(context):
+                col.operator(MUV_OT_MoveUV.bl_idname, icon='PLAY',
                              text="Start")
             else:
-                col.operator(move_uv.MUV_OT_MoveUV.bl_idname, icon='PAUSE',
+                col.operator(MUV_OT_MoveUV.bl_idname, icon='PAUSE',
                              text="Stop")
 
         box = layout.box()
@@ -218,6 +215,18 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
                 ops.origin = sc.muv_world_scale_uv_origin
                 ops.show_dialog = False
+
+        box = layout.box()
+        box.prop(sc, "muv_preserve_uv_aspect_enabled",
+                 text="Preserve UV Aspect")
+        if sc.muv_preserve_uv_aspect_enabled:
+            row = box.row()
+            ops = row.operator(MUV_OT_PreserveUVAspect.bl_idname,
+                               text="Change Image")
+            ops.dest_img_name = sc.muv_preserve_uv_aspect_tex_image
+            ops.origin = sc.muv_preserve_uv_aspect_origin
+            row.prop(sc, "muv_preserve_uv_aspect_tex_image", text="")
+            box.prop(sc, "muv_preserve_uv_aspect_origin", text="Origin")
 
         box = layout.box()
         box.prop(sc, "muv_texture_lock_enabled", text="Texture Lock")

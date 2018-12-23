@@ -30,6 +30,7 @@ from ..op import (
     transfer_uv,
     uvw,
 )
+from ..op.preserve_uv_aspect import MUV_OT_PreserveUVAspect
 from ..op.texture_lock import (
     MUV_OT_TextureLock_Lock,
     MUV_OT_TextureLock_Unlock,
@@ -212,3 +213,23 @@ class MUV_MT_UVW(bpy.types.Menu):
         ops = layout.operator(uvw.MUV_OT_UVW_BestPlanerMap.bl_idname,
                               text="Best Planner")
         ops.assign_uvmap = sc.muv_uvw_assign_uvmap
+
+
+@BlClassRegistry()
+class MUV_MT_PreserveUVAspect(bpy.types.Menu):
+    """
+    Menu class: Master menu of Preserve UV Aspect
+    """
+
+    bl_idname = "uv.muv_preserve_uv_aspect_menu"
+    bl_label = "Preserve UV Aspect"
+    bl_description = ""
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        for key in bpy.data.images.keys():
+            ops = layout.operator(MUV_OT_PreserveUVAspect.bl_idname, text=key)
+            ops.dest_img_name = key
+            ops.origin = sc.muv_preserve_uv_aspect_origin
