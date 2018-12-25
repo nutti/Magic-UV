@@ -33,13 +33,15 @@ from bpy.props import (
     FloatProperty,
 )
 
-from ... import common
-from ...utils.bl_class_registry import BlClassRegistry
-from ...utils.property_class_registry import PropertyClassRegistry
-from ...impl import texture_projection_impl as impl
+from .. import common
+from ..utils.bl_class_registry import BlClassRegistry
+from ..utils.property_class_registry import PropertyClassRegistry
+from ..impl import texture_projection_impl as impl
+
+from ..lib import bglx
 
 
-@PropertyClassRegistry(legacy=True)
+@PropertyClassRegistry()
 class Properties:
     idname = "texture_projection"
 
@@ -113,7 +115,7 @@ class Properties:
         del scene.muv_texture_projection_assign_uvmap
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureProjection(bpy.types.Operator):
     """
     Operation class: Texture Projection
@@ -181,24 +183,19 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         # OpenGL configuration
         bgl.glEnable(bgl.GL_BLEND)
         bgl.glEnable(bgl.GL_TEXTURE_2D)
+        bgl.glActiveTexture(bgl.GL_TEXTURE0)
         if img.bindcode:
-            bind = img.bindcode[0]
+            bind = img.bindcode
             bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
-            bgl.glTexParameteri(
-                bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
-            bgl.glTexParameteri(
-                bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
-            bgl.glTexEnvi(
-                bgl.GL_TEXTURE_ENV, bgl.GL_TEXTURE_ENV_MODE, bgl.GL_MODULATE)
 
         # render texture
-        bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0,
-                      sc.muv_texture_projection_tex_transparency)
+        bglx.glBegin(bglx.GL_QUADS)
+        bglx.glColor4f(1.0, 1.0, 1.0,
+                       sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
-            bgl.glTexCoord2f(u, v)
-            bgl.glVertex2f(v1, v2)
-        bgl.glEnd()
+            bglx.glTexCoord2f(u, v)
+            bglx.glVertex2f(v1, v2)
+        bglx.glEnd()
 
     def invoke(self, context, _):
         if not MUV_OT_TextureProjection.is_running(context):
@@ -212,7 +209,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         return {'FINISHED'}
 
 
-@BlClassRegistry(legacy=True)
+@BlClassRegistry()
 class MUV_OT_TextureProjection_Project(bpy.types.Operator):
     """
     Operation class: Project texture
@@ -239,8 +236,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             self.report({'WARNING'}, "No textures are selected")
             return {'CANCELLED'}
 
-        _, region, space = common.get_space_legacy(
-            'VIEW_3D', 'WINDOW', 'VIEW_3D')
+        _, region, space = common.get_space('VIEW_3D', 'WINDOW', 'VIEW_3D')
 
         # get faces to be texture projected
         obj = context.active_object
@@ -259,8 +255,6 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
                 return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
-        tex_layer = bm.faces.layers.tex.verify()
-
         sel_faces = [f for f in bm.faces if f.select]
 
         # transform 3d space to screen region
@@ -268,7 +262,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             view3d_utils.location_3d_to_region_2d(
                 region,
                 space.region_3d,
-                world_mat * l.vert.co)
+                world_mat @ l.vert.co)
             for f in sel_faces for l in f.loops
         ]
 
@@ -281,11 +275,13 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             ) for v in v_screen
         ]
 
+        # set texture
+        nodes = common.find_texture_nodes(obj)
+        nodes[0].image = bpy.data.images[sc.muv_texture_projection_tex_image]
+
         # project texture to object
         i = 0
         for f in sel_faces:
-            f[tex_layer].image = \
-                bpy.data.images[sc.muv_texture_projection_tex_image]
             for l in f.loops:
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1

@@ -45,6 +45,10 @@ from ..op.world_scale_uv import (
     MUV_OT_WorldScaleUV_ApplyScalingDensity,
     MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
 )
+from ..op.texture_projection import (
+    MUV_OT_TextureProjection,
+    MUV_OT_TextureProjection_Project,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 __all__ = [
@@ -233,3 +237,23 @@ class MUV_MT_PreserveUVAspect(bpy.types.Menu):
             ops = layout.operator(MUV_OT_PreserveUVAspect.bl_idname, text=key)
             ops.dest_img_name = key
             ops.origin = sc.muv_preserve_uv_aspect_origin
+
+
+@BlClassRegistry()
+class MUV_MT_TextureProjection(bpy.types.Menu):
+    """
+    Menu class: Master menu of Texture Projection
+    """
+
+    bl_idname = "uv.muv_texture_projection_menu"
+    bl_label = "Texture Projection"
+    bl_description = ""
+
+    def draw(self, context):
+        layout = self.layout
+        sc = context.scene
+
+        layout.prop(sc, "muv_texture_projection_enable",
+                    text="Texture Projection")
+        layout.operator(MUV_OT_TextureProjection_Project.bl_idname,
+                        text="Project")

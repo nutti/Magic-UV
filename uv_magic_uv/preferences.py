@@ -93,6 +93,9 @@ def view3d_uvmap_menu_fn(self, context):
         text="Unwrap Constraint")
     ops.u_const = sc.muv_unwrap_constraint_u_const
     ops.v_const = sc.muv_unwrap_constraint_v_const
+    # Texture Projection
+    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureProjection.bl_idname,
+                text="Texture Projection")
     # UVW
     layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_UVW.bl_idname, text="UVW")
 
