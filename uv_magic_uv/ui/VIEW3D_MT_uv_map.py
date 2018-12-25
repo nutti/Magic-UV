@@ -122,7 +122,7 @@ class MUV_MT_TextureLock(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.label("Normal Mode")
+        layout.label(text="Normal Mode")
         layout.operator(
             MUV_OT_TextureLock_Lock.bl_idname,
             text="Lock"
@@ -134,7 +134,7 @@ class MUV_MT_TextureLock(bpy.types.Menu):
 
         layout.separator()
 
-        layout.label("Interactive Mode")
+        layout.label(text="Interactive Mode")
         layout.prop(sc, "muv_texture_lock_lock", text="Lock")
 
 

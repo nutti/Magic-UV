@@ -174,15 +174,15 @@ class Preferences(AddonPreferences):
             remove_builtin_menu()
 
     # enable to add features to built-in menu
-    enable_builtin_menu = BoolProperty(
+    enable_builtin_menu: BoolProperty(
         name="Built-in Menu",
         description="Enable built-in menu",
         default=True,
-        update=update_enable_builtin_menu
+        update=update_enable_builtin_menu,
     )
 
     # for UV Sculpt
-    uv_sculpt_brush_color = FloatVectorProperty(
+    uv_sculpt_brush_color: FloatVectorProperty(
         name="Color",
         description="Color",
         default=(1.0, 0.4, 0.4, 1.0),
@@ -193,7 +193,7 @@ class Preferences(AddonPreferences):
     )
 
     # for Overlapped UV
-    uv_inspection_overlapped_color = FloatVectorProperty(
+    uv_inspection_overlapped_color: FloatVectorProperty(
         name="Color",
         description="Color",
         default=(0.0, 0.0, 1.0, 0.3),
@@ -204,7 +204,7 @@ class Preferences(AddonPreferences):
     )
 
     # for Flipped UV
-    uv_inspection_flipped_color = FloatVectorProperty(
+    uv_inspection_flipped_color: FloatVectorProperty(
         name="Color",
         description="Color",
         default=(1.0, 0.0, 0.0, 0.3),
@@ -215,7 +215,7 @@ class Preferences(AddonPreferences):
     )
 
     # for Texture Projection
-    texture_projection_canvas_padding = FloatVectorProperty(
+    texture_projection_canvas_padding: FloatVectorProperty(
         name="Canvas Padding",
         description="Canvas Padding",
         size=2,
@@ -224,13 +224,13 @@ class Preferences(AddonPreferences):
         default=(20.0, 20.0))
 
     # for UV Bounding Box
-    uv_bounding_box_cp_size = FloatProperty(
+    uv_bounding_box_cp_size: FloatProperty(
         name="Size",
         description="Control Point Size",
         default=6.0,
         min=3.0,
         max=100.0)
-    uv_bounding_box_cp_react_size = FloatProperty(
+    uv_bounding_box_cp_react_size: FloatProperty(
         name="React Size",
         description="Size event fired",
         default=10.0,
@@ -238,7 +238,7 @@ class Preferences(AddonPreferences):
         max=100.0)
 
     # for UI
-    category = EnumProperty(
+    category: EnumProperty(
         name="Category",
         description="Preferences Category",
         items=[
@@ -248,63 +248,63 @@ class Preferences(AddonPreferences):
         ],
         default='INFO'
     )
-    info_desc_expanded = BoolProperty(
+    info_desc_expanded: BoolProperty(
         name="Description",
         description="Description",
         default=False
     )
-    info_loc_expanded = BoolProperty(
+    info_loc_expanded: BoolProperty(
         name="Location",
         description="Location",
         default=False
     )
-    conf_uv_sculpt_expanded = BoolProperty(
+    conf_uv_sculpt_expanded: BoolProperty(
         name="UV Sculpt",
         description="UV Sculpt",
         default=False
     )
-    conf_uv_inspection_expanded = BoolProperty(
+    conf_uv_inspection_expanded: BoolProperty(
         name="UV Inspection",
         description="UV Inspection",
         default=False
     )
-    conf_texture_projection_expanded = BoolProperty(
+    conf_texture_projection_expanded: BoolProperty(
         name="Texture Projection",
         description="Texture Projection",
         default=False
     )
-    conf_uv_bounding_box_expanded = BoolProperty(
+    conf_uv_bounding_box_expanded: BoolProperty(
         name="UV Bounding Box",
         description="UV Bounding Box",
         default=False
     )
 
     # for add-on updater
-    auto_check_update = BoolProperty(
+    auto_check_update: BoolProperty(
         name="Auto-check for Update",
         description="If enabled, auto-check for updates using an interval",
         default=False
     )
-    updater_intrval_months = IntProperty(
+    updater_intrval_months: IntProperty(
         name='Months',
         description="Number of months between checking for updates",
         default=0,
         min=0
     )
-    updater_intrval_days = IntProperty(
+    updater_intrval_days: IntProperty(
         name='Days',
         description="Number of days between checking for updates",
         default=7,
         min=0
     )
-    updater_intrval_hours = IntProperty(
+    updater_intrval_hours: IntProperty(
         name='Hours',
         description="Number of hours between checking for updates",
         default=0,
         min=0,
         max=23
     )
-    updater_intrval_minutes = IntProperty(
+    updater_intrval_minutes: IntProperty(
         name='Minutes',
         description="Number of minutes between checking for updates",
         default=0,
@@ -323,12 +323,13 @@ class Preferences(AddonPreferences):
                 icon='DISCLOSURE_TRI_DOWN' if self.info_desc_expanded
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.info_desc_expanded:
-                column = layout.column(align=True)
-                column.label("Magic UV is composed of many UV editing" +
-                             " features.")
-                column.label("See tutorial page if you are new to this" +
-                             " add-on.")
-                column.label("https://github.com/nutti/Magic-UV/wiki/Tutorial")
+                col = layout.column(align=True)
+                col.label(text="Magic UV is composed of many UV editing" +
+                               " features.")
+                col.label(text="See tutorial page if you are new to this" +
+                               " add-on.")
+                col.label(text="https://github.com/nutti/Magic-UV" +
+                               "/wiki/Tutorial")
 
             layout.prop(
                 self, "info_loc_expanded", text="Location",
@@ -336,69 +337,74 @@ class Preferences(AddonPreferences):
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.info_loc_expanded:
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("3D View > Tool shelf > Copy/Paste UV (Object mode)")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="3D View > Tool shelf > " +
+                              "Copy/Paste UV (Object mode)")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Copy/Paste UV (Among objects)")
+                col.label(text="Copy/Paste UV (Among objects)")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("3D View > Tool shelf > Copy/Paste UV (Edit mode)")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="3D View > Tool shelf > " +
+                              "Copy/Paste UV (Edit mode)")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Copy/Paste UV (Among faces in 3D View)")
-                col.label("Transfer UV")
+                col.label(text="Copy/Paste UV (Among faces in 3D View)")
+                col.label(text="Transfer UV")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("3D View > Tool shelf > UV Manipulation (Edit mode)")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="3D View > Tool shelf > " +
+                              "UV Manipulation (Edit mode)")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Flip/Rotate UV")
-                col.label("Mirror UV")
-                col.label("Move UV")
-                col.label("World Scale UV")
-                col.label("Preserve UV Aspect")
-                col.label("Texture Lock")
-                col.label("Texture Wrap")
-                col.label("UV Sculpt")
+                col.label(text="Flip/Rotate UV")
+                col.label(text="Mirror UV")
+                col.label(text="Move UV")
+                col.label(text="World Scale UV")
+                col.label(text="Preserve UV Aspect")
+                col.label(text="Texture Lock")
+                col.label(text="Texture Wrap")
+                col.label(text="UV Sculpt")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("3D View > Tool shelf > UV Manipulation (Edit mode)")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="3D View > Tool shelf > " +
+                              "UV Manipulation (Edit mode)")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Unwrap Constraint")
-                col.label("Texture Projection")
-                col.label("UVW")
+                col.label(text="Unwrap Constraint")
+                col.label(text="Texture Projection")
+                col.label(text="UVW")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("UV/Image Editor > Tool shelf > Copy/Paste UV")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="UV/Image Editor > Tool shelf > Copy/Paste UV")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Copy/Paste UV (Among faces in UV/Image Editor)")
+                col.label(text="Copy/Paste UV (Among faces in UV/Image Editor)")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("UV/Image Editor > Tool shelf > UV Manipulation")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="UV/Image Editor > Tool shelf > UV Manipulation")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Align UV")
-                col.label("Smooth UV")
-                col.label("Select UV")
-                col.label("Pack UV (Extension)")
+                col.label(text="Align UV")
+                col.label(text="Smooth UV")
+                col.label(text="Select UV")
+                col.label(text="Pack UV (Extension)")
 
                 row = layout.row(align=True)
-                sp = row.split(percentage=0.5)
-                sp.label("UV/Image Editor > Tool shelf > Editor Enhancement")
-                sp = sp.split(percentage=1.0)
+                sp = row.split(factor=0.5)
+                sp.label(text="UV/Image Editor > Tool shelf > " +
+                              "Editor Enhancement")
+                sp = sp.split(factor=1.0)
                 col = sp.column(align=True)
-                col.label("Align UV Cursor")
-                col.label("UV Cursor Location")
-                col.label("UV Bounding Box")
-                col.label("UV Inspection")
+                col.label(text="Align UV Cursor")
+                col.label(text="UV Cursor Location")
+                col.label(text="UV Bounding Box")
+                col.label(text="UV Inspection")
 
         elif self.category == 'CONFIG':
             layout.prop(self, "enable_builtin_menu", text="Built-in Menu")
@@ -410,11 +416,11 @@ class Preferences(AddonPreferences):
                 icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_sculpt_expanded
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_sculpt_expanded:
-                sp = layout.split(percentage=0.05)
+                sp = layout.split(factor=0.05)
                 col = sp.column()  # spacer
-                sp = sp.split(percentage=0.3)
+                sp = sp.split(factor=0.3)
                 col = sp.column()
-                col.label("Brush Color:")
+                col.label(text="Brush Color:")
                 col.prop(self, "uv_sculpt_brush_color", text="")
                 layout.separator()
 
@@ -423,15 +429,15 @@ class Preferences(AddonPreferences):
                 icon='DISCLOSURE_TRI_DOWN' if self.conf_uv_inspection_expanded
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_inspection_expanded:
-                sp = layout.split(percentage=0.05)
+                sp = layout.split(factor=0.05)
                 col = sp.column()  # spacer
-                sp = sp.split(percentage=0.3)
+                sp = sp.split(factor=0.3)
                 col = sp.column()
-                col.label("Overlapped UV Color:")
+                col.label(text="Overlapped UV Color:")
                 col.prop(self, "uv_inspection_overlapped_color", text="")
-                sp = sp.split(percentage=0.45)
+                sp = sp.split(factor=0.45)
                 col = sp.column()
-                col.label("Flipped UV Color:")
+                col.label(text="Flipped UV Color:")
                 col.prop(self, "uv_inspection_flipped_color", text="")
                 layout.separator()
 
@@ -442,9 +448,9 @@ class Preferences(AddonPreferences):
                 if self.conf_texture_projection_expanded
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_texture_projection_expanded:
-                sp = layout.split(percentage=0.05)
+                sp = layout.split(factor=0.05)
                 col = sp.column()       # spacer
-                sp = sp.split(percentage=0.3)
+                sp = sp.split(factor=0.3)
                 col = sp.column()
                 col.prop(self, "texture_projection_canvas_padding")
                 layout.separator()
@@ -455,11 +461,11 @@ class Preferences(AddonPreferences):
                 if self.conf_uv_bounding_box_expanded
                 else 'DISCLOSURE_TRI_RIGHT')
             if self.conf_uv_bounding_box_expanded:
-                sp = layout.split(percentage=0.05)
+                sp = layout.split(factor=0.05)
                 col = sp.column()       # spacer
-                sp = sp.split(percentage=0.3)
+                sp = sp.split(factor=0.3)
                 col = sp.column()
-                col.label("Control Point:")
+                col.label(text="Control Point:")
                 col.prop(self, "uv_bounding_box_cp_size")
                 col.prop(self, "uv_bounding_box_cp_react_size")
                 layout.separator()

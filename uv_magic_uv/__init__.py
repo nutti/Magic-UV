@@ -94,7 +94,7 @@ def register():
     if common.check_version(2, 80, 0) >= 0:
         utils.bl_class_registry.BlClassRegistry.register()
         properites.init_props(bpy.types.Scene)
-        if preferences.Preferences.enable_builtin_menu:
+        if bpy.context.user_preferences.addons['uv_magic_uv'].preferences.enable_builtin_menu:
             preferences.add_builtin_menu()
     else:
         utils.bl_class_registry.BlClassRegistry.register()
@@ -107,7 +107,7 @@ def register():
 
 def unregister():
     if common.check_version(2, 80, 0) >= 0:
-        if preferences.Preferences.enable_builtin_menu:
+        if bpy.context.user_preferences.addons['uv_magic_uv'].preferences.enable_builtin_menu:
             preferences.remove_builtin_menu()
         properites.clear_props(bpy.types.Scene)
         utils.bl_class_registry.BlClassRegistry.unregister()
