@@ -35,14 +35,8 @@ from bpy.types import AddonPreferences
 
 from . import op
 from . import ui
+from . import addon_updater_ops
 from .utils.bl_class_registry import BlClassRegistry
-
-
-__all__ = [
-    'add_builtin_menu',
-    'remove_builtin_menu',
-    'Preferences'
-]
 
 
 def view3d_uvmap_menu_fn(self, context):
@@ -312,7 +306,7 @@ class Preferences(AddonPreferences):
         max=59
     )
 
-    def draw(self, _):
+    def draw(self, context):
         layout = self.layout
 
         layout.row().prop(self, "category", expand=True)
@@ -471,4 +465,4 @@ class Preferences(AddonPreferences):
                 layout.separator()
 
         elif self.category == 'UPDATE':
-            return
+            addon_updater_ops.update_settings_ui(self, context)
