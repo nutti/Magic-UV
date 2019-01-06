@@ -29,6 +29,7 @@ from bpy.props import StringProperty, EnumProperty, BoolProperty
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..impl import preserve_uv_aspect_impl as impl
+from ..utils import compatibility
 
 
 __all__ = [
@@ -84,6 +85,7 @@ class _Properties:
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     """
     Operation class: Preserve UV Aspect
@@ -94,8 +96,8 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     bl_description = "Choose Image"
     bl_options = {'REGISTER', 'UNDO'}
 
-    dest_img_name: StringProperty(options={'HIDDEN'})
-    origin: EnumProperty(
+    dest_img_name = StringProperty(options={'HIDDEN'})
+    origin = EnumProperty(
         name="Origin",
         description="Aspect Origin",
         items=[

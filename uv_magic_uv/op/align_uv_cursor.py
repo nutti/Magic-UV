@@ -31,6 +31,7 @@ from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..impl import align_uv_cursor_impl as impl
+from ..utils import compatibility
 
 
 @PropertyClassRegistry()
@@ -96,6 +97,7 @@ class _Properties:
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_AlignUVCursor(bpy.types.Operator):
 
     bl_idname = "uv.muv_align_uv_cursor_operator"
@@ -103,7 +105,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
     bl_description = "Align cursor to the center of UV island"
     bl_options = {'REGISTER', 'UNDO'}
 
-    position: EnumProperty(
+    position = EnumProperty(
         items=(
             ('CENTER', "Center", "Align to Center"),
             ('LEFT_TOP', "Left Top", "Align to Left Top"),
@@ -119,7 +121,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         description="Align position",
         default='CENTER'
     )
-    base: EnumProperty(
+    base = EnumProperty(
         items=(
             ('TEXTURE', "Texture", "Align based on Texture"),
             ('UV', "UV", "Align to UV"),

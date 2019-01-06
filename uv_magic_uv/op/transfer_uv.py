@@ -31,6 +31,7 @@ from .. import common
 from ..impl import transfer_uv_impl as impl
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility
 
 
 __all__ = [
@@ -114,6 +115,7 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
     """
         Operation class: Transfer UV paste
@@ -125,12 +127,12 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
     bl_description = "Transfer UV Paste UV (Topological based paste)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    invert_normals: BoolProperty(
+    invert_normals = BoolProperty(
         name="Invert Normals",
         description="Invert Normals",
         default=False
     )
-    copy_seams: BoolProperty(
+    copy_seams = BoolProperty(
         name="Copy Seams",
         description="Copy Seams",
         default=True

@@ -29,6 +29,7 @@ from bpy.props import BoolProperty
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..impl import texture_lock_impl as impl
+from ..utils import compatibility
 
 
 @PropertyClassRegistry()
@@ -104,6 +105,7 @@ class MUV_OT_TextureLock_Lock(bpy.types.Operator):
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
     """
     Operation class: Unlock Texture
@@ -114,7 +116,7 @@ class MUV_OT_TextureLock_Unlock(bpy.types.Operator):
     bl_description = "Unlock Texture"
     bl_options = {'REGISTER', 'UNDO'}
 
-    connect: BoolProperty(
+    connect = BoolProperty(
         name="Connect UV",
         default=True
     )

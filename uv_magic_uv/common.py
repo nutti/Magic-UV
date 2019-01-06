@@ -62,7 +62,7 @@ __all__ = [
 ]
 
 
-__DEBUG_MODE = True
+__DEBUG_MODE = False
 
 
 def is_console_mode():

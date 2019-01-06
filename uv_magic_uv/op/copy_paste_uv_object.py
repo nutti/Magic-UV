@@ -34,6 +34,7 @@ from ..impl import copy_paste_uv_impl as impl
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility
 
 __all__ = [
     'Properties',
@@ -98,6 +99,7 @@ def memorize_view_3d_mode(fn):
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate among objects
@@ -108,7 +110,7 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     bl_description = "Copy UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map: StringProperty(default="__default", options={'HIDDEN'})
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
@@ -175,6 +177,7 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate among objects
@@ -185,8 +188,8 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     bl_description = "Paste UV coordinate (Among Objects)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    uv_map: StringProperty(default="__default", options={'HIDDEN'})
-    copy_seams: BoolProperty(
+    uv_map = StringProperty(default="__default", options={'HIDDEN'})
+    copy_seams = BoolProperty(
         name="Seams",
         description="Copy Seams",
         default=True

@@ -34,6 +34,7 @@ from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..impl import flip_rotate_impl as impl
+from ..utils import compatibility
 
 __all__ = [
     'Properties',
@@ -65,6 +66,7 @@ class Properties:
 
 
 @BlClassRegistry()
+@compatibility.make_annotations
 class MUV_OT_FlipRotate(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate
@@ -75,18 +77,18 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
     bl_description = "Flip/Rotate UV coordinate"
     bl_options = {'REGISTER', 'UNDO'}
 
-    flip: BoolProperty(
+    flip = BoolProperty(
         name="Flip UV",
         description="Flip UV...",
         default=False
     )
-    rotate: IntProperty(
+    rotate = IntProperty(
         default=0,
         name="Rotate UV",
         min=0,
         max=30
     )
-    seams: BoolProperty(
+    seams = BoolProperty(
         name="Seams",
         description="Seams",
         default=True
