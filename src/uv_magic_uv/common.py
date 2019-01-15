@@ -409,7 +409,8 @@ def find_image(obj, face=None, tex_layer=None):
         nodes = find_texture_nodes(obj)
         if len(nodes) >= 2:
             raise RuntimeError("Find more than 2 texture nodes")
-        img = nodes[0].image
+        if len(nodes) == 1:
+            img = nodes[0].image
 
     return img
 

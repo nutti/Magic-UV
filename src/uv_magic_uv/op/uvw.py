@@ -155,11 +155,7 @@ def _apply_planer_map(bm, uv_layer, size, offset, rotation, tex_aspect):
     # update UV coordinate
     for f in sel_faces:
         for l in f.loops:
-            if common.check_version(2, 80, 0) >= 0:
-                # pylint: disable=E0001
-                co = q @ l.vert.co
-            else:
-                co = q * l.vert.co
+            co = compat.matmul(q, l.vert.co)
             x = co.x * sx
             y = co.y * sy
 
