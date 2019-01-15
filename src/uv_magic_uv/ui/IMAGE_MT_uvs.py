@@ -131,7 +131,8 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
         ops.position = 'LEFT_TOP'
         ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname, text="Middle Top")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,
+                              text="Middle Top")
         ops.position = 'MIDDLE_TOP'
         ops.base = sc.muv_align_uv_cursor_align_method
 
@@ -144,7 +145,7 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
         ops.position = 'LEFT_MIDDLE'
         ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,text="Center")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname, text="Center")
         ops.position = 'CENTER'
         ops.base = sc.muv_align_uv_cursor_align_method
 

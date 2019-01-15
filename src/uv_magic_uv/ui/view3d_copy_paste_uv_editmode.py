@@ -69,7 +69,8 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
                 row.menu(MUV_MT_CopyPasteUV_CopyUV.bl_idname, text="Copy")
                 row.menu(MUV_MT_CopyPasteUV_PasteUV.bl_idname, text="Paste")
             elif sc.muv_copy_paste_uv_mode == 'SEL_SEQ':
-                row.menu(MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname, text="Copy")
+                row.menu(MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname,
+                         text="Copy")
                 row.menu(MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
                          text="Paste")
             box.prop(sc, "muv_copy_paste_uv_mode", expand=True)
