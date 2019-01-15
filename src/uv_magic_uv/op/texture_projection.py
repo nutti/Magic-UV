@@ -61,7 +61,8 @@ def get_canvas(context, magnitude):
     Get canvas to be renderred texture
     """
     sc = context.scene
-    prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+    user_prefs = compat.get_user_preferences(context)
+    prefs = user_prefs.addons["uv_magic_uv"].preferences
 
     region_w = context.region.width
     region_h = context.region.height
@@ -296,10 +297,10 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
             if img.bindcode:
                 bind = img.bindcode[0]
                 bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
-                bgl.glTexParameteri(
-                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
-                bgl.glTexParameteri(
-                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
+                bgl.glTexParameteri(bgl.GL_TEXTURE_2D,
+                                    bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
+                bgl.glTexParameteri(bgl.GL_TEXTURE_2D,
+                                    bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
                 bgl.glTexEnvi(
                     bgl.GL_TEXTURE_ENV, bgl.GL_TEXTURE_ENV_MODE,
                     bgl.GL_MODULATE)
@@ -307,7 +308,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         # render texture
         bgl.glBegin(bgl.GL_QUADS)
         bgl.glColor4f(1.0, 1.0, 1.0,
-                       sc.muv_texture_projection_tex_transparency)
+                      sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
             bgl.glTexCoord2f(u, v)
             bgl.glVertex2f(v1, v2)
@@ -397,7 +398,8 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
         if compat.check_version(2, 80, 0) >= 0:
             # set texture
             nodes = common.find_texture_nodes(obj)
-            nodes[0].image = bpy.data.images[sc.muv_texture_projection_tex_image]
+            nodes[0].image = \
+                bpy.data.images[sc.muv_texture_projection_tex_image]
 
         # project texture to object
         i = 0

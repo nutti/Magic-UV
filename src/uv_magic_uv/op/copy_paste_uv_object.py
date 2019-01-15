@@ -212,7 +212,9 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         for o in bpy.data.objects:
-            if not compat.object_has_uv_layers(o) or not compat.get_object_select(o):
+            if not compat.object_has_uv_layers(o):
+                continue
+            if not compat.get_object_select(o):
                 continue
 
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -276,8 +278,11 @@ class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
         # create sub menu
         uv_maps = []
         for obj in bpy.data.objects:
-            if compat.object_has_uv_layers(obj) and compat.get_object_select(obj):
-                uv_maps.extend(compat.get_object_uv_layers(obj).keys())
+            if not compat.object_has_uv_layers(obj):
+                continue
+            if not compat.get_object_select(obj):
+                continue
+            uv_maps.extend(compat.get_object_uv_layers(obj).keys())
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
                               text="[Default]")

@@ -70,12 +70,14 @@ def register():
 
     utils.bl_class_registry.BlClassRegistry.register()
     properites.init_props(bpy.types.Scene)
-    if utils.compatibility.get_user_preferences(bpy.context).addons['uv_magic_uv'].preferences.enable_builtin_menu:
+    user_prefs = utils.compatibility.get_user_preferences(bpy.context)
+    if user_prefs.addons['uv_magic_uv'].preferences.enable_builtin_menu:
         preferences.add_builtin_menu()
 
 
 def unregister():
-    if utils.compatibility.get_user_preferences(bpy.context).addons['uv_magic_uv'].preferences.enable_builtin_menu:
+    user_prefs = utils.compatibility.get_user_preferences(bpy.context)
+    if user_prefs.addons['uv_magic_uv'].preferences.enable_builtin_menu:
         preferences.remove_builtin_menu()
     properites.clear_props(bpy.types.Scene)
     utils.bl_class_registry.BlClassRegistry.unregister()

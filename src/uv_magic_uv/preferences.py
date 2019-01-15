@@ -157,11 +157,11 @@ def remove_builtin_menu():
 
 
 def get_update_candidate_branches(_, __):
-    updater = AddonUpdatorManager.get_instance()
-    if not updater.candidate_checked():
+    manager = AddonUpdatorManager.get_instance()
+    if not manager.candidate_checked():
         return []
 
-    return [(name, name, "") for name in updater.get_candidate_branch_names()]
+    return [(name, name, "") for name in manager.get_candidate_branch_names()]
 
 
 @BlClassRegistry()
@@ -290,7 +290,7 @@ class Preferences(AddonPreferences):
         items=get_update_candidate_branches
     )
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
 
         layout.row().prop(self, "category", expand=True)
@@ -305,11 +305,11 @@ class Preferences(AddonPreferences):
             if self.info_desc_expanded:
                 col = layout.column(align=True)
                 col.label(text="Magic UV is composed of many UV editing" +
-                               " features.")
+                          " features.")
                 col.label(text="See tutorial page if you are new to this" +
-                               " add-on.")
+                          " add-on.")
                 col.label(text="https://github.com/nutti/Magic-UV" +
-                               "/wiki/Tutorial")
+                          "/wiki/Tutorial")
 
             layout.prop(
                 self, "info_loc_expanded", text="Location",
@@ -319,7 +319,7 @@ class Preferences(AddonPreferences):
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
                 sp.label(text="3D View > Tool shelf > " +
-                              "Copy/Paste UV (Object mode)")
+                         "Copy/Paste UV (Object mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Copy/Paste UV (Among objects)")
@@ -327,7 +327,7 @@ class Preferences(AddonPreferences):
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
                 sp.label(text="3D View > Tool shelf > " +
-                              "Copy/Paste UV (Edit mode)")
+                         "Copy/Paste UV (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Copy/Paste UV (Among faces in 3D View)")
@@ -336,7 +336,7 @@ class Preferences(AddonPreferences):
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
                 sp.label(text="3D View > Tool shelf > " +
-                              "UV Manipulation (Edit mode)")
+                         "UV Manipulation (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Flip/Rotate UV")
@@ -351,7 +351,7 @@ class Preferences(AddonPreferences):
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
                 sp.label(text="3D View > Tool shelf > " +
-                              "UV Manipulation (Edit mode)")
+                         "UV Manipulation (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Unwrap Constraint")
@@ -363,7 +363,8 @@ class Preferences(AddonPreferences):
                 sp.label(text="UV/Image Editor > Tool shelf > Copy/Paste UV")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
-                col.label(text="Copy/Paste UV (Among faces in UV/Image Editor)")
+                col.label(text="Copy/Paste UV " +
+                          "(Among faces in UV/Image Editor)")
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
@@ -378,7 +379,7 @@ class Preferences(AddonPreferences):
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
                 sp.label(text="UV/Image Editor > Tool shelf > " +
-                              "Editor Enhancement")
+                         "Editor Enhancement")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Align UV Cursor")

@@ -186,7 +186,8 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
     def draw(_, context):
         sc = context.scene
         props = sc.muv_props.uv_inspection
-        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+        user_prefs = compat.get_user_preferences(context)
+        prefs = user_prefs.addons["uv_magic_uv"].preferences
 
         if not MUV_OT_UVInspection_Render.is_running(context):
             return

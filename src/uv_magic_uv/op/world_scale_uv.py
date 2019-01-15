@@ -301,8 +301,9 @@ class MUV_OT_WorldScaleUV_Measure(bpy.types.Operator):
         sc.muv_world_scale_uv_src_mesh_area = mesh_area
         sc.muv_world_scale_uv_src_density = density
 
-        self.report({'INFO'}, "UV Area: {0}, Mesh Area: {1}, Texel Density: {2}"
-                              .format(uv_area, mesh_area, density))
+        self.report({'INFO'},
+                    "UV Area: {0}, Mesh Area: {1}, Texel Density: {2}"
+                    .format(uv_area, mesh_area, density))
 
         return {'FINISHED'}
 

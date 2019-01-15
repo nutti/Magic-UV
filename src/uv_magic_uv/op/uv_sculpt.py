@@ -217,7 +217,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
     @classmethod
     def draw_brush(cls, obj, context):
         sc = context.scene
-        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+        user_prefs = compat.get_user_preferences(context)
+        prefs = user_prefs.addons["uv_magic_uv"].preferences
 
         num_segment = 180
         theta = 2 * pi / num_segment

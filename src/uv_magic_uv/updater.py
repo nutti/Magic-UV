@@ -42,7 +42,7 @@ class MUV_OT_CheckAddonUpdate(bpy.types.Operator):
     bl_description = "Check Add-on Update"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def execute(self, _):
         updater = AddonUpdatorManager.get_instance()
         updater.check_update_candidate()
 
@@ -63,7 +63,7 @@ class MUV_OT_UpdateAddon(bpy.types.Operator):
         default="",
     )
 
-    def execute(self, context):
+    def execute(self, _):
         updater = AddonUpdatorManager.get_instance()
         updater.update(self.branch_name)
 
@@ -96,7 +96,7 @@ def draw_updater_ui(prefs_obj):
             ops = col.operator(
                 MUV_OT_UpdateAddon.bl_idname,
                 text="Update to the latest release version (version: {})"
-                    .format(updater.latest_version()),
+                .format(updater.latest_version()),
                 icon='TRIA_DOWN_BAR')
             ops.branch_name = updater.latest_version()
         else:
@@ -121,13 +121,15 @@ def draw_updater_ui(prefs_obj):
             box = layout.box()
             box.label(text=updater.info(), icon='ERROR')
 
+
 def register_updater(bl_info):
     config = AddonUpdatorConfig()
     config.owner = "nutti"
     config.repository = "Magic-UV"
     config.current_addon_path = os.path.dirname(os.path.realpath(__file__))
     config.branches = ["master", "develop"]
-    config.addon_directory = config.current_addon_path[:config.current_addon_path.rfind("/")]
+    config.addon_directory = \
+        config.current_addon_path[:config.current_addon_path.rfind("/")]
     config.min_release_version = bl_info["version"]
     config.target_addon_path = "src/uv_magic_uv"
     updater = AddonUpdatorManager.get_instance()

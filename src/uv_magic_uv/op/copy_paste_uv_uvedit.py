@@ -23,15 +23,14 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
-import bpy
 import math
 from math import atan2, sin, cos
 
+import bpy
 import bmesh
 from mathutils import Vector
 
 from .. import common
-
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 

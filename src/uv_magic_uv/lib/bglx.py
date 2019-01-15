@@ -235,6 +235,12 @@ GL_SCISSOR_BOX = bgl.GL_SCISSOR_BOX
 GL_TEXTURE_2D = bgl.GL_TEXTURE_2D
 GL_TEXTURE0 = bgl.GL_TEXTURE0
 
+GL_TEXTURE_MIN_FILTER = 0
+GL_TEXTURE_MAG_FILTER = 0
+GL_LINEAR = 0
+GL_TEXTURE_ENV = 0
+GL_TEXTURE_ENV_MODE = 0
+GL_MODULATE = 0
 
 def glEnable(cap):
     bgl.glEnable(cap)
@@ -258,3 +264,12 @@ def glActiveTexture(texture):
 
 def glBindTexture(target, texture):
     bgl.glBindTexture(target, texture)
+
+
+def glTexParameteri(target, pname, param):
+    pass
+
+
+def glTexEnvi(target, pname, param):
+    pass
+

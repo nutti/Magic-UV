@@ -243,7 +243,7 @@ class ScalingCommand(CommandBase):
         if self.__dir_y == 1:
             ms[1][1] = (ty - toy) * self.__dir_y / (tiy - toy)
         return compat.matmul(compat.matmul(compat.matmul(
-                        compat.matmul(mi, mto), ms), mtoi), m)
+            compat.matmul(mi, mto), ms), mtoi), m)
 
     def set(self, x, y):
         self.__x = x
@@ -308,7 +308,7 @@ class UniformScalingCommand(CommandBase):
         ms[1][1] = sr * self.__dir_y
 
         return compat.matmul(compat.matmul(compat.matmul(
-                        compat.matmul(mi, mto), ms), mtoi), m)
+            compat.matmul(mi, mto), ms), mtoi), m)
 
     def set(self, x, y):
         self.__x = x
@@ -429,7 +429,8 @@ class StateNone(StateBase):
         """
         Update state
         """
-        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+        user_prefs = compat.get_user_preferences(context)
+        prefs = user_prefs.addons["uv_magic_uv"].preferences
         cp_react_size = prefs.uv_bounding_box_cp_react_size
         is_uscaling = context.scene.muv_uv_bounding_box_uniform_scaling
         if (event.type == 'LEFTMOUSE') and (event.value == 'PRESS'):
@@ -661,7 +662,8 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         """
         Draw control point
         """
-        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+        user_prefs = compat.get_user_preferences(context)
+        prefs = user_prefs.addons["uv_magic_uv"].preferences
         cp_size = prefs.uv_bounding_box_cp_size
         offset = cp_size / 2
         verts = [

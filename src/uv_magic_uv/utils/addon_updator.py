@@ -35,6 +35,7 @@ import datetime
 
 
 def _request(url, json_decode=True):
+    # pylint: disable=W0212
     ssl._create_default_https_context = ssl._create_unverified_context
     req = urllib.request.Request(url)
 
@@ -291,12 +292,16 @@ class AddonUpdatorManager:
         if not self.candidate_checked():
             raise RuntimeError("Update candidate is not checked.")
 
+        info = None
         for info in self.__update_candidate:
             if info.name == version_name:
                 break
         else:
             raise RuntimeError("{} is not found in update candidate"
                                .format(version_name))
+
+        if info is None:
+            raise RuntimeError("Not found any update candidates")
 
         try:
             # create workspace
@@ -307,9 +312,9 @@ class AddonUpdatorManager:
             # replace add-on
             offset_path = ""
             if info.group == 'BRANCH':
-                offset_path = "{}-{}/{}".format(self.__config.repository,
-                                                info.name,
-                                                self.__config.target_addon_path)
+                offset_path = "{}-{}/{}".format(
+                    self.__config.repository, info.name,
+                    self.__config.target_addon_path)
             elif info.group == 'RELEASE':
                 offset_path = self.__config.target_addon_path
             _replace_addon(self.__config.addon_directory,
@@ -334,12 +339,16 @@ class AddonUpdatorManager:
         return [info.name for info in self.__update_candidate]
 
     def latest_version(self):
-        release_versions = [info.name for info in self.__update_candidate if info.group == 'RELEASE']
+        release_versions = [info.name
+                            for info in self.__update_candidate
+                            if info.group == 'RELEASE']
 
         latest = ""
         for version in release_versions:
-            if latest == "" or _compare_version(_parse_release_version(version),
-                                                _parse_release_version(latest)) > 0:
+            if latest == "":
+                latest = version
+            elif _compare_version(_parse_release_version(version),
+                                  _parse_release_version(latest)) > 0:
                 latest = version
 
         return latest
