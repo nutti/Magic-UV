@@ -32,6 +32,7 @@ from bpy.props import (
 )
 from bpy.types import AddonPreferences
 
+from . import common
 from . import op
 from . import ui
 from .utils.bl_class_registry import BlClassRegistry
@@ -164,6 +165,19 @@ def get_update_candidate_branches(_, __):
     return [(name, name, "") for name in manager.get_candidate_branch_names()]
 
 
+def set_debug_mode(self, value):
+    self['enable_debug_mode'] = value
+
+
+def get_debug_mode(self):
+    enabled = self.get('enable_debug_mode', False)
+    if enabled:
+        common.enable_debugg_mode()
+    else:
+        common.disable_debug_mode()
+    return enabled
+
+
 @BlClassRegistry()
 @compat.make_annotations
 class Preferences(AddonPreferences):
@@ -183,6 +197,15 @@ class Preferences(AddonPreferences):
         description="Enable built-in menu",
         default=True,
         update=update_enable_builtin_menu,
+    )
+
+    # enable debug mode
+    enable_debug_mode = BoolProperty(
+        name="Debug Mode",
+        description="Enable debugging mode",
+        default=False,
+        set=set_debug_mode,
+        get=get_debug_mode,
     )
 
     # for UV Sculpt
@@ -391,6 +414,7 @@ class Preferences(AddonPreferences):
             layout.separator()
 
             layout.prop(self, "enable_builtin_menu", text="Built-in Menu")
+            layout.prop(self, "enable_debug_mode", text="Debug Mode")
 
             layout.separator()
 
