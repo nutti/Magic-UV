@@ -73,7 +73,7 @@ def register_updater(bl_info):
     config.branches = ["master", "develop"]
     config.addon_directory = config.current_addon_path[:config.current_addon_path.rfind("/")]
     config.min_release_version = bl_info["version"]
-    config.target_addon_path = "uv_magic_uv"
+    config.target_addon_path = "src/uv_magic_uv"
     updater = utils.addon_updator.AddonUpdatorManager.get_instance()
     updater.init(bl_info, config)
 
