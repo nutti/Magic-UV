@@ -51,6 +51,7 @@ if "bpy" in locals():
     importlib.reload(ui)
     importlib.reload(properites)
     importlib.reload(preferences)
+    importlib.reload(updater)
 else:
     import bpy
     from . import common
@@ -59,27 +60,13 @@ else:
     from . import ui
     from . import properites
     from . import preferences
-
-import os
+    from . import updater
 
 import bpy
 
 
-def register_updater(bl_info):
-    config = utils.addon_updator.AddonUpdatorConfig()
-    config.owner = "nutti"
-    config.repository = "Magic-UV"
-    config.current_addon_path = os.path.dirname(os.path.realpath(__file__))
-    config.branches = ["master", "develop"]
-    config.addon_directory = config.current_addon_path[:config.current_addon_path.rfind("/")]
-    config.min_release_version = bl_info["version"]
-    config.target_addon_path = "src/uv_magic_uv"
-    updater = utils.addon_updator.AddonUpdatorManager.get_instance()
-    updater.init(bl_info, config)
-
-
 def register():
-    register_updater(bl_info)
+    updater.register_updater(bl_info)
 
     utils.bl_class_registry.BlClassRegistry.register()
     properites.init_props(bpy.types.Scene)

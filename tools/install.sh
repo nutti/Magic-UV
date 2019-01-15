@@ -19,4 +19,4 @@ else
 fi
 
 rm -rf "${target}"
-cp -r uv_magic_uv "${target}"
+cp -r src/uv_magic_uv "${target}"

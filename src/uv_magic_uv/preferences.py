@@ -29,7 +29,6 @@ from bpy.props import (
     FloatVectorProperty,
     BoolProperty,
     EnumProperty,
-    StringProperty,
 )
 from bpy.types import AddonPreferences
 
@@ -38,6 +37,7 @@ from . import ui
 from .utils.bl_class_registry import BlClassRegistry
 from .utils.addon_updator import AddonUpdatorManager
 from .utils import compatibility as compat
+from . import updater
 
 
 def view3d_uvmap_menu_fn(self, context):
@@ -154,41 +154,6 @@ def remove_builtin_menu():
     bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
     bpy.types.VIEW3D_MT_object.append(view3d_object_menu_fn)
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
-
-
-@BlClassRegistry()
-class MUV_OT_CheckAddonUpdate(bpy.types.Operator):
-    bl_idname = "uv.muv_check_addon_update"
-    bl_label = "Check Update"
-    bl_description = "Check Add-on Update"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        updater = AddonUpdatorManager.get_instance()
-        updater.check_update_candidate()
-
-        return {'FINISHED'}
-
-
-@BlClassRegistry()
-@compat.make_annotations
-class MUV_OT_UpdateAddon(bpy.types.Operator):
-    bl_idname = "uv.muv_update_addon"
-    bl_label = "Update"
-    bl_description = "Update Add-on"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    branch_name = StringProperty(
-        name="Branch Name",
-        description="Branch name to update",
-        default="",
-    )
-
-    def execute(self, context):
-        updater = AddonUpdatorManager.get_instance()
-        updater.update(self.branch_name)
-
-        return {'FINISHED'}
 
 
 def get_update_candidate_branches(_, __):
@@ -488,51 +453,4 @@ class Preferences(AddonPreferences):
                 layout.separator()
 
         elif self.category == 'UPDATE':
-            updater = AddonUpdatorManager.get_instance()
-
-            layout.separator()
-
-            if not updater.candidate_checked():
-                col = layout.column()
-                col.scale_y = 2
-                row = col.row()
-                row.operator(MUV_OT_CheckAddonUpdate.bl_idname,
-                             text="Check 'Magic UV' add-on update",
-                             icon='FILE_REFRESH')
-            else:
-                row = layout.row(align=True)
-                row.scale_y = 2
-                col = row.column()
-                col.operator(MUV_OT_CheckAddonUpdate.bl_idname,
-                             text="Check 'Magic UV' add-on update",
-                             icon='FILE_REFRESH')
-                col = row.column()
-                if updater.latest_version() != "":
-                    col.enabled = True
-                    ops = col.operator(
-                        MUV_OT_UpdateAddon.bl_idname,
-                        text="Update to the latest release version (version: {})"
-                             .format(updater.latest_version()),
-                        icon='TRIA_DOWN_BAR')
-                    ops.branch_name = updater.latest_version()
-                else:
-                    col.enabled = False
-                    col.operator(MUV_OT_UpdateAddon.bl_idname,
-                                text="No updates are available.")
-
-                layout.separator()
-                layout.label(text="Manual Update:")
-                row = layout.row(align=True)
-                row.prop(self, "updater_branch_to_update", text="Target")
-                ops = row.operator(
-                    MUV_OT_UpdateAddon.bl_idname, text="Update",
-                    icon='TRIA_DOWN_BAR')
-                ops.branch_name = self.updater_branch_to_update
-
-                layout.separator()
-                if updater.has_error():
-                    box = layout.box()
-                    box.label(text=updater.error(), icon='CANCEL')
-                elif updater.has_info():
-                    box = layout.box()
-                    box.label(text=updater.info(), icon='ERROR')
+            updater.draw_updater_ui(self)

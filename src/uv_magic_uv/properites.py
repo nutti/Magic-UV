@@ -24,23 +24,13 @@ __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
 
+from .utils.property_class_registry import PropertyClassRegistry
+
+
 # Properties used in this add-on.
 # pylint: disable=W0612
 class MUV_Properties():
-    def __init__(self):
-        self.prefs = MUV_Prefs()
-
-
-# TODO: delete this
-class MUV_Prefs():
-    expanded = {
-        "info_desc": False,
-        "info_loc": False,
-        "conf_uvsculpt": False,
-        "conf_uvinsp": False,
-        "conf_texproj": False,
-        "conf_uvbb": False
-    }
+    pass
 
 
 def init_props(scene):
