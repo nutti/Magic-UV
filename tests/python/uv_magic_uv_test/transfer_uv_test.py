@@ -8,8 +8,8 @@ class TestTransferUV(common.TestBase):
     module_name = "transfer_uv"
     idname = [
         # Transfer UV
-        ('OPERATOR', 'uv.muv_transfer_uv_operator_copy_uv'),
-        ('OPERATOR', 'uv.muv_transfer_uv_operator_paste_uv'),
+        ('OPERATOR', 'uv.muv_ot_transfer_uv_copy_uv'),
+        ('OPERATOR', 'uv.muv_ot_transfer_uv_paste_uv'),
     ]
 
     # some test is complicated to reproduce
@@ -27,7 +27,7 @@ class TestTransferUV(common.TestBase):
     def test_copy_uv_ng_no_uv(self):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ng_not_select_two_faces(self):
@@ -35,7 +35,7 @@ class TestTransferUV(common.TestBase):
         print("[TEST] (NG) Not select two faces")
         bpy.ops.mesh.uv_texture_add()
         common.select_faces(self.active_obj, 1)
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ng_not_active_two_faces(self):
@@ -48,7 +48,7 @@ class TestTransferUV(common.TestBase):
             if not f.select:
                 bm.faces.active = f
                 break
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ng_not_share_one_edge(self):
@@ -58,7 +58,7 @@ class TestTransferUV(common.TestBase):
         bm = bmesh.from_edit_mesh(self.active_obj.data)
         selected_faces = common.select_and_active_faces_bm(bm, 1)
         common.select_unlink_faces_bm(bm, selected_faces[0], 1)
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ok(self):
@@ -66,7 +66,7 @@ class TestTransferUV(common.TestBase):
         bpy.ops.mesh.uv_texture_add()
         common.select_and_active_faces(self.active_obj, 1)
         common.select_link_face(self.active_obj, 1)
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def __prepare_paste_uv_test(self):
@@ -74,7 +74,7 @@ class TestTransferUV(common.TestBase):
         bpy.ops.mesh.uv_texture_add()
         common.select_and_active_faces(self.active_obj, 1)
         common.select_link_face(self.active_obj, 1)
-        result = bpy.ops.uv.muv_transfer_uv_operator_copy_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -87,7 +87,7 @@ class TestTransferUV(common.TestBase):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
         self.__prepare_paste_uv_test()
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_paste_uv_ng_not_select_two_faces(self):
@@ -96,7 +96,7 @@ class TestTransferUV(common.TestBase):
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
         common.add_face_select_history(self.active_obj, 1)
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_paste_uv_ng_not_share_one_edge(self):
@@ -105,7 +105,7 @@ class TestTransferUV(common.TestBase):
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
         common.add_face_select_history(self.active_obj, 2)
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_paste_uv_ok_default(self):
@@ -120,7 +120,7 @@ class TestTransferUV(common.TestBase):
         bm.select_history.add(selected_face[0])
         for hist in bm.select_history:
             hist.select = True
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_paste_uv_ok_user_specified(self):
@@ -135,7 +135,7 @@ class TestTransferUV(common.TestBase):
         bm.select_history.add(selected_face[0])
         for hist in bm.select_history:
             hist.select = True
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv(
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv(
             invert_normals=True,
             copy_seams=False
         )
@@ -156,7 +156,7 @@ class TestTransferUV(common.TestBase):
         bm.select_history.add(selected_face[0])
         for hist in bm.select_history:
             hist.select = True
-        result = bpy.ops.uv.muv_transfer_uv_operator_paste_uv()
+        result = bpy.ops.uv.muv_ot_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.tris_convert_to_quads()

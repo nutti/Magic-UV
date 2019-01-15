@@ -99,7 +99,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_uv_inspection_operator_render('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_ot_uv_inspection_render('INVOKE_REGION_WIN')
 
         scene.muv_uv_inspection_enabled = BoolProperty(
             name="UV Inspection Enabled",
@@ -151,7 +151,7 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
     No operation (only rendering)
     """
 
-    bl_idname = "uv.muv_uv_inspection_operator_render"
+    bl_idname = "uv.muv_ot_uv_inspection_render"
     bl_description = "Render overlapped/flipped UVs"
     bl_label = "Overlapped/Flipped UV renderer"
 
@@ -258,7 +258,7 @@ class MUV_OT_UVInspection_Update(bpy.types.Operator):
     Operation class: Update
     """
 
-    bl_idname = "uv.muv_uv_inspection_operator_update"
+    bl_idname = "uv.muv_ot_uv_inspection_update"
     bl_label = "Update UV Inspection"
     bl_description = "Update UV Inspection"
     bl_options = {'REGISTER', 'UNDO'}

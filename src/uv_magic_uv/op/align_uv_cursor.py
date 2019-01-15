@@ -133,7 +133,7 @@ class _Properties:
 @compat.make_annotations
 class MUV_OT_AlignUVCursor(bpy.types.Operator):
 
-    bl_idname = "uv.muv_align_uv_cursor_operator"
+    bl_idname = "uv.muv_ot_align_uv_cursor"
     bl_label = "Align UV Cursor"
     bl_description = "Align cursor to the center of UV island"
     bl_options = {'REGISTER', 'UNDO'}

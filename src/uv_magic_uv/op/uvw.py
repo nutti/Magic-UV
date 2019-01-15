@@ -191,7 +191,7 @@ class _Properties:
 @BlClassRegistry()
 @compat.make_annotations
 class MUV_OT_UVW_BoxMap(bpy.types.Operator):
-    bl_idname = "uv.muv_uvw_operator_box_map"
+    bl_idname = "uv.muv_ot_uvw_box_map"
     bl_label = "Box Map"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -249,7 +249,7 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
 @BlClassRegistry()
 @compat.make_annotations
 class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
-    bl_idname = "uv.muv_uvw_operator_best_planer_map"
+    bl_idname = "uv.muv_ot_uvw_best_planer_map"
     bl_label = "Best Planer Map"
     bl_options = {'REGISTER', 'UNDO'}
 

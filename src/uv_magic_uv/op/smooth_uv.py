@@ -97,7 +97,7 @@ class _Properties:
 @compat.make_annotations
 class MUV_OT_SmoothUV(bpy.types.Operator):
 
-    bl_idname = "uv.muv_smooth_uv_operator"
+    bl_idname = "uv.muv_ot_smooth_uv"
     bl_label = "Smooth"
     bl_description = "Smooth UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}

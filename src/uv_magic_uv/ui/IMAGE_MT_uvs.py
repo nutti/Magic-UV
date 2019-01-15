@@ -48,7 +48,7 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
     Menu class: Master menu of Copy/Paste UV coordinate on UV/ImageEditor
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_uvedit_menu"
+    bl_idname = "uv.muv_mt_copy_paste_uv_uvedit"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate among object"
 
@@ -69,7 +69,7 @@ class MUV_MT_AlignUV(bpy.types.Menu):
     Menu class: Master menu of Align UV
     """
 
-    bl_idname = "uv.muv_align_uv_menu"
+    bl_idname = "uv.muv_mt_align_uv"
     bl_label = "Align UV"
     bl_description = "Align UV"
 
@@ -102,7 +102,7 @@ class MUV_MT_SelectUV(bpy.types.Menu):
     Menu class: Master menu of Select UV
     """
 
-    bl_idname = "uv.muv_select_uv_menu"
+    bl_idname = "uv.muv_mt_select_uv"
     bl_label = "Select UV"
     bl_description = "Select UV"
 
@@ -121,7 +121,7 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
     Menu class: Master menu of Align UV Cursor
     """
 
-    bl_idname = "uv.muv_align_uv_cursor_menu"
+    bl_idname = "uv.muv_mt_align_uv_cursor"
     bl_label = "Align UV Cursor"
     bl_description = "Align UV cursor"
 
@@ -181,7 +181,7 @@ class MUV_MT_UVInspection(bpy.types.Menu):
     Menu class: Master menu of UV Inspection
     """
 
-    bl_idname = "uv.muv_uv_inspection_menu"
+    bl_idname = "uv.muv_mt_uv_inspection"
     bl_label = "UV Inspection"
     bl_description = "UV Inspection"
 

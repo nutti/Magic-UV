@@ -38,7 +38,7 @@ from ..utils import compatibility as compat
 from .. import common
 
 
-def is_valid_context(context):
+def _is_valid_context(context):
     obj = context.object
 
     # only edit mode is allowed to execute
@@ -59,7 +59,7 @@ def is_valid_context(context):
     return True
 
 
-def is_vector_similar(v1, v2, error):
+def _is_vector_similar(v1, v2, error):
     """
     Check if two vectors are similar, within an error threshold
     """
@@ -70,7 +70,7 @@ def is_vector_similar(v1, v2, error):
     return within_err_x and within_err_y and within_err_z
 
 
-def mirror_uvs(uv_layer, src, dst, axis, error):
+def _mirror_uvs(uv_layer, src, dst, axis, error):
     """
     Copy UV coordinates from one UV face to another
     """
@@ -86,11 +86,11 @@ def mirror_uvs(uv_layer, src, dst, axis, error):
             elif axis == 'Z':
                 dvco.z = -dvco.z
 
-            if is_vector_similar(svco, dvco, error):
+            if _is_vector_similar(svco, dvco, error):
                 dl[uv_layer].uv = suv.copy()
 
 
-def get_face_center(face):
+def _get_face_center(face):
     """
     Get center coordinate of the face
     """
@@ -136,7 +136,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
     Operation class: Mirror UV
     """
 
-    bl_idname = "uv.muv_mirror_uv_operator"
+    bl_idname = "uv.muv_ot_mirror_uv"
     bl_label = "Mirror UV"
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -165,7 +165,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object
@@ -193,8 +193,8 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                     continue
 
                 # test if the vertices x values are the same sign
-                dst = get_face_center(f_dst)
-                src = get_face_center(f_src)
+                dst = _get_face_center(f_dst)
+                src = _get_face_center(f_src)
                 if (dst.x > 0 and src.x > 0) or (dst.x < 0 and src.x < 0):
                     continue
 
@@ -207,8 +207,8 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                     src.z = -src.z
 
                 # do mirror UV
-                if is_vector_similar(dst, src, error):
-                    mirror_uvs(uv_layer, f_src, f_dst, self.axis, self.error)
+                if _is_vector_similar(dst, src, error):
+                    _mirror_uvs(uv_layer, f_src, f_dst, self.axis, self.error)
 
         bmesh.update_edit_mesh(obj.data)
 

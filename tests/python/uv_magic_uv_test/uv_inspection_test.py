@@ -7,8 +7,8 @@ class TestUVInspection(common.TestBase):
     module_name = "uv_inspection"
     idname = [
         # UV Inspection
-        ('OPERATOR', "uv.muv_uv_inspection_operator_render"),
-        ('OPERATOR', "uv.muv_uv_inspection_operator_update"),
+        ('OPERATOR', "uv.muv_ot_uv_inspection_render"),
+        ('OPERATOR', "uv.muv_ot_uv_inspection_update"),
     ]
 
     def setUpEachMethod(self):
@@ -25,5 +25,5 @@ class TestUVInspection(common.TestBase):
 
     def test_update_ok(self):
         print("[TEST] (OK)")
-        result = bpy.ops.uv.muv_uv_inspection_operator_update()
+        result = bpy.ops.uv.muv_ot_uv_inspection_update()
         self.assertSetEqual(result, {'FINISHED'})

@@ -8,10 +8,10 @@ class TestCopyPasteUVObject(common.TestBase):
     module_name = "copy_paste_uv_object"
     idname = [
         # Copy/Paste UV Coordinates (Among same objects)
-        ('MENU', 'object.muv_copy_paste_uv_object_menu_copy_uv'),
-        ('OPERATOR', 'object.muv_copy_paste_uv_object_operator_copy_uv'),
-        ('MENU', 'object.muv_copy_paste_uv_object_menu_paste_uv'),
-        ('OPERATOR', 'object.muv_copy_paste_uv_object_operator_paste_uv'),
+        ('MENU', 'object.muv_mt_copy_paste_uv_object_copy_uv'),
+        ('OPERATOR', 'object.muv_ot_copy_paste_uv_object_copy_uv'),
+        ('MENU', 'object.muv_mt_copy_paste_uv_object_paste_uv'),
+        ('OPERATOR', 'object.muv_ot_copy_paste_uv_object_paste_uv'),
     ]
 
     def setUpEachMethod(self):
@@ -27,37 +27,37 @@ class TestCopyPasteUVObject(common.TestBase):
     def test_paste_uv_ng_not_copy_first(self):
         # Warning: Need copy UV at first
         print("[TEST] (NG) Not copy first")
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ng_no_uv(self):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_copy_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_copy_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_copy_uv_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_copy_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_copy_uv_ok_all(self):
         print("[TEST] (OK) All")
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_copy_uv(uv_map="__all")
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_copy_uv(uv_map="__all")
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_copy_uv_ok_user_specified(self):
         print("[TEST] (OK) User specified UV")
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_copy_uv(uv_map=self.uv_map)
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_copy_uv(uv_map=self.uv_map)
         self.assertSetEqual(result, {'FINISHED'})
 
     def __prepare_paste_uv_test(self):
         # Copy UV
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_copy_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
         common.select_object_only(self.dest_obj_name)
@@ -68,7 +68,7 @@ class TestCopyPasteUVObject(common.TestBase):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
         self.__prepare_paste_uv_test()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_paste_uv_ng_not_same_number_of_selected_face(self):
@@ -80,7 +80,7 @@ class TestCopyPasteUVObject(common.TestBase):
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.quads_convert_to_tris()
         bpy.ops.object.mode_set(mode='OBJECT')
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
@@ -91,28 +91,28 @@ class TestCopyPasteUVObject(common.TestBase):
         print("[TEST] (OK) Default")
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_paste_uv_ok_all(self):
         print("[TEST] (OK) Default")
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv(uv_map="__all")
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv(uv_map="__all")
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_paste_uv_ok_new(self):
         print("[TEST] (OK) Default")
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv(uv_map="__new")
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv(uv_map="__new")
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_paste_uv_ok_user_specified(self):
         print("[TEST] (OK) User specified UV")
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv(
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv(
             uv_map=self.uv_map,
             copy_seams=False
         )
@@ -135,5 +135,5 @@ class TestCopyPasteUVObject(common.TestBase):
                 f.select = False
         bpy.ops.mesh.delete(type='FACE')
         bpy.ops.object.mode_set(mode='OBJECT')
-        result = bpy.ops.object.muv_copy_paste_uv_object_operator_paste_uv()
+        result = bpy.ops.object.muv_ot_copy_paste_uv_object_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})

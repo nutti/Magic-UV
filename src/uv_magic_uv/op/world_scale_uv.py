@@ -275,7 +275,7 @@ class MUV_OT_WorldScaleUV_Measure(bpy.types.Operator):
     Operation class: Measure face size
     """
 
-    bl_idname = "uv.muv_world_scale_uv_operator_measure"
+    bl_idname = "uv.muv_ot_world_scale_uv_measure"
     bl_label = "Measure World Scale UV"
     bl_description = "Measure face size for scale calculation"
     bl_options = {'REGISTER', 'UNDO'}
@@ -315,7 +315,7 @@ class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
     Operation class: Apply scaled UV (Manual)
     """
 
-    bl_idname = "uv.muv_world_scale_uv_operator_apply_manual"
+    bl_idname = "uv.muv_ot_world_scale_uv_apply_manual"
     bl_label = "Apply World Scale UV (Manual)"
     bl_description = "Apply scaled UV based on user specification"
     bl_options = {'REGISTER', 'UNDO'}
@@ -413,7 +413,7 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
     Operation class: Apply scaled UV (Scaling Density)
     """
 
-    bl_idname = "uv.muv_world_scale_uv_operator_apply_scaling_density"
+    bl_idname = "uv.muv_ot_world_scale_uv_apply_scaling_density"
     bl_label = "Apply World Scale UV (Scaling Density)"
     bl_description = "Apply scaled UV with scaling density"
     bl_options = {'REGISTER', 'UNDO'}
@@ -537,7 +537,7 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
     Operation class: Apply scaled UV (Proportional to mesh)
     """
 
-    bl_idname = "uv.muv_world_scale_uv_operator_apply_proportional_to_mesh"
+    bl_idname = "uv.muv_ot_world_scale_uv_apply_proportional_to_mesh"
     bl_label = "Apply World Scale UV (Proportional to mesh)"
     bl_description = "Apply scaled UV proportionaled to mesh"
     bl_options = {'REGISTER', 'UNDO'}

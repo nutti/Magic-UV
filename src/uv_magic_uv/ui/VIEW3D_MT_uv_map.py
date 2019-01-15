@@ -55,7 +55,7 @@ class MUV_MT_CopyPasteUV(bpy.types.Menu):
     Menu class: Master menu of Copy/Paste UV coordinate
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_menu"
+    bl_idname = "uv.muv_mt_copy_paste_uv"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate"
 
@@ -83,7 +83,7 @@ class MUV_MT_TransferUV(bpy.types.Menu):
     Menu class: Master menu of Transfer UV coordinate
     """
 
-    bl_idname = "uv.muv_transfer_uv_menu"
+    bl_idname = "uv.muv_mt_transfer_uv"
     bl_label = "Transfer UV"
     bl_description = "Transfer UV coordinate"
 
@@ -105,7 +105,7 @@ class MUV_MT_TextureLock(bpy.types.Menu):
     Menu class: Master menu of Texture Lock
     """
 
-    bl_idname = "uv.muv_texture_lock_menu"
+    bl_idname = "uv.muv_mt_texture_lock"
     bl_label = "Texture Lock"
     bl_description = "Lock texture when vertices of mesh (Preserve UV)"
 
@@ -135,7 +135,7 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
     Menu class: Master menu of world scale UV
     """
 
-    bl_idname = "uv.muv_world_scale_uv_menu"
+    bl_idname = "uv.muv_mt_world_scale_uv"
     bl_label = "World Scale UV"
     bl_description = ""
 
@@ -177,7 +177,7 @@ class MUV_MT_TextureWrap(bpy.types.Menu):
     Menu class: Master menu of Texture Wrap
     """
 
-    bl_idname = "uv.muv_texture_wrap_menu"
+    bl_idname = "uv.muv_mt_texture_wrap"
     bl_label = "Texture Wrap"
     bl_description = ""
 
@@ -194,7 +194,7 @@ class MUV_MT_UVW(bpy.types.Menu):
     Menu class: Master menu of UVW
     """
 
-    bl_idname = "uv.muv_uvw_menu"
+    bl_idname = "uv.muv_mt_uvw"
     bl_label = "UVW"
     bl_description = ""
 
@@ -216,7 +216,7 @@ class MUV_MT_PreserveUVAspect(bpy.types.Menu):
     Menu class: Master menu of Preserve UV Aspect
     """
 
-    bl_idname = "uv.muv_preserve_uv_aspect_menu"
+    bl_idname = "uv.muv_mt_preserve_uv_aspect"
     bl_label = "Preserve UV Aspect"
     bl_description = ""
 
@@ -236,7 +236,7 @@ class MUV_MT_TextureProjection(bpy.types.Menu):
     Menu class: Master menu of Texture Projection
     """
 
-    bl_idname = "uv.muv_texture_projection_menu"
+    bl_idname = "uv.muv_mt_texture_projection"
     bl_label = "Texture Projection"
     bl_description = ""
 

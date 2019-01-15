@@ -7,8 +7,8 @@ class TestTextureProjection(common.TestBase):
     module_name = "texture_projection"
     idname = [
         # Texture Lock
-        ('OPERATOR', 'uv.muv_texture_projection_operator'),
-        ('OPERATOR', 'uv.muv_texture_projection_operator_project'),
+        ('OPERATOR', 'uv.muv_ot_texture_projection'),
+        ('OPERATOR', 'uv.muv_ot_texture_projection_project'),
     ]
 
     # can not test interactive mode
@@ -27,7 +27,7 @@ class TestTextureProjection(common.TestBase):
         # Warning: No textures are selected
         print("[TEST] (NG) No Image")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_texture_projection_operator_project()
+        result = bpy.ops.uv.muv_ot_texture_projection_project()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ng_no_uv(self):
@@ -36,5 +36,5 @@ class TestTextureProjection(common.TestBase):
         bpy.ops.image.new(name='Test')
         bpy.context.scene.muv_texture_projection_tex_image = 'Test'
         bpy.context.scene.muv_texture_projection_assign_uvmap = False
-        result = bpy.ops.uv.muv_texture_projection_operator_project()
+        result = bpy.ops.uv.muv_ot_texture_projection_project()
         self.assertSetEqual(result, {'CANCELLED'})

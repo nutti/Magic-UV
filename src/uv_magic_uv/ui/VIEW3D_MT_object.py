@@ -35,7 +35,7 @@ class MUV_MT_CopyPasteUV_Object(bpy.types.Menu):
     Menu class: Master menu of Copy/Paste UV coordinate among object
     """
 
-    bl_idname = "uv.muv_copy_paste_uv_object_menu"
+    bl_idname = "uv.muv_mt_copy_paste_uv_object"
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate among object"
 

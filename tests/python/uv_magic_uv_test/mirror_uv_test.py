@@ -7,7 +7,7 @@ class TestMirrorUV(common.TestBase):
     module_name = "mirror_uv"
     idname = [
         # Mirror UV
-        ('OPERATOR', 'uv.muv_mirror_uv_operator'),
+        ('OPERATOR', 'uv.muv_ot_mirror_uv'),
     ]
 
     def setUpEachMethod(self):
@@ -21,26 +21,26 @@ class TestMirrorUV(common.TestBase):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_mirror_uv_operator()
+        result = bpy.ops.uv.muv_ot_mirror_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_mirror_uv_operator()
+        result = bpy.ops.uv.muv_ot_mirror_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified_1(self):
         print("[TEST] (OK) User specified 1")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_mirror_uv_operator(axis='Y', error=0.7)
+        result = bpy.ops.uv.muv_ot_mirror_uv(axis='Y', error=0.7)
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified_2(self):
         print("[TEST] (OK) User specified 2")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_mirror_uv_operator(axis='Y', error=19.4)
+        result = bpy.ops.uv.muv_ot_mirror_uv(axis='Y', error=19.4)
         self.assertSetEqual(result, {'FINISHED'})

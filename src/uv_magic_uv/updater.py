@@ -37,7 +37,7 @@ from .utils import compatibility as compat
 
 @BlClassRegistry()
 class MUV_OT_CheckAddonUpdate(bpy.types.Operator):
-    bl_idname = "uv.muv_check_addon_update"
+    bl_idname = "uv.muv_ot_check_addon_update"
     bl_label = "Check Update"
     bl_description = "Check Add-on Update"
     bl_options = {'REGISTER', 'UNDO'}
@@ -52,7 +52,7 @@ class MUV_OT_CheckAddonUpdate(bpy.types.Operator):
 @BlClassRegistry()
 @compat.make_annotations
 class MUV_OT_UpdateAddon(bpy.types.Operator):
-    bl_idname = "uv.muv_update_addon"
+    bl_idname = "uv.muv_ot_update_addon"
     bl_label = "Update"
     bl_description = "Update Add-on"
     bl_options = {'REGISTER', 'UNDO'}

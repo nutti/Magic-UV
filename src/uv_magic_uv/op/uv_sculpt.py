@@ -96,7 +96,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_uv_sculpt_operator('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_ot_uv_sculpt('INVOKE_REGION_WIN')
 
         scene.muv_uv_sculpt_enabled = BoolProperty(
             name="UV Sculpt",
@@ -174,7 +174,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
     Operation class: UV Sculpt in View3D
     """
 
-    bl_idname = "uv.muv_uv_sculpt_operator"
+    bl_idname = "uv.muv_ot_uv_sculpt"
     bl_label = "UV Sculpt"
     bl_description = "UV Sculpt in View3D"
     bl_options = {'REGISTER'}

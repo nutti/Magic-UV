@@ -97,7 +97,7 @@ class MUV_OT_TextureWrap_Refer(bpy.types.Operator):
     Operation class: Refer UV
     """
 
-    bl_idname = "uv.muv_texture_wrap_operator_refer"
+    bl_idname = "uv.muv_ot_texture_wrap_refer"
     bl_label = "Refer"
     bl_description = "Refer UV"
     bl_options = {'REGISTER', 'UNDO'}
@@ -137,7 +137,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
     Operation class: Set UV
     """
 
-    bl_idname = "uv.muv_texture_wrap_operator_set"
+    bl_idname = "uv.muv_ot_texture_wrap_set"
     bl_label = "Set"
     bl_description = "Set UV"
     bl_options = {'REGISTER', 'UNDO'}

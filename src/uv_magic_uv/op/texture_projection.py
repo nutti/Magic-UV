@@ -50,13 +50,13 @@ _Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 _Rect2 = namedtuple('Rect2', 'x y width height')
 
 
-def get_loaded_texture_name(_, __):
+def _get_loaded_texture_name(_, __):
     items = [(key, key, "") for key in bpy.data.images.keys()]
     items.append(("None", "None", ""))
     return items
 
 
-def get_canvas(context, magnitude):
+def _get_canvas(context, magnitude):
     """
     Get canvas to be renderred texture
     """
@@ -102,7 +102,7 @@ def get_canvas(context, magnitude):
     return _Rect(x0, y0, x1, y1)
 
 
-def rect_to_rect2(rect):
+def _rect_to_rect2(rect):
     """
     Convert Rect1 to Rect2
     """
@@ -110,12 +110,12 @@ def rect_to_rect2(rect):
     return _Rect2(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0)
 
 
-def region_to_canvas(rg_vec, canvas):
+def _region_to_canvas(rg_vec, canvas):
     """
     Convert screen region to canvas
     """
 
-    cv_rect = rect_to_rect2(canvas)
+    cv_rect = _rect_to_rect2(canvas)
     cv_vec = mathutils.Vector()
     cv_vec.x = (rg_vec.x - cv_rect.x) / cv_rect.width
     cv_vec.y = (rg_vec.y - cv_rect.y) / cv_rect.height
@@ -123,7 +123,7 @@ def region_to_canvas(rg_vec, canvas):
     return cv_vec
 
 
-def is_valid_context(context):
+def _is_valid_context(context):
     obj = context.object
 
     # only edit mode is allowed to execute
@@ -157,7 +157,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_texture_projection_operator('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_ot_texture_projection('INVOKE_REGION_WIN')
 
         scene.muv_texture_projection_enabled = BoolProperty(
             name="Texture Projection Enabled",
@@ -182,7 +182,7 @@ class _Properties:
         scene.muv_texture_projection_tex_image = EnumProperty(
             name="Image",
             description="Texture Image",
-            items=get_loaded_texture_name
+            items=_get_loaded_texture_name
         )
         scene.muv_texture_projection_tex_transparency = FloatProperty(
             name="Transparency",
@@ -225,7 +225,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
     Render texture
     """
 
-    bl_idname = "uv.muv_texture_projection_operator"
+    bl_idname = "uv.muv_ot_texture_projection"
     bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
@@ -236,7 +236,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return False
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -269,7 +269,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         img = bpy.data.images[sc.muv_texture_projection_tex_image]
 
         # setup rendering region
-        rect = get_canvas(context, sc.muv_texture_projection_tex_magnitude)
+        rect = _get_canvas(context, sc.muv_texture_projection_tex_magnitude)
         positions = [
             [rect.x0, rect.y0],
             [rect.x0, rect.y1],
@@ -332,7 +332,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
     Operation class: Project texture
     """
 
-    bl_idname = "uv.muv_texture_projection_operator_project"
+    bl_idname = "uv.muv_ot_texture_projection_project"
     bl_label = "Project Texture"
     bl_description = "Project Texture"
     bl_options = {'REGISTER', 'UNDO'}
@@ -344,7 +344,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             return True
         if not MUV_OT_TextureProjection.is_running(context):
             return False
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
@@ -388,10 +388,10 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
 
         # transform screen region to canvas
         v_canvas = [
-            region_to_canvas(
+            _region_to_canvas(
                 v,
-                get_canvas(bpy.context,
-                           sc.muv_texture_projection_tex_magnitude)
+                _get_canvas(bpy.context,
+                            sc.muv_texture_projection_tex_magnitude)
             ) for v in v_screen
         ]
 
