@@ -39,9 +39,11 @@ from ..op.select_uv import (
 )
 from ..op.pack_uv import MUV_OT_PackUV
 from ..utils.bl_class_registry import BlClassRegistry
+from ..utils import compatibility as compat
 
 
 @BlClassRegistry()
+@compat.ChangeRegionType(region_type='TOOLS')
 class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
     """
     Panel class: UV Manipulation on Property Panel on UV/ImageEditor
@@ -56,7 +58,7 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon=compat.icon('IMAGE'))
 
     def draw(self, context):
         sc = context.scene

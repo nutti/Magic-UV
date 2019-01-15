@@ -33,17 +33,113 @@ from bpy.props import (
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import flip_rotate_impl as impl
-from ..utils import compatibility
+from ..utils import compatibility as compat
 
-__all__ = [
-    'Properties',
-    'MUV_OT_FlipRotate',
-]
+
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+def _get_uv_layer(ops_obj, bm):
+    # get UV layer
+    if not bm.loops.layers.uv:
+        ops_obj.report({'WARNING'}, "Object must have more than one UV map")
+        return None
+    uv_layer = bm.loops.layers.uv.verify()
+
+    return uv_layer
+
+
+def _get_src_face_info(ops_obj, bm, uv_layers, only_select=False):
+    src_info = {}
+    for layer in uv_layers:
+        face_info = []
+        for face in bm.faces:
+            if not only_select or face.select:
+                info = {
+                    "index": face.index,
+                    "uvs": [l[layer].uv.copy() for l in face.loops],
+                    "pin_uvs": [l[layer].pin_uv for l in face.loops],
+                    "seams": [l.edge.seam for l in face.loops],
+                }
+                face_info.append(info)
+        if not face_info:
+            ops_obj.report({'WARNING'}, "No faces are selected")
+            return None
+        src_info[layer.name] = face_info
+
+    return src_info
+
+
+def _paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
+              rotate, copy_seams):
+    for slayer_name, dlayer in zip(src_info.keys(), uv_layers):
+        src_faces = src_info[slayer_name]
+        dest_faces = dest_info[dlayer.name]
+
+        for idx, dinfo in enumerate(dest_faces):
+            sinfo = None
+            if strategy == 'N_N':
+                sinfo = src_faces[idx]
+            elif strategy == 'N_M':
+                sinfo = src_faces[idx % len(src_faces)]
+
+            suv = sinfo["uvs"]
+            spuv = sinfo["pin_uvs"]
+            ss = sinfo["seams"]
+            if len(sinfo["uvs"]) != len(dinfo["uvs"]):
+                ops_obj.report({'WARNING'}, "Some faces are different size")
+                return -1
+
+            suvs_fr = [uv for uv in suv]
+            spuvs_fr = [pin_uv for pin_uv in spuv]
+            ss_fr = [s for s in ss]
+
+            # flip UVs
+            if flip is True:
+                suvs_fr.reverse()
+                spuvs_fr.reverse()
+                ss_fr.reverse()
+
+            # rotate UVs
+            for _ in range(rotate):
+                uv = suvs_fr.pop()
+                pin_uv = spuvs_fr.pop()
+                s = ss_fr.pop()
+                suvs_fr.insert(0, uv)
+                spuvs_fr.insert(0, pin_uv)
+                ss_fr.insert(0, s)
+
+            # paste UVs
+            for l, suv, spuv, ss in zip(bm.faces[dinfo["index"]].loops,
+                                        suvs_fr, spuvs_fr, ss_fr):
+                l[dlayer].uv = suv
+                l[dlayer].pin_uv = spuv
+                if copy_seams is True:
+                    l.edge.seam = ss
+
+    return 0
 
 
 @PropertyClassRegistry()
-class Properties:
+class _Properties:
     idname = "flip_rotate_uv"
 
     @classmethod
@@ -66,7 +162,7 @@ class Properties:
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_FlipRotate(bpy.types.Operator):
     """
     Operation class: Flip and Rotate UV coordinate
@@ -99,7 +195,7 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
         self.report({'INFO'}, "Flip/Rotate UV")
@@ -109,12 +205,12 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         # get UV layer
-        uv_layer = impl.get_uv_layer(self, bm)
+        uv_layer = _get_uv_layer(self, bm)
         if not uv_layer:
             return {'CANCELLED'}
 
         # get selected face
-        src_info = impl.get_src_face_info(self, bm, [uv_layer], True)
+        src_info = _get_src_face_info(self, bm, [uv_layer], True)
         if not src_info:
             return {'CANCELLED'}
 
@@ -122,11 +218,15 @@ class MUV_OT_FlipRotate(bpy.types.Operator):
         self.report({'INFO'}, "{} face(s) are selected".format(face_count))
 
         # paste
-        ret = impl.paste_uv(self, bm, src_info, src_info, [uv_layer], 'N_N',
-                            self.flip, self.rotate, self.seams)
+        ret = _paste_uv(self, bm, src_info, src_info, [uv_layer], 'N_N',
+                        self.flip, self.rotate, self.seams)
         if ret:
             return {'CANCELLED'}
 
         bmesh.update_edit_mesh(obj.data)
+
+        if compat.check_version(2, 80, 0) < 0:
+            if self.seams is True:
+                obj.data.show_edge_seams = True
 
         return {'FINISHED'}

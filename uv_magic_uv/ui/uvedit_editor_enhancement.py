@@ -34,13 +34,11 @@ from ..op.uv_inspection import (
     MUV_OT_UVInspection_Update,
 )
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_PT_UVEdit_EditorEnhancement',
-]
+from ..utils import compatibility as compat
 
 
 @BlClassRegistry()
+@compat.ChangeRegionType(region_type='TOOLS')
 class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
     """
     Panel class: UV/Image Editor Enhancement
@@ -55,7 +53,7 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon=compat.icon('IMAGE'))
 
     def draw(self, context):
         layout = self.layout

@@ -45,17 +45,8 @@ from ..op.world_scale_uv import (
     MUV_OT_WorldScaleUV_ApplyScalingDensity,
     MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
 )
-from ..op.texture_projection import (
-    MUV_OT_TextureProjection,
-    MUV_OT_TextureProjection_Project,
-)
+from ..op.texture_projection import MUV_OT_TextureProjection_Project
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_MT_CopyPasteUV',
-    'MUV_MT_TransferUV',
-    'MUV_MT_UVW',
-]
 
 
 @BlClassRegistry()

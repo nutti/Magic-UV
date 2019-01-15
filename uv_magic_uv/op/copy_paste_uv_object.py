@@ -30,22 +30,20 @@ from bpy.props import (
     BoolProperty,
 )
 
-from ..impl import copy_paste_uv_impl as impl
+from .copy_paste_uv import (
+    get_copy_uv_layers,
+    get_src_face_info,
+    get_paste_uv_layers,
+    get_dest_face_info,
+    paste_uv,
+)
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..utils import compatibility
-
-__all__ = [
-    'Properties',
-    'MUV_OT_CopyPasteUVObject_CopyUV',
-    'MUV_MT_CopyPasteUVObject_CopyUV',
-    'MUV_OT_CopyPasteUVObject_PasteUV',
-    'MUV_MT_CopyPasteUVObject_PasteUV',
-]
+from ..utils import compatibility as compat
 
 
-def is_valid_context(context):
+def _is_valid_context(context):
     obj = context.object
 
     # only object mode is allowed to execute
@@ -67,7 +65,7 @@ def is_valid_context(context):
 
 
 @PropertyClassRegistry()
-class Properties:
+class _Properties:
     idname = "copy_paste_uv_object"
 
     @classmethod
@@ -99,7 +97,7 @@ def memorize_view_3d_mode(fn):
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
     """
     Operation class: Copy UV coordinate among objects
@@ -117,7 +115,7 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -127,12 +125,12 @@ class MUV_OT_CopyPasteUVObject_CopyUV(bpy.types.Operator):
         bm = common.create_bmesh(obj)
 
         # get UV layer
-        uv_layers = impl.get_copy_uv_layers(self, bm, self.uv_map)
+        uv_layers = get_copy_uv_layers(self, bm, self.uv_map)
         if not uv_layers:
             return {'CANCELLED'}
 
         # get selected face
-        src_info = impl.get_src_face_info(self, bm, uv_layers)
+        src_info = get_src_face_info(self, bm, uv_layers)
         if src_info is None:
             return {'CANCELLED'}
         props.src_info = src_info
@@ -155,12 +153,12 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
 
     @classmethod
     def poll(cls, context):
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     def draw(self, _):
         layout = self.layout
         # create sub menu
-        uv_maps = bpy.context.active_object.data.uv_layers.keys()
+        uv_maps = compat.get_object_uv_layers(bpy.context.active_object).keys()
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
                               text="[Default]")
@@ -177,7 +175,7 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
     """
     Operation class: Paste UV coordinate among objects
@@ -204,7 +202,7 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
         props = sc.muv_props.copy_paste_uv_object
         if not props.src_info:
             return False
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     @memorize_view_3d_mode
     def execute(self, context):
@@ -214,35 +212,39 @@ class MUV_OT_CopyPasteUVObject_PasteUV(bpy.types.Operator):
             return {'CANCELLED'}
 
         for o in bpy.data.objects:
-            if not hasattr(o.data, "uv_layers") or not o.select_get():
+            if not compat.object_has_uv_layers(o) or not compat.get_object_select(o):
                 continue
 
             bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.view_layer.objects.active = o
+            compat.set_active_object(o)
             bpy.ops.object.mode_set(mode='EDIT')
 
             obj = context.active_object
             bm = common.create_bmesh(obj)
 
             # get UV layer
-            uv_layers = impl.get_paste_uv_layers(self, obj, bm, props.src_info,
-                                                 self.uv_map)
+            uv_layers = get_paste_uv_layers(self, obj, bm, props.src_info,
+                                            self.uv_map)
             if not uv_layers:
                 return {'CANCELLED'}
 
             # get selected face
-            dest_info = impl.get_dest_face_info(self, bm, uv_layers,
-                                                props.src_info, 'N_N')
+            dest_info = get_dest_face_info(self, bm, uv_layers,
+                                           props.src_info, 'N_N')
             if dest_info is None:
                 return {'CANCELLED'}
 
             # paste
-            ret = impl.paste_uv(self, bm, props.src_info, dest_info, uv_layers,
-                                'N_N', 0, 0, self.copy_seams)
+            ret = paste_uv(self, bm, props.src_info, dest_info, uv_layers,
+                           'N_N', 0, 0, self.copy_seams)
             if ret:
                 return {'CANCELLED'}
 
             bmesh.update_edit_mesh(obj.data)
+
+            if compat.check_version(2, 80, 0) < 0:
+                if self.copy_seams is True:
+                    obj.data.show_edge_seams = True
 
             self.report(
                 {'INFO'}, "{}'s UV coordinates are pasted".format(obj.name))
@@ -266,7 +268,7 @@ class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
         props = sc.muv_props.copy_paste_uv_object
         if not props.src_info:
             return False
-        return is_valid_context(context)
+        return _is_valid_context(context)
 
     def draw(self, context):
         sc = context.scene
@@ -274,8 +276,8 @@ class MUV_MT_CopyPasteUVObject_PasteUV(bpy.types.Menu):
         # create sub menu
         uv_maps = []
         for obj in bpy.data.objects:
-            if hasattr(obj.data, "uv_layers") and obj.select_get():
-                uv_maps.extend(obj.data.uv_layers.keys())
+            if compat.object_has_uv_layers(obj) and compat.get_object_select(obj):
+                uv_maps.extend(compat.get_object_uv_layers(obj).keys())
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_PasteUV.bl_idname,
                               text="[Default]")

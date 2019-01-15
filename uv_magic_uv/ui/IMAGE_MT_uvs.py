@@ -41,10 +41,6 @@ from ..op.select_uv import (
 from ..op.uv_inspection import MUV_OT_UVInspection_Update
 from ..utils.bl_class_registry import BlClassRegistry
 
-__all__ = [
-    'MUV_MT_CopyPasteUV_UVEdit',
-]
-
 
 @BlClassRegistry()
 class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):

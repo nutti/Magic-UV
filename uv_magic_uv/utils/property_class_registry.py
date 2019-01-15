@@ -25,10 +25,6 @@ __date__ = "17 Nov 2018"
 
 from .. import common
 
-__all__ = [
-    'PropertyClassRegistry',
-]
-
 
 class PropertyClassRegistry:
     class_list = []

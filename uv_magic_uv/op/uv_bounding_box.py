@@ -27,7 +27,6 @@ from enum import IntEnum
 import math
 
 import bpy
-import bgl
 import mathutils
 import bmesh
 from bpy.props import BoolProperty, EnumProperty
@@ -35,12 +34,38 @@ from bpy.props import BoolProperty, EnumProperty
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import uv_bounding_box_impl as impl
+from ..utils import compatibility as compat
 
-from ..lib import bglx
+if compat.check_version(2, 80, 0) >= 0:
+    from ..lib import bglx as bgl
+else:
+    import bgl
 
 
 MAX_VALUE = 100000.0
+
+
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
+    for space in context.area.spaces:
+        if (space.type == 'IMAGE_EDITOR') or (space.type == 'VIEW_3D'):
+            break
+    else:
+        return False
+
+    return True
 
 
 @PropertyClassRegistry()
@@ -166,7 +191,7 @@ class RotationCommand(CommandBase):
         mti = mathutils.Matrix.Translation((-self.__cx, -self.__cy, 0.0))
         mr = mathutils.Matrix.Rotation(angle, 4, 'Z')
         mt = mathutils.Matrix.Translation((self.__cx, self.__cy, 0.0))
-        return mt @ mr @ mti
+        return compat.matmul(compat.matmul(mt, mr), mti)
 
     def set(self, x, y):
         self.__x = x
@@ -191,7 +216,7 @@ class ScalingCommand(CommandBase):
         self.__dir_y = dir_y    # direction of scaling y
         self.__mat = mat
         # initial origin of scaling = M(to original transform) * (ox, oy)
-        iov = mat @ mathutils.Vector((ox, oy, 0.0))
+        iov = compat.matmul(mat, mathutils.Vector((ox, oy, 0.0)))
         self.__iox = iov.x      # initial origin of scaling X
         self.__ioy = iov.y      # initial origin of scaling y
 
@@ -205,11 +230,11 @@ class ScalingCommand(CommandBase):
         mtoi = mathutils.Matrix.Translation((-self.__iox, -self.__ioy, 0.0))
         mto = mathutils.Matrix.Translation((self.__iox, self.__ioy, 0.0))
         # every point must be transformed to origin
-        t = m @ mathutils.Vector((self.__ix, self.__iy, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__ix, self.__iy, 0.0)))
         tix, tiy = t.x, t.y
-        t = m @ mathutils.Vector((self.__ox, self.__oy, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__ox, self.__oy, 0.0)))
         tox, toy = t.x, t.y
-        t = m @ mathutils.Vector((self.__x, self.__y, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__x, self.__y, 0.0)))
         tx, ty = t.x, t.y
         ms = mathutils.Matrix()
         ms.identity()
@@ -217,7 +242,8 @@ class ScalingCommand(CommandBase):
             ms[0][0] = (tx - tox) * self.__dir_x / (tix - tox)
         if self.__dir_y == 1:
             ms[1][1] = (ty - toy) * self.__dir_y / (tiy - toy)
-        return mi @ mto @ ms @ mtoi @ m
+        return compat.matmul(compat.matmul(compat.matmul(
+                        compat.matmul(mi, mto), ms), mtoi), m)
 
     def set(self, x, y):
         self.__x = x
@@ -240,7 +266,7 @@ class UniformScalingCommand(CommandBase):
         self.__oy = oy          # origin of scaling y
         self.__mat = mat
         # initial origin of scaling = M(to original transform) * (ox, oy)
-        iov = mat @ mathutils.Vector((ox, oy, 0.0))
+        iov = compat.matmul(mat, mathutils.Vector((ox, oy, 0.0)))
         self.__iox = iov.x      # initial origin of scaling x
         self.__ioy = iov.y      # initial origin of scaling y
         self.__dir_x = 1
@@ -256,11 +282,11 @@ class UniformScalingCommand(CommandBase):
         mtoi = mathutils.Matrix.Translation((-self.__iox, -self.__ioy, 0.0))
         mto = mathutils.Matrix.Translation((self.__iox, self.__ioy, 0.0))
         # every point must be transformed to origin
-        t = m @ mathutils.Vector((self.__ix, self.__iy, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__ix, self.__iy, 0.0)))
         tix, tiy = t.x, t.y
-        t = m @ mathutils.Vector((self.__ox, self.__oy, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__ox, self.__oy, 0.0)))
         tox, toy = t.x, t.y
-        t = m @ mathutils.Vector((self.__x, self.__y, 0.0))
+        t = compat.matmul(m, mathutils.Vector((self.__x, self.__y, 0.0)))
         tx, ty = t.x, t.y
         ms = mathutils.Matrix()
         ms.identity()
@@ -281,7 +307,8 @@ class UniformScalingCommand(CommandBase):
         ms[0][0] = sr * self.__dir_x
         ms[1][1] = sr * self.__dir_y
 
-        return mi @ mto @ ms @ mtoi @ m
+        return compat.matmul(compat.matmul(compat.matmul(
+                        compat.matmul(mi, mto), ms), mtoi), m)
 
     def set(self, x, y):
         self.__x = x
@@ -305,7 +332,7 @@ class CommandExecuter:
         mat.identity()
         for i, cmd in enumerate(self.__cmd_list):
             if begin <= i and (end == -1 or i <= end):
-                mat = cmd.to_matrix() @ mat
+                mat = compat.matmul(cmd.to_matrix(), mat)
         return mat
 
     def undo_size(self):
@@ -402,7 +429,7 @@ class StateNone(StateBase):
         """
         Update state
         """
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
         cp_react_size = prefs.uv_bounding_box_cp_react_size
         is_uscaling = context.scene.muv_uv_bounding_box_uniform_scaling
         if (event.type == 'LEFTMOUSE') and (event.value == 'PRESS'):
@@ -602,7 +629,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return False
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -634,7 +661,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         """
         Draw control point
         """
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
         cp_size = prefs.uv_bounding_box_cp_size
         offset = cp_size / 2
         verts = [
@@ -644,11 +671,11 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             [pos.x + offset, pos.y - offset]
         ]
         bgl.glEnable(bgl.GL_BLEND)
-        bglx.glBegin(bglx.GL_QUADS)
-        bglx.glColor4f(1.0, 1.0, 1.0, 1.0)
+        bgl.glBegin(bgl.GL_QUADS)
+        bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
         for (x, y) in verts:
-            bglx.glVertex2f(x, y)
-        bglx.glEnd()
+            bgl.glVertex2f(x, y)
+        bgl.glEnd()
 
     @classmethod
     def draw_bb(cls, _, context):
@@ -660,7 +687,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         if not MUV_OT_UVBoundingBox.is_running(context):
             return
 
-        if not impl.is_valid_context(context):
+        if not _is_valid_context(context):
             return
 
         for cp in props.ctrl_points:
@@ -747,7 +774,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             lidx = info[1]
             uv = info[2]
             v = mathutils.Vector((uv.x, uv.y, 0.0))
-            av = trans_mat @ v
+            av = compat.matmul(trans_mat, v)
             bm.faces[fidx].loops[lidx][uv_layer].uv = mathutils.Vector(
                 (av.x, av.y))
         bmesh.update_edit_mesh(obj.data)
@@ -756,7 +783,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         """
         Update control point
         """
-        return [trans_mat @ cp for cp in ctrl_points_ini]
+        return [compat.matmul(trans_mat, cp) for cp in ctrl_points_ini]
 
     def modal(self, context, event):
         props = context.scene.muv_props.uv_bounding_box
@@ -765,7 +792,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
         if not MUV_OT_UVBoundingBox.is_running(context):
             return {'FINISHED'}
 
-        if not impl.is_valid_context(context):
+        if not _is_valid_context(context):
             MUV_OT_UVBoundingBox.handle_remove(context)
             return {'FINISHED'}
 
@@ -774,8 +801,8 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             'UI',
             'TOOLS',
         ]
-        if not common.mouse_on_area_legacy(event, 'IMAGE_EDITOR') or \
-           common.mouse_on_regions_legacy(event, 'IMAGE_EDITOR', region_types):
+        if not common.mouse_on_area(event, 'IMAGE_EDITOR') or \
+           common.mouse_on_regions(event, 'IMAGE_EDITOR', region_types):
             return {'PASS_THROUGH'}
 
         if event.type == 'TIMER':

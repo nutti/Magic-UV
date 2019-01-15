@@ -32,34 +32,7 @@ import bpy
 from mathutils import Vector
 import bmesh
 
-
-__all__ = [
-    'is_console_mode',
-    'is_debug_mode',
-    'enable_debugg_mode',
-    'disable_debug_mode',
-    'debug_print',
-    'check_version',
-    'redraw_all_areas',
-    'get_space_legacy',
-    'mouse_on_region_legacy',
-    'mouse_on_area_legacy',
-    'mouse_on_regions_legacy',
-    'create_bmesh',
-    'create_new_uv_map',
-    'get_island_info',
-    'get_island_info_from_bmesh',
-    'get_island_info_from_faces',
-    'get_uvimg_editor_board_size',
-    'calc_polygon_2d_area',
-    'calc_polygon_3d_area',
-    'measure_mesh_area',
-    'measure_uv_area_legacy',
-    'diff_point_to_segment',
-    'get_loop_sequences',
-    'get_overlapped_uv_info',
-    'get_flipped_uv_info',
-]
+from .utils import compatibility as compat
 
 
 __DEBUG_MODE = False
@@ -119,70 +92,6 @@ def redraw_all_areas():
         area.tag_redraw()
 
 
-def get_space_legacy(area_type, region_type, space_type):
-    """
-    Get current area/region/space
-    """
-
-    area = None
-    region = None
-    space = None
-
-    for area in bpy.context.screen.areas:
-        if area.type == area_type:
-            break
-    else:
-        return (None, None, None)
-    for region in area.regions:
-        if region.type == region_type:
-            break
-    for space in area.spaces:
-        if space.type == space_type:
-            break
-
-    return (area, region, space)
-
-
-def mouse_on_region_legacy(event, area_type, region_type):
-    pos = Vector((event.mouse_x, event.mouse_y))
-
-    _, region, _ = get_space_legacy(area_type, region_type, "")
-    if region is None:
-        return False
-
-    if (pos.x > region.x) and (pos.x < region.x + region.width) and \
-       (pos.y > region.y) and (pos.y < region.y + region.height):
-        return True
-
-    return False
-
-
-def mouse_on_area_legacy(event, area_type):
-    pos = Vector((event.mouse_x, event.mouse_y))
-
-    area, _, _ = get_space_legacy(area_type, "", "")
-    if area is None:
-        return False
-
-    if (pos.x > area.x) and (pos.x < area.x + area.width) and \
-       (pos.y > area.y) and (pos.y < area.y + area.height):
-        return True
-
-    return False
-
-
-def mouse_on_regions_legacy(event, area_type, regions):
-    if not mouse_on_area_legacy(event, area_type):
-        return False
-
-    for region in regions:
-        result = mouse_on_region_legacy(event, area_type, region)
-        if result:
-            return True
-
-    return False
-
-
 def get_space(area_type, region_type, space_type):
     """
     Get current area/region/space
@@ -199,8 +108,9 @@ def get_space(area_type, region_type, space_type):
         return (None, None, None)
     for region in area.regions:
         if region.type == region_type:
-            if region.width <= 1 or region.height <= 1:
-                continue
+            if compat.check_version(2, 80, 0) >= 0:
+                if region.width <= 1 or region.height <= 1:
+                    continue
             break
     else:
         return (area, None, None)
@@ -458,65 +368,6 @@ def measure_mesh_area(obj):
         mesh_area = mesh_area + f_mesh_area
 
     return mesh_area
-
-
-def measure_uv_area_legacy(obj, tex_size=None):
-    bm = bmesh.from_edit_mesh(obj.data)
-    if check_version(2, 73, 0) >= 0:
-        bm.verts.ensure_lookup_table()
-        bm.edges.ensure_lookup_table()
-        bm.faces.ensure_lookup_table()
-
-    if not bm.loops.layers.uv:
-        return None
-    uv_layer = bm.loops.layers.uv.verify()
-
-    if not bm.faces.layers.tex:
-        return None
-    tex_layer = bm.faces.layers.tex.verify()
-
-    sel_faces = [f for f in bm.faces if f.select]
-
-    # measure
-    uv_area = 0.0
-    for f in sel_faces:
-        uvs = [l[uv_layer].uv for l in f.loops]
-        f_uv_area = calc_polygon_2d_area(uvs)
-
-        # user specified
-        if tex_size:
-            uv_area = uv_area + f_uv_area * tex_size[0] * tex_size[1]
-            continue
-
-        # try to find from texture_layer
-        img = None
-        if tex_layer:
-            img = f[tex_layer].image
-
-        # not found, then try to search from node
-        if not img:
-            for mat in obj.material_slots:
-                if not mat.material.node_tree:
-                    continue
-                for node in mat.material.node_tree.nodes:
-                    tex_node_types = [
-                        'TEX_ENVIRONMENT',
-                        'TEX_IMAGE',
-                    ]
-                    if node.type not in tex_node_types:
-                        continue
-                    if not node.image:
-                        continue
-                    img = node.image
-
-        # can not find from node, so we can not get texture size
-        if not img:
-            return None
-
-        img_size = img.size
-        uv_area = uv_area + f_uv_area * img_size[0] * img_size[1]
-
-    return uv_area
 
 
 def find_texture_layer(bm):

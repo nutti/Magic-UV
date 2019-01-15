@@ -23,8 +23,9 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
+from collections import namedtuple
+
 import bpy
-import bgl
 import bmesh
 from bpy_extras import view3d_utils
 from bpy.props import (
@@ -32,17 +33,118 @@ from bpy.props import (
     EnumProperty,
     FloatProperty,
 )
+import mathutils
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import texture_projection_impl as impl
+from ..utils import compatibility as compat
 
-from ..lib import bglx
+if compat.check_version(2, 80, 0) >= 0:
+    from ..lib import bglx as bgl
+else:
+    import bgl
+
+
+_Rect = namedtuple('Rect', 'x0 y0 x1 y1')
+_Rect2 = namedtuple('Rect2', 'x y width height')
+
+
+def get_loaded_texture_name(_, __):
+    items = [(key, key, "") for key in bpy.data.images.keys()]
+    items.append(("None", "None", ""))
+    return items
+
+
+def get_canvas(context, magnitude):
+    """
+    Get canvas to be renderred texture
+    """
+    sc = context.scene
+    prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
+
+    region_w = context.region.width
+    region_h = context.region.height
+    canvas_w = region_w - prefs.texture_projection_canvas_padding[0] * 2.0
+    canvas_h = region_h - prefs.texture_projection_canvas_padding[1] * 2.0
+
+    img = bpy.data.images[sc.muv_texture_projection_tex_image]
+    tex_w = img.size[0]
+    tex_h = img.size[1]
+
+    center_x = region_w * 0.5
+    center_y = region_h * 0.5
+
+    if sc.muv_texture_projection_adjust_window:
+        ratio_x = canvas_w / tex_w
+        ratio_y = canvas_h / tex_h
+        if sc.muv_texture_projection_apply_tex_aspect:
+            ratio = ratio_y if ratio_x > ratio_y else ratio_x
+            len_x = ratio * tex_w
+            len_y = ratio * tex_h
+        else:
+            len_x = canvas_w
+            len_y = canvas_h
+    else:
+        if sc.muv_texture_projection_apply_tex_aspect:
+            len_x = tex_w * magnitude
+            len_y = tex_h * magnitude
+        else:
+            len_x = region_w * magnitude
+            len_y = region_h * magnitude
+
+    x0 = int(center_x - len_x * 0.5)
+    y0 = int(center_y - len_y * 0.5)
+    x1 = int(center_x + len_x * 0.5)
+    y1 = int(center_y + len_y * 0.5)
+
+    return _Rect(x0, y0, x1, y1)
+
+
+def rect_to_rect2(rect):
+    """
+    Convert Rect1 to Rect2
+    """
+
+    return _Rect2(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0)
+
+
+def region_to_canvas(rg_vec, canvas):
+    """
+    Convert screen region to canvas
+    """
+
+    cv_rect = rect_to_rect2(canvas)
+    cv_vec = mathutils.Vector()
+    cv_vec.x = (rg_vec.x - cv_rect.x) / cv_rect.width
+    cv_vec.y = (rg_vec.y - cv_rect.y) / cv_rect.height
+
+    return cv_vec
+
+
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
 
 
 @PropertyClassRegistry()
-class Properties:
+class _Properties:
     idname = "texture_projection"
 
     @classmethod
@@ -79,7 +181,7 @@ class Properties:
         scene.muv_texture_projection_tex_image = EnumProperty(
             name="Image",
             description="Texture Image",
-            items=impl.get_loaded_texture_name
+            items=get_loaded_texture_name
         )
         scene.muv_texture_projection_tex_transparency = FloatProperty(
             name="Transparency",
@@ -133,7 +235,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return False
-        return impl.is_valid_context(context)
+        return is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -166,7 +268,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         img = bpy.data.images[sc.muv_texture_projection_tex_image]
 
         # setup rendering region
-        rect = impl.get_canvas(context, sc.muv_texture_projection_tex_magnitude)
+        rect = get_canvas(context, sc.muv_texture_projection_tex_magnitude)
         positions = [
             [rect.x0, rect.y0],
             [rect.x0, rect.y1],
@@ -181,21 +283,35 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
         ]
 
         # OpenGL configuration
-        bgl.glEnable(bgl.GL_BLEND)
-        bgl.glEnable(bgl.GL_TEXTURE_2D)
-        bgl.glActiveTexture(bgl.GL_TEXTURE0)
-        if img.bindcode:
-            bind = img.bindcode
-            bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
+        if compat.check_version(2, 80, 0) >= 0:
+            bgl.glEnable(bgl.GL_BLEND)
+            bgl.glEnable(bgl.GL_TEXTURE_2D)
+            bgl.glActiveTexture(bgl.GL_TEXTURE0)
+            if img.bindcode:
+                bind = img.bindcode
+                bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
+        else:
+            bgl.glEnable(bgl.GL_BLEND)
+            bgl.glEnable(bgl.GL_TEXTURE_2D)
+            if img.bindcode:
+                bind = img.bindcode[0]
+                bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
+                bgl.glTexParameteri(
+                    bgl.GL_TEXTURE_2D, bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
+                bgl.glTexEnvi(
+                    bgl.GL_TEXTURE_ENV, bgl.GL_TEXTURE_ENV_MODE,
+                    bgl.GL_MODULATE)
 
         # render texture
-        bglx.glBegin(bglx.GL_QUADS)
-        bglx.glColor4f(1.0, 1.0, 1.0,
+        bgl.glBegin(bgl.GL_QUADS)
+        bgl.glColor4f(1.0, 1.0, 1.0,
                        sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
-            bglx.glTexCoord2f(u, v)
-            bglx.glVertex2f(v1, v2)
-        bglx.glEnd()
+            bgl.glTexCoord2f(u, v)
+            bgl.glVertex2f(v1, v2)
+        bgl.glEnd()
 
     def invoke(self, context, _):
         if not MUV_OT_TextureProjection.is_running(context):
@@ -227,7 +343,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             return True
         if not MUV_OT_TextureProjection.is_running(context):
             return False
-        return impl.is_valid_context(context)
+        return is_valid_context(context)
 
     def execute(self, context):
         sc = context.scene
@@ -255,6 +371,9 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
                 return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
+        if compat.check_version(2, 80, 0) < 0:
+            tex_layer = bm.faces.layers.tex.verify()
+
         sel_faces = [f for f in bm.faces if f.select]
 
         # transform 3d space to screen region
@@ -262,26 +381,30 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
             view3d_utils.location_3d_to_region_2d(
                 region,
                 space.region_3d,
-                world_mat @ l.vert.co)
+                compat.matmul(world_mat, l.vert.co))
             for f in sel_faces for l in f.loops
         ]
 
         # transform screen region to canvas
         v_canvas = [
-            impl.region_to_canvas(
+            region_to_canvas(
                 v,
-                impl.get_canvas(bpy.context,
-                                sc.muv_texture_projection_tex_magnitude)
+                get_canvas(bpy.context,
+                           sc.muv_texture_projection_tex_magnitude)
             ) for v in v_screen
         ]
 
-        # set texture
-        nodes = common.find_texture_nodes(obj)
-        nodes[0].image = bpy.data.images[sc.muv_texture_projection_tex_image]
+        if compat.check_version(2, 80, 0) >= 0:
+            # set texture
+            nodes = common.find_texture_nodes(obj)
+            nodes[0].image = bpy.data.images[sc.muv_texture_projection_tex_image]
 
         # project texture to object
         i = 0
         for f in sel_faces:
+            if compat.check_version(2, 80, 0) < 0:
+                f[tex_layer].image = \
+                    bpy.data.images[sc.muv_texture_projection_tex_image]
             for l in f.loops:
                 l[uv_layer].uv = v_canvas[i].to_2d()
                 i = i + 1

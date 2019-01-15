@@ -23,6 +23,8 @@ __status__ = "production"
 __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
+from math import sin, cos, pi
+
 import bpy
 import bmesh
 from bpy.props import (
@@ -30,22 +32,145 @@ from bpy.props import (
     FloatVectorProperty,
     BoolProperty
 )
+from mathutils import Vector
 
 from .. import common
-from ..impl import uvw_impl as impl
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..utils import compatibility
+from ..utils import compatibility as compat
 
-__all__ = [
-    'Properties',
-    'MUV_OT_UVW_BoxMap',
-    'MUV_OT_UVW_BestPlanerMap',
-]
+
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+def _get_uv_layer(ops_obj, bm, assign_uvmap):
+    # get UV layer
+    if not bm.loops.layers.uv:
+        if assign_uvmap:
+            bm.loops.layers.uv.new()
+        else:
+            ops_obj.report({'WARNING'},
+                           "Object must have more than one UV map")
+            return None
+    uv_layer = bm.loops.layers.uv.verify()
+
+    return uv_layer
+
+
+def _apply_box_map(bm, uv_layer, size, offset, rotation, tex_aspect):
+    scale = 1.0 / size
+
+    sx = 1.0 * scale
+    sy = 1.0 * scale
+    sz = 1.0 * scale
+    ofx = offset[0]
+    ofy = offset[1]
+    ofz = offset[2]
+    rx = rotation[0] * pi / 180.0
+    ry = rotation[1] * pi / 180.0
+    rz = rotation[2] * pi / 180.0
+    aspect = tex_aspect
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # update UV coordinate
+    for f in sel_faces:
+        n = f.normal
+        for l in f.loops:
+            co = l.vert.co
+            x = co.x * sx
+            y = co.y * sy
+            z = co.z * sz
+
+            # X-plane
+            if abs(n[0]) >= abs(n[1]) and abs(n[0]) >= abs(n[2]):
+                if n[0] >= 0.0:
+                    u = (y - ofy) * cos(rx) + (z - ofz) * sin(rx)
+                    v = -(y * aspect - ofy) * sin(rx) + \
+                        (z * aspect - ofz) * cos(rx)
+                else:
+                    u = -(y - ofy) * cos(rx) + (z - ofz) * sin(rx)
+                    v = (y * aspect - ofy) * sin(rx) + \
+                        (z * aspect - ofz) * cos(rx)
+            # Y-plane
+            elif abs(n[1]) >= abs(n[0]) and abs(n[1]) >= abs(n[2]):
+                if n[1] >= 0.0:
+                    u = -(x - ofx) * cos(ry) + (z - ofz) * sin(ry)
+                    v = (x * aspect - ofx) * sin(ry) + \
+                        (z * aspect - ofz) * cos(ry)
+                else:
+                    u = (x - ofx) * cos(ry) + (z - ofz) * sin(ry)
+                    v = -(x * aspect - ofx) * sin(ry) + \
+                        (z * aspect - ofz) * cos(ry)
+            # Z-plane
+            else:
+                if n[2] >= 0.0:
+                    u = (x - ofx) * cos(rz) + (y - ofy) * sin(rz)
+                    v = -(x * aspect - ofx) * sin(rz) + \
+                        (y * aspect - ofy) * cos(rz)
+                else:
+                    u = -(x - ofx) * cos(rz) - (y + ofy) * sin(rz)
+                    v = -(x * aspect + ofx) * sin(rz) + \
+                        (y * aspect - ofy) * cos(rz)
+
+            l[uv_layer].uv = Vector((u, v))
+
+
+def _apply_planer_map(bm, uv_layer, size, offset, rotation, tex_aspect):
+    scale = 1.0 / size
+
+    sx = 1.0 * scale
+    sy = 1.0 * scale
+    ofx = offset[0]
+    ofy = offset[1]
+    rz = rotation * pi / 180.0
+    aspect = tex_aspect
+
+    sel_faces = [f for f in bm.faces if f.select]
+
+    # calculate average of normal
+    n_ave = Vector((0.0, 0.0, 0.0))
+    for f in sel_faces:
+        n_ave = n_ave + f.normal
+    q = n_ave.rotation_difference(Vector((0.0, 0.0, 1.0)))
+
+    # update UV coordinate
+    for f in sel_faces:
+        for l in f.loops:
+            if common.check_version(2, 80, 0) >= 0:
+                # pylint: disable=E0001
+                co = q @ l.vert.co
+            else:
+                co = q * l.vert.co
+            x = co.x * sx
+            y = co.y * sy
+
+            u = x * cos(rz) - y * sin(rz) + ofx
+            v = -x * aspect * sin(rz) - y * aspect * cos(rz) + ofy
+
+            l[uv_layer].uv = Vector((u, v))
 
 
 @PropertyClassRegistry()
-class Properties:
+class _Properties:
     idname = "uvw"
 
     @classmethod
@@ -68,7 +193,7 @@ class Properties:
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_UVW_BoxMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_box_map"
     bl_label = "Box Map"
@@ -105,7 +230,7 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object
@@ -114,19 +239,19 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         # get UV layer
-        uv_layer = impl.get_uv_layer(self, bm, self.assign_uvmap)
+        uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
         if not uv_layer:
             return {'CANCELLED'}
 
-        impl.apply_box_map(bm, uv_layer, self.size, self.offset,
-                           self.rotation, self.tex_aspect)
+        _apply_box_map(bm, uv_layer, self.size, self.offset, self.rotation,
+                       self.tex_aspect)
         bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
     bl_idname = "uv.muv_uvw_operator_best_planer_map"
     bl_label = "Best Planer Map"
@@ -162,7 +287,7 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
         obj = context.active_object
@@ -171,12 +296,12 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         # get UV layer
-        uv_layer = impl.get_uv_layer(self, bm, self.assign_uvmap)
+        uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
         if not uv_layer:
             return {'CANCELLED'}
 
-        impl.apply_planer_map(bm, uv_layer, self.size, self.offset,
-                              self.rotation, self.tex_aspect)
+        _apply_planer_map(bm, uv_layer, self.size, self.offset, self.rotation,
+                          self.tex_aspect)
 
         bmesh.update_edit_mesh(obj.data)
 

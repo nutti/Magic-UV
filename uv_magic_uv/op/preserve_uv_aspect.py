@@ -25,17 +25,34 @@ __date__ = "17 Nov 2018"
 
 import bpy
 from bpy.props import StringProperty, EnumProperty, BoolProperty
+import bmesh
+from mathutils import Vector
 
+from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import preserve_uv_aspect_impl as impl
-from ..utils import compatibility
+from ..utils import compatibility as compat
 
 
-__all__ = [
-    'Properties',
-    'MUV_OT_PreserveUVAspect',
-]
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
 
 
 @PropertyClassRegistry()
@@ -85,7 +102,7 @@ class _Properties:
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     """
     Operation class: Preserve UV Aspect
@@ -115,12 +132,166 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
         default="CENTER"
     )
 
-    def __init__(self):
-        self.__impl = impl.PreserveUVAspectImpl()
-
     @classmethod
     def poll(cls, context):
-        return impl.PreserveUVAspectImpl.poll(context)
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
+        return _is_valid_context(context)
 
     def execute(self, context):
-        return self.__impl.execute(self, context)
+        # Note: the current system only works if the
+        # f[tex_layer].image doesn't return None
+        # which will happen in certain cases
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+
+        if common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
+
+        if not bm.loops.layers.uv:
+            self.report({'WARNING'},
+                        "Object must have more than one UV map")
+            return {'CANCELLED'}
+
+        uv_layer = bm.loops.layers.uv.verify()
+
+        sel_faces = [f for f in bm.faces if f.select]
+        dest_img = bpy.data.images[self.dest_img_name]
+
+        info = {}
+
+        if compat.check_version(2, 80, 0) >= 0:
+            tex_image = common.find_image(obj)
+            for f in sel_faces:
+                if tex_image not in info.keys():
+                    info[tex_image] = {}
+                    info[tex_image]['faces'] = []
+                info[tex_image]['faces'].append(f)
+        else:
+            tex_layer = bm.faces.layers.tex.verify()
+            for f in sel_faces:
+                if not f[tex_layer].image in info.keys():
+                    info[f[tex_layer].image] = {}
+                    info[f[tex_layer].image]['faces'] = []
+                info[f[tex_layer].image]['faces'].append(f)
+
+        for img in info:
+            if img is None:
+                continue
+
+            src_img = img
+            ratio = Vector((
+                dest_img.size[0] / src_img.size[0],
+                dest_img.size[1] / src_img.size[1]))
+
+            if self.origin == 'CENTER':
+                origin = Vector((0.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin = origin + uv
+                        num = num + 1
+                origin = origin / num
+            elif self.origin == 'LEFT_TOP':
+                origin = Vector((100000.0, -100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = max(origin.y, uv.y)
+            elif self.origin == 'LEFT_CENTER':
+                origin = Vector((100000.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = origin.y + uv.y
+                        num = num + 1
+                origin.y = origin.y / num
+            elif self.origin == 'LEFT_BOTTOM':
+                origin = Vector((100000.0, 100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = min(origin.x, uv.x)
+                        origin.y = min(origin.y, uv.y)
+            elif self.origin == 'CENTER_TOP':
+                origin = Vector((0.0, -100000.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = origin.x + uv.x
+                        origin.y = max(origin.y, uv.y)
+                        num = num + 1
+                origin.x = origin.x / num
+            elif self.origin == 'CENTER_BOTTOM':
+                origin = Vector((0.0, 100000.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = origin.x + uv.x
+                        origin.y = min(origin.y, uv.y)
+                        num = num + 1
+                origin.x = origin.x / num
+            elif self.origin == 'RIGHT_TOP':
+                origin = Vector((-100000.0, -100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = max(origin.y, uv.y)
+            elif self.origin == 'RIGHT_CENTER':
+                origin = Vector((-100000.0, 0.0))
+                num = 0
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = origin.y + uv.y
+                        num = num + 1
+                origin.y = origin.y / num
+            elif self.origin == 'RIGHT_BOTTOM':
+                origin = Vector((-100000.0, 100000.0))
+                for f in info[img]['faces']:
+                    for l in f.loops:
+                        uv = l[uv_layer].uv
+                        origin.x = max(origin.x, uv.x)
+                        origin.y = min(origin.y, uv.y)
+            else:
+                self.report({'ERROR'}, "Unknown Operation")
+                return {'CANCELLED'}
+
+            info[img]['ratio'] = ratio
+            info[img]['origin'] = origin
+
+        for img in info:
+            if img is None:
+                continue
+
+            if compat.check_version(2, 80, 0) >= 0:
+                nodes = common.find_texture_nodes(obj)
+                nodes[0].image = dest_img
+
+            for f in info[img]['faces']:
+                if compat.check_version(2, 80, 0) < 0:
+                    tex_layer = bm.faces.layers.tex.verify()
+                    f[tex_layer].image = dest_img
+                for l in f.loops:
+                    uv = l[uv_layer].uv
+                    origin = info[img]['origin']
+                    ratio = info[img]['ratio']
+                    diff = uv - origin
+                    diff.x = diff.x / ratio.x
+                    diff.y = diff.y / ratio.y
+                    uv.x = origin.x + diff.x
+                    uv.y = origin.y + diff.y
+                    l[uv_layer].uv = uv
+
+        bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}

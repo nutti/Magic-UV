@@ -27,10 +27,6 @@ import bpy
 
 from .. import common
 
-__all__ = [
-    'BlClassRegistry',
-]
-
 
 class BlClassRegistry:
     class_list = []

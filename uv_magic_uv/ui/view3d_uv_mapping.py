@@ -34,13 +34,11 @@ from ..op.texture_projection import (
 )
 from ..op.unwrap_constraint import MUV_OT_UnwrapConstraint
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_PT_View3D_UVMapping',
-]
+from ..utils import compatibility as compat
 
 
 @BlClassRegistry()
+@compat.ChangeRegionType(region_type='TOOLS')
 class MUV_PT_View3D_UVMapping(bpy.types.Panel):
     """
     Panel class: UV Mapping on Property Panel on View3D
@@ -55,7 +53,7 @@ class MUV_PT_View3D_UVMapping(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon=compat.icon('IMAGE'))
 
     def draw(self, context):
         sc = context.scene

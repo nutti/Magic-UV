@@ -24,15 +24,60 @@ __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
 import bpy
-import bgl
 from bpy.props import BoolProperty, EnumProperty
+import bmesh
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import uv_inspection_impl as impl
+from ..utils import compatibility as compat
 
-from ..lib import bglx
+if compat.check_version(2, 80, 0) >= 0:
+    from ..lib import bglx as bgl
+else:
+    import bgl
+
+
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
+    for space in context.area.spaces:
+        if (space.type == 'IMAGE_EDITOR') or (space.type == 'VIEW_3D'):
+            break
+    else:
+        return False
+
+    return True
+
+
+def _update_uvinsp_info(context):
+    sc = context.scene
+    props = sc.muv_props.uv_inspection
+
+    obj = context.active_object
+    bm = bmesh.from_edit_mesh(obj.data)
+    if common.check_version(2, 73, 0) >= 0:
+        bm.faces.ensure_lookup_table()
+    uv_layer = bm.loops.layers.uv.verify()
+
+    if context.tool_settings.use_uv_select_sync:
+        sel_faces = [f for f in bm.faces]
+    else:
+        sel_faces = [f for f in bm.faces if f.select]
+    props.overlapped_info = common.get_overlapped_uv_info(
+        bm, sel_faces, uv_layer, sc.muv_uv_inspection_show_mode)
+    props.flipped_info = common.get_flipped_uv_info(sel_faces, uv_layer)
 
 
 @PropertyClassRegistry()
@@ -117,7 +162,7 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return False
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -141,7 +186,7 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
     def draw(_, context):
         sc = context.scene
         props = sc.muv_props.uv_inspection
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
 
         if not MUV_OT_UVInspection_Render.is_running(context):
             return
@@ -155,20 +200,20 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
             for info in props.overlapped_info:
                 if sc.muv_uv_inspection_show_mode == 'PART':
                     for poly in info["polygons"]:
-                        bglx.glBegin(bglx.GL_TRIANGLE_FAN)
-                        bglx.glColor4f(color[0], color[1], color[2], color[3])
+                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                        bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
                                 uv.x, uv.y)
-                            bglx.glVertex2f(x, y)
-                        bglx.glEnd()
+                            bgl.glVertex2f(x, y)
+                        bgl.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
-                    bglx.glBegin(bglx.GL_TRIANGLE_FAN)
-                    bglx.glColor4f(color[0], color[1], color[2], color[3])
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["subject_uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                        bglx.glVertex2f(x, y)
-                    bglx.glEnd()
+                        bgl.glVertex2f(x, y)
+                    bgl.glEnd()
 
         # render flipped UV
         if sc.muv_uv_inspection_show_flipped:
@@ -176,26 +221,26 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
             for info in props.flipped_info:
                 if sc.muv_uv_inspection_show_mode == 'PART':
                     for poly in info["polygons"]:
-                        bglx.glBegin(bglx.GL_TRIANGLE_FAN)
-                        bglx.glColor4f(color[0], color[1], color[2], color[3])
+                        bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                        bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
                                 uv.x, uv.y)
-                            bglx.glVertex2f(x, y)
-                        bglx.glEnd()
+                            bgl.glVertex2f(x, y)
+                        bgl.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
-                    bglx.glBegin(bglx.GL_TRIANGLE_FAN)
-                    bglx.glColor4f(color[0], color[1], color[2], color[3])
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["uvs"]:
                         x, y = context.region.view2d.view_to_region(uv.x, uv.y)
-                        bglx.glVertex2f(x, y)
-                    bglx.glEnd()
+                        bgl.glVertex2f(x, y)
+                    bgl.glEnd()
 
         bgl.glDisable(bgl.GL_BLEND)
 
     def invoke(self, context, _):
         if not MUV_OT_UVInspection_Render.is_running(context):
-            impl.update_uvinsp_info(context)
+            _update_uvinsp_info(context)
             MUV_OT_UVInspection_Render.handle_add(self, context)
         else:
             MUV_OT_UVInspection_Render.handle_remove()
@@ -224,10 +269,10 @@ class MUV_OT_UVInspection_Update(bpy.types.Operator):
             return True
         if not MUV_OT_UVInspection_Render.is_running(context):
             return False
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     def execute(self, context):
-        impl.update_uvinsp_info(context)
+        _update_uvinsp_info(context)
 
         if context.area:
             context.area.tag_redraw()

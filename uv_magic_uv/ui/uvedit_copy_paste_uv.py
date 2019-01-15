@@ -27,13 +27,11 @@ import bpy
 
 from ..op import copy_paste_uv_uvedit
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_PT_UVEdit_CopyPasteUV',
-]
+from ..utils import compatibility as compat
 
 
 @BlClassRegistry()
+@compat.ChangeRegionType(region_type='TOOLS')
 class MUV_PT_UVEdit_CopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on UV/ImageEditor
@@ -48,7 +46,7 @@ class MUV_PT_UVEdit_CopyPasteUV(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon=compat.icon('IMAGE'))
 
     def draw(self, _):
         layout = self.layout

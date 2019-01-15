@@ -1,10 +1,13 @@
 from threading import Lock
 
+import bgl
+from bgl import Buffer as Buffer
 import gpu
 from gpu_extras.batch import batch_for_shader
 
 GL_LINES = 0
 GL_LINE_STRIP = 1
+GL_LINE_LOOP = 2
 GL_TRIANGLES = 5
 GL_TRIANGLE_FAN = 6
 GL_QUADS = 4
@@ -18,7 +21,11 @@ class InternalData:
 
     @classmethod
     def __internal_new(cls):
-        return super().__new__(cls)
+        inst = super().__new__(cls)
+        inst.color = [1.0, 1.0, 1.0, 1.0]
+        inst.line_width = 1.0
+
+        return inst
 
     @classmethod
     def get_instance(cls):
@@ -47,6 +54,9 @@ class InternalData:
     def set_color(self, c):
         self.color = c
 
+    def set_line_width(self, width):
+        self.line_width = width
+
     def clear(self):
         self.prim_mode = None
         self.verts = []
@@ -65,19 +75,41 @@ class InternalData:
     def get_color(self):
         return self.color
 
+    def get_line_width(self):
+        return self.line_width
+
     def get_tex_coords(self):
         return self.tex_coords
+
+
+def glLineWidth(width):
+    inst = InternalData.get_instance()
+    inst.set_line_width(width)
+
+
+def glColor3f(r, g, b):
+    inst = InternalData.get_instance()
+    inst.set_color([r, g, b, 1.0])
+
+
+def glColor4f(r, g, b, a):
+    inst = InternalData.get_instance()
+    inst.set_color([r, g, b, a])
+
+
+def glRecti(x0, y0, x1, y1):
+    glBegin(GL_QUADS)
+    glVertex2f(x0, y0)
+    glVertex2f(x0, y1)
+    glVertex2f(x1, y1)
+    glVertex2f(x1, y0)
+    glEnd()
 
 
 def glBegin(mode):
     inst = InternalData.get_instance()
     inst.init()
     inst.set_prim_mode(mode)
-
-
-def glColor4f(r, g, b, a):
-    inst = InternalData.get_instance()
-    inst.set_color([r, g, b, a])
 
 
 def _get_transparency_shader():
@@ -149,6 +181,11 @@ def glEnd():
     elif inst.get_prim_mode() == GL_LINE_STRIP:
         batch = batch_for_shader(shader, 'LINE_STRIP', data)
 
+
+    elif inst.get_prim_mode() == GL_LINE_LOOP:
+        data["pos"].append(data["pos"][0])
+        batch = batch_for_shader(shader, 'LINE_STRIP', data)
+
     elif inst.get_prim_mode() == GL_TRIANGLES:
         indices = []
         for i in range(0, len(coords), 3):
@@ -189,3 +226,35 @@ def glVertex2f(x, y):
 def glTexCoord2f(u, v):
     inst = InternalData.get_instance()
     inst.add_tex_coord([u, v])
+
+
+GL_BLEND = bgl.GL_BLEND
+GL_LINE_SMOOTH = bgl.GL_LINE_SMOOTH
+GL_INT = bgl.GL_INT
+GL_SCISSOR_BOX = bgl.GL_SCISSOR_BOX
+GL_TEXTURE_2D = bgl.GL_TEXTURE_2D
+GL_TEXTURE0 = bgl.GL_TEXTURE0
+
+
+def glEnable(cap):
+    bgl.glEnable(cap)
+
+
+def glDisable(cap):
+    bgl.glDisable(cap)
+
+
+def glScissor(x, y, width, height):
+    bgl.glScissor(x, y, width, height)
+
+
+def glGetIntegerv(pname, params):
+    bgl.glGetIntegerv(pname, params)
+
+
+def glActiveTexture(texture):
+    bgl.glActiveTexture(texture)
+
+
+def glBindTexture(target, texture):
+    bgl.glBindTexture(target, texture)

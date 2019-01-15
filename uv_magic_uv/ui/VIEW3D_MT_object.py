@@ -28,10 +28,6 @@ import bpy
 from ..op import copy_paste_uv_object
 from ..utils.bl_class_registry import BlClassRegistry
 
-__all__ = [
-    'MUV_MT_CopyPasteUV_Object',
-]
-
 
 @BlClassRegistry()
 class MUV_MT_CopyPasteUV_Object(bpy.types.Menu):

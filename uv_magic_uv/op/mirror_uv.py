@@ -29,21 +29,80 @@ from bpy.props import (
     FloatProperty,
     BoolProperty,
 )
+import bmesh
+from mathutils import Vector
 
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import mirror_uv_impl as impl
-from ..utils import compatibility
+from ..utils import compatibility as compat
+from .. import common
 
 
-__all__ = [
-    'Properties',
-    'MUV_OT_MirrorUV',
-]
+def is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+def is_vector_similar(v1, v2, error):
+    """
+    Check if two vectors are similar, within an error threshold
+    """
+    within_err_x = abs(v2.x - v1.x) < error
+    within_err_y = abs(v2.y - v1.y) < error
+    within_err_z = abs(v2.z - v1.z) < error
+
+    return within_err_x and within_err_y and within_err_z
+
+
+def mirror_uvs(uv_layer, src, dst, axis, error):
+    """
+    Copy UV coordinates from one UV face to another
+    """
+    for sl in src.loops:
+        suv = sl[uv_layer].uv.copy()
+        svco = sl.vert.co.copy()
+        for dl in dst.loops:
+            dvco = dl.vert.co.copy()
+            if axis == 'X':
+                dvco.x = -dvco.x
+            elif axis == 'Y':
+                dvco.y = -dvco.y
+            elif axis == 'Z':
+                dvco.z = -dvco.z
+
+            if is_vector_similar(svco, dvco, error):
+                dl[uv_layer].uv = suv.copy()
+
+
+def get_face_center(face):
+    """
+    Get center coordinate of the face
+    """
+    center = Vector((0.0, 0.0, 0.0))
+    for v in face.verts:
+        center = center + v.co
+
+    return center / len(face.verts)
 
 
 @PropertyClassRegistry()
-class Properties:
+class _Properties:
     idname = "mirror_uv"
 
     @classmethod
@@ -71,7 +130,7 @@ class Properties:
 
 
 @BlClassRegistry()
-@compatibility.make_annotations
+@compat.make_annotations
 class MUV_OT_MirrorUV(bpy.types.Operator):
     """
     Operation class: Mirror UV
@@ -101,12 +160,56 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
         soft_max=1.0
     )
 
-    def __init__(self):
-        self.__impl = impl.MirrorUVImpl()
-
     @classmethod
     def poll(cls, context):
-        return impl.MirrorUVImpl.poll(context)
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
+        return is_valid_context(context)
 
     def execute(self, context):
-        return self.__impl.execute(self, context)
+        obj = context.active_object
+        bm = bmesh.from_edit_mesh(obj.data)
+
+        error = self.error
+        axis = self.axis
+
+        if common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
+        if not bm.loops.layers.uv:
+            self.report({'WARNING'},
+                        "Object must have more than one UV map")
+            return {'CANCELLED'}
+        uv_layer = bm.loops.layers.uv.verify()
+
+        faces = [f for f in bm.faces if f.select]
+        for f_dst in faces:
+            count = len(f_dst.verts)
+            for f_src in bm.faces:
+                # check if this is a candidate to do mirror UV
+                if f_src.index == f_dst.index:
+                    continue
+                if count != len(f_src.verts):
+                    continue
+
+                # test if the vertices x values are the same sign
+                dst = get_face_center(f_dst)
+                src = get_face_center(f_src)
+                if (dst.x > 0 and src.x > 0) or (dst.x < 0 and src.x < 0):
+                    continue
+
+                # invert source axis
+                if axis == 'X':
+                    src.x = -src.x
+                elif axis == 'Y':
+                    src.y = -src.z
+                elif axis == 'Z':
+                    src.z = -src.z
+
+                # do mirror UV
+                if is_vector_similar(dst, src, error):
+                    mirror_uvs(uv_layer, f_src, f_dst, self.axis, self.error)
+
+        bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}

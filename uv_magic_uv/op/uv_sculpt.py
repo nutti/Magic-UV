@@ -41,9 +41,46 @@ from bpy.props import (
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..impl import uv_sculpt_impl as impl
+from ..utils import compatibility as compat
 
-from ..lib import bglx
+
+if compat.check_version(2, 80, 0) >= 0:
+    from ..lib import bglx as bgl
+else:
+    import bgl
+
+
+def _is_valid_context(context):
+    obj = context.object
+
+    # only edit mode is allowed to execute
+    if obj is None:
+        return False
+    if obj.type != 'MESH':
+        return False
+    if context.object.mode != 'EDIT':
+        return False
+
+    # only 'VIEW_3D' space is allowed to execute
+    for space in context.area.spaces:
+        if space.type == 'VIEW_3D':
+            break
+    else:
+        return False
+
+    return True
+
+
+def _get_strength(p, len_, factor):
+    f = factor
+
+    if p > len_:
+        return 0.0
+
+    if p < 0.0:
+        return f
+
+    return (len_ - p) * f / len_
 
 
 @PropertyClassRegistry()
@@ -150,7 +187,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return False
-        return impl.is_valid_context(context)
+        return _is_valid_context(context)
 
     @classmethod
     def is_running(cls, _):
@@ -180,7 +217,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
     @classmethod
     def draw_brush(cls, obj, context):
         sc = context.scene
-        prefs = context.user_preferences.addons["uv_magic_uv"].preferences
+        prefs = compat.get_user_preferences(context).addons["uv_magic_uv"].preferences
 
         num_segment = 180
         theta = 2 * pi / num_segment
@@ -188,19 +225,19 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
         fact_r = cos(theta)
         color = prefs.uv_sculpt_brush_color
 
-        bglx.glBegin(bglx.GL_LINE_STRIP)
-        bglx.glColor4f(color[0], color[1], color[2], color[3])
+        bgl.glBegin(bgl.GL_LINE_STRIP)
+        bgl.glColor4f(color[0], color[1], color[2], color[3])
         x = sc.muv_uv_sculpt_radius * cos(0.0)
         y = sc.muv_uv_sculpt_radius * sin(0.0)
         for _ in range(num_segment):
-            bglx.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
+            bgl.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
             tx = -y
             ty = x
             x = x + tx * fact_t
             y = y + ty * fact_t
             x = x * fact_r
             y = y * fact_r
-        bglx.glEnd()
+        bgl.glEnd()
 
     def __init__(self):
         self.__loop_info = []
@@ -226,7 +263,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                 continue
             for i, l in enumerate(f.loops):
                 loc_2d = view3d_utils.location_3d_to_region_2d(
-                    region, space.region_3d, world_mat @ l.vert.co)
+                    region, space.region_3d,
+                    compat.matmul(world_mat, l.vert.co))
                 diff = loc_2d - self.__initial_mco
                 if diff.length < sc.muv_uv_sculpt_radius:
                     info = {
@@ -235,7 +273,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                         "initial_vco": l.vert.co.copy(),
                         "initial_vco_2d": loc_2d,
                         "initial_uv": l[uv_layer].uv.copy(),
-                        "strength": impl.get_strength(
+                        "strength": _get_strength(
                             diff.length, sc.muv_uv_sculpt_radius,
                             sc.muv_uv_sculpt_strength)
                     }
@@ -263,7 +301,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                     continue
                 for i, l in enumerate(f.loops):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
-                        region, space.region_3d, world_mat @ l.vert.co)
+                        region, space.region_3d,
+                        compat.matmul(world_mat, l.vert.co))
                     diff = loc_2d - self.__initial_mco
                     if diff.length < sc.muv_uv_sculpt_radius:
                         info = {
@@ -272,7 +311,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                             "initial_vco": l.vert.co.copy(),
                             "initial_vco_2d": loc_2d,
                             "initial_uv": l[uv_layer].uv.copy(),
-                            "strength": impl.get_strength(
+                            "strength": _get_strength(
                                 diff.length, sc.muv_uv_sculpt_radius,
                                 sc.muv_uv_sculpt_strength)
                         }
@@ -287,8 +326,8 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                                                            mco)
             ray_tgt = ray_orig + ray_vec * 1000000.0
             mwi = world_mat.inverted()
-            ray_orig_obj = mwi @ ray_orig
-            ray_tgt_obj = mwi @ ray_tgt
+            ray_orig_obj = compat.matmul(mwi, ray_orig)
+            ray_tgt_obj = compat.matmul(mwi, ray_tgt)
             ray_dir_obj = ray_tgt_obj - ray_orig_obj
             ray_dir_obj.normalize()
             tree = BVHTree.FromBMesh(bm)
@@ -354,14 +393,15 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
                     continue
                 for i, l in enumerate(f.loops):
                     loc_2d = view3d_utils.location_3d_to_region_2d(
-                        region, space.region_3d, world_mat @ l.vert.co)
+                        region, space.region_3d,
+                        compat.matmul(world_mat, l.vert.co))
                     diff = loc_2d - self.__initial_mco
                     if diff.length >= sc.muv_uv_sculpt_radius:
                         continue
                     db = vert_db[l.vert]
-                    strength = impl.get_strength(diff.length,
-                                                 sc.muv_uv_sculpt_radius,
-                                                 sc.muv_uv_sculpt_strength)
+                    strength = _get_strength(diff.length,
+                                             sc.muv_uv_sculpt_radius,
+                                             sc.muv_uv_sculpt_strength)
 
                     base = (1.0 - strength) * l[uv_layer].uv
                     if sc.muv_uv_sculpt_relax_method == 'HC':

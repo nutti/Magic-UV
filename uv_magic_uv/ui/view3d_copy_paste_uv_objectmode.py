@@ -27,13 +27,11 @@ import bpy
 
 from ..op import copy_paste_uv_object
 from ..utils.bl_class_registry import BlClassRegistry
-
-__all__ = [
-    'MUV_PT_View3D_Object_CopyPasteUV',
-]
+from ..utils import compatibility as compat
 
 
 @BlClassRegistry()
+@compat.ChangeRegionType(region_type='TOOLS')
 class MUV_PT_View3D_Object_CopyPasteUV(bpy.types.Panel):
     """
     Panel class: Copy/Paste UV on Property Panel on View3D
@@ -48,7 +46,7 @@ class MUV_PT_View3D_Object_CopyPasteUV(bpy.types.Panel):
 
     def draw_header(self, _):
         layout = self.layout
-        layout.label(text="", icon='IMAGE')
+        layout.label(text="", icon=compat.icon('IMAGE'))
 
     def draw(self, context):
         sc = context.scene

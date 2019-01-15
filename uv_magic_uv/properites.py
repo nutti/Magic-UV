@@ -24,16 +24,6 @@ __version__ = "5.2"
 __date__ = "17 Nov 2018"
 
 
-from .utils.property_class_registry import PropertyClassRegistry
-
-
-__all__ = [
-    'MUV_Properties',
-    'init_props',
-    'clear_props',
-]
-
-
 # Properties used in this add-on.
 # pylint: disable=W0612
 class MUV_Properties():
@@ -41,6 +31,7 @@ class MUV_Properties():
         self.prefs = MUV_Prefs()
 
 
+# TODO: delete this
 class MUV_Prefs():
     expanded = {
         "info_desc": False,
