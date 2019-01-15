@@ -25,8 +25,9 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import (
-    uvw,
+from ..op.uvw import (
+    MUV_OT_UVW_BoxMap,
+    MUV_OT_UVW_BestPlanerMap,
 )
 from ..op.texture_projection import (
     MUV_OT_TextureProjection,
@@ -105,9 +106,9 @@ class MUV_PT_View3D_UVMapping(bpy.types.Panel):
         box.prop(sc, "muv_uvw_enabled", text="UVW")
         if sc.muv_uvw_enabled:
             row = box.row(align=True)
-            ops = row.operator(uvw.MUV_OT_UVW_BoxMap.bl_idname, text="Box")
+            ops = row.operator(MUV_OT_UVW_BoxMap.bl_idname, text="Box")
             ops.assign_uvmap = sc.muv_uvw_assign_uvmap
-            ops = row.operator(uvw.MUV_OT_UVW_BestPlanerMap.bl_idname,
+            ops = row.operator(MUV_OT_UVW_BestPlanerMap.bl_idname,
                                text="Best Planner")
             ops.assign_uvmap = sc.muv_uvw_assign_uvmap
             box.prop(sc, "muv_uvw_assign_uvmap", text="Assign UVMap")

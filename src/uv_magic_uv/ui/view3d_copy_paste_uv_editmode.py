@@ -25,9 +25,15 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import (
-    copy_paste_uv,
-    transfer_uv,
+from ..op.copy_paste_uv import (
+    MUV_MT_CopyPasteUV_CopyUV,
+    MUV_MT_CopyPasteUV_PasteUV,
+    MUV_MT_CopyPasteUV_SelSeqCopyUV,
+    MUV_MT_CopyPasteUV_SelSeqPasteUV,
+)
+from ..op.transfer_uv import (
+    MUV_OT_TransferUV_CopyUV,
+    MUV_OT_TransferUV_PasteUV,
 )
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils import compatibility as compat
@@ -60,17 +66,12 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
         if sc.muv_copy_paste_uv_enabled:
             row = box.row(align=True)
             if sc.muv_copy_paste_uv_mode == 'DEFAULT':
-                row.menu(copy_paste_uv.MUV_MT_CopyPasteUV_CopyUV.bl_idname,
-                         text="Copy")
-                row.menu(copy_paste_uv.MUV_MT_CopyPasteUV_PasteUV.bl_idname,
-                         text="Paste")
+                row.menu(MUV_MT_CopyPasteUV_CopyUV.bl_idname, text="Copy")
+                row.menu(MUV_MT_CopyPasteUV_PasteUV.bl_idname, text="Paste")
             elif sc.muv_copy_paste_uv_mode == 'SEL_SEQ':
-                row.menu(
-                    copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname,
-                    text="Copy")
-                row.menu(
-                    copy_paste_uv.MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
-                    text="Paste")
+                row.menu(MUV_MT_CopyPasteUV_SelSeqCopyUV.bl_idname, text="Copy")
+                row.menu(MUV_MT_CopyPasteUV_SelSeqPasteUV.bl_idname,
+                         text="Paste")
             box.prop(sc, "muv_copy_paste_uv_mode", expand=True)
             box.prop(sc, "muv_copy_paste_uv_copy_seams", text="Seams")
             box.prop(sc, "muv_copy_paste_uv_strategy", text="Strategy")
@@ -79,9 +80,8 @@ class MUV_PT_CopyPasteUVEditMode(bpy.types.Panel):
         box.prop(sc, "muv_transfer_uv_enabled", text="Transfer UV")
         if sc.muv_transfer_uv_enabled:
             row = box.row(align=True)
-            row.operator(transfer_uv.MUV_OT_TransferUV_CopyUV.bl_idname,
-                         text="Copy")
-            ops = row.operator(transfer_uv.MUV_OT_TransferUV_PasteUV.bl_idname,
+            row.operator(MUV_OT_TransferUV_CopyUV.bl_idname, text="Copy")
+            ops = row.operator(MUV_OT_TransferUV_PasteUV.bl_idname,
                                text="Paste")
             ops.invert_normals = sc.muv_transfer_uv_invert_normals
             ops.copy_seams = sc.muv_transfer_uv_copy_seams

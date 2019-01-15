@@ -33,8 +33,30 @@ from bpy.props import (
 from bpy.types import AddonPreferences
 
 from . import common
-from . import op
-from . import ui
+from .op.flip_rotate_uv import MUV_OT_FlipRotate
+from .op.mirror_uv import MUV_OT_MirrorUV
+from .op.move_uv import MUV_OT_MoveUV
+from .op.unwrap_constraint import MUV_OT_UnwrapConstraint
+from .op.pack_uv import MUV_OT_PackUV
+from .op.smooth_uv import MUV_OT_SmoothUV
+from .ui.VIEW3D_MT_uv_map import (
+    MUV_MT_CopyPasteUV,
+    MUV_MT_TransferUV,
+    MUV_MT_WorldScaleUV,
+    MUV_MT_PreserveUVAspect,
+    MUV_MT_TextureLock,
+    MUV_MT_TextureWrap,
+    MUV_MT_TextureProjection,
+    MUV_MT_UVW,
+)
+from .ui.VIEW3D_MT_object import MUV_MT_CopyPasteUV_Object
+from .ui.IMAGE_MT_uvs import (
+    MUV_MT_CopyPasteUV_UVEdit,
+    MUV_MT_SelectUV,
+    MUV_MT_AlignUV,
+    MUV_MT_AlignUVCursor,
+    MUV_MT_UVInspection,
+)
 from .utils.bl_class_registry import BlClassRegistry
 from .utils.addon_updator import AddonUpdatorManager
 from .utils import compatibility as compat
@@ -48,52 +70,42 @@ def view3d_uvmap_menu_fn(self, context):
     layout.separator()
     layout.label(text="Copy/Paste UV", icon=compat.icon('IMAGE'))
     # Copy/Paste UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_CopyPasteUV.bl_idname,
-                text="Copy/Paste UV")
+    layout.menu(MUV_MT_CopyPasteUV.bl_idname, text="Copy/Paste UV")
     # Transfer UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TransferUV.bl_idname,
-                text="Transfer UV")
+    layout.menu(MUV_MT_TransferUV.bl_idname, text="Transfer UV")
 
     layout.separator()
     layout.label(text="UV Manipulation", icon=compat.icon('IMAGE'))
     # Flip/Rotate UV
-    ops = layout.operator(op.flip_rotate_uv.MUV_OT_FlipRotate.bl_idname,
-                          text="Flip/Rotate UV")
+    ops = layout.operator(MUV_OT_FlipRotate.bl_idname, text="Flip/Rotate UV")
     ops.seams = sc.muv_flip_rotate_uv_seams
     # Mirror UV
-    ops = layout.operator(op.mirror_uv.MUV_OT_MirrorUV.bl_idname,
-                          text="Mirror UV")
+    ops = layout.operator(MUV_OT_MirrorUV.bl_idname, text="Mirror UV")
     ops.axis = sc.muv_mirror_uv_axis
     # Move UV
-    layout.operator(op.move_uv.MUV_OT_MoveUV.bl_idname, text="Move UV")
+    layout.operator(MUV_OT_MoveUV.bl_idname, text="Move UV")
     # World Scale UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_WorldScaleUV.bl_idname,
-                text="World Scale UV")
+    layout.menu(MUV_MT_WorldScaleUV.bl_idname, text="World Scale UV")
     # Preserve UV
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_PreserveUVAspect.bl_idname,
-                text="Preserve UV")
+    layout.menu(MUV_MT_PreserveUVAspect.bl_idname, text="Preserve UV")
     # Texture Lock
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureLock.bl_idname,
-                text="Texture Lock")
+    layout.menu(MUV_MT_TextureLock.bl_idname, text="Texture Lock")
     # Texture Wrap
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureWrap.bl_idname,
-                text="Texture Wrap")
+    layout.menu(MUV_MT_TextureWrap.bl_idname, text="Texture Wrap")
     # UV Sculpt
     layout.prop(sc, "muv_uv_sculpt_enable", text="UV Sculpt")
 
     layout.separator()
     layout.label(text="UV Mapping", icon=compat.icon('IMAGE'))
     # Unwrap Constraint
-    ops = layout.operator(
-        op.unwrap_constraint.MUV_OT_UnwrapConstraint.bl_idname,
-        text="Unwrap Constraint")
+    ops = layout.operator(MUV_OT_UnwrapConstraint.bl_idname,
+                          text="Unwrap Constraint")
     ops.u_const = sc.muv_unwrap_constraint_u_const
     ops.v_const = sc.muv_unwrap_constraint_v_const
     # Texture Projection
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_TextureProjection.bl_idname,
-                text="Texture Projection")
+    layout.menu(MUV_MT_TextureProjection.bl_idname, text="Texture Projection")
     # UVW
-    layout.menu(ui.VIEW3D_MT_uv_map.MUV_MT_UVW.bl_idname, text="UVW")
+    layout.menu(MUV_MT_UVW.bl_idname, text="UVW")
 
 
 def view3d_object_menu_fn(self, _):
@@ -102,8 +114,7 @@ def view3d_object_menu_fn(self, _):
     layout.separator()
     layout.label(text="Copy/Paste UV", icon=compat.icon('IMAGE'))
     # Copy/Paste UV (Among Object)
-    layout.menu(ui.VIEW3D_MT_object.MUV_MT_CopyPasteUV_Object.bl_idname,
-                text="Copy/Paste UV")
+    layout.menu(MUV_MT_CopyPasteUV_Object.bl_idname, text="Copy/Paste UV")
 
 
 def image_uvs_menu_fn(self, context):
@@ -113,36 +124,32 @@ def image_uvs_menu_fn(self, context):
     layout.separator()
     # Copy/Paste UV (on UV/Image Editor)
     layout.label(text="Copy/Paste UV", icon=compat.icon('IMAGE'))
-    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_CopyPasteUV_UVEdit.bl_idname,
-                text="Copy/Paste UV")
+    layout.menu(MUV_MT_CopyPasteUV_UVEdit.bl_idname, text="Copy/Paste UV")
 
     layout.separator()
     # Pack UV
     layout.label(text="UV Manipulation", icon=compat.icon('IMAGE'))
-    ops = layout.operator(op.pack_uv.MUV_OT_PackUV.bl_idname, text="Pack UV")
+    ops = layout.operator(MUV_OT_PackUV.bl_idname, text="Pack UV")
     ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
     ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
     # Select UV
-    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_SelectUV.bl_idname, text="Select UV")
+    layout.menu(MUV_MT_SelectUV.bl_idname, text="Select UV")
     # Smooth UV
-    ops = layout.operator(op.smooth_uv.MUV_OT_SmoothUV.bl_idname,
-                          text="Smooth")
+    ops = layout.operator(MUV_OT_SmoothUV.bl_idname, text="Smooth")
     ops.transmission = sc.muv_smooth_uv_transmission
     ops.select = sc.muv_smooth_uv_select
     ops.mesh_infl = sc.muv_smooth_uv_mesh_infl
     # Align UV
-    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUV.bl_idname, text="Align UV")
+    layout.menu(MUV_MT_AlignUV.bl_idname, text="Align UV")
 
     layout.separator()
     # Align UV Cursor
     layout.label(text="Editor Enhancement", icon=compat.icon('IMAGE'))
-    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_AlignUVCursor.bl_idname,
-                text="Align UV Cursor")
+    layout.menu(MUV_MT_AlignUVCursor.bl_idname, text="Align UV Cursor")
     # UV Bounding Box
     layout.prop(sc, "muv_uv_bounding_box_show", text="UV Bounding Box")
     # UV Inspection
-    layout.menu(ui.IMAGE_MT_uvs.MUV_MT_UVInspection.bl_idname,
-                text="UV Inspection")
+    layout.menu(MUV_MT_UVInspection.bl_idname, text="UV Inspection")
 
 
 def add_builtin_menu():

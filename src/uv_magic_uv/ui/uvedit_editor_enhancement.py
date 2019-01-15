@@ -84,8 +84,7 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
                                text="Left Middle")
             ops.position = 'LEFT_MIDDLE'
             ops.base = sc.muv_align_uv_cursor_align_method
-            ops = row.operator(MUV_OT_AlignUVCursor.bl_idname,
-                               text="Center")
+            ops = row.operator(MUV_OT_AlignUVCursor.bl_idname, text="Center")
             ops.position = 'CENTER'
             ops.base = sc.muv_align_uv_cursor_align_method
             ops = row.operator(MUV_OT_AlignUVCursor.bl_idname,

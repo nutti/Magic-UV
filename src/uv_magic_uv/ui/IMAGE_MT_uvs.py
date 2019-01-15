@@ -25,8 +25,9 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import (
-    copy_paste_uv_uvedit,
+from ..op.copy_paste_uv_uvedit import (
+    MUV_OT_CopyPasteUVUVEdit_CopyUV,
+    MUV_OT_CopyPasteUVUVEdit_PasteUV,
 )
 from ..op.align_uv_cursor import MUV_OT_AlignUVCursor
 from ..op.align_uv import (
@@ -55,12 +56,9 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
     def draw(self, _):
         layout = self.layout
 
-        layout.operator(
-            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
-            text="Copy")
-        layout.operator(
-            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
-            text="Paste")
+        layout.operator(MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname, text="Copy")
+        layout.operator(MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
+                        text="Paste")
 
 
 @BlClassRegistry()
@@ -129,18 +127,15 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,
-                              text="Left Top")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname, text="Left Top")
         ops.position = 'LEFT_TOP'
         ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,
-                              text="Middle Top")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname, text="Middle Top")
         ops.position = 'MIDDLE_TOP'
         ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,
-                              text="Right Top")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname, text="Right Top")
         ops.position = 'RIGHT_TOP'
         ops.base = sc.muv_align_uv_cursor_align_method
 
@@ -149,8 +144,7 @@ class MUV_MT_AlignUVCursor(bpy.types.Menu):
         ops.position = 'LEFT_MIDDLE'
         ops.base = sc.muv_align_uv_cursor_align_method
 
-        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,
-                              text="Center")
+        ops = layout.operator(MUV_OT_AlignUVCursor.bl_idname,text="Center")
         ops.position = 'CENTER'
         ops.base = sc.muv_align_uv_cursor_align_method
 

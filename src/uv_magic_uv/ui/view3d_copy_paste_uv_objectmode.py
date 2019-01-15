@@ -25,7 +25,10 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import copy_paste_uv_object
+from ..op.copy_paste_uv_object import (
+    MUV_MT_CopyPasteUVObject_CopyUV,
+    MUV_MT_CopyPasteUVObject_PasteUV,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils import compatibility as compat
 
@@ -53,11 +56,7 @@ class MUV_PT_View3D_Object_CopyPasteUV(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.menu(
-            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_CopyUV.bl_idname,
-            text="Copy")
-        row.menu(
-            copy_paste_uv_object.MUV_MT_CopyPasteUVObject_PasteUV.bl_idname,
-            text="Paste")
+        row.menu(MUV_MT_CopyPasteUVObject_CopyUV.bl_idname, text="Copy")
+        row.menu(MUV_MT_CopyPasteUVObject_PasteUV.bl_idname, text="Paste")
         layout.prop(sc, "muv_copy_paste_uv_object_copy_seams",
                     text="Seams")

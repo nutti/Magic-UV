@@ -25,7 +25,10 @@ __date__ = "17 Nov 2018"
 
 import bpy
 
-from ..op import copy_paste_uv_uvedit
+from ..op.copy_paste_uv_uvedit import (
+    MUV_OT_CopyPasteUVUVEdit_CopyUV,
+    MUV_OT_CopyPasteUVUVEdit_PasteUV,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils import compatibility as compat
 
@@ -52,9 +55,5 @@ class MUV_PT_UVEdit_CopyPasteUV(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.operator(
-            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname,
-            text="Copy")
-        row.operator(
-            copy_paste_uv_uvedit.MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
-            text="Paste")
+        row.operator(MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname, text="Copy")
+        row.operator(MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname, text="Paste")
