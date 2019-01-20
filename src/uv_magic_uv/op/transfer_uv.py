@@ -377,7 +377,7 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.transfer_uv
-        active_obj = compat.get_active_object(context)
+        active_obj = context.active_object
         bm = bmesh.from_edit_mesh(active_obj.data)
         if compat.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
@@ -433,7 +433,7 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.transfer_uv
-        active_obj = compat.get_active_object(context)
+        active_obj = context.active_object
         bm = bmesh.from_edit_mesh(active_obj.data)
         if compat.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
