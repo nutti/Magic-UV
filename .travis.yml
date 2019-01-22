@@ -21,10 +21,10 @@ before_install:
 install:
   - wget http://mirror.cs.umn.edu/blender.org/release/Blender2.77/blender-2.77-linux-glibc211-x86_64.tar.bz2
   - tar jxf blender-2.77-linux-glibc211-x86_64.tar.bz2
-  - cp -r src/uv_magic_uv blender-2.77-linux-glibc211-x86_64/2.77/scripts/addons
+  - cp -r src/magic_uv blender-2.77-linux-glibc211-x86_64/2.77/scripts/addons
 
 before_script:
-  - bash tests/lint/pylint.sh src/uv_magic_uv
-  - bash tests/lint/pep8.sh src/uv_magic_uv
+  - bash tests/lint/pylint.sh src/magic_uv
+  - bash tests/lint/pep8.sh src/magic_uv
 
 script: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py

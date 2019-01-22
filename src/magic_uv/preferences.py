@@ -190,7 +190,7 @@ def get_debug_mode(self):
 class Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
-    bl_idname = "uv_magic_uv"
+    bl_idname = "magic_uv"
 
     def update_enable_builtin_menu(self, _):
         if self['enable_builtin_menu']:

@@ -62,7 +62,7 @@ def _get_canvas(context, magnitude):
     """
     sc = context.scene
     user_prefs = compat.get_user_preferences(context)
-    prefs = user_prefs.addons["uv_magic_uv"].preferences
+    prefs = user_prefs.addons["magic_uv"].preferences
 
     region_w = context.region.width
     region_h = context.region.height

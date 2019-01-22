@@ -1,7 +1,5 @@
 import bpy
 
-import uv_magic_uv
-
 from . import common
 
 

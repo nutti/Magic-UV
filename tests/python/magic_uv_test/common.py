@@ -124,7 +124,7 @@ def add_face_select_history(obj, num_face, offset=0):
 
 class TestBase(unittest.TestCase):
 
-    package_name = "uv_magic_uv"
+    package_name = "magic_uv"
     module_name = ""
     submodule_name = None
     idname = []

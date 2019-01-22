@@ -9,7 +9,7 @@ src_dir_path = ARGV[0].sub(/\/$/, "")
 tmp_dir_path = 'tmp'
 
 filelist = []
-ignore_filelist = ['uv_magic_uv/addon_updater.py', 'uv_magic_uv/addon_updater_ops.py']
+ignore_filelist = []
 entry = Dir.glob(src_dir_path + '/**/**')
 entry.each {|e|
     next e if File::ftype(e) == 'directory'

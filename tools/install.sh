@@ -10,13 +10,13 @@ version=${2}
 target=""
 
 if [ ${os} = "mac" ]; then
-    target="${HOME}/Library/Application Support/Blender/${version}/scripts/addons/uv_magic_uv"
+    target="${HOME}/Library/Application Support/Blender/${version}/scripts/addons/magic_uv"
 elif [ ${os} = "linux" ]; then
-    target="${HOME}/.config/blender/${version}/scripts/addons/uv_magic_uv"
+    target="${HOME}/.config/blender/${version}/scripts/addons/magic_uv"
 else
     echo "Invalid operating system."
     exit 1
 fi
 
 rm -rf "${target}"
-cp -r src/uv_magic_uv "${target}"
+cp -r src/magic_uv "${target}"
