@@ -348,7 +348,7 @@ class Preferences(AddonPreferences):
             if self.info_loc_expanded:
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="3D View > Tool shelf > " +
+                sp.label(text="3D View > Sidebar > " +
                          "Copy/Paste UV (Object mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
@@ -356,7 +356,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="3D View > Tool shelf > " +
+                sp.label(text="3D View > Sidebar > " +
                          "Copy/Paste UV (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
@@ -365,7 +365,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="3D View > Tool shelf > " +
+                sp.label(text="3D View > Sidebar > " +
                          "UV Manipulation (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
@@ -380,7 +380,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="3D View > Tool shelf > " +
+                sp.label(text="3D View > Sidebar > " +
                          "UV Manipulation (Edit mode)")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
@@ -390,7 +390,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="UV/Image Editor > Tool shelf > Copy/Paste UV")
+                sp.label(text="UV/Image Editor > Sidebar > Copy/Paste UV")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Copy/Paste UV " +
@@ -398,7 +398,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="UV/Image Editor > Tool shelf > UV Manipulation")
+                sp.label(text="UV/Image Editor > Sidebar > UV Manipulation")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
                 col.label(text="Align UV")
@@ -408,7 +408,7 @@ class Preferences(AddonPreferences):
 
                 row = layout.row(align=True)
                 sp = compat.layout_split(row, 0.5)
-                sp.label(text="UV/Image Editor > Tool shelf > " +
+                sp.label(text="UV/Image Editor > Sidebar > " +
                          "Editor Enhancement")
                 sp = compat.layout_split(sp, 1.0)
                 col = sp.column(align=True)
