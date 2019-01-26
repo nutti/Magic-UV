@@ -25,6 +25,7 @@ If you want to try newest but unstable version, you can download it from [unstab
 ## Features / Tutorials
 
 Magic UV supports **English** only.  
+Magic UV supports both Blender 2.7x (>=2.78) and Blender 2.8.  
 Features list and Tutorials are available on [Wiki Page](https://github.com/nutti/Magic-UV/wiki/Tutorial).
 
 

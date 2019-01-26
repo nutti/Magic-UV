@@ -1,7 +1,12 @@
 # Change log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v5.2...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.0...develop)
+
+
+## [Version 6.0](https://github.com/nutti/Magic-UV/compare/v5.2...v6.0) - 20XX.XX.XX
+
+Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 
 ## [Version 5.2](https://github.com/nutti/Magic-UV/compare/v5.1...v5.2) - 2018.11.17

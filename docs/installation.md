@@ -8,6 +8,7 @@
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|6.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.0)|
 |5.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.2)|
 |5.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.1)|
 |5.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v5.0)|
@@ -36,6 +37,7 @@ Add-on sources are located on the different places depending on the add-on versi
 
 |Version|Sources|
 |---|---|
+|6.0|src/magic_uv|
 |4.0 - 5.2|uv_magic_uv|
 |2.2 - 3.2|uv_copy_and_paste_uv|
 |1.0 - 2.2|uv_copy_and_paste_uv.py|
@@ -47,9 +49,9 @@ Location of add-on folder depends on your operating system.
 
 |OS|Location|
 |---|---|
-|Windows|```C:\Users\<username>\AppData\Roaming\Blender Foundation\Blender\<blender_version>\scripts\addons```|
-|Mac|```/Users/<username>/Library/Application Support/Blender/<blender_version>/scripts/addons```|
-|Linux|```/home/<username>/.config/blender/<blender_version>/scripts/addons```|
+|Windows|`C:\Users\<username>\AppData\Roaming\Blender Foundation\Blender\<blender_version>\scripts\addons`|
+|Mac|`/Users/<username>/Library/Application Support/Blender/<blender_version>/scripts/addons`|
+|Linux|`/home/<username>/.config/blender/<blender_version>/scripts/addons`|
 
 If you use Blender which version is >= 2.79, you must remove released Magic UV add-on from Blender official add-ons directory.
 Then, copy add-on sources into Blender official add-ons directory.
@@ -62,5 +64,5 @@ Be careful that this add-on has different name depending on the version.
 
 |Version|Name|
 |---|---|
-|4.0 - 5.2|Magic UV|
+|4.0 - 6.0|Magic UV|
 |1.0 - 3.2|Copy and Paste UV|
