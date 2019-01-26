@@ -4,7 +4,7 @@
 ## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.0...develop)
 
 
-## [Version 6.0](https://github.com/nutti/Magic-UV/compare/v5.2...v6.0) - 20XX.XX.XX
+## [Version 6.0](https://github.com/nutti/Magic-UV/compare/v5.2...v6.0) - 2019.1.26
 
 Support Blender 2.8. (Make compatibility with Blender 2.7x)
 

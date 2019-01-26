@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "5.2"
-__date__ = "17 Nov 2018"
+__version__ = "6.0"
+__date__ = "26 Jan 2019"
 
 from threading import Lock
 import urllib
@@ -32,6 +32,12 @@ import os
 import zipfile
 import shutil
 import datetime
+
+
+def get_separator():
+    if os.name == "nt":
+        return "\\"
+    return "/"
 
 
 def _request(url, json_decode=True):
@@ -69,7 +75,7 @@ def _download(url, path):
 
 
 def _make_workspace_path(addon_dir):
-    return addon_dir + "/addon_updator_workspace"
+    return addon_dir + get_separator() + "addon_updator_workspace"
 
 
 def _make_workspace(addon_dir):
@@ -79,7 +85,7 @@ def _make_workspace(addon_dir):
 
 def _make_temp_addon_path(addon_dir, url):
     filename = url.split("/")[-1]
-    filepath = _make_workspace_path(addon_dir) + "/" + filename
+    filepath = _make_workspace_path(addon_dir) + get_separator() + filename
     return filepath
 
 
@@ -103,7 +109,7 @@ def _replace_addon(addon_dir, info, current_addon_path, offset_path=""):
         with zipfile.ZipFile(tmp_addon_path) as zf:
             zf.extractall(workspace_path)
         if offset_path != "":
-            src = workspace_path + "/" + offset_path
+            src = workspace_path + get_separator() + offset_path
             dst = addon_dir
             shutil.move(src, dst)
     elif ext == ".py":
@@ -312,8 +318,8 @@ class AddonUpdatorManager:
             # replace add-on
             offset_path = ""
             if info.group == 'BRANCH':
-                offset_path = "{}-{}/{}".format(
-                    self.__config.repository, info.name,
+                offset_path = "{}-{}{}{}".format(
+                    self.__config.repository, info.name, get_separator(),
                     self.__config.target_addon_path)
             elif info.group == 'RELEASE':
                 offset_path = self.__config.target_addon_path

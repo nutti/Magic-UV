@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
-__version__ = "5.2"
-__date__ = "17 Nov 2018"
+__version__ = "6.0"
+__date__ = "26 Jan 2019"
 
 import os
 
@@ -31,7 +31,11 @@ from bpy.props import (
 )
 
 from .utils.bl_class_registry import BlClassRegistry
-from .utils.addon_updator import AddonUpdatorManager, AddonUpdatorConfig
+from .utils.addon_updator import (
+    AddonUpdatorManager,
+    AddonUpdatorConfig,
+    get_separator,
+)
 from .utils import compatibility as compat
 
 
@@ -129,7 +133,8 @@ def register_updater(bl_info):
     config.current_addon_path = os.path.dirname(os.path.realpath(__file__))
     config.branches = ["master", "develop"]
     config.addon_directory = \
-        config.current_addon_path[:config.current_addon_path.rfind("/")]
+        config.current_addon_path[
+            :config.current_addon_path.rfind(get_separator())]
     config.min_release_version = bl_info["version"]
     config.target_addon_path = "src/magic_uv"
     updater = AddonUpdatorManager.get_instance()

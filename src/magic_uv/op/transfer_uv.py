@@ -20,8 +20,8 @@
 
 __author__ = "Nutti <nutti.metro@gmail.com>, Mifth, MaxRobinot"
 __status__ = "production"
-__version__ = "5.2"
-__date__ = "17 Nov 2018"
+__version__ = "6.0"
+__date__ = "26 Jan 2019"
 
 from collections import OrderedDict
 

@@ -49,7 +49,7 @@ filelist.each {|src_path|
 
     # make converted file
     File.open(src_path, 'r') {|src_file|
-        File.open(dest_path, 'w') {|dest_file|
+        File.open(dest_path, 'wb') {|dest_file|
             src_file.each_line do |line|
                 if /^__date__/ =~ line
                     today = Date.today
