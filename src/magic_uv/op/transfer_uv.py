@@ -363,7 +363,7 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
         Topological based copy
     """
 
-    bl_idname = "uv.muv_ot_transfer_uv_copy_uv"
+    bl_idname = "uv.muv_transfer_uv_copy_uv"
     bl_label = "Transfer UV Copy UV"
     bl_description = "Transfer UV Copy UV (Topological based copy)"
     bl_options = {'REGISTER', 'UNDO'}
@@ -404,7 +404,7 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
         Topological based paste
     """
 
-    bl_idname = "uv.muv_ot_transfer_uv_paste_uv"
+    bl_idname = "uv.muv_transfer_uv_paste_uv"
     bl_label = "Transfer UV Paste UV"
     bl_description = "Transfer UV Paste UV (Topological based paste)"
     bl_options = {'REGISTER', 'UNDO'}

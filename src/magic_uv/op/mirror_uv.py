@@ -136,7 +136,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
     Operation class: Mirror UV
     """
 
-    bl_idname = "uv.muv_ot_mirror_uv"
+    bl_idname = "uv.muv_mirror_uv"
     bl_label = "Mirror UV"
     bl_options = {'REGISTER', 'UNDO'}
 

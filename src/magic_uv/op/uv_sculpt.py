@@ -174,7 +174,7 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
     Operation class: UV Sculpt in View3D
     """
 
-    bl_idname = "uv.muv_ot_uv_sculpt"
+    bl_idname = "uv.muv_uv_sculpt"
     bl_label = "UV Sculpt"
     bl_description = "UV Sculpt in View3D"
     bl_options = {'REGISTER'}

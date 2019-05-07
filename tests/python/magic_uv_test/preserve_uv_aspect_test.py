@@ -8,7 +8,7 @@ class TestPreserveUVAspect(common.TestBase):
     module_name = "preserve_uv_aspect"
     idname = [
         # Preserve UV
-        ('OPERATOR', 'uv.muv_ot_preserve_uv_aspect'),
+        ('OPERATOR', 'uv.muv_preserve_uv_aspect'),
     ]
 
     def setUpEachMethod(self):
@@ -30,19 +30,19 @@ class TestPreserveUVAspect(common.TestBase):
     def test_ng_no_uv(self):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
-        result = bpy.ops.uv.muv_ot_preserve_uv_aspect(dest_img_name=self.dest_img_name)
+        result = bpy.ops.uv.muv_preserve_uv_aspect(dest_img_name=self.dest_img_name)
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_ot_preserve_uv_aspect(dest_img_name=self.dest_img_name)
+        result = bpy.ops.uv.muv_preserve_uv_aspect(dest_img_name=self.dest_img_name)
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified(self):
         print("[TEST] (OK) user specified")
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_ot_preserve_uv_aspect(
+        result = bpy.ops.uv.muv_preserve_uv_aspect(
             dest_img_name=self.dest_img_name,
             origin='RIGHT_TOP'
         )

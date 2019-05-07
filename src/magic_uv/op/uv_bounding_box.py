@@ -612,7 +612,7 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
     Operation class: UV Bounding Box
     """
 
-    bl_idname = "uv.muv_ot_uv_bounding_box"
+    bl_idname = "uv.muv_uv_bounding_box"
     bl_label = "UV Bounding Box"
     bl_description = "Internal operation for UV Bounding Box"
     bl_options = {'REGISTER', 'UNDO'}

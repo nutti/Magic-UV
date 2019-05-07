@@ -356,7 +356,7 @@ class _Properties:
 @compat.make_annotations
 class MUV_OT_AlignUV_Circle(bpy.types.Operator):
 
-    bl_idname = "uv.muv_ot_align_uv_circle"
+    bl_idname = "uv.muv_align_uv_circle"
     bl_label = "Align UV (Circle)"
     bl_description = "Align UV coordinates to Circle"
     bl_options = {'REGISTER', 'UNDO'}
@@ -442,7 +442,7 @@ class MUV_OT_AlignUV_Circle(bpy.types.Operator):
 @compat.make_annotations
 class MUV_OT_AlignUV_Straighten(bpy.types.Operator):
 
-    bl_idname = "uv.muv_ot_align_uv_straighten"
+    bl_idname = "uv.muv_align_uv_straighten"
     bl_label = "Align UV (Straighten)"
     bl_description = "Straighten UV coordinates"
     bl_options = {'REGISTER', 'UNDO'}
@@ -594,7 +594,7 @@ class MUV_OT_AlignUV_Straighten(bpy.types.Operator):
 @compat.make_annotations
 class MUV_OT_AlignUV_Axis(bpy.types.Operator):
 
-    bl_idname = "uv.muv_ot_align_uv_axis"
+    bl_idname = "uv.muv_align_uv_axis"
     bl_label = "Align UV (XY-Axis)"
     bl_description = "Align UV to XY-axis"
     bl_options = {'REGISTER', 'UNDO'}

@@ -91,7 +91,7 @@ class MUV_OT_MoveUV(bpy.types.Operator):
     Operator class: Move UV
     """
 
-    bl_idname = "uv.muv_ot_move_uv"
+    bl_idname = "uv.muv_move_uv"
     bl_label = "Move UV"
     bl_options = {'REGISTER', 'UNDO'}
 

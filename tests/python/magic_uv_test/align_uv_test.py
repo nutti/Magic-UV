@@ -5,7 +5,7 @@ class TestAlignUVCircle(common.TestBase):
     module_name = "align_uv"
     submodule_name = "circle"
     idname = [
-        ('OPERATOR', 'uv.muv_ot_align_uv_circle'),
+        ('OPERATOR', 'uv.muv_align_uv_circle'),
     ]
 
     # Align UV has a complicated condition to test
@@ -17,7 +17,7 @@ class TestAlignUVStraighten(common.TestBase):
     module_name = "align_uv"
     submodule_name = "straighten"
     idname = [
-        ('OPERATOR', 'uv.muv_ot_align_uv_straighten'),
+        ('OPERATOR', 'uv.muv_align_uv_straighten'),
     ]
 
     # Align UV has a complicated condition to test
@@ -29,7 +29,7 @@ class TestAlignUVAxis(common.TestBase):
     module_name = "align_uv"
     submodule_name = "axis"
     idname = [
-        ('OPERATOR', 'uv.muv_ot_align_uv_axis'),
+        ('OPERATOR', 'uv.muv_align_uv_axis'),
     ]
 
     # Align UV has a complicated condition to test

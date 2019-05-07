@@ -7,7 +7,7 @@ class TestUnwrapConstraint(common.TestBase):
     module_name = "unwrap_constraint"
     idname = [
         # Unwrap Constraint
-        ('OPERATOR', 'uv.muv_ot_unwrap_constraint'),
+        ('OPERATOR', 'uv.muv_unwrap_constraint'),
     ]
 
     def setUpEachMethod(self):
@@ -20,21 +20,21 @@ class TestUnwrapConstraint(common.TestBase):
     def test_ng_no_uv(self):
         print("[TEST] (NG) No UV")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_unwrap_constraint()
+        result = bpy.ops.uv.muv_unwrap_constraint()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_unwrap_constraint()
+        result = bpy.ops.uv.muv_unwrap_constraint()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified(self):
         print("[TEST] (OK) user specified")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_unwrap_constraint(
+        result = bpy.ops.uv.muv_unwrap_constraint(
             method='CONFORMAL',
             fill_holes=False,
             correct_aspect=False,

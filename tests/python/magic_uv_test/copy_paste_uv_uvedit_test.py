@@ -7,8 +7,8 @@ class TestCopyPasteUVUVEdit(common.TestBase):
     module_name = "copy_paste_uv_uvedit"
     idname = [
         # Copy/Paste UV Coordinates on UV/Image Editor
-        ('OPERATOR', 'uv.muv_ot_copy_paste_uv_uvedit_copy_uv'),
-        ('OPERATOR', 'uv.muv_ot_copy_paste_uv_uvedit_paste_uv'),
+        ('OPERATOR', 'uv.muv_copy_paste_uv_uvedit_copy_uv'),
+        ('OPERATOR', 'uv.muv_copy_paste_uv_uvedit_paste_uv'),
     ]
 
     def setUpEachMethod(self):
@@ -24,14 +24,14 @@ class TestCopyPasteUVUVEdit(common.TestBase):
         print("[TEST] (OK)")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_copy_paste_uv_uvedit_copy_uv()
+        result = bpy.ops.uv.muv_copy_paste_uv_uvedit_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def __prepare_paste_uv_test(self):
         # Copy UV
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_copy_paste_uv_uvedit_copy_uv()
+        result = bpy.ops.uv.muv_copy_paste_uv_uvedit_copy_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -45,5 +45,5 @@ class TestCopyPasteUVUVEdit(common.TestBase):
         print("[TEST] (OK)")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_copy_paste_uv_uvedit_paste_uv()
+        result = bpy.ops.uv.muv_copy_paste_uv_uvedit_paste_uv()
         self.assertSetEqual(result, {'FINISHED'})

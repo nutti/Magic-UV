@@ -225,7 +225,7 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
     Render texture
     """
 
-    bl_idname = "uv.muv_ot_texture_projection"
+    bl_idname = "uv.muv_texture_projection"
     bl_description = "Render selected texture"
     bl_label = "Texture renderer"
 
@@ -332,7 +332,7 @@ class MUV_OT_TextureProjection_Project(bpy.types.Operator):
     Operation class: Project texture
     """
 
-    bl_idname = "uv.muv_ot_texture_projection_project"
+    bl_idname = "uv.muv_texture_projection_project"
     bl_label = "Project Texture"
     bl_description = "Project Texture"
     bl_options = {'REGISTER', 'UNDO'}

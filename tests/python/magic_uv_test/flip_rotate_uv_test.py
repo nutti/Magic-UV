@@ -7,7 +7,7 @@ class TestFlipRotateUV(common.TestBase):
     module_name = "flip_rotate_uv"
     idname = [
         # Flip/Rotate UVs
-        ('OPERATOR', 'uv.muv_ot_flip_rotate_uv'),
+        ('OPERATOR', 'uv.muv_flip_rotate_uv'),
     ]
 
     def setUpEachMethod(self):
@@ -20,7 +20,7 @@ class TestFlipRotateUV(common.TestBase):
     def test_ng_no_uv(self):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
-        result = bpy.ops.uv.muv_ot_flip_rotate_uv()
+        result = bpy.ops.uv.muv_flip_rotate_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ng_no_selected_faces(self):
@@ -28,19 +28,19 @@ class TestFlipRotateUV(common.TestBase):
         print("[TEST] (NG) No selected faces")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='DESELECT')
-        result = bpy.ops.uv.muv_ot_flip_rotate_uv()
+        result = bpy.ops.uv.muv_flip_rotate_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_flip_rotate_uv()
+        result = bpy.ops.uv.muv_flip_rotate_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified(self):
         print("[TEST] (OK) User specified")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_flip_rotate_uv(flip=True, rotate=5, seams=False)
+        result = bpy.ops.uv.muv_flip_rotate_uv(flip=True, rotate=5, seams=False)
         self.assertSetEqual(result, {'FINISHED'})

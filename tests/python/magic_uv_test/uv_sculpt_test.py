@@ -5,7 +5,7 @@ class TestUVSculpt(common.TestBase):
     module_name = "uv_sculpt"
     idname = [
         # UV Sculpt
-        ('OPERATOR', "uv.muv_ot_uv_sculpt"),
+        ('OPERATOR', "uv.muv_uv_sculpt"),
     ]
 
     # modal operator can not invoke directly from cmdline

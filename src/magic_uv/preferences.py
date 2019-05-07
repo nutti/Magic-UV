@@ -33,7 +33,7 @@ from bpy.props import (
 from bpy.types import AddonPreferences
 
 from . import common
-from .op.flip_rotate_uv import MUV_OT_FlipRotate
+from .op.flip_rotate_uv import MUV_OT_FlipRotateUV
 from .op.mirror_uv import MUV_OT_MirrorUV
 from .op.move_uv import MUV_OT_MoveUV
 from .op.unwrap_constraint import MUV_OT_UnwrapConstraint
@@ -77,7 +77,7 @@ def view3d_uvmap_menu_fn(self, context):
     layout.separator()
     layout.label(text="UV Manipulation", icon=compat.icon('IMAGE'))
     # Flip/Rotate UV
-    ops = layout.operator(MUV_OT_FlipRotate.bl_idname, text="Flip/Rotate UV")
+    ops = layout.operator(MUV_OT_FlipRotateUV.bl_idname, text="Flip/Rotate UV")
     ops.seams = sc.muv_flip_rotate_uv_seams
     # Mirror UV
     ops = layout.operator(MUV_OT_MirrorUV.bl_idname, text="Mirror UV")
@@ -187,7 +187,7 @@ def get_debug_mode(self):
 
 @BlClassRegistry()
 @compat.make_annotations
-class Preferences(AddonPreferences):
+class MUV_Preferences(AddonPreferences):
     """Preferences class: Preferences for this add-on"""
 
     bl_idname = "magic_uv"

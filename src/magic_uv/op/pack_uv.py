@@ -187,7 +187,7 @@ class MUV_OT_PackUV(bpy.types.Operator):
      - Same number of UV
     """
 
-    bl_idname = "uv.muv_ot_pack_uv"
+    bl_idname = "uv.muv_pack_uv"
     bl_label = "Pack UV"
     bl_description = "Pack UV (Same UV Islands are integrated)"
     bl_options = {'REGISTER', 'UNDO'}

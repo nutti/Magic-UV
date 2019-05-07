@@ -43,7 +43,7 @@ from ..op.world_scale_uv import (
     MUV_OT_WorldScaleUV_ApplyScalingDensity,
     MUV_OT_WorldScaleUV_ApplyProportionalToMesh,
 )
-from ..op.flip_rotate_uv import MUV_OT_FlipRotate
+from ..op.flip_rotate_uv import MUV_OT_FlipRotateUV
 from ..op.mirror_uv import MUV_OT_MirrorUV
 from ..op.move_uv import MUV_OT_MoveUV
 from ..op.preserve_uv_aspect import MUV_OT_PreserveUVAspect
@@ -77,7 +77,8 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
         box.prop(sc, "muv_flip_rotate_uv_enabled", text="Flip/Rotate UV")
         if sc.muv_flip_rotate_uv_enabled:
             row = box.row()
-            ops = row.operator(MUV_OT_FlipRotate.bl_idname, text="Flip/Rotate")
+            ops = row.operator(MUV_OT_FlipRotateUV.bl_idname,
+                               text="Flip/Rotate")
             ops.seams = sc.muv_flip_rotate_uv_seams
             row.prop(sc, "muv_flip_rotate_uv_seams", text="Seams")
 

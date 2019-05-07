@@ -8,8 +8,8 @@ class TestTextureLock(common.TestBase):
     submodule_name = "non_intr"
     idname = [
         # Texture Lock
-        ('OPERATOR', 'uv.muv_ot_texture_lock_lock'),
-        ('OPERATOR', 'uv.muv_ot_texture_lock_unlock'),
+        ('OPERATOR', 'uv.muv_texture_lock_lock'),
+        ('OPERATOR', 'uv.muv_texture_lock_unlock'),
     ]
 
     # can not test interactive mode
@@ -24,24 +24,24 @@ class TestTextureLock(common.TestBase):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV (Lock)")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_texture_lock_lock()
+        result = bpy.ops.uv.muv_texture_lock_lock()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_unlock_ng_no_uv(self):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV (Unlock)")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_texture_lock_unlock()
+        result = bpy.ops.uv.muv_texture_lock_unlock()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_lock_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.image.new(name='Test')
-        result = bpy.ops.uv.muv_ot_texture_lock_lock()
+        result = bpy.ops.uv.muv_texture_lock_lock()
         self.assertSetEqual(result, {'FINISHED'})
 
-        result = bpy.ops.uv.muv_ot_texture_lock_unlock()
+        result = bpy.ops.uv.muv_texture_lock_unlock()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_lock_ok_with_connect(self):
@@ -49,10 +49,10 @@ class TestTextureLock(common.TestBase):
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.image.new(name='Test')
         bpy.ops.uv.smart_project()    # this needs because previous result corrupts UV and arise errors
-        result = bpy.ops.uv.muv_ot_texture_lock_lock()
+        result = bpy.ops.uv.muv_texture_lock_lock()
         self.assertSetEqual(result, {'FINISHED'})
 
-        result = bpy.ops.uv.muv_ot_texture_lock_unlock(
+        result = bpy.ops.uv.muv_texture_lock_unlock(
             connect=False
         )
         self.assertSetEqual(result, {'FINISHED'})
@@ -63,7 +63,7 @@ class TestTextureLockIntr(common.TestBase):
     submodule_name = "intr"
     idname = [
         # Texture Lock
-        ('OPERATOR', 'uv.muv_ot_texture_lock_intr'),
+        ('OPERATOR', 'uv.muv_texture_lock_intr'),
     ]
 
     # modal operator can not invoke directly from cmdline

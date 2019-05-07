@@ -92,7 +92,7 @@ class MUV_OT_UnwrapConstraint(bpy.types.Operator):
     Operation class: Unwrap with constrain UV coordinate
     """
 
-    bl_idname = "uv.muv_ot_unwrap_constraint"
+    bl_idname = "uv.muv_unwrap_constraint"
     bl_label = "Unwrap Constraint"
     bl_description = "Unwrap while keeping uv coordinate"
     bl_options = {'REGISTER', 'UNDO'}

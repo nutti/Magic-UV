@@ -8,7 +8,7 @@ class TestSelectUVOverlapped(common.TestBase):
     submodule_name = "overlapped"
     idname = [
         # Select UV
-        ('OPERATOR', 'uv.muv_ot_select_uv_select_overlapped'),
+        ('OPERATOR', 'uv.muv_select_uv_select_overlapped'),
     ]
 
     def setUpEachMethod(self):
@@ -21,13 +21,13 @@ class TestSelectUVOverlapped(common.TestBase):
     def test_ok_select_sync(self):
         print("[TEST] (OK) Select Overlapped with UV_Select_Sync=True")
         bpy.context.tool_settings.use_uv_select_sync = True
-        result = bpy.ops.uv.muv_ot_select_uv_select_overlapped()
+        result = bpy.ops.uv.muv_select_uv_select_overlapped()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_no_select_sync(self):
         print("[TEST] (OK) Select Overlapped with UV_Select_Sync=False")
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_ot_select_uv_select_overlapped()
+        result = bpy.ops.uv.muv_select_uv_select_overlapped()
         self.assertSetEqual(result, {'FINISHED'})
 
 
@@ -36,7 +36,7 @@ class TestSelectUVFlipped(common.TestBase):
     submodule_name = "flipped"
     idname = [
         # Select UV
-        ('OPERATOR', 'uv.muv_ot_select_uv_select_flipped'),
+        ('OPERATOR', 'uv.muv_select_uv_select_flipped'),
     ]
 
     def setUpEachMethod(self):
@@ -49,11 +49,11 @@ class TestSelectUVFlipped(common.TestBase):
     def test_ok_select_sync(self):
         print("[TEST] (OK) Select Flipped with UV_Select_Sync=True")
         bpy.context.tool_settings.use_uv_select_sync = True
-        result = bpy.ops.uv.muv_ot_select_uv_select_flipped()
+        result = bpy.ops.uv.muv_select_uv_select_flipped()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_no_select_sync(self):
         print("[TEST] (OK) Select Flipped with UV_Select_Sync=False")
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_ot_select_uv_select_flipped()
+        result = bpy.ops.uv.muv_select_uv_select_flipped()
         self.assertSetEqual(result, {'FINISHED'})

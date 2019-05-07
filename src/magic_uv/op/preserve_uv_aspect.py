@@ -108,7 +108,7 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
     Operation class: Preserve UV Aspect
     """
 
-    bl_idname = "uv.muv_ot_preserve_uv_aspect"
+    bl_idname = "uv.muv_preserve_uv_aspect"
     bl_label = "Preserve UV Aspect"
     bl_description = "Choose Image"
     bl_options = {'REGISTER', 'UNDO'}

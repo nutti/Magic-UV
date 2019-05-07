@@ -7,7 +7,7 @@ class TestPackUV(common.TestBase):
     module_name = "pack_uv"
     idname = [
         # Pack UV (with same UV island packing)
-        ('OPERATOR', 'uv.muv_ot_pack_uv'),
+        ('OPERATOR', 'uv.muv_pack_uv'),
     ]
 
     def setUpEachMethod(self):
@@ -21,21 +21,21 @@ class TestPackUV(common.TestBase):
         # Warning: Object must have more than one UV map
         print("[TEST] (NG) No UV")
         bpy.ops.mesh.select_all(action='SELECT')
-        result = bpy.ops.uv.muv_ot_pack_uv()
+        result = bpy.ops.uv.muv_pack_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_ot_pack_uv()
+        result = bpy.ops.uv.muv_pack_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified(self):
         print("[TEST] (OK) User specified")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_ot_pack_uv(
+        result = bpy.ops.uv.muv_pack_uv(
             rotate=True,
             margin=0.03,
             allowable_center_deviation=(0.02, 0.05),
