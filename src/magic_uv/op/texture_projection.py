@@ -157,7 +157,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_ot_texture_projection('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_texture_projection('INVOKE_REGION_WIN')
 
         scene.muv_texture_projection_enabled = BoolProperty(
             name="Texture Projection Enabled",

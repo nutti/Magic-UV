@@ -99,7 +99,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_ot_uv_inspection_render('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_uv_inspection_render('INVOKE_REGION_WIN')
 
         scene.muv_uv_inspection_enabled = BoolProperty(
             name="UV Inspection Enabled",

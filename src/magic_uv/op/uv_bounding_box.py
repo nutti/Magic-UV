@@ -88,7 +88,7 @@ class _Properties:
             pass
 
         def update_func(_, __):
-            bpy.ops.uv.muv_ot_uv_bounding_box('INVOKE_REGION_WIN')
+            bpy.ops.uv.muv_uv_bounding_box('INVOKE_REGION_WIN')
 
         scene.muv_uv_bounding_box_enabled = BoolProperty(
             name="UV Bounding Box Enabled",
