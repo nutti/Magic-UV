@@ -48,7 +48,6 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_label = "Editor Enhancement"
     bl_category = "Magic UV"
-    bl_context = 'mesh_edit'
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, _):
