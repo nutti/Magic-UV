@@ -293,6 +293,7 @@ class _Properties:
 
 
 @BlClassRegistry()
+@compat.make_annotations
 class MUV_OT_WorldScaleUV_Measure(bpy.types.Operator):
     """
     Operation class: Measure face size
