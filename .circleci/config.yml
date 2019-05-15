@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:16.04
+    environment:
+      MUV_CONSOLE_MODE: true
+    branches:
+      only:
+        - master
+        - develop
+        - ci_testing
+    steps:
+      - checkout
+      - run:
+          name: Get required packages for Blender
+          command: apt-get update -qq && apt-get install -y blender wget python3 python3-pip zip
+      - run:
+          name: Get required pip packages
+          command: pip3 install -r requirements.txt
+      - run:
+          name: Download Blender
+          command: wget http://mirror.cs.umn.edu/blender.org/release/Blender2.77/blender-2.77-linux-glibc211-x86_64.tar.bz2 && tar jxf blender-2.77-linux-glibc211-x86_64.tar.bz2
+      - run:
+          name: Copy add-on to Blender add-on's directory
+          command: cp -r src/magic_uv blender-2.77-linux-glibc211-x86_64/2.77/scripts/addons
+      - run:
+          name: Check pylint
+          command: bash tests/lint/pylint.sh src/magic_uv
+      - run:
+          name: Check pep8
+          command: bash tests/lint/pep8.sh src/magic_uv
+      - run:
+          name: Run tests
+          command: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py
+      - run:
+          name: Compress add-on as .zip file
+          command: mkdir release && zip -r release/magic_uv.zip src/magic_uv
+      - store_artifacts:
+          path: release
+          destination: magic_uv
