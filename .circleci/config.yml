@@ -35,7 +35,7 @@ jobs:
           command: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py
       - run:
           name: Compress add-on as .zip file
-          command: mkdir release && zip -r release/magic_uv.zip src/magic_uv
+          command: mkdir release && cd src && zip -r magic_uv.zip magic_uv && cd .. && mv src/magic_uv.zip release
       - store_artifacts:
           path: release
           destination: magic_uv
