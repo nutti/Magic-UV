@@ -71,7 +71,6 @@ Copy and paste UV coordinates among same/different object's faces in UV Editor. 
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Copy/Paste UV**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Copy/Paste UV**|
-|Mode|**Edit**|
 
 [Usage]
 1. Select UVs you want to copy
@@ -214,6 +213,11 @@ Measure and set texel density. This feature is derived from below add-on.
 6. Click **Apply**
 
 * **Origin** property changes the UV origin after applying texel density
+* **Texture** property is a texture to be used for the size calculation of density
+  * **[Average]**: Average size of textures assigned to the selected object
+  * **[Max]**: Max size of textures assigned to the selected object
+  * **[Min]**: Min size of textures assigned to the selected object
+  * **(Texture Name)**: Size of selected texture
 
 #### Mode: Same Density
 
@@ -227,6 +231,12 @@ Measure and set texel density. This feature is derived from below add-on.
 7. Click **Apply**
 
 * **Origin** property changes the UV origin after applying texel density
+* **Texture** property is a texture to be used for the size calculation of density
+  * **[Average]**: Average size of textures assigned to the selected object
+  * **[Max]**: Max size of textures assigned to the selected object
+  * **[Min]**: Min size of textures assigned to the selected object
+  * **(Texture Name)**: Size of selected texture
+
 
 #### Mode: Scaling Density
 
@@ -241,6 +251,11 @@ Measure and set texel density. This feature is derived from below add-on.
 8. Click **Apply**
 
 * **Origin** property changes the UV origin after applying texel density
+* **Texture** property is a texture to be used for the size calculation of density
+  * **[Average]**: Average size of textures assigned to the selected object
+  * **[Max]**: Max size of textures assigned to the selected object
+  * **[Min]**: Min size of textures assigned to the selected object
+  * **(Texture Name)**: Size of selected texture
 
 #### Mode: Proportional to Mesh
 
@@ -254,6 +269,11 @@ Measure and set texel density. This feature is derived from below add-on.
 7. Click **Apply**
 
 * **Origin** property changes the UV origin after applying texel density
+* **Texture** property is a texture to be used for the size calculation of density
+  * **[Average]**: Average size of textures assigned to the selected object
+  * **[Max]**: Max size of textures assigned to the selected object
+  * **[Min]**: Min size of textures assigned to the selected object
+  * **(Texture Name)**: Size of selected texture
 
 
 ### Preserve UV Aspect
@@ -432,7 +452,6 @@ Align UV. This feature is derived from below add-on.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **Align UV** to show Align UV menu
@@ -462,7 +481,6 @@ Smooth UV. This feature is derived from below add-on.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **Smooth UV** to show Smooth UV menu
@@ -482,7 +500,6 @@ Select UV under the specific condition.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **Select UV** to show Select UV menu
@@ -502,7 +519,6 @@ Apply island packing and integrate islands which have same shape.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **Pack UV (Extension)** to show Pack UV (Extension) menu
@@ -522,7 +538,6 @@ Align UV cursor (2D Cursor in UV Editor).
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **Align UV Cursor** to show Align UV Cursor menu
@@ -543,7 +558,6 @@ Set and display UV Cursor (2D Cursor in UV Editor) location.
 | | |
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **UV Cursor Location** to show UV Cursor Location menu
@@ -558,7 +572,6 @@ Transform UV with Bounding Box like a Photoshop/GIMP's Bounding Box.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **UV Bounding Box** to show UV Bounding Box menu
@@ -578,7 +591,6 @@ Inspect UV and help you to find which UV is on the abnormal condition.
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
-|Mode|**Edit**|
 
 [Usage]
 1. Click check box **UV Inspection** to show UV Inspection menu

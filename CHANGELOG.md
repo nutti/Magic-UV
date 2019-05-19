@@ -1,7 +1,19 @@
 # Change log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.0...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.1...develop)
+
+## [Version 6.1](https://github.com/nutti/Magic-UV/compare/v6.0...v6.1) - 2019.X.XX
+
+### Updated features
+
+* World Scale UV
+  * Add option "Texture" to allow the user to specify the texture for the density calculation
+
+### Other updates
+
+* Change CI to Circle CI from Travis CI
+* Fix bugs
 
 
 ## [Version 6.0](https://github.com/nutti/Magic-UV/compare/v5.2...v6.0) - 2019.1.26
