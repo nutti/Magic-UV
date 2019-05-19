@@ -3,7 +3,8 @@
 
 ## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.1...develop)
 
-## [Version 6.1](https://github.com/nutti/Magic-UV/compare/v6.0...v6.1) - 2019.X.XX
+
+## [Version 6.1](https://github.com/nutti/Magic-UV/compare/v6.0...v6.1) - 2019.5.19
 
 ### Updated features
 
