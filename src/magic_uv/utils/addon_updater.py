@@ -75,7 +75,7 @@ def _download(url, path):
 
 
 def _make_workspace_path(addon_dir):
-    return addon_dir + get_separator() + "addon_updator_workspace"
+    return addon_dir + get_separator() + "addon_updater_workspace"
 
 
 def _make_workspace(addon_dir):

@@ -25,7 +25,7 @@ __date__ = "19 May 2019"
 
 if "bpy" in locals():
     import importlib
-    importlib.reload(addon_updator)
+    importlib.reload(addon_updater)
     importlib.reload(bl_class_registry)
     importlib.reload(compatibility)
     importlib.reload(property_class_registry)
