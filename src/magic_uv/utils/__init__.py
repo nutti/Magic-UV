@@ -30,7 +30,7 @@ if "bpy" in locals():
     importlib.reload(compatibility)
     importlib.reload(property_class_registry)
 else:
-    from . import addon_updator
+    from . import addon_updater
     from . import bl_class_registry
     from . import compatibility
     from . import property_class_registry
