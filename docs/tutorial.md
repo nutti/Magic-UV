@@ -42,7 +42,7 @@ Copy/Paste UV sometimes fails to paste UV correctly because of the incorrect UV 
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **Copy/Paste UV**|
+|Location|**3D View** > **Sidebar** > **Edit** > **Copy/Paste UV**|
 |Location (Built-in Menu)|**3D View** > **U** > **Copy/Paste UV**|
 |Mode|**Edit**|
 
@@ -69,7 +69,7 @@ Copy and paste UV coordinates among same/different object's faces in UV Editor. 
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **Copy/Paste UV**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **Copy/Paste UV**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Copy/Paste UV**|
 
 [Usage]
@@ -86,7 +86,7 @@ Copy and paste UV coordinates among same topology objects.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **Copy/Paste UV**|
+|Location|**3D View** > **Sidebar** > **Edit** > **Copy/Paste UV**|
 |Location (Built-in Menu)|**3D View** > **Object** > **Copy/Paste UV**|
 |Mode|**Object**|
 
@@ -111,7 +111,7 @@ Transfer UV can solve the Copy/Paste UV issue raised when the meshes don't have 
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **Copy/Paste UV**|
+|Location|**3D View** > **Sidebar** > **Edit** > **Copy/Paste UV**|
 |Location (Built-in Menu)|**3D View** > **U** > **Copy/Paste UV**|
 |Mode|**Edit**|
 
@@ -136,7 +136,7 @@ Flip or rotate UV.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -156,7 +156,7 @@ Make mirrored UV. This feature is derived from below add-on.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -172,7 +172,7 @@ Make mirrored UV. This feature is derived from below add-on.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -197,7 +197,7 @@ Measure and set texel density. This feature is derived from below add-on.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -282,7 +282,7 @@ Change assigned texture with preserving UV aspect.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -302,7 +302,7 @@ This feature is same as "Preserve UVs" feature on 3dsmax.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -333,7 +333,7 @@ Set texture coordinate along to the mesh structure.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -354,7 +354,7 @@ UV Sculpt in 3D View. Same features are supported as the UV sculpt in UV Editor.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Manipulation**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Manipulation**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Manipulation**|
 |Mode|**Edit**|
 
@@ -385,7 +385,7 @@ Unwrap UV with an axis fixed. This feature is same as "Unfold Constraints" featu
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Mapping**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Mapping**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Mapping**|
 |Mode|**Edit**|
 
@@ -404,7 +404,7 @@ Project the texture to the mesh while displaying texture image in 3D View.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Mapping**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Mapping**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Mapping**|
 |Mode|**Edit**|
 
@@ -430,7 +430,7 @@ UVW mapping.
 
 | | |
 |---|---|
-|Location|**3D View** > **Sidebar** > **UV Mapping**|
+|Location|**3D View** > **Sidebar** > **Edit** > **UV Mapping**|
 |Location (Built-in Menu)|**3D View** > **U** > **UV Mapping**|
 |Mode|**Edit**|
 
@@ -450,7 +450,7 @@ Align UV. This feature is derived from below add-on.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
 
 [Usage]
@@ -479,7 +479,7 @@ Smooth UV. This feature is derived from below add-on.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
 
 [Usage]
@@ -498,7 +498,7 @@ Select UV under the specific condition.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
 
 [Usage]
@@ -517,7 +517,7 @@ Apply island packing and integrate islands which have same shape.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **UV Manipulation**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
 
 [Usage]
@@ -536,7 +536,7 @@ Align UV cursor (2D Cursor in UV Editor).
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
 
 [Usage]
@@ -557,7 +557,7 @@ Set and display UV Cursor (2D Cursor in UV Editor) location.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **Editor Enhancement**|
 
 [Usage]
 1. Click check box **UV Cursor Location** to show UV Cursor Location menu
@@ -570,7 +570,7 @@ Transform UV with Bounding Box like a Photoshop/GIMP's Bounding Box.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
 
 [Usage]
@@ -589,7 +589,7 @@ Inspect UV and help you to find which UV is on the abnormal condition.
 
 | | |
 |---|---|
-|Location|**UV Editor** > **Sidebar** > **Editor Enhancement**|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
 
 [Usage]

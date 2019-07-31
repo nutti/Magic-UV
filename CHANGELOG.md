@@ -1,7 +1,15 @@
 # Change log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.1...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.2...develop)
+
+
+## [Version 6.2](https://github.com/nutti/Magic-UV/compare/v6.1...v6.2) - 2019.X.XX
+
+### Other updates
+
+* Merge change set of Blender's official repository
+* Fix bugs
 
 
 ## [Version 6.1](https://github.com/nutti/Magic-UV/compare/v6.0...v6.1) - 2019.5.19
