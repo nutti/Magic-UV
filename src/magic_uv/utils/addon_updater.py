@@ -183,7 +183,8 @@ class AddonUpdaterConfig:
         self.target_addon_path = {}
 
         # Default target add-on path.
-        # Search this path if branch/tag is not found in self.target_addon_path.
+        # Search this path if branch/tag is not found in
+        # self.target_addon_path.
         self.default_target_addon_path = ""
 
         # Current add-on path
