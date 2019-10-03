@@ -160,8 +160,8 @@ class MUV_OT_ClipUV(bpy.types.Operator):
         bm = common.create_bmesh(obj)
 
         if not bm.loops.layers.uv:
-            obj.report({'WARNING'}, "Object must have more than one UV map")
-            return None
+            self.report({'WARNING'}, "Object must have more than one UV map")
+            return {'CANCELLED'}
 
         uv_layer = bm.loops.layers.uv.verify()
 
@@ -188,7 +188,7 @@ class MUV_OT_ClipUV(bpy.types.Operator):
             # clip
             move_uv = Vector((0.0, 0.0))
             clip_size = Vector(self.clip_uv_range_max) - \
-                        Vector(self.clip_uv_range_min)
+                Vector(self.clip_uv_range_min)
             if max_uv.x > self.clip_uv_range_max[0]:
                 target_x = math.fmod(max_uv.x - self.clip_uv_range_min[0],
                                      clip_size.x)

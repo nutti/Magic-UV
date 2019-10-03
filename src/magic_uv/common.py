@@ -405,7 +405,7 @@ def find_image(obj, face=None, tex_layer=None):
 
     if len(images) >= 2:
         raise RuntimeError("Find more than 2 images")
-    if len(images) == 0:
+    if not images:
         return None
 
     return images[0]

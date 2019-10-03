@@ -13,6 +13,7 @@ def test_main():
         magic_uv_test.align_uv_test.TestAlignUVStraighten,
         magic_uv_test.align_uv_test.TestAlignUVAxis,
         magic_uv_test.align_uv_cursor_test.TestAlignUVCursor,
+        magic_uv_test.clip_uv_test.TestClipUV,
         magic_uv_test.copy_paste_uv_test.TestCopyPasteUV,
         magic_uv_test.copy_paste_uv_test.TestCopyPasteUVSelseq,
         magic_uv_test.copy_paste_uv_object_test.TestCopyPasteUVObject,

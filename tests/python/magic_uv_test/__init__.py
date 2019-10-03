@@ -1,5 +1,6 @@
 from . import align_uv_test
 from . import align_uv_cursor_test
+from . import clip_uv_test
 from . import copy_paste_uv_test
 from . import copy_paste_uv_object_test
 from . import copy_paste_uv_uvedit_test
