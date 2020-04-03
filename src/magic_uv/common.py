@@ -244,15 +244,16 @@ def __parse_island(bm, face_idx, faces_left, island,
     Parse island
     """
 
-    if face_idx in faces_left:
-        faces_left.remove(face_idx)
-        island.append({'face': bm.faces[face_idx]})
-        for v in face_to_verts[face_idx]:
-            connected_faces = vert_to_faces[v]
-            if connected_faces:
+    faces_to_parse = [face_idx]
+    while faces_to_parse:
+        fidx = faces_to_parse.pop(0)
+        if fidx in faces_left:
+            faces_left.remove(fidx)
+            island.append({'face': bm.faces[fidx]})
+            for v in face_to_verts[fidx]:
+                connected_faces = vert_to_faces[v]
                 for cf in connected_faces:
-                    __parse_island(bm, cf, faces_left, island, face_to_verts,
-                                   vert_to_faces)
+                    faces_to_parse.append(cf)
 
 
 def __get_island(bm, face_to_verts, vert_to_faces):
