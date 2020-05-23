@@ -65,19 +65,33 @@ def _update_uvinsp_info(context):
     sc = context.scene
     props = sc.muv_props.uv_inspection
 
-    obj = context.active_object
-    bm = bmesh.from_edit_mesh(obj.data)
-    if common.check_version(2, 73, 0) >= 0:
-        bm.faces.ensure_lookup_table()
-    uv_layer = bm.loops.layers.uv.verify()
+    objs = [o for o in bpy.data.objects if o.select_get()]
 
-    if context.tool_settings.use_uv_select_sync:
-        sel_faces = [f for f in bm.faces]
-    else:
-        sel_faces = [f for f in bm.faces if f.select]
+    bm_list = []
+    uv_layer_list = []
+    faces_list = []
+    for o in bpy.data.objects:
+        if not o.select_get():
+            continue
+        if o.type != 'MESH':
+            continue
+
+        bm = bmesh.from_edit_mesh(o.data)
+        if common.check_version(2, 73, 0) >= 0:
+            bm.faces.ensure_lookup_table()
+        uv_layer = bm.loops.layers.uv.verify()
+
+        if context.tool_settings.use_uv_select_sync:
+            sel_faces = [f for f in bm.faces]
+        else:
+            sel_faces = [f for f in bm.faces if f.select]
+        bm_list.append(bm)
+        uv_layer_list.append(uv_layer)
+        faces_list.append(sel_faces)
+
     props.overlapped_info = common.get_overlapped_uv_info(
-        bm, sel_faces, uv_layer, sc.muv_uv_inspection_show_mode)
-    props.flipped_info = common.get_flipped_uv_info(sel_faces, uv_layer)
+        bm_list, faces_list, uv_layer_list, sc.muv_uv_inspection_show_mode)
+    props.flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
 
 
 @PropertyClassRegistry()
@@ -205,14 +219,15 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
                         bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
-                                uv.x, uv.y)
+                                uv.x, uv.y, clip=False)
                             bgl.glVertex2f(x, y)
                         bgl.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
                     bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                     bgl.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["subject_uvs"]:
-                        x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                        x, y = context.region.view2d.view_to_region(
+                            uv.x, uv.y, clip=False)
                         bgl.glVertex2f(x, y)
                     bgl.glEnd()
 
@@ -226,14 +241,15 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
                         bgl.glColor4f(color[0], color[1], color[2], color[3])
                         for uv in poly:
                             x, y = context.region.view2d.view_to_region(
-                                uv.x, uv.y)
+                                uv.x, uv.y, clip=False)
                             bgl.glVertex2f(x, y)
                         bgl.glEnd()
                 elif sc.muv_uv_inspection_show_mode == 'FACE':
                     bgl.glBegin(bgl.GL_TRIANGLE_FAN)
                     bgl.glColor4f(color[0], color[1], color[2], color[3])
                     for uv in info["uvs"]:
-                        x, y = context.region.view2d.view_to_region(uv.x, uv.y)
+                        x, y = context.region.view2d.view_to_region(
+                            uv.x, uv.y, clip=False)
                         bgl.glVertex2f(x, y)
                     bgl.glEnd()
 

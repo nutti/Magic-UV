@@ -877,12 +877,12 @@ class RingBuffer:
 
 # clip: reference polygon
 # subject: tested polygon
-def __do_weiler_atherton_cliping(clip, subject, uv_layer, mode):
+def __do_weiler_atherton_cliping(clip_uvs, subject_uvs, mode):
 
-    clip_uvs = RingBuffer([l[uv_layer].uv.copy() for l in clip.loops])
+    clip_uvs = RingBuffer(clip_uvs)
     if __is_polygon_flipped(clip_uvs):
         clip_uvs.reverse()
-    subject_uvs = RingBuffer([l[uv_layer].uv.copy() for l in subject.loops])
+    subject_uvs = RingBuffer(subject_uvs)
     if __is_polygon_flipped(subject_uvs):
         subject_uvs.reverse()
 
@@ -1112,22 +1112,29 @@ def __is_points_in_polygon(points, subject_points):
     return True
 
 
-def get_overlapped_uv_info(bm, faces, uv_layer, mode):
+def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list, mode):
     # at first, check island overlapped
-    isl = get_island_info_from_faces(bm, faces, uv_layer)
+    isl = []
+    for bm, uv_layer, faces in zip(bm_list, uv_layer_list, faces_list):
+        info = get_island_info_from_faces(bm, faces, uv_layer)
+        isl.extend([(i, uv_layer) for i in info])
+
     overlapped_isl_pairs = []
-    for i, i1 in enumerate(isl):
-        for i2 in isl[i + 1:]:
+    overlapped_uv_layer_pairs = []
+    for i, (i1, uv_layer_1) in enumerate(isl):
+        for i2, uv_layer_2 in isl[i + 1:]:
             if (i1["max"].x < i2["min"].x) or (i2["max"].x < i1["min"].x) or \
                (i1["max"].y < i2["min"].y) or (i2["max"].y < i1["min"].y):
                 continue
             overlapped_isl_pairs.append([i1, i2])
+            overlapped_uv_layer_pairs.append([uv_layer_1, uv_layer_2])
 
     # next, check polygon overlapped
     overlapped_uvs = []
-    for oip in overlapped_isl_pairs:
+    for oip, uvlp in zip(overlapped_isl_pairs, overlapped_uv_layer_pairs):
         for clip in oip[0]["faces"]:
             f_clip = clip["face"]
+            clip_uvs = [l[uvlp[0]].uv.copy() for l in f_clip.loops]
             for subject in oip[1]["faces"]:
                 f_subject = subject["face"]
 
@@ -1138,13 +1145,12 @@ def get_overlapped_uv_info(bm, faces, uv_layer, mode):
                    (subject["max_uv"].y < clip["min_uv"].y):
                     continue
 
+                subject_uvs = [l[uvlp[1]].uv.copy() for l in f_subject.loops]
                 # slow operation, apply Weiler-Atherton cliping algorithm
-                result, polygons = __do_weiler_atherton_cliping(f_clip,
-                                                                f_subject,
-                                                                uv_layer, mode)
+                result, polygons = __do_weiler_atherton_cliping(clip_uvs,
+                                                                subject_uvs,
+                                                                mode)
                 if result:
-                    subject_uvs = [l[uv_layer].uv.copy()
-                                   for l in f_subject.loops]
                     overlapped_uvs.append({"clip_face": f_clip,
                                            "subject_face": f_subject,
                                            "subject_uvs": subject_uvs,
@@ -1153,14 +1159,15 @@ def get_overlapped_uv_info(bm, faces, uv_layer, mode):
     return overlapped_uvs
 
 
-def get_flipped_uv_info(faces, uv_layer):
+def get_flipped_uv_info(faces_list, uv_layer_list):
     flipped_uvs = []
-    for f in faces:
-        polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
-        if __is_polygon_flipped(polygon):
-            uvs = [l[uv_layer].uv.copy() for l in f.loops]
-            flipped_uvs.append({"face": f, "uvs": uvs,
-                                "polygons": [polygon.as_list()]})
+    for faces, uv_layer in zip(faces_list, uv_layer_list):
+        for f in faces:
+            polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
+            if __is_polygon_flipped(polygon):
+                uvs = [l[uv_layer].uv.copy() for l in f.loops]
+                flipped_uvs.append({"face": f, "uvs": uvs,
+                                    "polygons": [polygon.as_list()]})
 
     return flipped_uvs
 
