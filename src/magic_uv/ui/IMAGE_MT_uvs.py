@@ -39,7 +39,10 @@ from ..op.select_uv import (
     MUV_OT_SelectUV_SelectOverlapped,
     MUV_OT_SelectUV_SelectFlipped,
 )
-from ..op.uv_inspection import MUV_OT_UVInspection_Update
+from ..op.uv_inspection import (
+    MUV_OT_UVInspection_Update,
+    MUV_OT_UVInspection_PaintUVIsland,
+)
 from ..utils.bl_class_registry import BlClassRegistry
 
 
@@ -184,5 +187,7 @@ class MUV_MT_UVInspection(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.prop(sc, "muv_uv_inspection_show", text="UV Inspection")
+        layout.prop(sc, "muv_uv_inspection_show", text="Show Overlapped/Flipped")
         layout.operator(MUV_OT_UVInspection_Update.bl_idname, text="Update")
+        layout.separator()
+        layout.operator(MUV_OT_UVInspection_PaintUVIsland.bl_idname)
