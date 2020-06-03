@@ -91,28 +91,44 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = [o for o in bpy.data.objects if o.select_get()]
 
-        if context.tool_settings.use_uv_select_sync:
-            sel_faces = [f for f in bm.faces]
-        else:
-            sel_faces = [f for f in bm.faces if f.select]
+        bm_list = []
+        uv_layer_list = []
+        faces_list = []
+        for o in bpy.data.objects:
+            if not o.select_get():
+                continue
+            if o.type != 'MESH':
+                continue
 
-        overlapped_info = common.get_overlapped_uv_info(bm, sel_faces,
-                                                        uv_layer, 'FACE')
+            bm = bmesh.from_edit_mesh(o.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
+
+            if context.tool_settings.use_uv_select_sync:
+                sel_faces = [f for f in bm.faces]
+            else:
+                sel_faces = [f for f in bm.faces if f.select]
+            bm_list.append(bm)
+            uv_layer_list.append(uv_layer)
+            faces_list.append(sel_faces)
+
+        flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
+
+        overlapped_info = common.get_overlapped_uv_info(bm_list, faces_list,
+                                                        uv_layer_list, 'FACE')
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:
                 info["subject_face"].select = True
             else:
                 for l in info["subject_face"].loops:
-                    l[uv_layer].select = True
+                    l[info["subject_uv_layer"]].select = True
 
-        bmesh.update_edit_mesh(obj.data)
+        for o in objs:
+            bmesh.update_edit_mesh(o.data)
 
         return {'FINISHED'}
 
@@ -136,26 +152,40 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = [o for o in bpy.data.objects if o.select_get()]
 
-        if context.tool_settings.use_uv_select_sync:
-            sel_faces = [f for f in bm.faces]
-        else:
-            sel_faces = [f for f in bm.faces if f.select]
+        bm_list = []
+        uv_layer_list = []
+        faces_list = []
+        for o in bpy.data.objects:
+            if not o.select_get():
+                continue
+            if o.type != 'MESH':
+                continue
 
-        flipped_info = common.get_flipped_uv_info(sel_faces, uv_layer)
+            bm = bmesh.from_edit_mesh(o.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
+
+            if context.tool_settings.use_uv_select_sync:
+                sel_faces = [f for f in bm.faces]
+            else:
+                sel_faces = [f for f in bm.faces if f.select]
+            bm_list.append(bm)
+            uv_layer_list.append(uv_layer)
+            faces_list.append(sel_faces)
+
+        flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
 
         for info in flipped_info:
             if context.tool_settings.use_uv_select_sync:
                 info["face"].select = True
             else:
                 for l in info["face"].loops:
-                    l[uv_layer].select = True
+                    l[info["uv_layer"]].select = True
 
-        bmesh.update_edit_mesh(obj.data)
+        for o in objs:
+            bmesh.update_edit_mesh(o.data)
 
         return {'FINISHED'}

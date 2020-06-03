@@ -1152,6 +1152,8 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list, mode):
                 if result:
                     overlapped_uvs.append({"clip_face": f_clip,
                                            "subject_face": f_subject,
+                                           "clip_uv_layer": uvlp[0],
+                                           "subject_uv_layer": uvlp[1],
                                            "subject_uvs": subject_uvs,
                                            "polygons": polygons})
 
@@ -1165,7 +1167,7 @@ def get_flipped_uv_info(faces_list, uv_layer_list):
             polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
             if __is_polygon_flipped(polygon):
                 uvs = [l[uv_layer].uv.copy() for l in f.loops]
-                flipped_uvs.append({"face": f, "uvs": uvs,
+                flipped_uvs.append({"face": f, "uv_layer": uv_layer, "uvs": uvs,
                                     "polygons": [polygon.as_list()]})
 
     return flipped_uvs
