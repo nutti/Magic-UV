@@ -521,43 +521,42 @@ def diff_point_to_segment(a, b, p):
 
 # get selected loop pair whose loops are connected each other
 def __get_loop_pairs(l, uv_layer):
-
-    def __get_loop_pairs_internal(l_, pairs_, uv_layer_, parsed_):
-        parsed_.append(l_)
-        for ll in l_.vert.link_loops:
+    pairs = []
+    parsed = []
+    loops_ready = [l]
+    while loops_ready:
+        l = loops_ready.pop(0)
+        parsed.append(l)
+        for ll in l.vert.link_loops:
             # forward direction
             lln = ll.link_loop_next
             # if there is same pair, skip it
             found = False
-            for p in pairs_:
+            for p in pairs:
                 if (ll in p) and (lln in p):
                     found = True
                     break
             # two loops must be selected
-            if ll[uv_layer_].select and lln[uv_layer_].select:
+            if ll[uv_layer].select and lln[uv_layer].select:
                 if not found:
-                    pairs_.append([ll, lln])
-                if lln not in parsed_:
-                    __get_loop_pairs_internal(lln, pairs_, uv_layer_, parsed_)
+                    pairs.append([ll, lln])
+                if (lln not in parsed) and (lln not in loops_ready):
+                    loops_ready.append(lln)
 
             # backward direction
             llp = ll.link_loop_prev
             # if there is same pair, skip it
             found = False
-            for p in pairs_:
+            for p in pairs:
                 if (ll in p) and (llp in p):
                     found = True
                     break
             # two loops must be selected
-            if ll[uv_layer_].select and llp[uv_layer_].select:
+            if ll[uv_layer].select and llp[uv_layer].select:
                 if not found:
-                    pairs_.append([ll, llp])
-                if llp not in parsed_:
-                    __get_loop_pairs_internal(llp, pairs_, uv_layer_, parsed_)
-
-    pairs = []
-    parsed = []
-    __get_loop_pairs_internal(l, pairs, uv_layer, parsed)
+                    pairs.append([ll, llp])
+                if (llp not in parsed) and (llp not in loops_ready):
+                    loops_ready.append(llp)
 
     return pairs
 
