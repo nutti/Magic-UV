@@ -148,23 +148,25 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         sc = context.scene
 
         layout.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
-                        text="Measure")
+                              text="Measure")
 
-        layout.operator(MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
+        ops = layout.operator(MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
                         text="Apply (Manual)")
+        ops.show_dialog = True
 
         ops = layout.operator(
             MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
             text="Apply (Same Desity)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = True
+        ops.show_dialog = True
 
         ops = layout.operator(
             MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
             text="Apply (Scaling Desity)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = False
-        ops.tgt_scaling_factor = sc.muv_world_scale_uv_tgt_scaling_factor
+        ops.show_dialog = True
 
         ops = layout.operator(
             MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
@@ -172,7 +174,7 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.src_uv_area = sc.muv_world_scale_uv_src_uv_area
         ops.src_mesh_area = sc.muv_world_scale_uv_src_mesh_area
-        ops.origin = sc.muv_world_scale_uv_origin
+        ops.show_dialog = True
 
 
 @BlClassRegistry()

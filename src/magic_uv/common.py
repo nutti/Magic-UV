@@ -352,18 +352,60 @@ def calc_polygon_3d_area(points):
     return 0.5 * area
 
 
-def measure_mesh_area(obj):
+def get_faces_list(bm, method, only_selected):
+    faces_list = []
+    if method == 'MESH':
+        if only_selected:
+            faces_list.append([f for f in bm.faces if f.select])
+        else:
+            faces_list.append([f for f in bm.faces])
+    elif method == 'UV ISLAND':
+        if not bm.loops.layers.uv:
+            return None
+        uv_layer = bm.loops.layers.uv.verify()
+        if only_selected:
+            faces = [f for f in bm.faces if f.select]
+            islands = get_island_info_from_faces(bm, faces, uv_layer)
+            for isl in islands:
+                faces_list.append([f["face"] for f in isl["faces"]])
+        else:
+            faces = [f for f in bm.faces]
+            islands = get_island_info_from_faces(bm, faces, uv_layer)
+            for isl in islands:
+                faces_list.append([f["face"] for f in isl["faces"]])
+    elif method == 'FACE':
+        if only_selected:
+            for f in bm.faces:
+                if f.select:
+                    faces_list.append([f])
+        else:
+            for f in bm.faces:
+                faces_list.append([f])
+    else:
+        raise ValueError("Invalid method: {}".format(method))
+
+    return faces_list
+
+
+def measure_mesh_area(obj, calc_method, only_selected):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:
         bm.verts.ensure_lookup_table()
         bm.edges.ensure_lookup_table()
         bm.faces.ensure_lookup_table()
 
-    sel_faces = [f for f in bm.faces if f.select]
+    faces_list = get_faces_list(bm, calc_method, only_selected)
 
-    # measure
+    areas = []
+    for faces in faces_list:
+        areas.append(measure_mesh_area_from_faces(faces))
+
+    return areas
+
+
+def measure_mesh_area_from_faces(faces):
     mesh_area = 0.0
-    for f in sel_faces:
+    for f in faces:
         verts = [l.vert.co for l in f.loops]
         f_mesh_area = calc_polygon_3d_area(verts)
         mesh_area = mesh_area + f_mesh_area
@@ -429,40 +471,26 @@ def find_images(obj, face=None, tex_layer=None):
     return images
 
 
-def measure_uv_area(obj, method='FIRST', tex_size=None):
-    bm = bmesh.from_edit_mesh(obj.data)
-    if check_version(2, 73, 0) >= 0:
-        bm.verts.ensure_lookup_table()
-        bm.edges.ensure_lookup_table()
-        bm.faces.ensure_lookup_table()
-
-    if not bm.loops.layers.uv:
-        return None
-    uv_layer = bm.loops.layers.uv.verify()
-
-    tex_layer = find_texture_layer(bm)
-
-    sel_faces = [f for f in bm.faces if f.select]
-
-    # measure
+def measure_uv_area_from_faces(obj, faces, uv_layer, tex_layer,
+                               tex_selection_method, tex_size):
     uv_area = 0.0
-    for f in sel_faces:
+    for f in faces:
         uvs = [l[uv_layer].uv for l in f.loops]
         f_uv_area = calc_polygon_2d_area(uvs)
 
         # user specified
-        if method == 'USER_SPECIFIED' and tex_size is not None:
+        if tex_selection_method == 'USER_SPECIFIED' and tex_size is not None:
             img_size = tex_size
         # first texture if there are more than 2 textures assigned
         # to the object
-        elif method == 'FIRST':
+        elif tex_selection_method == 'FIRST':
             img = find_image(obj, f, tex_layer)
             # can not find from node, so we can not get texture size
             if not img:
                 return None
             img_size = img.size
         # average texture size
-        elif method == 'AVERAGE':
+        elif tex_selection_method == 'AVERAGE':
             imgs = find_images(obj, f, tex_layer)
             if not imgs:
                 return None
@@ -470,11 +498,11 @@ def measure_uv_area(obj, method='FIRST', tex_size=None):
             img_size_total = [0.0, 0.0]
             for img in imgs:
                 img_size_total = [img_size_total[0] + img.size[0],
-                                  img_size_total[1] + img.size[1]]
+                                img_size_total[1] + img.size[1]]
             img_size = [img_size_total[0] / len(imgs),
                         img_size_total[1] / len(imgs)]
         # max texture size
-        elif method == 'MAX':
+        elif tex_selection_method == 'MAX':
             imgs = find_images(obj, f, tex_layer)
             if not imgs:
                 return None
@@ -485,7 +513,7 @@ def measure_uv_area(obj, method='FIRST', tex_size=None):
                                 max(img_size_max[1], img.size[1])]
             img_size = img_size_max
         # min texture size
-        elif method == 'MIN':
+        elif tex_selection_method == 'MIN':
             imgs = find_images(obj, f, tex_layer)
             if not imgs:
                 return None
@@ -496,11 +524,37 @@ def measure_uv_area(obj, method='FIRST', tex_size=None):
                                 min(img_size_min[1], img.size[1])]
             img_size = img_size_min
         else:
-            raise RuntimeError("Unexpected method: {}".format(method))
+            raise RuntimeError("Unexpected method: {}".format(tex_selection_method))
 
-        uv_area = uv_area + f_uv_area * img_size[0] * img_size[1]
+        uv_area += f_uv_area * img_size[0] * img_size[1]
 
     return uv_area
+
+
+def measure_uv_area(obj, calc_method, tex_selection_method, tex_size,
+                    only_selected):
+    bm = bmesh.from_edit_mesh(obj.data)
+    if check_version(2, 73, 0) >= 0:
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+
+    if not bm.loops.layers.uv:
+        return None
+    uv_layer = bm.loops.layers.uv.verify()
+    tex_layer = find_texture_layer(bm)
+    faces_list = get_faces_list(bm, calc_method, only_selected)
+
+    # measure
+    uv_areas = []
+    for faces in faces_list:
+        uv_area = measure_uv_area_from_faces(
+            obj, faces, uv_layer, tex_layer, tex_selection_method, tex_size)
+        if uv_area is None:
+            return None
+        uv_areas.append(uv_area)
+
+    return uv_areas
 
 
 def diff_point_to_segment(a, b, p):
