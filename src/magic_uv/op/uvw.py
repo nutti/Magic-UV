@@ -229,19 +229,21 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        objs = [o for o in bpy.data.objects if o.select_get() and o.type == 'MESH']
 
-        # get UV layer
-        uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
-        if not uv_layer:
-            return {'CANCELLED'}
+        for o in objs:
+            bm = bmesh.from_edit_mesh(o.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
 
-        _apply_box_map(bm, uv_layer, self.size, self.offset, self.rotation,
-                       self.tex_aspect)
-        bmesh.update_edit_mesh(obj.data)
+            # get UV layer
+            uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
+            if not uv_layer:
+                return {'CANCELLED'}
+
+            _apply_box_map(bm, uv_layer, self.size, self.offset, self.rotation,
+                           self.tex_aspect)
+            bmesh.update_edit_mesh(o.data)
 
         return {'FINISHED'}
 
@@ -286,19 +288,21 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        objs = [o for o in bpy.data.objects if o.select_get() and o.type == 'MESH']
 
-        # get UV layer
-        uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
-        if not uv_layer:
-            return {'CANCELLED'}
+        for o in objs:
+            bm = bmesh.from_edit_mesh(o.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
 
-        _apply_planer_map(bm, uv_layer, self.size, self.offset, self.rotation,
-                          self.tex_aspect)
+            # get UV layer
+            uv_layer = _get_uv_layer(self, bm, self.assign_uvmap)
+            if not uv_layer:
+                return {'CANCELLED'}
 
-        bmesh.update_edit_mesh(obj.data)
+            _apply_planer_map(bm, uv_layer, self.size, self.offset, self.rotation,
+                            self.tex_aspect)
+
+            bmesh.update_edit_mesh(o.data)
 
         return {'FINISHED'}
