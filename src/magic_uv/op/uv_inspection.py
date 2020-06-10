@@ -68,8 +68,6 @@ def _update_uvinsp_info(context):
     sc = context.scene
     props = sc.muv_props.uv_inspection
 
-    objs = [o for o in bpy.data.objects if o.select_get()]
-
     bm_list = []
     uv_layer_list = []
     faces_list = []
