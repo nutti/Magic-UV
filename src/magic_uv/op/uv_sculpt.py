@@ -171,7 +171,8 @@ class _Properties:
 def location_3d_to_region_2d_extra(region, rv3d, coord):
     coord_2d = view3d_utils.location_3d_to_region_2d(region, rv3d, coord)
     if coord_2d is None:
-        prj = rv3d.perspective_matrix @ Vector((coord[0], coord[1], coord[2], 1.0))
+        prj = rv3d.perspective_matrix @ Vector(
+            (coord[0], coord[1], coord[2], 1.0))
         width_half = region.width / 2.0
         height_half = region.height / 2.0
         coord_2d = Vector((

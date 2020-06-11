@@ -498,7 +498,7 @@ def measure_uv_area_from_faces(obj, faces, uv_layer, tex_layer,
             img_size_total = [0.0, 0.0]
             for img in imgs:
                 img_size_total = [img_size_total[0] + img.size[0],
-                                img_size_total[1] + img.size[1]]
+                                  img_size_total[1] + img.size[1]]
             img_size = [img_size_total[0] / len(imgs),
                         img_size_total[1] / len(imgs)]
         # max texture size
@@ -524,7 +524,8 @@ def measure_uv_area_from_faces(obj, faces, uv_layer, tex_layer,
                                 min(img_size_min[1], img.size[1])]
             img_size = img_size_min
         else:
-            raise RuntimeError("Unexpected method: {}".format(tex_selection_method))
+            raise RuntimeError("Unexpected method: {}"
+                               .format(tex_selection_method))
 
         uv_area += f_uv_area * img_size[0] * img_size[1]
 
@@ -1221,7 +1222,9 @@ def get_flipped_uv_info(faces_list, uv_layer_list):
             polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
             if __is_polygon_flipped(polygon):
                 uvs = [l[uv_layer].uv.copy() for l in f.loops]
-                flipped_uvs.append({"face": f, "uv_layer": uv_layer, "uvs": uvs,
+                flipped_uvs.append({"face": f,
+                                    "uv_layer": uv_layer,
+                                    "uvs": uvs,
                                     "polygons": [polygon.as_list()]})
 
     return flipped_uvs

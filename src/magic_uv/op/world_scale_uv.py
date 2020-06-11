@@ -31,7 +31,6 @@ from bpy.props import (
     FloatProperty,
     IntVectorProperty,
     BoolProperty,
-    StringProperty,
 )
 import bmesh
 from mathutils import Vector
@@ -220,7 +219,8 @@ class _Properties:
         )
         scene.muv_world_scale_uv_src_uv_area = FloatProperty(
             name="UV Area",
-            description="Source UV Area (Average if calculation method is UV Island or Face)",
+            description="Source UV Area (Average if calculation method is UV "
+                        "Island or Face)",
             default=0.0,
             min=0.0
         )
@@ -477,7 +477,8 @@ class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
         ops.tgt_texture_size = scene.muv_world_scale_uv_tgt_texture_size
         ops.origin = scene.muv_world_scale_uv_origin
         ops.show_dialog = False
-        ops.tgt_area_calc_method = scene.muv_world_scale_uv_tgt_area_calc_method
+        ops.tgt_area_calc_method = \
+            scene.muv_world_scale_uv_tgt_area_calc_method
         ops.only_selected = scene.muv_world_scale_uv_apply_only_selected
 
     def __apply_manual(self, context):
@@ -505,7 +506,8 @@ class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
                 tex_selection_method='USER_SPECIFIED', tex_size=tex_size)
 
             if not uv_area:
-                self.report({'WARNING'}, "Object must have more than one UV map")
+                self.report({'WARNING'},
+                            "Object must have more than one UV map")
                 return {'CANCELLED'}
 
             tgt_density = self.tgt_density
@@ -633,7 +635,8 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
         ops.same_density = False
         ops.show_dialog = False
         ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
-        ops.tgt_area_calc_method = scene.muv_world_scale_uv_tgt_area_calc_method
+        ops.tgt_area_calc_method = \
+            scene.muv_world_scale_uv_tgt_area_calc_method
         ops.only_selected = scene.muv_world_scale_uv_apply_only_selected
 
     def __apply_scaling_density(self, context):
@@ -675,7 +678,8 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
 
             if not uv_area:
                 self.report({'WARNING'},
-                            "Object must have more than one UV map and texture")
+                            "Object must have more than one UV map and "
+                            "texture")
                 return {'CANCELLED'}
 
             tgt_density = self.src_density * self.tgt_scaling_factor
@@ -825,7 +829,8 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
         ops.src_mesh_area = scene.muv_world_scale_uv_src_mesh_area
         ops.show_dialog = False
         ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
-        ops.tgt_area_calc_method = scene.muv_world_scale_uv_tgt_area_calc_method
+        ops.tgt_area_calc_method = \
+            scene.muv_world_scale_uv_tgt_area_calc_method
         ops.only_selected = scene.muv_world_scale_uv_apply_only_selected
 
     def __apply_proportional_to_mesh(self, context):
@@ -866,7 +871,8 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
                     tex_size=tgt_texture.size)
             if not uv_area:
                 self.report({'WARNING'},
-                            "Object must have more than one UV map and texture")
+                            "Object must have more than one UV map and "
+                            "texture")
                 return {'CANCELLED'}
 
             tgt_density = self.src_density * sqrt(mesh_area) / sqrt(
@@ -898,7 +904,6 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
         layout.prop(self, "origin")
         layout.prop(self, "tgt_area_calc_method")
         layout.prop(self, "tgt_texture")
-
 
         layout.separator()
 

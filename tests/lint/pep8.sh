@@ -23,7 +23,12 @@ for file in ${files[@]}; do
         continue
     fi
     echo "======= pep8 test "${file}" ======="
-    pep8 ${file}
+    which pycodestyle > /dev/null
+    if [ $? -eq 0 ]; then
+        pycodestyle ${file} --config pycodestyle
+    else
+        pep8 ${file}
+    fi
     ret=`echo $?`
     if [ ${ret} -ne 0 ]; then
         exit 1

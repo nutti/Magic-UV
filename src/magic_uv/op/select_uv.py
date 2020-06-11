@@ -115,8 +115,6 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
             uv_layer_list.append(uv_layer)
             faces_list.append(sel_faces)
 
-        flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
-
         overlapped_info = common.get_overlapped_uv_info(bm_list, faces_list,
                                                         uv_layer_list, 'FACE')
 

@@ -228,8 +228,9 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
-    def execute(self, context):
-        objs = [o for o in bpy.data.objects if o.select_get() and o.type == 'MESH']
+    def execute(self, _):
+        objs = [o for o in bpy.data.objects
+                if o.select_get() and o.type == 'MESH']
 
         for o in objs:
             bm = bmesh.from_edit_mesh(o.data)
@@ -287,8 +288,9 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
-    def execute(self, context):
-        objs = [o for o in bpy.data.objects if o.select_get() and o.type == 'MESH']
+    def execute(self, _):
+        objs = [o for o in bpy.data.objects
+                if o.select_get() and o.type == 'MESH']
 
         for o in objs:
             bm = bmesh.from_edit_mesh(o.data)
@@ -300,8 +302,8 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
             if not uv_layer:
                 return {'CANCELLED'}
 
-            _apply_planer_map(bm, uv_layer, self.size, self.offset, self.rotation,
-                            self.tex_aspect)
+            _apply_planer_map(bm, uv_layer, self.size, self.offset,
+                              self.rotation, self.tex_aspect)
 
             bmesh.update_edit_mesh(o.data)
 

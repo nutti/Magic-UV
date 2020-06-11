@@ -147,11 +147,10 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.operator(MUV_OT_WorldScaleUV_Measure.bl_idname,
-                              text="Measure")
+        layout.operator(MUV_OT_WorldScaleUV_Measure.bl_idname, text="Measure")
 
         ops = layout.operator(MUV_OT_WorldScaleUV_ApplyManual.bl_idname,
-                        text="Apply (Manual)")
+                              text="Apply (Manual)")
         ops.show_dialog = True
 
         ops = layout.operator(

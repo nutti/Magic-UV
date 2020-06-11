@@ -187,7 +187,8 @@ class MUV_MT_UVInspection(bpy.types.Menu):
         layout = self.layout
         sc = context.scene
 
-        layout.prop(sc, "muv_uv_inspection_show", text="Show Overlapped/Flipped")
+        layout.prop(sc, "muv_uv_inspection_show",
+                    text="Show Overlapped/Flipped")
         layout.operator(MUV_OT_UVInspection_Update.bl_idname, text="Update")
         layout.separator()
         layout.operator(MUV_OT_UVInspection_PaintUVIsland.bl_idname)

@@ -119,7 +119,7 @@ class MUV_OT_MoveUV(bpy.types.Operator):
 
         return topology_dict, uvs
 
-    def modal(self, context, event):
+    def modal(self, _, event):
         if self.__first_time is True:
             self.__prev_mouse = Vector((
                 event.mouse_region_x, event.mouse_region_y))
@@ -184,7 +184,8 @@ class MUV_OT_MoveUV(bpy.types.Operator):
         active_uv = bm.loops.layers.uv.active
         self.__topology_dict, self.__ini_uvs = self._find_uv(bm, active_uv)
 
-        # Optimization: Store temporary variables which cause heavy calculation.
+        # Optimization: Store temporary variables which cause heavy
+        #               calculation.
         self.__cache["active_object"] = obj
         self.__cache["bmesh"] = bm
         self.__cache["active_uv"] = active_uv

@@ -362,11 +362,13 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             return {'CANCELLED'}
 
         # Setup material of drawing target.
-        target_image = self._get_or_new_image("MagicUV_PaintUVIsland", 4096, 4096)
+        target_image = self._get_or_new_image(
+            "MagicUV_PaintUVIsland", 4096, 4096)
         target_mtrl = self._get_or_new_material("MagicUV_PaintUVMaterial")
         target_mtrl.use_nodes = True
         output_node = target_mtrl.node_tree.nodes["Material Output"]
-        nodes_to_remove = [n for n in target_mtrl.node_tree.nodes if n != output_node]
+        nodes_to_remove = [n for n in target_mtrl.node_tree.nodes
+                           if n != output_node]
         for n in nodes_to_remove:
             target_mtrl.node_tree.nodes.remove(n)
         texture_node = target_mtrl.node_tree.nodes.new("ShaderNodeTexImage")
@@ -396,7 +398,8 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
         bpy.ops.object.material_slot_assign()
 
         # Update active image in Image Editor.
-        _, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
+        _, _, space = common.get_space(
+            'IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
         space.image = target_image
 
         # Analyze island to make map between face and paint color.
@@ -405,7 +408,8 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
         for isl in islands:
             color = self._create_unique_color([c[0] for c in color_to_faces])
             if color is None:
-                self.report({'WARNING'}, "Failed to create color. Please try again")
+                self.report({'WARNING'},
+                            "Failed to create color. Please try again")
                 return {'CANCELLED'}
             indices = [f["face"].index for f in isl["faces"]]
             color_to_faces.append((color, indices))
@@ -431,7 +435,7 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             bpy.ops.paint.image_paint(override_context, stroke=[{
                 "name": "",
                 "location": (0, 0, 0),
-                "mouse":(0, 0),
+                "mouse": (0, 0),
                 "size": 0,
                 "pressure": 0,
                 "pen_flip": False,

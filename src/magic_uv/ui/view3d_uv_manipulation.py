@@ -227,7 +227,8 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
                 ops = row.operator(
                     MUV_OT_WorldScaleUV_ApplyProportionalToMesh.bl_idname,
                     text="Apply")
-                MUV_OT_WorldScaleUV_ApplyProportionalToMesh.setup_argument(ops, sc)
+                MUV_OT_WorldScaleUV_ApplyProportionalToMesh.setup_argument(
+                    ops, sc)
                 ops.show_dialog = False
                 row.prop(sc, "muv_world_scale_uv_apply_only_selected")
                 box.prop(sc, "muv_world_scale_uv_apply_tgt_texture")
