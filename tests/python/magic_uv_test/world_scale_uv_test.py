@@ -34,8 +34,8 @@ class TestWorldScaleUVMeasure(common.TestBase):
         result = bpy.ops.uv.muv_world_scale_uv_measure()
         self.assertSetEqual(result, {'CANCELLED'})
 
-    def test_ok(self):
-        print("[TEST] (OK)")
+    def test_ok_default(self):
+        print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.image.new(name='Test')
@@ -46,6 +46,22 @@ class TestWorldScaleUVMeasure(common.TestBase):
             f[tex_layer].image = img
         bmesh.update_edit_mesh(self.active_obj.data)
         result = bpy.ops.uv.muv_world_scale_uv_measure()
+        self.assertSetEqual(result, {'FINISHED'})
+
+    def test_ok_user_specified(self):
+        print("[TEST] (OK) User Specified")
+        bpy.ops.mesh.uv_texture_add()
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.image.new(name='Test')
+        img = bpy.data.images['Test']
+        bm = bmesh.from_edit_mesh(self.active_obj.data)
+        tex_layer = bm.faces.layers.tex.verify()
+        for f in bm.faces:
+            f[tex_layer].image = img
+        bmesh.update_edit_mesh(self.active_obj.data)
+        result = bpy.ops.uv.muv_world_scale_uv_measure(
+            only_selected=True
+        )
         self.assertSetEqual(result, {'FINISHED'})
 
 
@@ -85,7 +101,9 @@ class TestWorldScaleUVApplyManual(common.TestBase):
         result = bpy.ops.uv.muv_world_scale_uv_apply_manual(
             tgt_density=0.5,
             tgt_texture_size=(2048, 2048),
-            origin='CENTER'
+            origin='CENTER',
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -152,9 +170,12 @@ class TestWorldScaleUVApplyScalingDensity(common.TestBase):
         print("[TEST] (OK) User specified 2")
         self.__prepare_apply_test()
         result = bpy.ops.uv.muv_world_scale_uv_apply_scaling_density(
+            tgt_scaling_factor=0.8,
             origin='CENTER',
             src_density=1.5,
-            same_density=True
+            same_density=True,
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -215,6 +236,8 @@ class TestWorldScaleUVProportionalToMesh(common.TestBase):
             origin='LEFT_TOP',
             src_density=0.3,
             src_uv_area=1.3,
-            src_mesh_area=189.1
+            src_mesh_area=189.1,
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
         )
         self.assertSetEqual(result, {'FINISHED'})

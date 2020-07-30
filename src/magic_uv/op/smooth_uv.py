@@ -167,8 +167,7 @@ class MUV_OT_SmoothUV(bpy.types.Operator):
                 # get target UV
                 for i in range(len(accm_uvlens[:-1])):
                     # get line segment which UV will be placed
-                    if ((accm_uvlens[i] <= target_length) and
-                            (accm_uvlens[i + 1] > target_length)):
+                    if accm_uvlens[i] <= target_length < accm_uvlens[i + 1]:
                         tgt_seg_len = target_length - accm_uvlens[i]
                         seg_len = accm_uvlens[i + 1] - accm_uvlens[i]
                         uv1 = orig_uvs[i]
@@ -240,8 +239,7 @@ class MUV_OT_SmoothUV(bpy.types.Operator):
                     # get target UV
                     for i in range(len(accm_uv[:-1])):
                         # get line segment to be placed
-                        if ((accm_uv[i] <= target_length) and
-                                (accm_uv[i + 1] > target_length)):
+                        if accm_uv[i] <= target_length < accm_uv[i + 1]:
                             tgt_seg_len = target_length - accm_uv[i]
                             seg_len = accm_uv[i + 1] - accm_uv[i]
                             uv1 = uvs[i]

@@ -435,7 +435,7 @@ class MUV_OT_TextureLock_Intr(bpy.types.Operator):
             bm.faces.ensure_lookup_table()
 
         prev = set(self.__intr_verts)
-        now = set([v.index for v in bm.verts if v.select])
+        now = {v.index for v in bm.verts if v.select}
 
         return prev != now
 

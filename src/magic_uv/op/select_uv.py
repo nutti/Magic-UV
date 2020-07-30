@@ -30,6 +30,7 @@ import bmesh
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
@@ -91,13 +92,13 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        objs = [o for o in bpy.data.objects if o.select_get()]
+        objs = [o for o in bpy.data.objects if compat.get_object_select(o)]
 
         bm_list = []
         uv_layer_list = []
         faces_list = []
         for o in bpy.data.objects:
-            if not o.select_get():
+            if not compat.get_object_select(o):
                 continue
             if o.type != 'MESH':
                 continue
@@ -150,13 +151,13 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        objs = [o for o in bpy.data.objects if o.select_get()]
+        objs = [o for o in bpy.data.objects if compat.get_object_select(o)]
 
         bm_list = []
         uv_layer_list = []
         faces_list = []
         for o in bpy.data.objects:
-            if not o.select_get():
+            if not compat.get_object_select(o):
                 continue
             if o.type != 'MESH':
                 continue

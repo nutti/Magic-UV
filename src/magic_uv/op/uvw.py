@@ -229,8 +229,11 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, _):
-        objs = [o for o in bpy.data.objects
-                if o.select_get() and o.type == 'MESH']
+        if compat.check_version(2, 80, 0) < 0:
+            objs = [bpy.context.active_object]
+        else:
+            objs = [o for o in bpy.data.objects
+                    if compat.get_object_select(o) and o.type == 'MESH']
 
         for o in objs:
             bm = bmesh.from_edit_mesh(o.data)
@@ -289,8 +292,11 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, _):
-        objs = [o for o in bpy.data.objects
-                if o.select_get() and o.type == 'MESH']
+        if compat.check_version(2, 80, 0) < 0:
+            objs = [bpy.context.active_object]
+        else:
+            objs = [o for o in bpy.data.objects
+                    if compat.get_object_select(o) and o.type == 'MESH']
 
         for o in objs:
             bm = bmesh.from_edit_mesh(o.data)

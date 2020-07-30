@@ -8,6 +8,20 @@ import bmesh
 TESTEE_FILE = "testee.blend"
 
 
+def check_version(major, minor, _):
+    """
+    Check blender version
+    """
+
+    if bpy.app.version[0] == major and bpy.app.version[1] == minor:
+        return 0
+    if bpy.app.version[0] > major:
+        return 1
+    if bpy.app.version[1] > minor:
+        return 1
+    return -1
+
+
 def check_addon_enabled(mod):
     result = bpy.ops.wm.addon_enable(module=mod)
     assert (result == {'FINISHED'}), "Failed to enable add-on %s" % (mod)
@@ -39,6 +53,13 @@ def select_object_only(obj_name):
             o.select = True
         else:
             o.select = False
+
+
+def select_objects_only(obj_names):
+    for o in bpy.data.objects:
+        o.select = False
+    for name in obj_names:
+        bpy.data.objects[name].select = True
 
 
 def select_faces(obj, num_face, offset=0):

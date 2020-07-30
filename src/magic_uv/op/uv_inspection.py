@@ -72,7 +72,7 @@ def _update_uvinsp_info(context):
     uv_layer_list = []
     faces_list = []
     for o in bpy.data.objects:
-        if not o.select_get():
+        if not compat.get_object_select(o):
             continue
         if o.type != 'MESH':
             continue
@@ -326,6 +326,11 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             return bpy.data.materials[name]
         return bpy.data.materials.new(name)
 
+    def _get_or_new_texture(self, name):
+        if name in bpy.data.textures.keys():
+            return bpy.data.textures[name]
+        return bpy.data.textures.new(name, 'IMAGE')
+
     def _get_override_context(self, context):
         for window in context.window_manager.windows:
             screen = window.screen
@@ -365,41 +370,70 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
         target_image = self._get_or_new_image(
             "MagicUV_PaintUVIsland", 4096, 4096)
         target_mtrl = self._get_or_new_material("MagicUV_PaintUVMaterial")
-        target_mtrl.use_nodes = True
-        output_node = target_mtrl.node_tree.nodes["Material Output"]
-        nodes_to_remove = [n for n in target_mtrl.node_tree.nodes
-                           if n != output_node]
-        for n in nodes_to_remove:
-            target_mtrl.node_tree.nodes.remove(n)
-        texture_node = target_mtrl.node_tree.nodes.new("ShaderNodeTexImage")
-        texture_node.image = target_image
-        target_mtrl.node_tree.links.new(output_node.inputs["Surface"],
-                                        texture_node.outputs["Color"])
-        obj.data.use_paint_mask = True
+        if compat.check_version(2, 80, 0) >= 0:
+            target_mtrl.use_nodes = True
+            output_node = target_mtrl.node_tree.nodes["Material Output"]
+            nodes_to_remove = [n for n in target_mtrl.node_tree.nodes
+                               if n != output_node]
+            for n in nodes_to_remove:
+                target_mtrl.node_tree.nodes.remove(n)
+            texture_node = \
+                target_mtrl.node_tree.nodes.new("ShaderNodeTexImage")
+            texture_node.image = target_image
+            target_mtrl.node_tree.links.new(output_node.inputs["Surface"],
+                                            texture_node.outputs["Color"])
+            obj.data.use_paint_mask = True
 
-        # Apply material to object (all faces).
-        found = False
-        for mtrl_idx, mtrl_slot in enumerate(obj.material_slots):
-            if mtrl_slot.material == target_mtrl:
-                found = True
-                break
-        if not found:
-            bpy.ops.object.material_slot_add()
-            mtrl_idx = len(obj.material_slots) - 1
-            obj.material_slots[mtrl_idx].material = target_mtrl
-        bpy.ops.object.mode_set(mode='EDIT')
-        bm = bmesh.from_edit_mesh(obj.data)
-        bm.faces.ensure_lookup_table()
-        for f in bm.faces:
-            f.select = True
-        bmesh.update_edit_mesh(obj.data)
-        obj.active_material_index = mtrl_idx
-        obj.active_material = target_mtrl
-        bpy.ops.object.material_slot_assign()
+            # Apply material to object (all faces).
+            found = False
+            for mtrl_idx, mtrl_slot in enumerate(obj.material_slots):
+                if mtrl_slot.material == target_mtrl:
+                    found = True
+                    break
+            if not found:
+                bpy.ops.object.material_slot_add()
+                mtrl_idx = len(obj.material_slots) - 1
+                obj.material_slots[mtrl_idx].material = target_mtrl
+            bpy.ops.object.mode_set(mode='EDIT')
+            bm = bmesh.from_edit_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+            for f in bm.faces:
+                f.select = True
+            bmesh.update_edit_mesh(obj.data)
+            obj.active_material_index = mtrl_idx
+            obj.active_material = target_mtrl
+            bpy.ops.object.material_slot_assign()
+        else:
+            target_tex_slot = target_mtrl.texture_slots.add()
+            target_tex = self._get_or_new_texture("MagicUV_PaintUVTexture")
+            target_tex_slot.texture = target_tex
+            obj.data.use_paint_mask = True
+
+            # Apply material to object (all faces).
+            found = False
+            for mtrl_idx, mtrl_slot in enumerate(obj.material_slots):
+                if mtrl_slot.material == target_mtrl:
+                    found = True
+                    break
+            if not found:
+                bpy.ops.object.material_slot_add()
+                mtrl_idx = len(obj.material_slots) - 1
+                obj.material_slots[mtrl_idx].material = target_mtrl
+            bpy.ops.object.mode_set(mode='EDIT')
+            bm = bmesh.from_edit_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+            for f in bm.faces:
+                f.select = True
+            bmesh.update_edit_mesh(obj.data)
+            obj.active_material_index = mtrl_idx
+            obj.active_material = target_mtrl
+            bpy.ops.object.material_slot_assign()
 
         # Update active image in Image Editor.
         _, _, space = common.get_space(
             'IMAGE_EDITOR', 'WINDOW', 'IMAGE_EDITOR')
+        if space is None:
+            return {'CANCELLED'}
         space.image = target_image
 
         # Analyze island to make map between face and paint color.
@@ -420,9 +454,9 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             bm = bmesh.from_edit_mesh(obj.data)
             bm.faces.ensure_lookup_table()
             for f in bm.faces:
-                f.select_set(False)
+                f.select = False
             for fidx in cf[1]:
-                bm.faces[fidx].select_set(True)
+                bm.faces[fidx].select = True
             bmesh.update_edit_mesh(obj.data)
             bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -431,7 +465,17 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
 
             # Paint.
             bpy.ops.object.mode_set(mode='TEXTURE_PAINT')
-            bpy.ops.paint.brush_select(override_context, image_tool='FILL')
+            if compat.check_version(2, 80, 0) >= 0:
+                bpy.ops.paint.brush_select(override_context, image_tool='FILL')
+            else:
+                paint_settings = \
+                    bpy.data.scenes['Scene'].tool_settings.image_paint
+                paint_mode_orig = paint_settings.mode
+                paint_canvas_orig = paint_settings.canvas
+                paint_settings.mode = 'IMAGE'
+                paint_settings.canvas = target_image
+                bpy.ops.paint.brush_select(override_context,
+                                           texture_paint_tool='FILL')
             bpy.ops.paint.image_paint(override_context, stroke=[{
                 "name": "",
                 "location": (0, 0, 0),
@@ -442,6 +486,10 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
                 "time": 0,
                 "is_start": False
             }])
+
+            if compat.check_version(2, 80, 0) < 0:
+                paint_settings.mode = paint_mode_orig
+                paint_settings.canvas = paint_canvas_orig
 
         bpy.ops.object.mode_set(mode=mode_orig)
 

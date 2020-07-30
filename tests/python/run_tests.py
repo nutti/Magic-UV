@@ -33,6 +33,7 @@ def test_main():
         magic_uv_test.unwrap_constraint_test.TestUnwrapConstraint,
         magic_uv_test.uv_bounding_box_test.TestUVBoundingBox,
         magic_uv_test.uv_inspection_test.TestUVInspection,
+        magic_uv_test.uv_inspection_test.TestUVInspectionPaintUVIsland,
         magic_uv_test.uv_sculpt_test.TestUVSculpt,
         magic_uv_test.uvw_test.TestUVWBox,
         magic_uv_test.uvw_test.TestUVWBestPlaner,

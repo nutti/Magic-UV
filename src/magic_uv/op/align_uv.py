@@ -164,8 +164,7 @@ def _get_hdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
     # calculate target UV
     for i in range(len(accum_uvlens[:-1])):
         # get line segment which UV will be placed
-        if ((accum_uvlens[i] <= target_length) and
-                (accum_uvlens[i + 1] > target_length)):
+        if accum_uvlens[i] <= target_length < accum_uvlens[i + 1]:
             tgt_seg_len = target_length - accum_uvlens[i]
             seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
             uv1 = orig_uvs[i]
@@ -245,8 +244,7 @@ def _get_vdiff_uv_vinfl(uv_layer, loop_seqs, vidx, hidx, pidx, infl):
     # calculate target UV
     for i in range(len(accum_uvlens[:-1])):
         # get line segment which UV will be placed
-        if ((accum_uvlens[i] <= target_length) and
-                (accum_uvlens[i + 1] > target_length)):
+        if accum_uvlens[i] <= target_length < accum_uvlens[i + 1]:
             tgt_seg_len = target_length - accum_uvlens[i]
             seg_len = accum_uvlens[i + 1] - accum_uvlens[i]
             uv1 = orig_uvs[i]

@@ -1,3 +1,5 @@
+import unittest
+
 import bpy
 
 from . import common
@@ -12,11 +14,12 @@ class TestUVWBox(common.TestBase):
     ]
 
     def setUpEachMethod(self):
-        src_obj_name = "Cube"
+        self.obj_names = ["Cube", "Cube.001"]
 
-        common.select_object_only(src_obj_name)
+        common.select_object_only(self.obj_names[0])
         bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
+        common.select_object_only(self.obj_names[0])
+        bpy.context.scene.objects.active = bpy.data.objects[self.obj_names[0]]
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -45,6 +48,18 @@ class TestUVWBox(common.TestBase):
         )
         self.assertSetEqual(result, {'FINISHED'})
 
+    @unittest.skipIf(common.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects(self):
+        print("[TEST] Multiple Object (OK)")
+        bpy.ops.object.mode_set(mode='OBJECT')
+        common.select_objects_only(self.obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        bpy.ops.mesh.select_all(action='SELECT')
+        result = bpy.ops.uv.muv_uvw_box_map()
+        self.assertSetEqual(result, {'FINISHED'})
+
 
 class TestUVWBestPlaner(common.TestBase):
     module_name = "uvw"
@@ -55,11 +70,12 @@ class TestUVWBestPlaner(common.TestBase):
     ]
 
     def setUpEachMethod(self):
-        src_obj_name = "Cube"
+        self.obj_names = ["Cube", "Cube.001"]
 
-        common.select_object_only(src_obj_name)
+        common.select_object_only(self.obj_names[0])
         bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
+        common.select_object_only(self.obj_names[0])
+        bpy.context.scene.objects.active = bpy.data.objects[self.obj_names[0]]
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -85,4 +101,16 @@ class TestUVWBestPlaner(common.TestBase):
             tex_aspect=0.6,
             assign_uvmap=True
         )
+        self.assertSetEqual(result, {'FINISHED'})
+
+    @unittest.skipIf(common.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects(self):
+        print("[TEST] Multiple Object (OK)")
+        bpy.ops.object.mode_set(mode='OBJECT')
+        common.select_objects_only(self.obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        bpy.ops.mesh.select_all(action='SELECT')
+        result = bpy.ops.uv.muv_uvw_best_planer_map()
         self.assertSetEqual(result, {'FINISHED'})

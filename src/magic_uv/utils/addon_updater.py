@@ -60,7 +60,7 @@ def _request(url, json_decode=True):
             return json.JSONDecoder().decode(data.decode())
         except Exception as e:
             raise RuntimeError("API response has invalid JSON format ({})"
-                               .format(str(e.reason)))
+                               .format(str(e)))
 
     return data.decode()
 
@@ -153,7 +153,7 @@ def _compare_version(ver1, ver2):
 
         if v1[idx] > v2[idx]:
             return 1        # v1 > v2
-        elif v1[idx] < v2[idx]:
+        if v1[idx] < v2[idx]:
             return -1       # v1 < v2
 
         return comp(v1, v2, idx + 1)
