@@ -1,7 +1,34 @@
 # Change log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.2...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.3...develop)
+
+
+## [Version 6.3](https://github.com/nutti/Magic-UV/compare/v6.2...v6.3) - 2020.X.XX
+
+### Added features
+
+* Clip UV
+
+### Updated features
+
+* World Scale UV
+  * Add option "Area Calculation Method"
+  * Add option "Only Selected"
+* UVW
+  * Support multiple objects
+* Select UV
+  * Support multiple objects
+* UV Inspection
+  * Add Paint UV Island feature
+  * Support multiple objects
+
+### Other updates
+
+* Merge change set of Blender's official repository
+* Change CI to GitHub Actions from Circle CI
+* Fix bugs
+* Optimization
 
 
 ## [Version 6.2](https://github.com/nutti/Magic-UV/compare/v6.1...v6.2) - 2019.7.31

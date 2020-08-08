@@ -19,6 +19,7 @@
 * [Smooth UV](#smooth-uv)
 * [Select UV](#select-uv)
 * [Pack UV (Extension)](#pack-uv-extension)
+* [Clip UV](#clip-uv)
 * [Align UV Cursor](#align-uv-cursor)
 * [UV Cursor Location](#uv-cursor-location)
 * [UV Bounding Box](#uv-bounding-box)
@@ -218,6 +219,9 @@ Measure and set texel density. This feature is derived from below add-on.
   * **[Max]**: Max size of textures assigned to the selected object
   * **[Min]**: Min size of textures assigned to the selected object
   * **(Texture Name)**: Size of selected texture
+* **Area Calculation Method** property is a method to calculate mesh area, UV area and density
+* If **Only Selected** property is on, apply only to the selected faces
+
 
 #### Mode: Same Density
 
@@ -236,6 +240,8 @@ Measure and set texel density. This feature is derived from below add-on.
   * **[Max]**: Max size of textures assigned to the selected object
   * **[Min]**: Min size of textures assigned to the selected object
   * **(Texture Name)**: Size of selected texture
+* **Area Calculation Method** property is a method to calculate mesh area, UV area and density
+* If **Only Selected** property is on, measure/apply only to the selected faces
 
 
 #### Mode: Scaling Density
@@ -256,6 +262,9 @@ Measure and set texel density. This feature is derived from below add-on.
   * **[Max]**: Max size of textures assigned to the selected object
   * **[Min]**: Min size of textures assigned to the selected object
   * **(Texture Name)**: Size of selected texture
+* **Area Calculation Method** property is a method to calculate mesh area, UV area and density
+* If **Only Selected** property is on, measure/apply only to the selected faces
+
 
 #### Mode: Proportional to Mesh
 
@@ -274,6 +283,8 @@ Measure and set texel density. This feature is derived from below add-on.
   * **[Max]**: Max size of textures assigned to the selected object
   * **[Min]**: Min size of textures assigned to the selected object
   * **(Texture Name)**: Size of selected texture
+* **Area Calculation Method** property is a method to calculate mesh area, UV area and density
+* If **Only Selected** property is on, measure/apply only to the selected faces
 
 
 ### Preserve UV Aspect
@@ -530,6 +541,23 @@ Apply island packing and integrate islands which have same shape.
 * Default Pack Islands property is available
 
 
+### Clip UV
+
+Clip UV coordinate to the specified range.
+
+| | |
+|---|---|
+|Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
+|Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
+
+[Usage]
+1. Click check box **Clip UV** to show Clip UV menu
+2. Select faces you want to clip UV coordinates
+3. Click **Clip UV**
+
+* **Range** property specifies the clipping range
+
+
 ### Align UV Cursor
 
 Align UV cursor (2D Cursor in UV Editor).
@@ -585,12 +613,14 @@ Transform UV with Bounding Box like a Photoshop/GIMP's Bounding Box.
 
 ### UV Inspection
 
-Inspect UV and help you to find which UV is on the abnormal condition.
-
 | | |
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Magic UV** > **Editor Enhancement**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **Editor Enhancement**|
+
+#### Inspect UV
+
+Inspect UV and help you to find which UV is on the abnormal condition.
 
 [Usage]
 1. Click check box **UV Inspection** to show UV Inspection menu
@@ -601,3 +631,12 @@ Inspect UV and help you to find which UV is on the abnormal condition.
 * If **Overlapped** property is enabled, the overlapped part/face is enhanced
 * If **Flipped** property is enabled, the flipped part/face is enhanced
 * If you specify **Part** in **Mode** property, enhance only to the overlapped/flipped part. If you specify **Face**, enhance the overlapped/flipped face
+
+
+#### Paint UV island
+
+Paint UV island with random color.
+
+[Usage]
+1. Click check box **UV Inspection** to show UV Inspection menu
+2. Click **Paint UV island**

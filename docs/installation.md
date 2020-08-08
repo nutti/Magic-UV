@@ -8,6 +8,7 @@
 |Version|Download URL|
 |---|---|
 |*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|6.3|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.3)|
 |6.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.2)|
 |6.1|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.1)|
 |6.0|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.0)|
@@ -39,7 +40,7 @@ Add-on sources are located on the different places depending on the add-on versi
 
 |Version|Sources|
 |---|---|
-|6.0 - 6.2|src/magic_uv|
+|6.0 - 6.3|src/magic_uv|
 |4.0 - 5.2|uv_magic_uv|
 |2.2 - 3.2|uv_copy_and_paste_uv|
 |1.0 - 2.2|uv_copy_and_paste_uv.py|
@@ -66,5 +67,5 @@ Be careful that this add-on has different name depending on the version.
 
 |Version|Name|
 |---|---|
-|4.0 - 6.2|Magic UV|
+|4.0 - 6.3|Magic UV|
 |1.0 - 3.2|Copy and Paste UV|
