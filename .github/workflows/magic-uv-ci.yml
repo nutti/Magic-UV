@@ -1,0 +1,94 @@
+name: Magic-UV CI
+
+on:
+  push:
+    branches:
+      - master
+      - ci_testing
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  build:
+    name: Build add-on
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.7"
+      - name: Get required packages for Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender wget python3 python3-pip zip
+      - name: Get required pip packages
+        run: pip3 install -r requirements.txt
+      - name: Do pylint test
+        run: bash tests/lint/pylint.sh src/magic_uv
+      - name: Do pep8 test
+        run: bash tests/lint/pep8.sh src/magic_uv
+      - name: Download Blender (2.7x)
+        run: |
+          wget http://mirror.cs.umn.edu/blender.org/release/Blender2.77/blender-2.77-linux-glibc211-x86_64.tar.bz2
+          tar jxf blender-2.77-linux-glibc211-x86_64.tar.bz2
+      - name: Copy add-on to Blender add-on's directory (2.7x)
+        run: cp -r src/magic_uv blender-2.77-linux-glibc211-x86_64/2.77/scripts/addons
+      - name: Run add-on unittest (2.7x)
+        run: blender-2.77-linux-glibc211-x86_64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py
+        env:
+          MUV_CONSOLE_MODE: true
+      - name: Download Blender (2.8x)
+        run: |
+          wget https://download.blender.org/release/Blender2.83/blender-2.83.3-linux64.tar.xz
+          tar xf blender-2.83.3-linux64.tar.xz
+      - name: Copy add-on to Blender add-on's directory (2.8x)
+        run: cp -r src/magic_uv blender-2.83.3-linux64/2.83/scripts/addons
+      - name: Run add-on unittest (2.8x)
+        run: blender-2.83.3-linux64/blender --factory-startup --background -noaudio --python tests/python/run_tests.py
+        env:
+          MUV_CONSOLE_MODE: true
+      - name: Compress add-on
+        run: |
+          mkdir release
+          cd src
+          zip -r magic_uv.zip magic_uv
+          cd ..
+          mv src/magic_uv.zip release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: magic_uv
+          path: "release"
+
+  publish:
+    name: Publish Add-on
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Fetch Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: dist
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_ACTIONS }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
+      - name: Publish Add-on to GitHub Release Page
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_ACTIONS }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/magic_uv/magic_uv.zip
+          asset_name: magic_uv.zip
+          asset_content_type: application/zip

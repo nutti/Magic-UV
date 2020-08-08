@@ -3,6 +3,7 @@ import unittest
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestUVWBox(common.TestBase):
@@ -17,9 +18,9 @@ class TestUVWBox(common.TestBase):
         self.obj_names = ["Cube", "Cube.001"]
 
         common.select_object_only(self.obj_names[0])
-        bpy.ops.object.duplicate()
+        common.duplicate_object_without_uv()
         common.select_object_only(self.obj_names[0])
-        bpy.context.scene.objects.active = bpy.data.objects[self.obj_names[0]]
+        compat.set_active_object(bpy.data.objects[self.obj_names[0]])
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -48,7 +49,7 @@ class TestUVWBox(common.TestBase):
         )
         self.assertSetEqual(result, {'FINISHED'})
 
-    @unittest.skipIf(common.check_version(2, 80, 0) < 0,
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
                      "Not supported in <2.80")
     def test_ok_multiple_objects(self):
         print("[TEST] Multiple Object (OK)")
@@ -73,9 +74,9 @@ class TestUVWBestPlaner(common.TestBase):
         self.obj_names = ["Cube", "Cube.001"]
 
         common.select_object_only(self.obj_names[0])
-        bpy.ops.object.duplicate()
+        common.duplicate_object_without_uv()
         common.select_object_only(self.obj_names[0])
-        bpy.context.scene.objects.active = bpy.data.objects[self.obj_names[0]]
+        compat.set_active_object(bpy.data.objects[self.obj_names[0]])
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -103,7 +104,7 @@ class TestUVWBestPlaner(common.TestBase):
         )
         self.assertSetEqual(result, {'FINISHED'})
 
-    @unittest.skipIf(common.check_version(2, 80, 0) < 0,
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
                      "Not supported in <2.80")
     def test_ok_multiple_objects(self):
         print("[TEST] Multiple Object (OK)")

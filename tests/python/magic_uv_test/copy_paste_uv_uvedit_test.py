@@ -1,6 +1,7 @@
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestCopyPasteUVUVEdit(common.TestBase):
@@ -16,8 +17,8 @@ class TestCopyPasteUVUVEdit(common.TestBase):
         self.dest_obj_name = "Cube.001"
 
         common.select_object_only(src_obj_name)
-        bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
+        common.duplicate_object_without_uv()
+        compat.set_active_object(bpy.data.objects[src_obj_name])
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_copy_uv_ok(self):
@@ -39,7 +40,6 @@ class TestCopyPasteUVUVEdit(common.TestBase):
         bpy.context.scene.objects.active = bpy.data.objects[self.dest_obj_name]
         self.active_obj = bpy.context.scene.objects.active
         bpy.ops.object.mode_set(mode='EDIT')
-
 
     def test_paste_uv_ok(self):
         print("[TEST] (OK)")

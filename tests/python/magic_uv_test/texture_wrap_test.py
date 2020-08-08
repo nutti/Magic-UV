@@ -1,6 +1,7 @@
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestTextureWrap(common.TestBase):
@@ -17,13 +18,12 @@ class TestTextureWrap(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        compat.set_active_object(bpy.data.objects[obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
+
         sc = bpy.context.scene
-
         sc.muv_texture_wrap_set_and_refer = False
-
 
     def test_refer_ng_no_uv(self):
         # Warning: Object must have more than one UV map
@@ -102,7 +102,10 @@ class TestTextureWrap(common.TestBase):
         # Warning: 2 vertices must be shared among faces
         print("[TEST] (NG) Not share 2 vertices")
         self.__prepare_set_test()
-        common.select_faces(self.active_obj, 1, 1)
+        if compat.check_version(2, 80, 0) < 0:
+            common.select_faces(self.active_obj, 1, 1)
+        else:
+            common.select_faces(self.active_obj, 1, 3)
         result = bpy.ops.uv.muv_texture_wrap_set()
         self.assertSetEqual(result, {'CANCELLED'})
 
@@ -135,10 +138,11 @@ class TestTextureWrap(common.TestBase):
         self.assertSetEqual(result, {'FINISHED'})
 
         bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.duplicate()
+        common.duplicate_object_without_uv()
         common.select_object_only("Cube.001")
-        active_obj = bpy.context.scene.objects.active
+        active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
+
         common.select_faces(active_obj, 1, 1)
         result = bpy.ops.uv.muv_texture_wrap_set()
         self.assertSetEqual(result, {'CANCELLED'})

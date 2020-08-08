@@ -4,34 +4,28 @@ import unittest
 import bpy
 import bmesh
 
+from . import compatibility as compat
+
 
 TESTEE_FILE = "testee.blend"
 
 
-def check_version(major, minor, _):
-    """
-    Check blender version
-    """
-
-    if bpy.app.version[0] == major and bpy.app.version[1] == minor:
-        return 0
-    if bpy.app.version[0] > major:
-        return 1
-    if bpy.app.version[1] > minor:
-        return 1
-    return -1
-
-
 def check_addon_enabled(mod):
-    result = bpy.ops.wm.addon_enable(module=mod)
+    if compat.check_version(2, 80, 0) < 0:
+        result = bpy.ops.wm.addon_enable(module=mod)
+    else:
+        result = bpy.ops.preferences.addon_enable(module=mod)
     assert (result == {'FINISHED'}), "Failed to enable add-on %s" % (mod)
-    assert (mod in bpy.context.user_preferences.addons.keys()), "Failed to enable add-on %s" % (mod)
+    assert (mod in compat.get_user_preferences(bpy.context).addons.keys()), "Failed to enable add-on %s" % (mod)
 
 
 def check_addon_disabled(mod):
-    result = bpy.ops.wm.addon_disable(module=mod)
+    if compat.check_version(2, 80, 0) < 0:
+        result = bpy.ops.wm.addon_disable(module=mod)
+    else:
+        result = bpy.ops.preferences.addon_disable(module=mod)
     assert (result == {'FINISHED'}), "Failed to disable add-on %s" % (mod)
-    assert (not mod in bpy.context.user_preferences.addons.keys()), "Failed to disable add-on %s" % (mod)
+    assert (not mod in compat.get_user_preferences(bpy.context).addons.keys()), "Failed to disable add-on %s" % (mod)
 
 
 def operator_exists(idname):
@@ -47,19 +41,33 @@ def menu_exists(idname):
     return idname in dir(bpy.types)
 
 
+def get_user_preferences(context):
+    if hasattr(context, "user_preferences"):
+        return context.user_preferences
+
+    return context.preferences
+
+
+def set_object_select(obj, select):
+    if compat.check_version(2, 80, 0) < 0:
+        obj.select = select
+    else:
+        obj.select_set(select)
+
+
 def select_object_only(obj_name):
     for o in bpy.data.objects:
         if o.name == obj_name:
-            o.select = True
+            set_object_select(o, True)
         else:
-            o.select = False
+            set_object_select(o, False)
 
 
 def select_objects_only(obj_names):
     for o in bpy.data.objects:
-        o.select = False
+        set_object_select(o, False)
     for name in obj_names:
-        bpy.data.objects[name].select = True
+        set_object_select(bpy.data.objects[name], True)
 
 
 def select_faces(obj, num_face, offset=0):
@@ -143,6 +151,52 @@ def add_face_select_history(obj, num_face, offset=0):
         hist.select = True
 
 
+def add_face_select_history_by_indices(obj, indices):
+    bm = bmesh.from_edit_mesh(obj.data)
+    bm.faces.ensure_lookup_table()
+    bm.select_history.clear()
+    for i in indices:
+        bm.select_history.add(bm.faces[i])
+    for hist in bm.select_history:
+        hist.select = True
+
+
+# This is a workaround for >2.80 because UV Map will be assigned
+# automatically while creating a object
+def delete_all_uv_maps(obj):
+    mode_orig = bpy.context.active_object.mode
+    bpy.ops.object.mode_set(mode='EDIT')
+
+    bm = bmesh.from_edit_mesh(obj.data)
+    for i in reversed(range(len(bm.loops.layers.uv))):
+        bm.loops.layers.uv.remove(bm.loops.layers.uv[i])
+    bmesh.update_edit_mesh(obj.data)
+
+    bpy.ops.object.mode_set(mode=mode_orig)
+
+
+def assign_new_image(obj, image_name):
+    bpy.ops.image.new(name=image_name)
+    img = bpy.data.images[image_name]
+    if compat.check_version(2, 80, 0) < 0:
+        bm = bmesh.from_edit_mesh(obj.data)
+        tex_layer = bm.faces.layers.tex.verify()
+        for f in bm.faces:
+            f[tex_layer].image = img
+        bmesh.update_edit_mesh(obj.data)
+    else:
+        node_tree = obj.active_material.node_tree
+        output_node = node_tree.nodes["Material Output"]
+        new_node = node_tree.nodes.new(type="ShaderNodeTexImage")
+        new_node.image = img
+        node_tree.links.new(output_node.inputs["Surface"], new_node.outputs["Color"])
+
+
+def duplicate_object_without_uv():
+    bpy.ops.object.duplicate()
+    delete_all_uv_maps(compat.get_active_object(bpy.context))
+
+
 class TestBase(unittest.TestCase):
 
     package_name = "magic_uv"
@@ -188,6 +242,7 @@ class TestBase(unittest.TestCase):
 
     def setUp(self):
         bpy.ops.wm.open_mainfile(filepath=TESTEE_FILE)
+        delete_all_uv_maps(compat.get_active_object(bpy.context))
         self.setUpEachMethod()
 
     def setUpEachMethod(self):

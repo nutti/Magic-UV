@@ -1,6 +1,7 @@
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestTextureLock(common.TestBase):
@@ -17,7 +18,7 @@ class TestTextureLock(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
+        compat.set_active_object(bpy.data.objects[obj_name])
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_lock_ng_no_uv(self):

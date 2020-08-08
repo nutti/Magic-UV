@@ -2,6 +2,7 @@ import bpy
 import bmesh
 
 from . import common
+from . import compatibility as compat
 
 
 class TestCopyPasteUVObject(common.TestBase):
@@ -20,9 +21,10 @@ class TestCopyPasteUVObject(common.TestBase):
         self.uv_map = "UVMap"
 
         common.select_object_only(src_obj_name)
-        bpy.ops.object.duplicate()
+        common.duplicate_object_without_uv()
         common.select_object_only(src_obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
+        compat.set_active_object(bpy.data.objects[src_obj_name])
+        bpy.ops.object.mode_set(mode='OBJECT')
 
     def test_paste_uv_ng_not_copy_first(self):
         # Warning: Need copy UV at first
@@ -61,8 +63,9 @@ class TestCopyPasteUVObject(common.TestBase):
         self.assertSetEqual(result, {'FINISHED'})
 
         common.select_object_only(self.dest_obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[self.dest_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        compat.set_active_object(bpy.data.objects[self.dest_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
+        bpy.ops.object.mode_set(mode='OBJECT')
 
     def test_paste_uv_ng_no_uv(self):
         # Warning: Object must have more than one UV map

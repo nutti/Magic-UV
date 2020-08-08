@@ -2,6 +2,7 @@ import bpy
 import bmesh
 
 from . import common
+from . import compatibility as compat
 
 
 class TestWorldScaleUVMeasure(common.TestBase):
@@ -16,8 +17,8 @@ class TestWorldScaleUVMeasure(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
-        self.active_obj = bpy.context.active_object
+        compat.set_active_object(bpy.data.objects[obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -38,13 +39,7 @@ class TestWorldScaleUVMeasure(common.TestBase):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.image.new(name='Test')
-        img = bpy.data.images['Test']
-        bm = bmesh.from_edit_mesh(self.active_obj.data)
-        tex_layer = bm.faces.layers.tex.verify()
-        for f in bm.faces:
-            f[tex_layer].image = img
-        bmesh.update_edit_mesh(self.active_obj.data)
+        common.assign_new_image(self.active_obj, "Test")
         result = bpy.ops.uv.muv_world_scale_uv_measure()
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -52,13 +47,7 @@ class TestWorldScaleUVMeasure(common.TestBase):
         print("[TEST] (OK) User Specified")
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.image.new(name='Test')
-        img = bpy.data.images['Test']
-        bm = bmesh.from_edit_mesh(self.active_obj.data)
-        tex_layer = bm.faces.layers.tex.verify()
-        for f in bm.faces:
-            f[tex_layer].image = img
-        bmesh.update_edit_mesh(self.active_obj.data)
+        common.assign_new_image(self.active_obj, "Test")
         result = bpy.ops.uv.muv_world_scale_uv_measure(
             only_selected=True
         )
@@ -77,8 +66,8 @@ class TestWorldScaleUVApplyManual(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
-        self.active_obj = bpy.context.active_object
+        compat.set_active_object(bpy.data.objects[obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -120,8 +109,8 @@ class TestWorldScaleUVApplyScalingDensity(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
-        self.active_obj = bpy.context.active_object
+        compat.set_active_object(bpy.data.objects[obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -141,13 +130,7 @@ class TestWorldScaleUVApplyScalingDensity(common.TestBase):
     def __prepare_apply_test(self):
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.image.new(name='Test')
-        img = bpy.data.images['Test']
-        bm = bmesh.from_edit_mesh(self.active_obj.data)
-        tex_layer = bm.faces.layers.tex.verify()
-        for f in bm.faces:
-            f[tex_layer].image = img
-        bmesh.update_edit_mesh(self.active_obj.data)
+        common.assign_new_image(self.active_obj, "Test")
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")
@@ -192,8 +175,8 @@ class TestWorldScaleUVProportionalToMesh(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
-        self.active_obj = bpy.context.active_object
+        compat.set_active_object(bpy.data.objects[obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_ng_no_uv(self):
@@ -213,13 +196,7 @@ class TestWorldScaleUVProportionalToMesh(common.TestBase):
     def __prepare_apply_test(self):
         bpy.ops.mesh.uv_texture_add()
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.image.new(name='Test')
-        img = bpy.data.images['Test']
-        bm = bmesh.from_edit_mesh(self.active_obj.data)
-        tex_layer = bm.faces.layers.tex.verify()
-        for f in bm.faces:
-            f[tex_layer].image = img
-        bmesh.update_edit_mesh(self.active_obj.data)
+        common.assign_new_image(self.active_obj, "Test")
 
     def test_ok_default(self):
         print("[TEST] (OK) Default")

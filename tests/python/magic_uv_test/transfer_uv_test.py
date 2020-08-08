@@ -2,6 +2,7 @@ import bpy
 import bmesh
 
 from . import common
+from . import compatibility as compat
 
 
 class TestTransferUV(common.TestBase):
@@ -19,9 +20,9 @@ class TestTransferUV(common.TestBase):
         self.dest_obj_name = "Cube.001"
 
         common.select_object_only(src_obj_name)
-        bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        common.duplicate_object_without_uv()
+        compat.set_active_object(bpy.data.objects[src_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_copy_uv_ng_no_uv(self):
@@ -79,8 +80,8 @@ class TestTransferUV(common.TestBase):
 
         bpy.ops.object.mode_set(mode='OBJECT')
         common.select_object_only(self.dest_obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[self.dest_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        compat.set_active_object(bpy.data.objects[self.dest_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_no_uv(self):
@@ -104,7 +105,10 @@ class TestTransferUV(common.TestBase):
         print("[TEST] (NG) Two faces should share one edge")
         self.__prepare_paste_uv_test()
         bpy.ops.mesh.uv_texture_add()
-        common.add_face_select_history(self.active_obj, 2)
+        if compat.check_version(2, 80, 0) < 0:
+            common.add_face_select_history(self.active_obj, 2)
+        else:
+            common.add_face_select_history_by_indices(self.active_obj, [0, 3])
         result = bpy.ops.uv.muv_transfer_uv_paste_uv()
         self.assertSetEqual(result, {'CANCELLED'})
 

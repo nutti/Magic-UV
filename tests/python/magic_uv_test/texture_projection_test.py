@@ -1,6 +1,7 @@
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestTextureProjection(common.TestBase):
@@ -19,14 +20,14 @@ class TestTextureProjection(common.TestBase):
         obj_name = "Cube"
 
         common.select_object_only(obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[obj_name]
+        compat.set_active_object(bpy.data.objects[obj_name])
         bpy.ops.object.mode_set(mode='EDIT')
-
 
     def test_no_image(self):
         # Warning: No textures are selected
         print("[TEST] (NG) No Image")
         bpy.ops.mesh.select_all(action='SELECT')
+        bpy.context.scene.muv_texture_projection_tex_image = 'None'
         result = bpy.ops.uv.muv_texture_projection_project()
         self.assertSetEqual(result, {'CANCELLED'})
 

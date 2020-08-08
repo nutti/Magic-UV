@@ -1,6 +1,7 @@
 import bpy
 
 from . import common
+from . import compatibility as compat
 
 
 class TestCopyPasteUV(common.TestBase):
@@ -19,9 +20,9 @@ class TestCopyPasteUV(common.TestBase):
         self.uv_map = "UVMap"
 
         common.select_object_only(src_obj_name)
-        bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        common.duplicate_object_without_uv()
+        compat.set_active_object(bpy.data.objects[src_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_not_copy_first(self):
@@ -74,8 +75,8 @@ class TestCopyPasteUV(common.TestBase):
 
         bpy.ops.object.mode_set(mode='OBJECT')
         common.select_object_only(self.dest_obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[self.dest_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        compat.set_active_object(bpy.data.objects[self.dest_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_no_uv(self):
@@ -169,9 +170,9 @@ class TestCopyPasteUVSelseq(common.TestBase):
         self.uv_map = "UVMap"
 
         common.select_object_only(src_obj_name)
-        bpy.ops.object.duplicate()
-        bpy.context.scene.objects.active = bpy.data.objects[src_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        common.duplicate_object_without_uv()
+        compat.set_active_object(bpy.data.objects[src_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_not_copy_first(self):
@@ -224,8 +225,8 @@ class TestCopyPasteUVSelseq(common.TestBase):
 
         bpy.ops.object.mode_set(mode='OBJECT')
         common.select_object_only(self.dest_obj_name)
-        bpy.context.scene.objects.active = bpy.data.objects[self.dest_obj_name]
-        self.active_obj = bpy.context.scene.objects.active
+        compat.set_active_object(bpy.data.objects[self.dest_obj_name])
+        self.active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_no_uv(self):
