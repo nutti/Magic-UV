@@ -1166,6 +1166,18 @@ def __is_points_in_polygon(points, subject_points):
     return True
 
 
+def get_uv_editable_objects(context):
+    if compat.check_version(2, 80, 0) < 0:
+        objs = [context.active_object]
+    else:
+        objs = [o for o in bpy.data.objects
+                if compat.get_object_select(o) and o.type == 'MESH']
+        objs.append(context.active_object)
+
+    objs = list(set(objs))
+    return objs
+
+
 def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list, mode):
     # at first, check island overlapped
     isl = []

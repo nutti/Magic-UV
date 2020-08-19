@@ -36,13 +36,12 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if len(objs) != 1:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -377,8 +376,11 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.transfer_uv
-        active_obj = context.active_object
-        bm = bmesh.from_edit_mesh(active_obj.data)
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+        bm = bmesh.from_edit_mesh(obj.data)
         if compat.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
@@ -391,7 +393,7 @@ class MUV_OT_TransferUV_CopyUV(bpy.types.Operator):
             return {'CANCELLED'}
         props.topology_copied = faces
 
-        bmesh.update_edit_mesh(active_obj.data)
+        bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
@@ -433,8 +435,11 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.transfer_uv
-        active_obj = context.active_object
-        bm = bmesh.from_edit_mesh(active_obj.data)
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+        bm = bmesh.from_edit_mesh(obj.data)
         if compat.check_version(2, 73, 0) >= 0:
             bm.faces.ensure_lookup_table()
 
@@ -448,10 +453,10 @@ class MUV_OT_TransferUV_PasteUV(bpy.types.Operator):
         if ret:
             return {'CANCELLED'}
 
-        bmesh.update_edit_mesh(active_obj.data)
+        bmesh.update_edit_mesh(obj.data)
 
         if compat.check_version(2, 80, 0) < 0:
             if self.copy_seams:
-                active_obj.data.show_edge_seams = True
+                obj.data.show_edge_seams = True
 
         return {'FINISHED'}

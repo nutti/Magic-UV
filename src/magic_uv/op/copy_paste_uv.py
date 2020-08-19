@@ -39,13 +39,12 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if len(objs) != 1:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -343,7 +342,10 @@ class MUV_OT_CopyPasteUV_CopyUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.copy_paste_uv
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = common.create_bmesh(obj)
 
         # get UV layer
@@ -452,7 +454,10 @@ class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
         if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = common.create_bmesh(obj)
 
         # get UV layer
@@ -560,7 +565,10 @@ class MUV_OT_CopyPasteUV_SelSeqCopyUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.copy_paste_uv_selseq
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = common.create_bmesh(obj)
 
         # get UV layer
@@ -669,7 +677,10 @@ class MUV_OT_CopyPasteUV_SelSeqPasteUV(bpy.types.Operator):
         if not props.src_info:
             self.report({'WARNING'}, "Need copy UV at first")
             return {'CANCELLED'}
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = common.create_bmesh(obj)
 
         # get UV layer

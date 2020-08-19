@@ -36,13 +36,12 @@ from ..utils.property_class_registry import PropertyClassRegistry
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if len(objs) != 1:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -94,7 +93,10 @@ class MUV_OT_CopyPasteUVUVEdit_CopyUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.copy_paste_uv_uvedit
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
         if common.check_version(2, 73, 0) >= 0:
@@ -140,7 +142,10 @@ class MUV_OT_CopyPasteUVUVEdit_PasteUV(bpy.types.Operator):
 
     def execute(self, context):
         props = context.scene.muv_props.copy_paste_uv_uvedit
-        obj = context.active_object
+
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = bmesh.from_edit_mesh(obj.data)
         uv_layer = bm.loops.layers.uv.verify()
         if common.check_version(2, 73, 0) >= 0:

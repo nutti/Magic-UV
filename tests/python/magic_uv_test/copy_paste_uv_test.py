@@ -23,6 +23,7 @@ class TestCopyPasteUV(common.TestBase):
         common.duplicate_object_without_uv()
         compat.set_active_object(bpy.data.objects[src_obj_name])
         self.active_obj = compat.get_active_object(bpy.context)
+        common.select_object_only(src_obj_name)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_not_copy_first(self):
@@ -173,6 +174,7 @@ class TestCopyPasteUVSelseq(common.TestBase):
         common.duplicate_object_without_uv()
         compat.set_active_object(bpy.data.objects[src_obj_name])
         self.active_obj = compat.get_active_object(bpy.context)
+        common.select_object_only(src_obj_name)
         bpy.ops.object.mode_set(mode='EDIT')
 
     def test_paste_uv_ng_not_copy_first(self):
