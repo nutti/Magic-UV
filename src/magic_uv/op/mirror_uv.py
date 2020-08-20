@@ -39,13 +39,12 @@ from .. import common
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if not objs:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -168,48 +167,57 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
+        objs = common.get_uv_editable_objects(context)
 
-        error = self.error
-        axis = self.axis
+        success_count = 0
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
 
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        if not bm.loops.layers.uv:
-            self.report({'WARNING'},
-                        "Object must have more than one UV map")
+            error = self.error
+            axis = self.axis
+
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            if not bm.loops.layers.uv:
+                self.report({'WARNING'},
+                            "Object must have more than one UV map")
+                continue
+            uv_layer = bm.loops.layers.uv.verify()
+
+            faces = [f for f in bm.faces if f.select]
+            for f_dst in faces:
+                count = len(f_dst.verts)
+                for f_src in bm.faces:
+                    # check if this is a candidate to do mirror UV
+                    if f_src.index == f_dst.index:
+                        continue
+                    if count != len(f_src.verts):
+                        continue
+
+                    # test if the vertices x values are the same sign
+                    dst = _get_face_center(f_dst)
+                    src = _get_face_center(f_src)
+                    if (dst.x > 0 and src.x > 0) or (dst.x < 0 and src.x < 0):
+                        continue
+
+                    # invert source axis
+                    if axis == 'X':
+                        src.x = -src.x
+                    elif axis == 'Y':
+                        src.y = -src.z
+                    elif axis == 'Z':
+                        src.z = -src.z
+
+                    # do mirror UV
+                    if _is_vector_similar(dst, src, error):
+                        _mirror_uvs(uv_layer, f_src, f_dst,
+                                    self.axis, self.error)
+
+            bmesh.update_edit_mesh(obj.data)
+
+            success_count += 1
+
+        if success_count == 0:
             return {'CANCELLED'}
-        uv_layer = bm.loops.layers.uv.verify()
-
-        faces = [f for f in bm.faces if f.select]
-        for f_dst in faces:
-            count = len(f_dst.verts)
-            for f_src in bm.faces:
-                # check if this is a candidate to do mirror UV
-                if f_src.index == f_dst.index:
-                    continue
-                if count != len(f_src.verts):
-                    continue
-
-                # test if the vertices x values are the same sign
-                dst = _get_face_center(f_dst)
-                src = _get_face_center(f_src)
-                if (dst.x > 0 and src.x > 0) or (dst.x < 0 and src.x < 0):
-                    continue
-
-                # invert source axis
-                if axis == 'X':
-                    src.x = -src.x
-                elif axis == 'Y':
-                    src.y = -src.z
-                elif axis == 'Z':
-                    src.z = -src.z
-
-                # do mirror UV
-                if _is_vector_similar(dst, src, error):
-                    _mirror_uvs(uv_layer, f_src, f_dst, self.axis, self.error)
-
-        bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
