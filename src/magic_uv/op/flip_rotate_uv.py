@@ -37,13 +37,12 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if not objs:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -57,17 +56,16 @@ def _is_valid_context(context):
     return True
 
 
-def _get_uv_layer(ops_obj, bm):
+def _get_uv_layer(bm):
     # get UV layer
     if not bm.loops.layers.uv:
-        ops_obj.report({'WARNING'}, "Object must have more than one UV map")
         return None
     uv_layer = bm.loops.layers.uv.verify()
 
     return uv_layer
 
 
-def _get_src_face_info(ops_obj, bm, uv_layers, only_select=False):
+def _get_src_face_info(bm, uv_layers, only_select=False):
     src_info = {}
     for layer in uv_layers:
         face_info = []
@@ -81,14 +79,13 @@ def _get_src_face_info(ops_obj, bm, uv_layers, only_select=False):
                 }
                 face_info.append(info)
         if not face_info:
-            ops_obj.report({'WARNING'}, "No faces are selected")
             return None
         src_info[layer.name] = face_info
 
     return src_info
 
 
-def _paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
+def _paste_uv(bm, src_info, dest_info, uv_layers, strategy, flip,
               rotate, copy_seams):
     for slayer_name, dlayer in zip(src_info.keys(), uv_layers):
         src_faces = src_info[slayer_name]
@@ -105,7 +102,6 @@ def _paste_uv(ops_obj, bm, src_info, dest_info, uv_layers, strategy, flip,
             spuv = sinfo["pin_uvs"]
             ss = sinfo["seams"]
             if len(sinfo["uvs"]) != len(dinfo["uvs"]):
-                ops_obj.report({'WARNING'}, "Some faces are different size")
                 return -1
 
             suvs_fr = [uv for uv in suv]
@@ -199,34 +195,44 @@ class MUV_OT_FlipRotateUV(bpy.types.Operator):
 
     def execute(self, context):
         self.report({'INFO'}, "Flip/Rotate UV")
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
+        objs = common.get_uv_editable_objects(context)
 
-        # get UV layer
-        uv_layer = _get_uv_layer(self, bm)
-        if not uv_layer:
+        face_count = 0
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+
+            # get UV layer
+            uv_layer = _get_uv_layer(bm)
+            if not uv_layer:
+                self.report({'WARNING'},
+                            "Object must have more than one UV map")
+                continue
+
+            # get selected face
+            src_info = _get_src_face_info(bm, [uv_layer], True)
+            if not src_info:
+                self.report({'WARNING'}, "No faces are selected")
+                continue
+
+            # paste
+            ret = _paste_uv(bm, src_info, src_info, [uv_layer], 'N_N',
+                            self.flip, self.rotate, self.seams)
+            if ret:
+                self.report({'WARNING'}, "Some faces are different size")
+                continue
+
+            bmesh.update_edit_mesh(obj.data)
+            if compat.check_version(2, 80, 0) < 0:
+                if self.seams is True:
+                    obj.data.show_edge_seams = True
+
+            face_count += len(src_info[list(src_info.keys())[0]])
+
+        if face_count == 0:
             return {'CANCELLED'}
-
-        # get selected face
-        src_info = _get_src_face_info(self, bm, [uv_layer], True)
-        if not src_info:
-            return {'CANCELLED'}
-
-        face_count = len(src_info[list(src_info.keys())[0]])
-        self.report({'INFO'}, "{} face(s) are selected".format(face_count))
-
-        # paste
-        ret = _paste_uv(self, bm, src_info, src_info, [uv_layer], 'N_N',
-                        self.flip, self.rotate, self.seams)
-        if ret:
-            return {'CANCELLED'}
-
-        bmesh.update_edit_mesh(obj.data)
-
-        if compat.check_version(2, 80, 0) < 0:
-            if self.seams is True:
-                obj.data.show_edge_seams = True
+        self.report({'INFO'},
+                    "{} face(s) are fliped/rotated".format(face_count))
 
         return {'FINISHED'}
