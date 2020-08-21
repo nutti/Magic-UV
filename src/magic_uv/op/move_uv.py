@@ -34,13 +34,12 @@ from ..utils.property_class_registry import PropertyClassRegistry
 
 
 def _is_valid_context(context):
-    obj = context.object
+    # Multiple objects is not supported in this feature.
+    objs = common.get_uv_editable_objects(context)
+    if len(objs) != 1:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -179,7 +178,9 @@ class MUV_OT_MoveUV(bpy.types.Operator):
 
         context.window_manager.modal_handler_add(self)
 
-        obj = context.active_object
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
         bm = bmesh.from_edit_mesh(obj.data)
         active_uv = bm.loops.layers.uv.active
         self.__topology_dict, self.__ini_uvs = self._find_uv(bm, active_uv)
