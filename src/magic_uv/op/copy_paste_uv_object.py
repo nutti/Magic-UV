@@ -44,7 +44,7 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    # Multiple objects is not supported in this feature.
+    # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
         return False
@@ -157,10 +157,14 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
     def poll(cls, context):
         return _is_valid_context(context)
 
-    def draw(self, _):
+    def draw(self, context):
         layout = self.layout
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+
         # create sub menu
-        uv_maps = compat.get_object_uv_layers(bpy.context.active_object).keys()
+        uv_maps = compat.get_object_uv_layers(obj).keys()
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
                               text="[Default]")

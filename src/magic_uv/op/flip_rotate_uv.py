@@ -37,7 +37,6 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    # Multiple objects is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False
@@ -207,21 +206,23 @@ class MUV_OT_FlipRotateUV(bpy.types.Operator):
             uv_layer = _get_uv_layer(bm)
             if not uv_layer:
                 self.report({'WARNING'},
-                            "Object must have more than one UV map")
-                continue
+                            "Object {} must have more than one UV map"
+                            .format(obj.name))
+                return {'CANCELLED'}
 
             # get selected face
             src_info = _get_src_face_info(bm, [uv_layer], True)
             if not src_info:
-                self.report({'WARNING'}, "No faces are selected")
                 continue
 
             # paste
             ret = _paste_uv(bm, src_info, src_info, [uv_layer], 'N_N',
                             self.flip, self.rotate, self.seams)
             if ret:
-                self.report({'WARNING'}, "Some faces are different size")
-                continue
+                self.report({'WARNING'},
+                            "Some Object {}'s faces are different size"
+                            .format(obj.name))
+                return {'CANCELLED'}
 
             bmesh.update_edit_mesh(obj.data)
             if compat.check_version(2, 80, 0) < 0:
@@ -231,6 +232,7 @@ class MUV_OT_FlipRotateUV(bpy.types.Operator):
             face_count += len(src_info[list(src_info.keys())[0]])
 
         if face_count == 0:
+            self.report({'WARNING'}, "No faces are selected")
             return {'CANCELLED'}
         self.report({'INFO'},
                     "{} face(s) are fliped/rotated".format(face_count))

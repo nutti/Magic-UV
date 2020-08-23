@@ -96,6 +96,40 @@ class TestWorldScaleUVApplyManual(common.TestBase):
         )
         self.assertSetEqual(result, {'FINISHED'})
 
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects(self):
+        print("[TEST] (OK) Multiple Objects")
+
+        # Duplicate object.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        obj_names = ["Cube", "Cube.001"]
+        common.select_object_only(obj_names[0])
+        common.duplicate_object_without_uv()
+
+        for name in obj_names:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            common.select_object_only(name)
+            compat.set_active_object(bpy.data.objects[name])
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.uv_texture_add()
+            bpy.ops.mesh.select_all(action='SELECT')
+
+        # Select two objects.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        compat.set_active_object(bpy.data.objects[obj_names[0]])
+        common.select_objects_only(obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        result = bpy.ops.uv.muv_world_scale_uv_apply_manual(
+            tgt_density=0.5,
+            tgt_texture_size=(2048, 2048),
+            origin='CENTER',
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
+        )
+        self.assertSetEqual(result, {'FINISHED'})
+
 
 class TestWorldScaleUVApplyScalingDensity(common.TestBase):
     module_name = "world_scale_uv"
@@ -162,6 +196,42 @@ class TestWorldScaleUVApplyScalingDensity(common.TestBase):
         )
         self.assertSetEqual(result, {'FINISHED'})
 
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects(self):
+        print("[TEST] (OK) Multiple Objects")
+
+        # Duplicate object.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        obj_names = ["Cube", "Cube.001"]
+        common.select_object_only(obj_names[0])
+        common.duplicate_object_without_uv()
+
+        for name in obj_names:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            common.select_object_only(name)
+            compat.set_active_object(bpy.data.objects[name])
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.uv_texture_add()
+            bpy.ops.mesh.select_all(action='SELECT')
+            common.assign_new_image(bpy.data.objects[name], "Test")
+
+        # Select two objects.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        compat.set_active_object(bpy.data.objects[obj_names[0]])
+        common.select_objects_only(obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        result = bpy.ops.uv.muv_world_scale_uv_apply_scaling_density(
+            tgt_scaling_factor=0.8,
+            origin='CENTER',
+            src_density=1.5,
+            same_density=True,
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
+        )
+        self.assertSetEqual(result, {'FINISHED'})
+
 
 class TestWorldScaleUVProportionalToMesh(common.TestBase):
     module_name = "world_scale_uv"
@@ -209,6 +279,42 @@ class TestWorldScaleUVProportionalToMesh(common.TestBase):
     def test_ok_user_specified(self):
         print("[TEST] (OK) User specified")
         self.__prepare_apply_test()
+        result = bpy.ops.uv.muv_world_scale_uv_apply_proportional_to_mesh(
+            origin='LEFT_TOP',
+            src_density=0.3,
+            src_uv_area=1.3,
+            src_mesh_area=189.1,
+            tgt_area_calc_method='UV ISLAND',
+            only_selected=True
+        )
+        self.assertSetEqual(result, {'FINISHED'})
+
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects(self):
+        print("[TEST] (OK) Multiple Objects")
+
+        # Duplicate object.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        obj_names = ["Cube", "Cube.001"]
+        common.select_object_only(obj_names[0])
+        common.duplicate_object_without_uv()
+
+        for name in obj_names:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            common.select_object_only(name)
+            compat.set_active_object(bpy.data.objects[name])
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.uv_texture_add()
+            bpy.ops.mesh.select_all(action='SELECT')
+            common.assign_new_image(bpy.data.objects[name], "Test")
+
+        # Select two objects.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        compat.set_active_object(bpy.data.objects[obj_names[0]])
+        common.select_objects_only(obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
         result = bpy.ops.uv.muv_world_scale_uv_apply_proportional_to_mesh(
             origin='LEFT_TOP',
             src_density=0.3,

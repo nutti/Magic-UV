@@ -36,7 +36,7 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    # Multiple objects is not supported in this feature.
+    # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
         return False

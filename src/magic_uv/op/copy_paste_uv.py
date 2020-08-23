@@ -39,7 +39,7 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    # Multiple objects is not supported in this feature.
+    # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
         return False
@@ -381,8 +381,11 @@ class MUV_MT_CopyPasteUV_CopyUV(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+
         # create sub menu
-        obj = context.active_object
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
@@ -512,8 +515,11 @@ class MUV_MT_CopyPasteUV_PasteUV(bpy.types.Menu):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+
         # create sub menu
-        obj = context.active_object
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
@@ -604,7 +610,10 @@ class MUV_MT_CopyPasteUV_SelSeqCopyUV(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        obj = context.active_object
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 
@@ -736,8 +745,11 @@ class MUV_MT_CopyPasteUV_SelSeqPasteUV(bpy.types.Menu):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
+        objs = common.get_uv_editable_objects(context)
+        # poll() method ensures that only one object is selected.
+        obj = objs[0]
+
         # create sub menu
-        obj = context.active_object
         bm = common.create_bmesh(obj)
         uv_maps = bm.loops.layers.uv.keys()
 

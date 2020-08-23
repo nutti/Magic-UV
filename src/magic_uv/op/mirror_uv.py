@@ -39,7 +39,6 @@ from .. import common
 
 
 def _is_valid_context(context):
-    # Multiple objects is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False
@@ -169,7 +168,6 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
     def execute(self, context):
         objs = common.get_uv_editable_objects(context)
 
-        success_count = 0
         for obj in objs:
             bm = bmesh.from_edit_mesh(obj.data)
 
@@ -180,8 +178,9 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                 bm.faces.ensure_lookup_table()
             if not bm.loops.layers.uv:
                 self.report({'WARNING'},
-                            "Object must have more than one UV map")
-                continue
+                            "Object {} must have more than one UV map"
+                            .format(obj.name))
+                return {'CANCELLED'}
             uv_layer = bm.loops.layers.uv.verify()
 
             faces = [f for f in bm.faces if f.select]
@@ -214,10 +213,5 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                                     self.axis, self.error)
 
             bmesh.update_edit_mesh(obj.data)
-
-            success_count += 1
-
-        if success_count == 0:
-            return {'CANCELLED'}
 
         return {'FINISHED'}
