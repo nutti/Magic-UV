@@ -422,23 +422,30 @@ def find_texture_layer(bm):
     return bm.faces.layers.tex.verify()
 
 
+def find_texture_nodes_from_material(mtrl):
+    nodes = []
+    if not mtrl.node_tree:
+        return nodes
+    for node in mtrl.node_tree.nodes:
+        tex_node_types = [
+            'TEX_ENVIRONMENT',
+            'TEX_IMAGE',
+        ]
+        if node.type not in tex_node_types:
+            continue
+        if not node.image:
+            continue
+        nodes.append(node)
+
+    return nodes
+
+
 def find_texture_nodes(obj):
     nodes = []
-    for mat in obj.material_slots:
-        if not mat.material:
+    for slot in obj.material_slots:
+        if not slot.material:
             continue
-        if not mat.material.node_tree:
-            continue
-        for node in mat.material.node_tree.nodes:
-            tex_node_types = [
-                'TEX_ENVIRONMENT',
-                'TEX_IMAGE',
-            ]
-            if node.type not in tex_node_types:
-                continue
-            if not node.image:
-                continue
-            nodes.append(node)
+        nodes.extend(find_texture_nodes_from_material(slot.material))
 
     return nodes
 
