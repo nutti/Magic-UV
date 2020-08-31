@@ -173,13 +173,20 @@ class MUV_OT_PreserveUVAspect(bpy.types.Operator):
                         "materials with image texture"
                         .format(obj.name))
                     return {'CANCELLED'}
+                if len(material_to_rewrite) == 0:
+                    self.report(
+                        {'WARNING'},
+                        "Object {} must not have more than 1 "
+                        "material with image texture"
+                        .format(obj.name))
+                    return {'CANCELLED'}
                 if material_to_rewrite[0] not in obj_list.keys():
                     obj_list[material_to_rewrite[0]] = []
                 obj_list[material_to_rewrite[0]].append(obj)
             else:
                 # If blender version is < (2, 79), multiple objects editing
                 # mode is not supported. So, we add dummy key to obj_list.
-                obj_list["Dummy"] = obj
+                obj_list["Dummy"] = [obj]
 
         # pylint: disable=R1702
         for mtrl, o in obj_list.items():

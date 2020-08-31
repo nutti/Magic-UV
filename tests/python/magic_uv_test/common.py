@@ -175,6 +175,34 @@ def delete_all_uv_maps(obj):
     bpy.ops.object.mode_set(mode=mode_orig)
 
 
+def find_texture_nodes_from_material(mtrl):
+    nodes = []
+    if not mtrl.node_tree:
+        return nodes
+    for node in mtrl.node_tree.nodes:
+        tex_node_types = [
+            'TEX_ENVIRONMENT',
+            'TEX_IMAGE',
+        ]
+        if node.type not in tex_node_types:
+            continue
+        if not node.image:
+            continue
+        nodes.append(node)
+
+    return nodes
+
+
+def find_texture_nodes(obj):
+    nodes = []
+    for slot in obj.material_slots:
+        if not slot.material:
+            continue
+        nodes.extend(find_texture_nodes_from_material(slot.material))
+
+    return nodes
+
+
 def assign_new_image(obj, image_name):
     bpy.ops.image.new(name=image_name)
     img = bpy.data.images[image_name]
@@ -187,9 +215,14 @@ def assign_new_image(obj, image_name):
     else:
         node_tree = obj.active_material.node_tree
         output_node = node_tree.nodes["Material Output"]
-        new_node = node_tree.nodes.new(type="ShaderNodeTexImage")
-        new_node.image = img
-        node_tree.links.new(output_node.inputs["Surface"], new_node.outputs["Color"])
+
+        nodes = find_texture_nodes(obj)
+        if len(nodes) >= 1:
+            tex_node = nodes[0]
+        else:
+            tex_node = node_tree.nodes.new(type="ShaderNodeTexImage")
+        tex_node.image = img
+        node_tree.links.new(output_node.inputs["Surface"], tex_node.outputs["Color"])
 
 
 def duplicate_object_without_uv():
