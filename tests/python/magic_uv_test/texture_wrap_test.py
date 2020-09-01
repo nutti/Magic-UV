@@ -140,6 +140,7 @@ class TestTextureWrap(common.TestBase):
         bpy.ops.object.mode_set(mode='OBJECT')
         common.duplicate_object_without_uv()
         common.select_object_only("Cube.001")
+        compat.set_active_object(bpy.data.objects["Cube.001"])
         active_obj = compat.get_active_object(bpy.context)
         bpy.ops.object.mode_set(mode='EDIT')
 
