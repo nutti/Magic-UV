@@ -73,5 +73,5 @@ class TestMirrorUV(common.TestBase):
         common.select_objects_only(obj_names)
         bpy.ops.object.mode_set(mode='EDIT')
 
-        result = bpy.ops.uv.muv_mirror_uv()
+        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=19.4)
         self.assertSetEqual(result, {'FINISHED'})

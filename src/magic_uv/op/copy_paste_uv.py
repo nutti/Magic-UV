@@ -738,7 +738,7 @@ class MUV_MT_CopyPasteUV_SelSeqPasteUV(bpy.types.Menu):
     def poll(cls, context):
         sc = context.scene
         props = sc.muv_props.copy_paste_uv_selseq
-        if not props.src_uvs or not props.src_pin_uvs:
+        if not props.src_info:
             return False
         return _is_valid_context(context)
 
