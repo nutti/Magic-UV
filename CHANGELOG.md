@@ -1,16 +1,16 @@
-# Change log
+# Change Log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.3...develop)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.3...master)
 
 
 ## [Version 6.3](https://github.com/nutti/Magic-UV/compare/v6.2...v6.3) - 2020.8.10
 
-### Added features
+### Added Features
 
 * Clip UV
 
-### Updated features
+### Updated Features
 
 * World Scale UV
   * Add option "Area Calculation Method"
@@ -23,7 +23,7 @@
   * Add Paint UV Island feature
   * Support multiple objects
 
-### Other updates
+### Other Updates
 
 * Merge change set of Blender's official repository
 * Change CI to GitHub Actions from Circle CI
@@ -33,7 +33,7 @@
 
 ## [Version 6.2](https://github.com/nutti/Magic-UV/compare/v6.1...v6.2) - 2019.7.31
 
-### Other updates
+### Other Updates
 
 * Merge change set of Blender's official repository
 * Fix bugs
@@ -41,12 +41,12 @@
 
 ## [Version 6.1](https://github.com/nutti/Magic-UV/compare/v6.0...v6.1) - 2019.5.19
 
-### Updated features
+### Updated Features
 
 * World Scale UV
   * Add option "Texture" to allow the user to specify the texture for the density calculation
 
-### Other updates
+### Other Updates
 
 * Change CI to Circle CI from Travis CI
 * Fix bugs
@@ -59,12 +59,12 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 ## [Version 5.2](https://github.com/nutti/Magic-UV/compare/v5.1...v5.2) - 2018.11.17
 
-### Added features
+### Added Features
 
 * Bulit-in menu preferences
 * Add-on updater
 
-### Updated features
+### Updated Features
 
 * Copy/Paste UV
   * Add option "[New]" for pasting to newly allocated UV map
@@ -74,7 +74,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 * World Scale UV
   * Add mode option "Manual" to allow the user specify the density manually
 
-### Other updates
+### Other Updates
 
 * Improve UI
 * Cleanup documents
@@ -83,7 +83,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 ## [Version 5.1](https://github.com/nutti/Magic-UV/compare/v5.0...v5.1) - 2018.2.24
 
-### Other updates
+### Other Updates
 
 * Add thumbnail
 * Fix bugs
@@ -91,7 +91,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 ## [Version 5.0](https://github.com/nutti/Magic-UV/compare/v4.5...v5.0) - 2018.2.16
 
-### Added features
+### Added Features
 
 * Align UV Cursor
 * UV Cursor Location
@@ -102,7 +102,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 * Texture Wrap
 * UV Sculpt
 
-### Updated features
+### Updated Features
 
 * Copy/Paste UV
   * Add menu to UV/Image Editor
@@ -115,7 +115,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 * UVW
   * Add option "Assign UVMap"
 
-### Other updates
+### Other Updates
 
 * Improve UI
 * Fix bugs
@@ -125,16 +125,16 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 ## [Version 4.5](https://github.com/nutti/Magic-UV/compare/v4.4...v4.5) - 2017.11.19
 
-### Added features
+### Added Features
 
 * UVW
 
-### Updated features
+### Updated Features
 
 * Preserve UV Aspect
   * Add option "Aspect Origin"
 
-### Other updates
+### Other Updates
 
 * Merge change set of Blender's official repository
 * Fix bugs
@@ -142,7 +142,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 ## [Version 4.4](https://github.com/nutti/Magic-UV/compare/v4.3...v4.4) - 2017.8.2
 
-### Updated features
+### Updated Features
 
 * Copy/Paste UV
   * Add option "Copy Seams"
@@ -151,7 +151,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 * Flip/Rotate UV
   * Add option "Seams"
 
-### Other updates
+### Other Updates
 
 * Merge change set of Blender's official repository
 * Fix bugs
@@ -161,7 +161,7 @@ Support Blender 2.8. (Make compatibility with Blender 2.7x)
 
 Update for Blender 2.79 release.
 
-### Other updates
+### Other Updates
 
 * Optimization
 * Refactoring
@@ -169,16 +169,16 @@ Update for Blender 2.79 release.
 
 ## [Version 4.2](https://github.com/nutti/Magic-UV/compare/v4.1...v4.2) - 2017.3.4
 
-### Added features
+### Added Features
 
 * Preserve UV Aspect
 
-### Updated features
+### Updated Features
 
 * Texture Projection
   * Add preferences for rendering textures
 
-### Other updates
+### Other Updates
 
 * Improve UI
 * Fix bugs
@@ -188,21 +188,21 @@ Update for Blender 2.79 release.
 
 ## [Version 4.1](https://github.com/nutti/Magic-UV/compare/v4.0...v4.1) - 2016.11.13
 
-### Added features
+### Added Features
 
 * Texture Lock
 * Mirror UV
 * World Scale UV
 * Unwrap Constraint
 
-### Updated features
+### Updated Features
 
 * Pack UV (Extension)
   * Add options "Allowable Center Deviation" and "Allowable Size Deviation"
 * Copy/Paste UV
   * Add "Copy/Paste UV among same objects"
 
-### Other updates
+### Other Updates
 
 * Fix bugs
 
@@ -211,53 +211,66 @@ Update for Blender 2.79 release.
 
 Rename add-on's name "Copy/Paste UV" to "Magic UV".
 
-### Added features
+### Added Features
 
 * UV Bounding Box
 * Move UV
 * Texture Projection
 * Pack UV (Extension)
 
-### Updated features
+### Updated Features
 
 * Copy/Paste UV
   * Add "N to M copy/paste UV"
   * Add "Copy/Paste UV by selection sequence between specified UV maps"
 * Transfer UV
-  * Add option "Invert Normals" ([@mifth](https://github.com/mifth), [@maxRobinot](https://github.com/maxRobinot))
+  * Add option "Invert Normals"
 
-### Other updates
+### Other Updates
 
 * Fix bugs
 * Optimization
 * Refactoring
 
+### Contributors
+
+* [**@mifth**](https://github.com/mifth)
+* [**@maxRobinot**](https://github.com/maxRobinot)
+
 
 ## [Version 3.2](https://github.com/nutti/Magic-UV/compare/v3.1...v3.2) - 2015.6.20
 
-### Updated features
+### Updated Features
 
 * Transfer UV
-  * Add "Copy/Paste to multiple meshes" ([@mifth](https://github.com/mifth))
-  * Add "Partially copy/paste UV" ([@mifth](https://github.com/mifth))
+  * Add "Copy/Paste to multiple meshes"
+  * Add "Partially copy/paste UV"
+
+### Contributors
+
+* [**@mifth**](https://github.com/mifth)
 
 
 ## [Version 3.1](https://github.com/nutti/Magic-UV/compare/v3.0...v3.1) - 2015.6.17
 
-### Updated features
+### Updated Features
 
 * Transfer UV
-  * Improve algorithm ([@mifth](https://github.com/mifth))
+  * Improve algorithm
+
+### Contributors
+
+* [**@mifth**](https://github.com/mifth)
 
 
 ## [Version 3.0](https://github.com/nutti/Magic-UV/compare/v2.2...v3.0) - 2015.6.15
 
-### Added features
+### Added Features
 
 * Flip/Rotate UV
 * Transfer UV
 
-### Other updates
+### Other Updates
 
 * Fix bugs
 * Optimization
@@ -266,7 +279,7 @@ Rename add-on's name "Copy/Paste UV" to "Magic UV".
 
 ## [Version 2.2](https://github.com/nutti/Magic-UV/compare/v2.1...v2.2) - 2015.4.11
 
-### Other updates
+### Other Updates
 
 * Fix bugs
 * Refactoring
@@ -274,28 +287,32 @@ Rename add-on's name "Copy/Paste UV" to "Magic UV".
 
 ## [Version 2.1](https://github.com/nutti/Magic-UV/compare/v2.0...v2.1) - 2015.1.23
 
-### Other updates
+### Other Updates
 
 * Fix bugs
 
 
 ## [Version 2.0](https://github.com/nutti/Magic-UV/compare/v1.1...v2.0) - 2014.12.31
 
-### Updated features
+### Updated Features
 
 * Copy/Paste UV
   * Add "Copy/Paste UV Coordinates (by selection sequence)"
   * Add "Copy/Paste UV Coordinates (between UVMaps)"
-  * Add option "Flip Copied UV" and "Rotate Copied UV" ([@mifth](https://github.com/mifth))
+  * Add option "Flip Copied UV" and "Rotate Copied UV"
 
-### Other updates
+### Other Updates
 
 * Optimization
+
+### Contributors
+
+* [**@mifth**](https://github.com/mifth)
 
 
 ## [Version 1.1](https://github.com/nutti/Magic-UV/compare/v1.0...v1.1) - 2014.8.31
 
-### Other updates
+### Other Updates
 
 * Optimization
 

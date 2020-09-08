@@ -60,6 +60,7 @@ Support via [GitHub Sponsors](https://github.com/sponsors/nutti)
 * WEBSITE: [Japanese Only](https://colorful-pico.net/)
 
 
-### Contributor
+### Contributors
 
 * [**@mifth**](https://github.com/mifth)
+* [**@maxRobinot**](https://github.com/maxRobinot)
