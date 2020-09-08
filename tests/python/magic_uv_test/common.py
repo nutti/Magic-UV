@@ -216,7 +216,7 @@ def assign_new_image(obj, image_name):
         node_tree = obj.active_material.node_tree
         output_node = node_tree.nodes["Material Output"]
 
-        nodes = find_texture_nodes(obj)
+        nodes = find_texture_nodes_from_material(obj.active_material)
         if len(nodes) >= 1:
             tex_node = nodes[0]
         else:
