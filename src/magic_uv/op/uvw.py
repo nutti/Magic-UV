@@ -41,13 +41,11 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    obj = context.object
+    objs = common.get_uv_editable_objects(context)
+    if not objs:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -228,15 +226,11 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
-    def execute(self, _):
-        if compat.check_version(2, 80, 0) < 0:
-            objs = [bpy.context.active_object]
-        else:
-            objs = [o for o in bpy.data.objects
-                    if compat.get_object_select(o) and o.type == 'MESH']
+    def execute(self, context):
+        objs = common.get_uv_editable_objects(context)
 
-        for o in objs:
-            bm = bmesh.from_edit_mesh(o.data)
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
             if common.check_version(2, 73, 0) >= 0:
                 bm.faces.ensure_lookup_table()
 
@@ -247,7 +241,7 @@ class MUV_OT_UVW_BoxMap(bpy.types.Operator):
 
             _apply_box_map(bm, uv_layer, self.size, self.offset, self.rotation,
                            self.tex_aspect)
-            bmesh.update_edit_mesh(o.data)
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
@@ -291,15 +285,11 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
-    def execute(self, _):
-        if compat.check_version(2, 80, 0) < 0:
-            objs = [bpy.context.active_object]
-        else:
-            objs = [o for o in bpy.data.objects
-                    if compat.get_object_select(o) and o.type == 'MESH']
+    def execute(self, context):
+        objs = common.get_uv_editable_objects(context)
 
-        for o in objs:
-            bm = bmesh.from_edit_mesh(o.data)
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
             if common.check_version(2, 73, 0) >= 0:
                 bm.faces.ensure_lookup_table()
 
@@ -311,6 +301,6 @@ class MUV_OT_UVW_BestPlanerMap(bpy.types.Operator):
             _apply_planer_map(bm, uv_layer, self.size, self.offset,
                               self.rotation, self.tex_aspect)
 
-            bmesh.update_edit_mesh(o.data)
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
