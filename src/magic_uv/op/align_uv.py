@@ -39,13 +39,11 @@ from .. import common
 
 
 def _is_valid_context(context):
-    obj = context.object
+    objs = common.get_uv_editable_objects(context)
+    if not objs:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -378,77 +376,90 @@ class MUV_OT_AlignUV_Circle(bpy.types.Operator):
         return _is_valid_context(context)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = common.get_uv_editable_objects(context)
 
-        # loop_seqs[horizontal][vertical][loop]
-        loop_seqs, error = common.get_loop_sequences(bm, uv_layer, True)
-        if not loop_seqs:
-            self.report({'WARNING'}, error)
-            return {'CANCELLED'}
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
 
-        # get circle and new UVs
-        uvs = [hseq[0][0][uv_layer].uv.copy() for hseq in loop_seqs]
-        c, r = _get_circle(uvs[0:3])
-        new_uvs = _calc_v_on_circle(uvs, c, r)
+            # loop_seqs[horizontal][vertical][loop]
+            loop_seqs, error = common.get_loop_sequences(bm, uv_layer, True)
+            if not loop_seqs:
+                self.report({'WARNING'},
+                            "Object {}: {}".format(obj.name, error))
+                return {'CANCELLED'}
 
-        # check if center is identical
-        center_is_identical = False
-        center = loop_seqs[0][-1][0].vert
-        if (len(loop_seqs[0][-1]) == 1) and loop_seqs[0][-1][0].vert == center:
-            center_is_identical = True
+            # get circle and new UVs
+            uvs = [hseq[0][0][uv_layer].uv.copy() for hseq in loop_seqs]
+            c, r = _get_circle(uvs[0:3])
+            new_uvs = _calc_v_on_circle(uvs, c, r)
 
-        # check if topology is correct
-        if center_is_identical:
-            for hseq in loop_seqs[1:]:
-                if len(hseq[-1]) != 1:
-                    self.report({'WARNING'}, "Last face must be triangle")
-                    return {'CANCELLED'}
-                if hseq[-1][0].vert != center:
-                    self.report({'WARNING'}, "Center must be identical")
-                    return {'CANCELLED'}
-        else:
-            for hseq in loop_seqs[1:]:
-                if len(hseq[-1]) == 1:
-                    self.report({'WARNING'}, "Last face must not be triangle")
-                    return {'CANCELLED'}
-                if hseq[-1][0].vert == center:
-                    self.report({'WARNING'}, "Center must not be identical")
-                    return {'CANCELLED'}
+            # check if center is identical
+            center_is_identical = False
+            center = loop_seqs[0][-1][0].vert
+            if (len(loop_seqs[0][-1]) == 1) and \
+                    loop_seqs[0][-1][0].vert == center:
+                center_is_identical = True
 
-        # align to circle
-        if self.transmission:
-            for hidx, hseq in enumerate(loop_seqs):
-                for vidx, pair in enumerate(hseq):
-                    all_ = int((len(hseq) + 1) / 2)
-                    if center_is_identical:
-                        r = (all_ - int((vidx + 1) / 2)) / all_
-                    else:
-                        r = (1 + all_ - int((vidx + 1) / 2)) / all_
-                    pair[0][uv_layer].uv = c + (new_uvs[hidx] - c) * r
+            # check if topology is correct
+            if center_is_identical:
+                for hseq in loop_seqs[1:]:
+                    if len(hseq[-1]) != 1:
+                        self.report({'WARNING'},
+                                    "Object {}: Last face must be triangle"
+                                    .format(obj.name))
+                        return {'CANCELLED'}
+                    if hseq[-1][0].vert != center:
+                        self.report({'WARNING'},
+                                    "Object {}: Center must be identical"
+                                    .format(obj.name))
+                        return {'CANCELLED'}
+            else:
+                for hseq in loop_seqs[1:]:
+                    if len(hseq[-1]) == 1:
+                        self.report({'WARNING'},
+                                    "Object {}: Last face must not be triangle"
+                                    .format(obj.name))
+                        return {'CANCELLED'}
+                    if hseq[-1][0].vert == center:
+                        self.report({'WARNING'},
+                                    "Object {}: Center must not be identical"
+                                    .format(obj.name))
+                        return {'CANCELLED'}
+
+            # align to circle
+            if self.transmission:
+                for hidx, hseq in enumerate(loop_seqs):
+                    for vidx, pair in enumerate(hseq):
+                        all_ = int((len(hseq) + 1) / 2)
+                        if center_is_identical:
+                            r = (all_ - int((vidx + 1) / 2)) / all_
+                        else:
+                            r = (1 + all_ - int((vidx + 1) / 2)) / all_
+                        pair[0][uv_layer].uv = c + (new_uvs[hidx] - c) * r
+                        if self.select:
+                            pair[0][uv_layer].select = True
+
+                        if len(pair) < 2:
+                            continue
+                        # for quad polygon
+                        next_hidx = (hidx + 1) % len(loop_seqs)
+                        pair[1][uv_layer].uv = \
+                            c + ((new_uvs[next_hidx]) - c) * r
+                        if self.select:
+                            pair[1][uv_layer].select = True
+            else:
+                for hidx, hseq in enumerate(loop_seqs):
+                    pair = hseq[0]
+                    pair[0][uv_layer].uv = new_uvs[hidx]
+                    pair[1][uv_layer].uv = new_uvs[(hidx + 1) % len(loop_seqs)]
                     if self.select:
                         pair[0][uv_layer].select = True
-
-                    if len(pair) < 2:
-                        continue
-                    # for quad polygon
-                    next_hidx = (hidx + 1) % len(loop_seqs)
-                    pair[1][uv_layer].uv = c + ((new_uvs[next_hidx]) - c) * r
-                    if self.select:
                         pair[1][uv_layer].select = True
-        else:
-            for hidx, hseq in enumerate(loop_seqs):
-                pair = hseq[0]
-                pair[0][uv_layer].uv = new_uvs[hidx]
-                pair[1][uv_layer].uv = new_uvs[(hidx + 1) % len(loop_seqs)]
-                if self.select:
-                    pair[0][uv_layer].select = True
-                    pair[1][uv_layer].select = True
 
-        bmesh.update_edit_mesh(obj.data)
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
@@ -585,22 +596,25 @@ class MUV_OT_AlignUV_Straighten(bpy.types.Operator):
             self.__align_wo_transmission(loop_seqs, uv_layer)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = common.get_uv_editable_objects(context)
 
-        # loop_seqs[horizontal][vertical][loop]
-        loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
-        if not loop_seqs:
-            self.report({'WARNING'}, error)
-            return {'CANCELLED'}
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
 
-        # align
-        self.__align(loop_seqs, uv_layer)
+            # loop_seqs[horizontal][vertical][loop]
+            loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
+            if not loop_seqs:
+                self.report({'WARNING'},
+                            "Object {}: {}".format(obj.name, error))
+                return {'CANCELLED'}
 
-        bmesh.update_edit_mesh(obj.data)
+            # align
+            self.__align(loop_seqs, uv_layer)
+
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
 
@@ -982,25 +996,28 @@ class MUV_OT_AlignUV_Axis(bpy.types.Operator):
                                                        width, height)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = common.get_uv_editable_objects(context)
 
-        # loop_seqs[horizontal][vertical][loop]
-        loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
-        if not loop_seqs:
-            self.report({'WARNING'}, error)
-            return {'CANCELLED'}
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
 
-        # get height and width
-        uv_max, uv_min = self.__get_uv_max_min(loop_seqs, uv_layer)
-        width = uv_max.x - uv_min.x
-        height = uv_max.y - uv_min.y
+            # loop_seqs[horizontal][vertical][loop]
+            loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
+            if not loop_seqs:
+                self.report({'WARNING'},
+                            "Object {}: {}".format(obj.name, error))
+                return {'CANCELLED'}
 
-        self.__align(loop_seqs, uv_layer, uv_min, width, height)
+            # get height and width
+            uv_max, uv_min = self.__get_uv_max_min(loop_seqs, uv_layer)
+            width = uv_max.x - uv_min.x
+            height = uv_max.y - uv_min.y
 
-        bmesh.update_edit_mesh(obj.data)
+            self.__align(loop_seqs, uv_layer, uv_min, width, height)
+
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
