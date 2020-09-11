@@ -21,6 +21,11 @@ class TestCopyPasteUVUVEdit(common.TestBase):
         compat.set_active_object(bpy.data.objects[src_obj_name])
         bpy.ops.object.mode_set(mode='EDIT')
 
+        bpy.context.scene.tool_settings.use_uv_select_sync = True
+
+    def tearDownMethod(self):
+        bpy.context.scene.tool_settings.use_uv_select_sync = False
+
     def test_copy_uv_ok(self):
         print("[TEST] (OK)")
         bpy.ops.mesh.uv_texture_add()

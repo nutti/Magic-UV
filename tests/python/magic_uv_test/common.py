@@ -282,4 +282,7 @@ class TestBase(unittest.TestCase):
         pass
 
     def tearDown(self):
+        self.tearDownEachMethod()
+
+    def tearDownEachMethod(self):
         pass
