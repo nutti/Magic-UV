@@ -34,13 +34,11 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
-    obj = context.object
+    objs = common.get_uv_editable_objects(context)
+    if not objs:
+        return False
 
     # only edit mode is allowed to execute
-    if obj is None:
-        return False
-    if obj.type != 'MESH':
-        return False
     if context.object.mode != 'EDIT':
         return False
 
@@ -261,21 +259,24 @@ class MUV_OT_SmoothUV(bpy.types.Operator):
             self.__smooth_wo_transmission(loop_seqs, uv_layer)
 
     def execute(self, context):
-        obj = context.active_object
-        bm = bmesh.from_edit_mesh(obj.data)
-        if common.check_version(2, 73, 0) >= 0:
-            bm.faces.ensure_lookup_table()
-        uv_layer = bm.loops.layers.uv.verify()
+        objs = common.get_uv_editable_objects(context)
 
-        # loop_seqs[horizontal][vertical][loop]
-        loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
-        if not loop_seqs:
-            self.report({'WARNING'}, error)
-            return {'CANCELLED'}
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
 
-        # smooth
-        self.__smooth(loop_seqs, uv_layer)
+            # loop_seqs[horizontal][vertical][loop]
+            loop_seqs, error = common.get_loop_sequences(bm, uv_layer)
+            if not loop_seqs:
+                self.report({'WARNING'},
+                            "Object {}: {}".format(obj.name, error))
+                return {'CANCELLED'}
 
-        bmesh.update_edit_mesh(obj.data)
+            # smooth
+            self.__smooth(loop_seqs, uv_layer)
+
+            bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
