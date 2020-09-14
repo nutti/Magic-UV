@@ -180,47 +180,67 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         else:
             bd_size = [1.0, 1.0]
 
+        large_value = 1e7
         if self.base == 'UV':
-            obj = context.active_object
-            bm = bmesh.from_edit_mesh(obj.data)
-            if not bm.loops.layers.uv:
-                return None
-            uv_layer = bm.loops.layers.uv.verify()
+            objs = common.get_uv_editable_objects(context)
+            no_selected_face = True
+            if objs:
+                max_ = Vector((-large_value, -large_value))
+                min_ = Vector((large_value, large_value))
+                for obj in objs:
+                    bm = bmesh.from_edit_mesh(obj.data)
+                    if not bm.loops.layers.uv:
+                        return None
+                    uv_layer = bm.loops.layers.uv.verify()
 
-            max_ = Vector((-10000000.0, -10000000.0))
-            min_ = Vector((10000000.0, 10000000.0))
-            for f in bm.faces:
-                if not f.select:
-                    continue
-                for l in f.loops:
-                    uv = l[uv_layer].uv
-                    max_.x = max(max_.x, uv.x)
-                    max_.y = max(max_.y, uv.y)
-                    min_.x = min(min_.x, uv.x)
-                    min_.y = min(min_.y, uv.y)
-            center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
+                    for f in bm.faces:
+                        if not f.select:
+                            continue
+                        for l in f.loops:
+                            uv = l[uv_layer].uv
+                            max_.x = max(max_.x, uv.x)
+                            max_.y = max(max_.y, uv.y)
+                            min_.x = min(min_.x, uv.x)
+                            min_.y = min(min_.y, uv.y)
+                            no_selected_face = False
+            if no_selected_face:
+                max_ = Vector((1.0, 1.0))
+                min_ = Vector((0.0, 0.0))
+            center = Vector((
+                (max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0
+            ))
 
+        # pylint: disable=R1702
         elif self.base == 'UV_SEL':
-            obj = context.active_object
-            bm = bmesh.from_edit_mesh(obj.data)
-            if not bm.loops.layers.uv:
-                return None
-            uv_layer = bm.loops.layers.uv.verify()
+            objs = common.get_uv_editable_objects(context)
+            no_selected_face = True
+            if objs:
+                max_ = Vector((-large_value, -large_value))
+                min_ = Vector((large_value, large_value))
+                for obj in objs:
+                    bm = bmesh.from_edit_mesh(obj.data)
+                    if not bm.loops.layers.uv:
+                        return None
+                    uv_layer = bm.loops.layers.uv.verify()
 
-            max_ = Vector((-10000000.0, -10000000.0))
-            min_ = Vector((10000000.0, 10000000.0))
-            for f in bm.faces:
-                if not f.select:
-                    continue
-                for l in f.loops:
-                    if not l[uv_layer].select:
-                        continue
-                    uv = l[uv_layer].uv
-                    max_.x = max(max_.x, uv.x)
-                    max_.y = max(max_.y, uv.y)
-                    min_.x = min(min_.x, uv.x)
-                    min_.y = min(min_.y, uv.y)
-            center = Vector(((max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0))
+                    for f in bm.faces:
+                        if not f.select:
+                            continue
+                        for l in f.loops:
+                            if not l[uv_layer].select:
+                                continue
+                            uv = l[uv_layer].uv
+                            max_.x = max(max_.x, uv.x)
+                            max_.y = max(max_.y, uv.y)
+                            min_.x = min(min_.x, uv.x)
+                            min_.y = min(min_.y, uv.y)
+                            no_selected_face = False
+            if no_selected_face:
+                max_ = Vector((1.0, 1.0))
+                min_ = Vector((0.0, 0.0))
+            center = Vector((
+                (max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0
+            ))
 
         elif self.base == 'TEXTURE':
             min_ = Vector((0.0, 0.0))
