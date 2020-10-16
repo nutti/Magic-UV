@@ -43,6 +43,12 @@ def is_console_mode():
         return False
     return os.environ["MUV_CONSOLE_MODE"] == "true"
 
+def is_valid_space(context, allowed_spaces):
+    for area in context.screen.areas:
+        for space in area.spaces:
+            if space.type in allowed_spaces:
+                return True
+    return False
 
 def is_debug_mode():
     return __DEBUG_MODE
