@@ -50,6 +50,7 @@ def is_valid_space(context, allowed_spaces):
                 return True
     return False
 
+
 def is_debug_mode():
     return __DEBUG_MODE
 
