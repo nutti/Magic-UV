@@ -49,7 +49,7 @@ def _is_valid_context(context):
         return False
 
     # only 'VIEW_3D' space is allowed to execute
-    if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
+    if not common.is_valid_space(context, ['VIEW_3D']):
         return False
 
     return True
