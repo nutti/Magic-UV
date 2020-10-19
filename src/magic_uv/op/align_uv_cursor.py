@@ -41,6 +41,7 @@ def _is_valid_context(context):
 
     return True
 
+
 @PropertyClassRegistry()
 class _Properties:
     idname = "align_uv_cursor"
