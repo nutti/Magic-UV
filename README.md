@@ -64,3 +64,4 @@ Support via [GitHub Sponsors](https://github.com/sponsors/nutti)
 
 * [**@mifth**](https://github.com/mifth)
 * [**@maxRobinot**](https://github.com/maxRobinot)
+* [**@MatthiasThDs**](https://github.com/MatthiasThDs)

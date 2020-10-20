@@ -28,7 +28,7 @@ bl_info = {
     "name": "Magic UV",
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs"
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, "
-              "Alexander Milovsky, Dusan Stevanovic",
+              "Alexander Milovsky, Dusan Stevanovic, MatthiasThDs",
     "version": (6, 3, 0),
     "blender": (2, 80, 0),
     "location": "See Add-ons Preferences",
