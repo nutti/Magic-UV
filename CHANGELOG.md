@@ -1,7 +1,60 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.3...master)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.4...master)
+
+
+## [Version 6.4](https://github.com/nutti/Magic-UV/compare/v6.3...v6.4) - 2020.X.XX
+
+
+### Updated Features
+
+* Flip/Rotate UV
+  * Support multiple objects editing mode
+* Mirror UV
+  * Support multiple objects editing mode
+* World Scale UV
+  * Support multiple objects editing mode
+* Mirror UV
+  * Support multiple objects editing mode
+* Preserve UV Aspect
+  * Support multiple objects editing mode
+* Texture Lock
+  * Support multiple objects editing mode
+* UV Sculpt
+  * Support multiple objects editing mode
+* Unwrap Constraint
+  * Support multiple objects editing mode
+* Texture Projection
+  * Support multiple objects editing mode
+* Align UV
+  * Support multiple objects editing mode
+  * Add snap to point/edge features
+* Clip UV
+  * Support multiple objects editing mode
+* Smooth UV
+  * Support multiple objects editing mode
+* Select UV
+  * Support multiple objects editing mode
+* Align UV Cursor
+  * Support multiple objects editing mode
+* Pack UV Extension
+  * Support multiple objects editing mode
+* UV Bounding Box
+  * Support multiple objects editing mode
+* UV Inspection
+  * Support multiple objects editing mode
+
+
+### Other Updates
+
+* Fix bugs
+* Refactoring
+
+
+### Contributors
+
+* [**@MatthiasThDs**](https://github.com/MatthiasThDs)
 
 
 ## [Version 6.3](https://github.com/nutti/Magic-UV/compare/v6.2...v6.3) - 2020.8.10
@@ -16,12 +69,12 @@
   * Add option "Area Calculation Method"
   * Add option "Only Selected"
 * UVW
-  * Support multiple objects
+  * Support multiple objects editing mode
 * Select UV
-  * Support multiple objects
+  * Support multiple objects editing mode
 * UV Inspection
   * Add Paint UV Island feature
-  * Support multiple objects
+  * Support multiple objects editing mode
 
 ### Other Updates
 

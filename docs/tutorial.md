@@ -456,13 +456,17 @@ UVW mapping.
 
 ### Align UV
 
-Align UV. This feature is derived from below add-on.  
-[[AddOn] UV_Tool](https://blenderartists.org/forum/showthread.php?294904-AddOn-UV_Tool)
 
 | | |
 |---|---|
 |Location|**UV Editor** > **Sidebar** > **Magic UV** > **UV Manipulation**|
 |Location (Built-in Menu)|**UV Editor** > **UVs** > **UV Manipulation**|
+
+
+#### Align
+
+Align UV. This feature is derived from below add-on.  
+[[AddOn] UV_Tool](https://blenderartists.org/forum/showthread.php?294904-AddOn-UV_Tool)
 
 [Usage]
 1. Click check box **Align UV** to show Align UV menu
@@ -481,6 +485,46 @@ Align UV. This feature is derived from below add-on.
 * If **Horizontal** property is enabled, align UVs to horizontal direction with using influence of mesh vertex location
 * **Mesh Influence** property provides a way to change the influence of mesh structure
 * In case of XY-axis alignment, you can change the location (Middle, Right/Bottom, Left/Top) after UV alignment
+
+
+#### Snap
+
+Snap UV coordinates to the specified location.
+
+**Snap to Point**
+
+Snap UV coordinates to the location specified by **Target Point**.
+
+[Usage]
+1. Click check box **Align UV** to show Align UV menu
+2. Select snap method **Point**.
+3. Set **Target Point** where UV coordinate will snap to.
+4. Set snap **Group** (See below for details).
+5. Select vertices or faces or UV islands which you want to snap.
+
+|**Group**|**Description**|
+|---|---|
+|Vertex|All selected vertices will snap to **Target Point**|
+|Face|Center of all selected faces will snap to **Target Point**|
+|UV Island|Center of all selected islands will snap to **Target Point**|
+
+
+**Snap to Edge**
+
+Snap UV coordinates to the location specified by **Target Edge**.
+
+[Usage]
+1. Click check box **Align UV** to show Align UV menu
+2. Select snap method **Edge**.
+3. Set **Target Edge** where UV edge will snap to.
+4. Set snap **Group** (See below for details).
+5. Select edges which you want to snap.
+
+|**Group**|**Description**|
+|---|---|
+|Edge|Selected edge will snap to the center of **Target Edge**|
+|Face|All edges belonging to faces which are included in selected edge will snap to the center of **Target Edge**|
+|UV Island|All edges belonging to UV islands which are included in selected edge will snap to the center of **Target Edge**|
 
 
 ### Smooth UV
