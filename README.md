@@ -9,7 +9,7 @@ Magic UV is also known as Copy/Paste UV for older version.
 So, stable version is included on **Blender**.
 Of course, you can also download older version.
 
-If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/develop.zip).
+If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/master.zip).
 
 
 ## Download
@@ -19,7 +19,7 @@ Of course, you can also download older version.
 
 You can all released version from [Release Page](https://github.com/nutti/Magic-UV/releases).
 
-If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/develop.zip).
+If you want to try newest but unstable version, you can download it from [unstable version](https://github.com/nutti/Magic-UV/archive/master.zip).
 
 
 ## Features / Tutorials

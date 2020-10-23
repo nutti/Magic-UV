@@ -7,7 +7,7 @@
 
 |Version|Download URL|
 |---|---|
-|*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/develop.zip)|
+|*unstable*|[Download](https://github.com/nutti/Magic-UV/archive/master.zip)|
 |6.4|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.4)|
 |6.3|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.3)|
 |6.2|[Download](https://github.com/nutti/Magic-UV/releases/tag/v6.2)|
