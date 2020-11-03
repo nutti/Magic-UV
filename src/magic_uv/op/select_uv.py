@@ -172,3 +172,84 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
             bmesh.update_edit_mesh(obj.data)
 
         return {'FINISHED'}
+
+
+@BlClassRegistry()
+class MUV_OT_SelectUV_ZoomSelectedUV(bpy.types.Operator):
+    """
+    Operation class: Zoom selected UV in View3D space
+    """
+
+    bl_idname = "uv.muv_select_uv_zoom_selected_uv"
+    bl_label = "Zoom Selected UV"
+    bl_description = "Zoom selected UV in View3D space"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        # we can not get area/space/region from console
+        if common.is_console_mode():
+            return True
+        return _is_valid_context(context)
+
+    def _get_override_context(self, context):
+        for window in context.window_manager.windows:
+            screen = window.screen
+            for area in screen.areas:
+                if area.type == 'VIEW_3D':
+                    for region in area.regions:
+                        if region.type == 'WINDOW':
+                            return {'window': window, 'screen': screen,
+                                    'area': area, 'region': region}
+        return None
+
+    def execute(self, context):
+        objs = common.get_uv_editable_objects(context)
+
+        bm_list = []
+        uv_layer_list = []
+        verts_list = []
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.verts.ensure_lookup_table()
+            uv_layer = bm.loops.layers.uv.verify()
+
+            sel_verts = [v for v in bm.verts if v.select]
+            bm_list.append(bm)
+            uv_layer_list.append(uv_layer)
+            verts_list.append(sel_verts)
+
+        # Get all selected UV vertices in UV Editor.
+        sel_uv_verts = []
+        for vlist, uv_layer in zip(verts_list, uv_layer_list):
+            for v in vlist:
+                for l in v.link_loops:
+                    if l[uv_layer].select or \
+                            context.tool_settings.use_uv_select_sync:
+                        sel_uv_verts.append(v)
+                        break
+
+        # Select vertices only selected in UV Editor.
+        for bm in bm_list:
+            for v in bm.verts:
+                v.select = False
+        for v in sel_uv_verts:
+            v.select = True
+        for obj in objs:
+            bmesh.update_edit_mesh(obj.data)
+
+        # Zoom.
+        override_context = self._get_override_context(context)
+        if override_context is None:
+            self.report({'WARNING'}, "More than one 'VIEW_3D' area must exist")
+            return {'CANCELLED'}
+        bpy.ops.view3d.view_selected(override_context, use_all_regions=False)
+
+        # Revert selection of verticies.
+        for v in sel_verts:
+            v.select = True
+        for obj in objs:
+            bmesh.update_edit_mesh(obj.data)
+
+        return {'FINISHED'}

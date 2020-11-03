@@ -77,7 +77,7 @@ class TestUVInspectionPaintUVIsland(common.TestBase):
         compat.set_active_object(bpy.data.objects[obj_name])
         bpy.ops.object.mode_set(mode='EDIT')
 
-    def test_paint_uv_island_only_run(self):
+    def test_only_run(self):
         print("[TEST] (Only Run)")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
@@ -88,7 +88,7 @@ class TestUVInspectionPaintUVIsland(common.TestBase):
 
     @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
                      "Not supported in <2.80")
-    def test_ok_update_multiple_objects(self):
+    def test_multiple_objects_only_run(self):
         print("[TEST] Multiple Object (Only Run)")
 
         # Duplicate object.

@@ -30,6 +30,7 @@ def test_main():
         magic_uv_test.preserve_uv_aspect_test.TestPreserveUVAspect,
         magic_uv_test.select_uv_test.TestSelectUVOverlapped,
         magic_uv_test.select_uv_test.TestSelectUVFlipped,
+        magic_uv_test.select_uv_test.TestSelectUVZoomSelectedUV,
         magic_uv_test.smooth_uv_test.TestSmoothUV,
         magic_uv_test.texture_lock_test.TestTextureLock,
         magic_uv_test.texture_projection_test.TestTextureProjection,

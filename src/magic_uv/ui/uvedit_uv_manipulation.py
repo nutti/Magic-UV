@@ -41,6 +41,7 @@ from ..op.smooth_uv import (
 from ..op.select_uv import (
     MUV_OT_SelectUV_SelectOverlapped,
     MUV_OT_SelectUV_SelectFlipped,
+    MUV_OT_SelectUV_ZoomSelectedUV,
 )
 from ..op.pack_uv import MUV_OT_PackUV
 from ..op.clip_uv import MUV_OT_ClipUV
@@ -178,6 +179,10 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
             row = box.row(align=True)
             row.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname)
             row.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname)
+
+            box.separator()
+
+            box.operator(MUV_OT_SelectUV_ZoomSelectedUV.bl_idname)
 
         box = layout.box()
         box.prop(sc, "muv_pack_uv_enabled", text="Pack UV (Extension)")
