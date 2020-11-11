@@ -333,7 +333,7 @@ def get_uvimg_editor_board_size(area):
     return (255.0, 255.0)
 
 
-def calc_polygon_2d_area(points):
+def calc_tris_2d_area(points):
     area = 0.0
     for i, p1 in enumerate(points):
         p2 = points[(i + 1) % len(points)]
@@ -345,7 +345,7 @@ def calc_polygon_2d_area(points):
     return fabs(0.5 * area)
 
 
-def calc_polygon_3d_area(points):
+def calc_tris_3d_area(points):
     area = 0.0
     for i, p1 in enumerate(points):
         p2 = points[(i + 1) % len(points)]
@@ -395,6 +395,23 @@ def get_faces_list(bm, method, only_selected):
     return faces_list
 
 
+def measure_all_faces_mesh_area(bm):
+    if compat.check_version(2, 80, 0) >= 0:
+        triangle_loops = bm.calc_loop_triangles()
+    else:
+        triangle_loops = bm.calc_tessface()
+
+    areas = {face: 0.0 for face in bm.faces}
+
+    for loops in triangle_loops:
+        face = loops[0].face
+        area = areas[face]
+        area += calc_tris_3d_area([l.vert.co for l in loops])
+        areas[face] = area
+
+    return areas
+
+
 def measure_mesh_area(obj, calc_method, only_selected):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:
@@ -406,17 +423,18 @@ def measure_mesh_area(obj, calc_method, only_selected):
 
     areas = []
     for faces in faces_list:
-        areas.append(measure_mesh_area_from_faces(faces))
+        areas.append(measure_mesh_area_from_faces(bm, faces))
 
     return areas
 
 
-def measure_mesh_area_from_faces(faces):
+def measure_mesh_area_from_faces(bm, faces):
+    face_areas = measure_all_faces_mesh_area(bm)
+
     mesh_area = 0.0
     for f in faces:
-        verts = [l.vert.co for l in f.loops]
-        f_mesh_area = calc_polygon_3d_area(verts)
-        mesh_area = mesh_area + f_mesh_area
+        if f in face_areas:
+            mesh_area += face_areas[f]
 
     return mesh_area
 
@@ -486,12 +504,34 @@ def find_images(obj, face=None, tex_layer=None):
     return images
 
 
-def measure_uv_area_from_faces(obj, faces, uv_layer, tex_layer,
+def measure_all_faces_uv_area(bm, uv_layer):
+    if compat.check_version(2, 80, 0) >= 0:
+        triangle_loops = bm.calc_loop_triangles()
+    else:
+        triangle_loops = bm.calc_tessface()
+
+    areas = {face: 0.0 for face in bm.faces}
+
+    for loops in triangle_loops:
+        face = loops[0].face
+        area = areas[face]
+        area += calc_tris_2d_area([l[uv_layer].uv for l in loops])
+        areas[face] = area
+
+    return areas
+
+
+def measure_uv_area_from_faces(obj, bm, faces, uv_layer, tex_layer,
                                tex_selection_method, tex_size):
+
+    face_areas = measure_all_faces_uv_area(bm, uv_layer)
+
     uv_area = 0.0
     for f in faces:
-        uvs = [l[uv_layer].uv for l in f.loops]
-        f_uv_area = calc_polygon_2d_area(uvs)
+        if f not in face_areas:
+            continue
+
+        f_uv_area = face_areas[f]
 
         # user specified
         if tex_selection_method == 'USER_SPECIFIED' and tex_size is not None:
@@ -547,8 +587,8 @@ def measure_uv_area_from_faces(obj, faces, uv_layer, tex_layer,
     return uv_area
 
 
-def measure_uv_area(obj, calc_method, tex_selection_method, tex_size,
-                    only_selected):
+def measure_uv_area(obj, calc_method, tex_selection_method,
+                    tex_size, only_selected):
     bm = bmesh.from_edit_mesh(obj.data)
     if check_version(2, 73, 0) >= 0:
         bm.verts.ensure_lookup_table()
@@ -565,7 +605,8 @@ def measure_uv_area(obj, calc_method, tex_selection_method, tex_size,
     uv_areas = []
     for faces in faces_list:
         uv_area = measure_uv_area_from_faces(
-            obj, faces, uv_layer, tex_layer, tex_selection_method, tex_size)
+            obj, bm, faces, uv_layer, tex_layer,
+            tex_selection_method, tex_size)
         if uv_area is None:
             return None
         uv_areas.append(uv_area)

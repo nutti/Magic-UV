@@ -97,11 +97,11 @@ def _measure_wsuv_info(obj, calc_method='MESH',
     return uv_areas, mesh_areas, densities
 
 
-def _measure_wsuv_info_from_faces(obj, faces, uv_layer, tex_layer,
+def _measure_wsuv_info_from_faces(obj, bm, faces, uv_layer, tex_layer,
                                   tex_selection_method='FIRST', tex_size=None):
-    mesh_area = common.measure_mesh_area_from_faces(faces)
+    mesh_area = common.measure_mesh_area_from_faces(bm, faces)
     uv_area = common.measure_uv_area_from_faces(
-        obj, faces, uv_layer, tex_layer, tex_selection_method, tex_size)
+        obj, bm, faces, uv_layer, tex_layer, tex_selection_method, tex_size)
 
     if not uv_area:
         return None, mesh_area, None
@@ -524,7 +524,7 @@ class MUV_OT_WorldScaleUV_ApplyManual(bpy.types.Operator):
             factors = []
             for faces in faces_list:
                 uv_area, _, density = _measure_wsuv_info_from_faces(
-                    obj, faces, uv_layer, tex_layer,
+                    obj, bm, faces, uv_layer, tex_layer,
                     tex_selection_method='USER_SPECIFIED', tex_size=tex_size)
 
                 if not uv_area:
@@ -688,20 +688,20 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
             for faces in faces_list:
                 if self.tgt_texture == "[Average]":
                     uv_area, _, density = _measure_wsuv_info_from_faces(
-                        obj, faces, uv_layer, tex_layer,
+                        obj, bm, faces, uv_layer, tex_layer,
                         tex_selection_method='AVERAGE')
                 elif self.tgt_texture == "[Max]":
                     uv_area, _, density = _measure_wsuv_info_from_faces(
-                        obj, faces, uv_layer, tex_layer,
+                        obj, bm, faces, uv_layer, tex_layer,
                         tex_selection_method='MAX')
                 elif self.tgt_texture == "[Min]":
                     uv_area, _, density = _measure_wsuv_info_from_faces(
-                        obj, faces, uv_layer, tex_layer,
+                        obj, bm, faces, uv_layer, tex_layer,
                         tex_selection_method='MIN')
                 else:
                     tgt_texture = bpy.data.images[self.tgt_texture]
                     uv_area, _, density = _measure_wsuv_info_from_faces(
-                        obj, faces, uv_layer, tex_layer,
+                        obj, bm, faces, uv_layer, tex_layer,
                         tex_selection_method='USER_SPECIFIED',
                         tex_size=tgt_texture.size)
 
@@ -889,23 +889,23 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
                 if self.tgt_texture == "[Average]":
                     uv_area, mesh_area, density = \
                         _measure_wsuv_info_from_faces(
-                            obj, faces, uv_layer, tex_layer,
+                            obj, bm, faces, uv_layer, tex_layer,
                             tex_selection_method='AVERAGE')
                 elif self.tgt_texture == "[Max]":
                     uv_area, mesh_area, density = \
                         _measure_wsuv_info_from_faces(
-                            obj, faces, uv_layer, tex_layer,
+                            obj, bm, faces, uv_layer, tex_layer,
                             tex_selection_method='MAX')
                 elif self.tgt_texture == "[Min]":
                     uv_area, mesh_area, density = \
                         _measure_wsuv_info_from_faces(
-                            obj, faces, uv_layer, tex_layer,
+                            obj, bm, faces, uv_layer, tex_layer,
                             tex_selection_method='MIN')
                 else:
                     tgt_texture = bpy.data.images[self.tgt_texture]
                     uv_area, mesh_area, density = \
                         _measure_wsuv_info_from_faces(
-                            obj, faces, uv_layer, tex_layer,
+                            obj, bm, faces, uv_layer, tex_layer,
                             tex_selection_method='USER_SPECIFIED',
                             tex_size=tgt_texture.size)
                 if not uv_area:
