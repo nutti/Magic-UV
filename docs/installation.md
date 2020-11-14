@@ -41,7 +41,8 @@ Add-on sources are located on the different places depending on the add-on versi
 
 |Version|Sources|
 |---|---|
-|6.0 - 6.4|src/magic_uv|
+|*unstable*|src/magic_uv|
+|6.0 - 6.4|magic_uv|
 |4.0 - 5.2|uv_magic_uv|
 |2.2 - 3.2|uv_copy_and_paste_uv|
 |1.0 - 2.2|uv_copy_and_paste_uv.py|
@@ -68,5 +69,6 @@ Be careful that this add-on has different name depending on the version.
 
 |Version|Name|
 |---|---|
+|*unstable*|Magic UV|
 |4.0 - 6.4|Magic UV|
 |1.0 - 3.2|Copy and Paste UV|
