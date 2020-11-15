@@ -24,12 +24,13 @@ __version__ = "6.4"
 __date__ = "23 Oct 2020"
 
 import bpy
-from bpy.props import BoolProperty
+from bpy.props import BoolProperty, FloatProperty
 import bmesh
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
@@ -61,13 +62,23 @@ class _Properties:
             description="Select UV is enabled",
             default=False
         )
+        scene.muv_select_uv_same_polygon_threshold = FloatProperty(
+            name="Same Polygon Threshold",
+            description="Threshold to distinguish same polygons",
+            default=0.000001,
+            min=0.000001,
+            max=0.01,
+            step=0.00001
+        )
 
     @classmethod
     def del_props(cls, scene):
         del scene.muv_select_uv_enabled
+        del scene.muv_select_uv_same_polygon_threshold
 
 
 @BlClassRegistry()
+@compat.make_annotations
 class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
     """
     Operation class: Select faces which have overlapped UVs
@@ -77,6 +88,15 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
     bl_label = "Overlapped"
     bl_description = "Select faces which have overlapped UVs"
     bl_options = {'REGISTER', 'UNDO'}
+
+    same_polygon_threshold = FloatProperty(
+        name="Same Polygon Threshold",
+        description="Threshold to distinguish same polygons",
+        default=0.000001,
+        min=0.000001,
+        max=0.01,
+        step=0.00001
+    )
 
     @classmethod
     def poll(cls, context):
@@ -105,8 +125,9 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
             uv_layer_list.append(uv_layer)
             faces_list.append(sel_faces)
 
-        overlapped_info = common.get_overlapped_uv_info(bm_list, faces_list,
-                                                        uv_layer_list, 'FACE')
+        overlapped_info = common.get_overlapped_uv_info(
+            bm_list, faces_list, uv_layer_list, 'FACE',
+            self.same_polygon_threshold)
 
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:

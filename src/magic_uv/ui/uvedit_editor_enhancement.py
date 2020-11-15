@@ -144,5 +144,8 @@ class MUV_PT_UVEdit_EditorEnhancement(bpy.types.Panel):
             row.prop(sc, "muv_uv_inspection_show_flipped")
             row = box.row()
             row.prop(sc, "muv_uv_inspection_show_mode")
+            if sc.muv_uv_inspection_show_overlapped:
+                row = box.row()
+                row.prop(sc, "muv_uv_inspection_same_polygon_threshold")
             box.separator()
             box.operator(MUV_OT_UVInspection_PaintUVIsland.bl_idname)

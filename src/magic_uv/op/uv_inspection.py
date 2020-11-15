@@ -27,7 +27,7 @@ import random
 from math import fabs
 
 import bpy
-from bpy.props import BoolProperty, EnumProperty
+from bpy.props import BoolProperty, EnumProperty, FloatProperty
 import bmesh
 
 from .. import common
@@ -82,7 +82,8 @@ def _update_uvinsp_info(context):
         faces_list.append(sel_faces)
 
     props.overlapped_info = common.get_overlapped_uv_info(
-        bm_list, faces_list, uv_layer_list, sc.muv_uv_inspection_show_mode)
+        bm_list, faces_list, uv_layer_list, sc.muv_uv_inspection_show_mode,
+        sc.muv_uv_inspection_same_polygon_threshold)
     props.flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
 
 
@@ -125,6 +126,14 @@ class _Properties:
             description="Show overlapped UVs",
             default=False
         )
+        scene.muv_uv_inspection_same_polygon_threshold = FloatProperty(
+            name="Same Polygon Threshold",
+            description="Threshold to distinguish same polygons",
+            default=0.000001,
+            min=0.000001,
+            max=0.01,
+            step=0.00001
+        )
         scene.muv_uv_inspection_show_flipped = BoolProperty(
             name="Flipped",
             description="Show flipped UVs",
@@ -148,6 +157,7 @@ class _Properties:
         del scene.muv_uv_inspection_show_overlapped
         del scene.muv_uv_inspection_show_flipped
         del scene.muv_uv_inspection_show_mode
+        del scene.muv_uv_inspection_same_polygon_threshold
 
 
 @BlClassRegistry()

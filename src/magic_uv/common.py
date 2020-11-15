@@ -987,7 +987,8 @@ class RingBuffer:
 
 # clip: reference polygon
 # subject: tested polygon
-def __do_weiler_atherton_cliping(clip_uvs, subject_uvs, mode):
+def __do_weiler_atherton_cliping(clip_uvs, subject_uvs, mode,
+                                 same_polygon_threshold):
 
     clip_uvs = RingBuffer(clip_uvs)
     if __is_polygon_flipped(clip_uvs):
@@ -1002,7 +1003,7 @@ def __do_weiler_atherton_cliping(clip_uvs, subject_uvs, mode):
     debug_print(subject_uvs)
 
     # check if clip and subject is overlapped completely
-    if __is_polygon_same(clip_uvs, subject_uvs):
+    if __is_polygon_same(clip_uvs, subject_uvs, same_polygon_threshold):
         polygons = [subject_uvs.as_list()]
         debug_print("===== Polygons Overlapped Completely =====")
         debug_print(polygons)
@@ -1234,7 +1235,8 @@ def get_uv_editable_objects(context):
     return objs
 
 
-def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list, mode):
+def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
+                           mode, same_polygon_threshold=0.0000001):
     # at first, check island overlapped
     isl = []
     for bm, uv_layer, faces in zip(bm_list, uv_layer_list, faces_list):
@@ -1269,9 +1271,9 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list, mode):
 
                 subject_uvs = [l[uvlp[1]].uv.copy() for l in f_subject.loops]
                 # slow operation, apply Weiler-Atherton cliping algorithm
-                result, polygons = __do_weiler_atherton_cliping(clip_uvs,
-                                                                subject_uvs,
-                                                                mode)
+                result, polygons = \
+                    __do_weiler_atherton_cliping(clip_uvs, subject_uvs,
+                                                 mode, same_polygon_threshold)
                 if result:
                     overlapped_uvs.append({"clip_face": f_clip,
                                            "subject_face": f_subject,
@@ -1298,7 +1300,7 @@ def get_flipped_uv_info(faces_list, uv_layer_list):
     return flipped_uvs
 
 
-def __is_polygon_same(points1, points2):
+def __is_polygon_same(points1, points2, threshold):
     if len(points1) != len(points2):
         return False
 
@@ -1308,7 +1310,7 @@ def __is_polygon_same(points1, points2):
     for p1 in pts1:
         for p2 in pts2:
             diff = p2 - p1
-            if diff.length < 0.0000001:
+            if diff.length < threshold:
                 pts2.remove(p2)
                 break
         else:

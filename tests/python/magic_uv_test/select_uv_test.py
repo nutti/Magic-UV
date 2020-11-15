@@ -30,7 +30,9 @@ class TestSelectUVOverlapped(common.TestBase):
     def test_ok_no_select_sync(self):
         print("[TEST] (OK) Select Overlapped with UV_Select_Sync=False")
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_select_uv_select_overlapped()
+        result = bpy.ops.uv.muv_select_uv_select_overlapped(
+            same_polygon_threshold=0.005
+        )
         self.assertSetEqual(result, {'FINISHED'})
 
     @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
@@ -88,7 +90,9 @@ class TestSelectUVOverlapped(common.TestBase):
         bpy.ops.object.mode_set(mode='EDIT')
 
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_select_uv_select_overlapped()
+        result = bpy.ops.uv.muv_select_uv_select_overlapped(
+            same_polygon_threshold=0.005
+        )
         self.assertSetEqual(result, {'FINISHED'})
 
 
