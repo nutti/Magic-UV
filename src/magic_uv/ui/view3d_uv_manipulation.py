@@ -94,7 +94,9 @@ class MUV_PT_View3D_UVManipulation(bpy.types.Panel):
             row = box.row()
             ops = row.operator(MUV_OT_MirrorUV.bl_idname, text="Mirror")
             ops.axis = sc.muv_mirror_uv_axis
+            ops.origin = sc.muv_mirror_uv_origin
             row.prop(sc, "muv_mirror_uv_axis", text="")
+            box.prop(sc, "muv_mirror_uv_origin")
 
         box = layout.box()
         box.prop(sc, "muv_move_uv_enabled", text="Move UV")

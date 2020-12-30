@@ -38,14 +38,14 @@ class TestMirrorUV(common.TestBase):
         print("[TEST] (OK) User specified 1")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=0.7)
+        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=0.7, origin='GLOBAL')
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified_2(self):
         print("[TEST] (OK) User specified 2")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
-        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=19.4)
+        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=19.4, origin='WORLD')
         self.assertSetEqual(result, {'FINISHED'})
 
     @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
@@ -73,5 +73,5 @@ class TestMirrorUV(common.TestBase):
         common.select_objects_only(obj_names)
         bpy.ops.object.mode_set(mode='EDIT')
 
-        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=19.4)
+        result = bpy.ops.uv.muv_mirror_uv(axis='Y', error=19.4, origin='GLOBAL')
         self.assertSetEqual(result, {'FINISHED'})
