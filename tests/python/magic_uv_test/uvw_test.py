@@ -43,7 +43,10 @@ class TestUVWBox(common.TestBase):
             rotation=(0.2, 0.1, 0.4),
             offset=(1.2, 5.0, -20.0),
             tex_aspect=1.3,
-            assign_uvmap=False
+            assign_uvmap=False,
+            force_axis='Z',
+            force_axis_tex_aspect_correction=1.2,
+            force_axis_rotation=(0.2, 0.1, 0.4)
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -77,7 +80,10 @@ class TestUVWBox(common.TestBase):
             rotation=(0.2, 0.1, 0.4),
             offset=(1.2, 5.0, -20.0),
             tex_aspect=1.3,
-            assign_uvmap=False
+            assign_uvmap=False,
+            force_axis='Z',
+            force_axis_tex_aspect_correction=1.2,
+            force_axis_rotation=(0.2, 0.1, 0.4)
         )
         self.assertSetEqual(result, {'FINISHED'})
 
