@@ -376,7 +376,12 @@ class MUV_OT_WorldScaleUV_Measure(bpy.types.Operator):
 
     @staticmethod
     def setup_argument(ops, scene):
-        ops.tgt_texture = scene.muv_world_scale_uv_measure_tgt_texture
+        try:
+            ops.tgt_texture = scene.muv_world_scale_uv_measure_tgt_texture
+        except TypeError:
+            # Workaround for the error raised when the items of EnumProperty
+            # are deleted.
+            ops.tgt_texture = "[Average]"
         ops.only_selected = scene.muv_world_scale_uv_measure_only_selected
 
     def execute(self, context):
@@ -659,7 +664,12 @@ class MUV_OT_WorldScaleUV_ApplyScalingDensity(bpy.types.Operator):
         ops.src_density = scene.muv_world_scale_uv_src_density
         ops.same_density = False
         ops.show_dialog = False
-        ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
+        try:
+            ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
+        except TypeError:
+            # Workaround for the error raised when the items of EnumProperty
+            # are deleted.
+            ops.tgt_texture = "[Average]"
         ops.tgt_area_calc_method = \
             scene.muv_world_scale_uv_tgt_area_calc_method
         ops.only_selected = scene.muv_world_scale_uv_apply_only_selected
@@ -859,7 +869,12 @@ class MUV_OT_WorldScaleUV_ApplyProportionalToMesh(bpy.types.Operator):
         ops.src_uv_area = scene.muv_world_scale_uv_src_uv_area
         ops.src_mesh_area = scene.muv_world_scale_uv_src_mesh_area
         ops.show_dialog = False
-        ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
+        try:
+            ops.tgt_texture = scene.muv_world_scale_uv_apply_tgt_texture
+        except TypeError:
+            # Workaround for the error raised when the items of EnumProperty
+            # are deleted.
+            ops.tgt_texture = "[Average]"
         ops.tgt_area_calc_method = \
             scene.muv_world_scale_uv_tgt_area_calc_method
         ops.only_selected = scene.muv_world_scale_uv_apply_only_selected
