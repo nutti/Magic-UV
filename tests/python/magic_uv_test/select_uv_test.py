@@ -31,7 +31,9 @@ class TestSelectUVOverlapped(common.TestBase):
         print("[TEST] (OK) Select Overlapped with UV_Select_Sync=False")
         bpy.context.tool_settings.use_uv_select_sync = False
         result = bpy.ops.uv.muv_select_uv_select_overlapped(
-            same_polygon_threshold=0.005
+            same_polygon_threshold=0.005,
+            selection_method='RESET',
+            sync_mesh_selection=True
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -91,7 +93,9 @@ class TestSelectUVOverlapped(common.TestBase):
 
         bpy.context.tool_settings.use_uv_select_sync = False
         result = bpy.ops.uv.muv_select_uv_select_overlapped(
-            same_polygon_threshold=0.005
+            same_polygon_threshold=0.005,
+            selection_method='RESET',
+            sync_mesh_selection=True
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -120,7 +124,10 @@ class TestSelectUVFlipped(common.TestBase):
     def test_ok_no_select_sync(self):
         print("[TEST] (OK) Select Flipped with UV_Select_Sync=False")
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_select_uv_select_flipped()
+        result = bpy.ops.uv.muv_select_uv_select_flipped(
+            selection_method='RESET',
+            sync_mesh_selection=True
+        )
         self.assertSetEqual(result, {'FINISHED'})
 
     @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
@@ -178,7 +185,10 @@ class TestSelectUVFlipped(common.TestBase):
         bpy.ops.object.mode_set(mode='EDIT')
 
         bpy.context.tool_settings.use_uv_select_sync = False
-        result = bpy.ops.uv.muv_select_uv_select_flipped()
+        result = bpy.ops.uv.muv_select_uv_select_flipped(
+            selection_method='RESET',
+            sync_mesh_selection=True
+        )
         self.assertSetEqual(result, {'FINISHED'})
 
 

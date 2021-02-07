@@ -24,7 +24,7 @@ __version__ = "6.4"
 __date__ = "23 Oct 2020"
 
 import bpy
-from bpy.props import BoolProperty, FloatProperty
+from bpy.props import BoolProperty, FloatProperty, EnumProperty
 import bmesh
 
 from .. import common
@@ -70,6 +70,21 @@ class _Properties:
             max=0.01,
             step=0.00001
         )
+        scene.muv_select_uv_selection_method = EnumProperty(
+            name="Selection Method",
+            description="How to select faces which have overlapped UVs",
+            items=[
+                ('EXTEND', "Extend",
+                 "Select faces without unselecting selected faces"),
+                ('RESET', "Reset", "Select faces and unselect selected faces"),
+            ],
+            default='RESET'
+        )
+        scene.muv_select_uv_sync_mesh_selection = BoolProperty(
+            name="Sync Mesh Selection",
+            description="Select the mesh's faces as well as UV's faces",
+            default=False
+        )
 
     @classmethod
     def del_props(cls, scene):
@@ -97,6 +112,21 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         max=0.01,
         step=0.00001
     )
+    selection_method = EnumProperty(
+        name="Selection Method",
+        description="How to select faces which have overlapped UVs",
+        items=[
+            ('EXTEND', "Extend",
+             "Select faces without unselecting selected faces"),
+            ('RESET', "Reset", "Select faces and unselect selected faces"),
+        ],
+        default='RESET'
+    )
+    sync_mesh_selection = BoolProperty(
+        name="Sync Mesh Selection",
+        description="Select mesh's faces as well as UV's faces",
+        default=False
+    )
 
     @classmethod
     def poll(cls, context):
@@ -104,6 +134,12 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
         if common.is_console_mode():
             return True
         return _is_valid_context(context)
+
+    @staticmethod
+    def setup_argument(ops, scene):
+        ops.same_polygon_threshold = scene.muv_select_uv_same_polygon_threshold
+        ops.selection_method = scene.muv_select_uv_selection_method
+        ops.sync_mesh_selection = scene.muv_select_uv_sync_mesh_selection
 
     def execute(self, context):
         objs = common.get_uv_editable_objects(context)
@@ -129,10 +165,25 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
             bm_list, faces_list, uv_layer_list, 'FACE',
             self.same_polygon_threshold)
 
+        if self.selection_method == 'RESET':
+            if context.tool_settings.use_uv_select_sync:
+                for faces in faces_list:
+                    for f in faces:
+                        f.select = False
+            else:
+                for uv_layer, faces in zip(uv_layer_list, faces_list):
+                    for f in faces:
+                        if self.sync_mesh_selection:
+                            f.select = False
+                        for l in f.loops:
+                            l[uv_layer].select = False
+
         for info in overlapped_info:
             if context.tool_settings.use_uv_select_sync:
                 info["subject_face"].select = True
             else:
+                if self.sync_mesh_selection:
+                    info["subject_face"].select = True
                 for l in info["subject_face"].loops:
                     l[info["subject_uv_layer"]].select = True
 
@@ -143,6 +194,7 @@ class MUV_OT_SelectUV_SelectOverlapped(bpy.types.Operator):
 
 
 @BlClassRegistry()
+@compat.make_annotations
 class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
     """
     Operation class: Select faces which have flipped UVs
@@ -153,12 +205,33 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
     bl_description = "Select faces which have flipped UVs"
     bl_options = {'REGISTER', 'UNDO'}
 
+    selection_method = EnumProperty(
+        name="Selection Method",
+        description="How to select faces which have overlapped UVs",
+        items=[
+            ('EXTEND', "Extend",
+             "Select faces without unselecting selected faces"),
+            ('RESET', "Reset", "Select faces and unselect selected faces"),
+        ],
+        default='RESET'
+    )
+    sync_mesh_selection = BoolProperty(
+        name="Sync Mesh Selection",
+        description="Select mesh's faces as well as UV's faces",
+        default=False
+    )
+
     @classmethod
     def poll(cls, context):
         # we can not get area/space/region from console
         if common.is_console_mode():
             return True
         return _is_valid_context(context)
+
+    @staticmethod
+    def setup_argument(ops, scene):
+        ops.selection_method = scene.muv_select_uv_selection_method
+        ops.sync_mesh_selection = scene.muv_select_uv_sync_mesh_selection
 
     def execute(self, context):
         objs = common.get_uv_editable_objects(context)
@@ -182,10 +255,25 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
 
         flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
 
+        if self.selection_method == 'RESET':
+            if context.tool_settings.use_uv_select_sync:
+                for faces in faces_list:
+                    for f in faces:
+                        f.select = False
+            else:
+                for uv_layer, faces in zip(uv_layer_list, faces_list):
+                    for f in faces:
+                        if self.sync_mesh_selection:
+                            f.select = False
+                        for l in f.loops:
+                            l[uv_layer].select = False
+
         for info in flipped_info:
             if context.tool_settings.use_uv_select_sync:
                 info["face"].select = True
             else:
+                if self.sync_mesh_selection:
+                    info["face"].select = True
                 for l in info["face"].loops:
                     l[info["uv_layer"]].select = True
 

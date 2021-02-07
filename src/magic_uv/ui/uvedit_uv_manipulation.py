@@ -178,13 +178,15 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
         if sc.muv_select_uv_enabled:
             row = box.row(align=True)
             ops = row.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname)
-            ops.same_polygon_threshold = \
-                sc.muv_select_uv_same_polygon_threshold
-            row.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname)
+            MUV_OT_SelectUV_SelectOverlapped.setup_argument(ops, sc)
+            ops = row.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname)
+            MUV_OT_SelectUV_SelectFlipped.setup_argument(ops, sc)
 
             col = box.column()
             col.label(text="Same Polygon Threshold:")
             col.prop(sc, "muv_select_uv_same_polygon_threshold", text="")
+            col.prop(sc, "muv_select_uv_selection_method")
+            col.prop(sc, "muv_select_uv_sync_mesh_selection")
 
             box.separator()
 

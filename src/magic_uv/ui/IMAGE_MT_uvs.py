@@ -123,13 +123,16 @@ class MUV_MT_SelectUV(bpy.types.Menu):
     bl_label = "Select UV"
     bl_description = "Select UV"
 
-    def draw(self, _):
+    def draw(self, context):
+        sc = context.scene
         layout = self.layout
 
-        layout.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname,
-                        text="Overlapped")
-        layout.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname,
-                        text="Flipped")
+        ops = layout.operator(MUV_OT_SelectUV_SelectOverlapped.bl_idname,
+                              text="Overlapped")
+        MUV_OT_SelectUV_SelectOverlapped.setup_argument(ops, sc)
+        ops = layout.operator(MUV_OT_SelectUV_SelectFlipped.bl_idname,
+                              text="Flipped")
+        MUV_OT_SelectUV_SelectFlipped.setup_argument(ops, sc)
 
 
 @BlClassRegistry()
