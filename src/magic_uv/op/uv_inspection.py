@@ -64,6 +64,7 @@ def _update_uvinsp_info(context):
     props = sc.muv_props.uv_inspection
     objs = common.get_uv_editable_objects(context)
 
+    bm_to_obj = {}      # { Object: BMesh }
     bm_list = []
     uv_layer_list = []
     faces_list = []
@@ -77,6 +78,7 @@ def _update_uvinsp_info(context):
             sel_faces = [f for f in bm.faces]
         else:
             sel_faces = [f for f in bm.faces if f.select]
+        bm_to_obj[bm] = obj
         bm_list.append(bm)
         uv_layer_list.append(uv_layer)
         faces_list.append(sel_faces)
@@ -84,7 +86,27 @@ def _update_uvinsp_info(context):
     props.overlapped_info = common.get_overlapped_uv_info(
         bm_list, faces_list, uv_layer_list, sc.muv_uv_inspection_show_mode,
         sc.muv_uv_inspection_same_polygon_threshold)
-    props.flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
+    props.flipped_info = common.get_flipped_uv_info(
+        bm_list, faces_list, uv_layer_list)
+
+    if sc.muv_uv_inspection_display_in_v3d:
+        props.overlapped_info_for_v3d = {}
+        for info in props.overlapped_info:
+            bm = info["subject_bmesh"]
+            face = info["subject_face"]
+            obj = bm_to_obj[bm]
+            if obj not in props.overlapped_info_for_v3d:
+                props.overlapped_info_for_v3d[obj] = []
+            props.overlapped_info_for_v3d[obj].append(face.index)
+
+        props.filpped_info_for_v3d = {}
+        for info in props.flipped_info:
+            bm = info["bmesh"]
+            face = info["face"]
+            obj = bm_to_obj[bm]
+            if obj not in props.filpped_info_for_v3d:
+                props.filpped_info_for_v3d[obj] = []
+            props.filpped_info_for_v3d[obj].append(face.index)
 
 
 @PropertyClassRegistry()
@@ -96,6 +118,8 @@ class _Properties:
         class Props():
             overlapped_info = []
             flipped_info = []
+            overlapped_info_for_v3d = {}    # { Object: [face_indices] }
+            filpped_info_for_v3d = {}       # { Object: [face_indices] }
 
         scene.muv_props.uv_inspection = Props()
 
@@ -126,18 +150,15 @@ class _Properties:
             description="Show overlapped UVs",
             default=False
         )
-        scene.muv_uv_inspection_same_polygon_threshold = FloatProperty(
-            name="Same Polygon Threshold",
-            description="Threshold to distinguish same polygons",
-            default=0.000001,
-            min=0.000001,
-            max=0.01,
-            step=0.00001
-        )
         scene.muv_uv_inspection_show_flipped = BoolProperty(
             name="Flipped",
             description="Show flipped UVs",
             default=False
+        )
+        scene.muv_uv_inspection_display_in_v3d = BoolProperty(
+            name="Display View3D",
+            description="Display overlapped/flipped faces on View3D",
+            default=True
         )
         scene.muv_uv_inspection_show_mode = EnumProperty(
             name="Mode",
@@ -148,6 +169,14 @@ class _Properties:
             ],
             default='PART'
         )
+        scene.muv_uv_inspection_same_polygon_threshold = FloatProperty(
+            name="Same Polygon Threshold",
+            description="Threshold to distinguish same polygons",
+            default=0.000001,
+            min=0.000001,
+            max=0.01,
+            step=0.00001
+        )
 
     @classmethod
     def del_props(cls, scene):
@@ -156,6 +185,7 @@ class _Properties:
         del scene.muv_uv_inspection_show
         del scene.muv_uv_inspection_show_overlapped
         del scene.muv_uv_inspection_show_flipped
+        del scene.muv_uv_inspection_display_in_v3d
         del scene.muv_uv_inspection_show_mode
         del scene.muv_uv_inspection_same_polygon_threshold
 
@@ -172,6 +202,7 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
     bl_label = "Overlapped/Flipped UV renderer"
 
     __handle = None
+    __handle_v3d = None
 
     @classmethod
     def poll(cls, context):
@@ -191,12 +222,71 @@ class MUV_OT_UVInspection_Render(bpy.types.Operator):
             MUV_OT_UVInspection_Render.draw, (obj, context),
             'WINDOW', 'POST_PIXEL')
 
+        sv3d = bpy.types.SpaceView3D
+        cls.__handle_v3d = sv3d.draw_handler_add(
+            MUV_OT_UVInspection_Render.draw_v3d, (obj, context),
+            'WINDOW', 'POST_VIEW')
+
     @classmethod
     def handle_remove(cls):
         if cls.__handle is not None:
             bpy.types.SpaceImageEditor.draw_handler_remove(
                 cls.__handle, 'WINDOW')
             cls.__handle = None
+
+        if cls.__handle_v3d is not None:
+            bpy.types.SpaceView3D.draw_handler_remove(
+                cls.__handle_v3d, 'WINDOW')
+
+    @staticmethod
+    def draw_v3d(_, context):
+        sc = context.scene
+        props = sc.muv_props.uv_inspection
+        user_prefs = compat.get_user_preferences(context)
+        prefs = user_prefs.addons["magic_uv"].preferences
+
+        if not MUV_OT_UVInspection_Render.is_running(context):
+            return
+
+        if not sc.muv_uv_inspection_display_in_v3d:
+            return
+
+        # OpenGL configuration.
+        bgl.glEnable(bgl.GL_BLEND)
+        bgl.glEnable(bgl.GL_DEPTH_TEST)
+
+        # Render faces whose UV is overlapped.
+        if sc.muv_uv_inspection_show_overlapped:
+            color = prefs.uv_inspection_overlapped_color_for_v3d
+            for obj, findices in props.overlapped_info_for_v3d.items():
+                world_mat = obj.matrix_world
+                bm = bmesh.from_edit_mesh(obj.data)
+
+                for fidx in findices:
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    for l in bm.faces[fidx].loops:
+                        co = compat.matmul(world_mat, l.vert.co)
+                        bgl.glVertex3f(co[0], co[1], co[2])
+                    bgl.glEnd()
+
+        # Render faces whose UV is flipped.
+        if sc.muv_uv_inspection_show_flipped:
+            color = prefs.uv_inspection_flipped_color_for_v3d
+            for obj, findices in props.filpped_info_for_v3d.items():
+                world_mat = obj.matrix_world
+                bm = bmesh.from_edit_mesh(obj.data)
+
+                for fidx in findices:
+                    bgl.glBegin(bgl.GL_TRIANGLE_FAN)
+                    bgl.glColor4f(color[0], color[1], color[2], color[3])
+                    for l in bm.faces[fidx].loops:
+                        co = compat.matmul(world_mat, l.vert.co)
+                        bgl.glVertex3f(co[0], co[1], co[2])
+                    bgl.glEnd()
+
+        bgl.glDisable(bgl.GL_DEPTH_TEST)
+        bgl.glDisable(bgl.GL_BLEND)
 
     @staticmethod
     def draw(_, context):

@@ -1241,21 +1241,25 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
     isl = []
     for bm, uv_layer, faces in zip(bm_list, uv_layer_list, faces_list):
         info = get_island_info_from_faces(bm, faces, uv_layer)
-        isl.extend([(i, uv_layer) for i in info])
+        isl.extend([(i, uv_layer, bm) for i in info])
 
     overlapped_isl_pairs = []
     overlapped_uv_layer_pairs = []
-    for i, (i1, uv_layer_1) in enumerate(isl):
-        for i2, uv_layer_2 in isl[i + 1:]:
+    overlapped_bm_paris = []
+    for i, (i1, uv_layer_1, bm_1) in enumerate(isl):
+        for i2, uv_layer_2, bm_2 in isl[i + 1:]:
             if (i1["max"].x < i2["min"].x) or (i2["max"].x < i1["min"].x) or \
                (i1["max"].y < i2["min"].y) or (i2["max"].y < i1["min"].y):
                 continue
             overlapped_isl_pairs.append([i1, i2])
             overlapped_uv_layer_pairs.append([uv_layer_1, uv_layer_2])
+            overlapped_bm_paris.append([bm_1, bm_2])
 
     # next, check polygon overlapped
     overlapped_uvs = []
-    for oip, uvlp in zip(overlapped_isl_pairs, overlapped_uv_layer_pairs):
+    for oip, uvlp, bmp in zip(overlapped_isl_pairs,
+                              overlapped_uv_layer_pairs,
+                              overlapped_bm_paris):
         for clip in oip[0]["faces"]:
             f_clip = clip["face"]
             clip_uvs = [l[uvlp[0]].uv.copy() for l in f_clip.loops]
@@ -1275,7 +1279,9 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
                     __do_weiler_atherton_cliping(clip_uvs, subject_uvs,
                                                  mode, same_polygon_threshold)
                 if result:
-                    overlapped_uvs.append({"clip_face": f_clip,
+                    overlapped_uvs.append({"clip_bmesh": bmp[0],
+                                           "subject_bmesh": bmp[1],
+                                           "clip_face": f_clip,
                                            "subject_face": f_subject,
                                            "clip_uv_layer": uvlp[0],
                                            "subject_uv_layer": uvlp[1],
@@ -1285,14 +1291,15 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
     return overlapped_uvs
 
 
-def get_flipped_uv_info(faces_list, uv_layer_list):
+def get_flipped_uv_info(bm_list, faces_list, uv_layer_list):
     flipped_uvs = []
-    for faces, uv_layer in zip(faces_list, uv_layer_list):
+    for bm, faces, uv_layer in zip(bm_list, faces_list, uv_layer_list):
         for f in faces:
             polygon = RingBuffer([l[uv_layer].uv.copy() for l in f.loops])
             if __is_polygon_flipped(polygon):
                 uvs = [l[uv_layer].uv.copy() for l in f.loops]
-                flipped_uvs.append({"face": f,
+                flipped_uvs.append({"bmesh": bm,
+                                    "face": f,
                                     "uv_layer": uv_layer,
                                     "uvs": uvs,
                                     "polygons": [polygon.as_list()]})

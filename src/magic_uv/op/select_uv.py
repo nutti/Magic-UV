@@ -253,7 +253,8 @@ class MUV_OT_SelectUV_SelectFlipped(bpy.types.Operator):
             uv_layer_list.append(uv_layer)
             faces_list.append(sel_faces)
 
-        flipped_info = common.get_flipped_uv_info(faces_list, uv_layer_list)
+        flipped_info = common.get_flipped_uv_info(
+            bm_list, faces_list, uv_layer_list)
 
         if self.selection_method == 'RESET':
             if context.tool_settings.use_uv_select_sync:

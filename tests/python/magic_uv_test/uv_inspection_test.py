@@ -24,6 +24,7 @@ class TestUVInspection(common.TestBase):
         sc = bpy.context.scene
         sc.muv_uv_inspection_show_overlapped = True
         sc.muv_uv_inspection_show_flipped = True
+        sc.muv_uv_inspection_display_in_v3d = True
         sc.muv_uv_inspection_show_mode = 'FACE'
 
     def test_ok_update_single_object(self):
