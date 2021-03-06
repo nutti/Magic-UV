@@ -168,6 +168,8 @@ Make mirrored UV. This feature is derived from below add-on.
 4. Click **Mirror**
 
 * **Error** property can change the error threshold for mirror
+* **Origin** property specifies the origin of the mirror operation
+
 
 ### Move UV
 
@@ -433,6 +435,7 @@ Project the texture to the mesh while displaying texture image in 3D View.
 * **Magnitude** property (only available if Adjust Window is disabled) provides a way to change size of displayed texture
 * If **Texture Aspect Ratio** property is enabled, keep the original aspect of the displayed texture
 * If **Assign UV Map** property is enabled, assign new UV map when no UV is assigned to the mesh
+* **Scaling** , **Rotation** , **Translation** properties provide a way to apply the affine transformation to the displayed texture
 
 
 ### UVW
@@ -452,6 +455,7 @@ UVW mapping.
 
 * If **Assign UV Map** property is enabled, assign new UV map when no UV is assigned to the mesh
 * You can tweak mapping configuration by the property
+* **Force Axis** property specifies the axis to apply force mapping
 
 
 ### Align UV
@@ -565,6 +569,11 @@ Select UV under the specific condition.
 |Overlapped|Select all overlapped UVs|
 |Flipped|Select all flipped UVs|
 
+* Zoom selected UV in View3D by clicking **Zoom Selected UV**
+* **Same Polygon Threshold** property provides a way to set a threshold for judging the same polygons
+* **Selection Method** property specify how to select the faces
+* If **Sync Mesh Selection** is enabled, Select the mesh's faces as well as UV's faces
+
 
 ### Pack UV (Extension)
 
@@ -675,6 +684,8 @@ Inspect UV and help you to find which UV is on the abnormal condition.
 * If **Overlapped** property is enabled, the overlapped part/face is enhanced
 * If **Flipped** property is enabled, the flipped part/face is enhanced
 * If you specify **Part** in **Mode** property, enhance only to the overlapped/flipped part. If you specify **Face**, enhance the overlapped/flipped face
+* **Same Polygon Threshold** property provides a way to set a threshold for judging the same polygons
+* If **Display View3D** is enabled, display overlapped/flipped faces on View3D as well as UV Editor
 
 
 #### Paint UV island

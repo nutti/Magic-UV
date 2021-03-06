@@ -1,7 +1,33 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.4...master)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.5...master)
+
+
+## [Version 6.5](https://github.com/nutti/Magic-UV/compare/v6.4...v6.5) - 2021.XX.XX
+
+
+### Updated Features
+
+* Texture Projection
+  * Add option "Scaling", "Rotation", "Translation"
+* Select UV
+  * Add Zoom Selected UV feature
+  * Add option "Same Polygon Threshold"
+  * Add option "Selection Method"
+  * Add option "Sync Mesh Selection"
+* UV Inspection
+  * Add option "Same Polygon Threshold"
+  * Add option "Display View3D"
+* Mirror UV
+  * Add option "Origin"
+* UVW
+  * Add option "Force Axis"
+
+
+### Other Updates
+
+* Fix bugs
 
 
 ## [Version 6.4](https://github.com/nutti/Magic-UV/compare/v6.3...v6.4) - 2020.10.23
