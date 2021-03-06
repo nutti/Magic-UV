@@ -4,7 +4,7 @@
 ## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.5...master)
 
 
-## [Version 6.5](https://github.com/nutti/Magic-UV/compare/v6.4...v6.5) - 2021.XX.XX
+## [Version 6.5](https://github.com/nutti/Magic-UV/compare/v6.4...v6.5) - 2021.3.6
 
 
 ### Updated Features
