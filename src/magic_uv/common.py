@@ -1200,12 +1200,22 @@ def __is_polygon_flipped(points):
 
 
 def __is_point_in_polygon(point, subject_points):
+    """Return true when point is inside of the polygon by using
+    'Crossing number algorithm'.
+    """
+
     count = 0
     for i in range(len(subject_points)):
         uv_start1 = subject_points.get(i)
         uv_end1 = subject_points.get(i + 1)
         uv_start2 = point
         uv_end2 = Vector((1000000.0, point.y))
+
+        # If the point exactly matches to the point of the polygon,
+        # this point is not in polygon.
+        if uv_start1.x == uv_start2.x and uv_start1.y == uv_start2.y:
+            return False
+
         intersected, _ = __is_segment_intersect(uv_start1, uv_end1,
                                                 uv_start2, uv_end2)
         if intersected:
