@@ -131,7 +131,7 @@ def register_updater(bl_info):
     config.owner = "nutti"
     config.repository = "Magic-UV"
     config.current_addon_path = os.path.dirname(os.path.realpath(__file__))
-    config.branches = ["master"]
+    config.branches = ["master", "develop"]
     config.addon_directory = \
         config.current_addon_path[
             :config.current_addon_path.rfind(get_separator())]
@@ -139,6 +139,7 @@ def register_updater(bl_info):
     config.default_target_addon_path = "magic_uv"
     config.target_addon_path = {
         "master": "src{}magic_uv".format(get_separator()),
+        "develop": "src{}magic_uv".format(get_separator()),
     }
     updater = AddonUpdaterManager.get_instance()
     updater.init(bl_info, config)
