@@ -172,8 +172,8 @@ class _Properties:
         scene.muv_uv_inspection_same_polygon_threshold = FloatProperty(
             name="Same Polygon Threshold",
             description="Threshold to distinguish same polygons",
-            default=0.000001,
-            min=0.000001,
+            default=0.00001,
+            min=0.00001,
             max=0.01,
             step=0.00001
         )

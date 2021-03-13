@@ -1200,12 +1200,22 @@ def __is_polygon_flipped(points):
 
 
 def __is_point_in_polygon(point, subject_points):
+    """Return true when point is inside of the polygon by using
+    'Crossing number algorithm'.
+    """
+
     count = 0
     for i in range(len(subject_points)):
         uv_start1 = subject_points.get(i)
         uv_end1 = subject_points.get(i + 1)
         uv_start2 = point
         uv_end2 = Vector((1000000.0, point.y))
+
+        # If the point exactly matches to the point of the polygon,
+        # this point is not in polygon.
+        if uv_start1.x == uv_start2.x and uv_start1.y == uv_start2.y:
+            return False
+
         intersected, _ = __is_segment_intersect(uv_start1, uv_end1,
                                                 uv_start2, uv_end2)
         if intersected:
@@ -1255,7 +1265,7 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
             overlapped_uv_layer_pairs.append([uv_layer_1, uv_layer_2])
             overlapped_bm_paris.append([bm_1, bm_2])
 
-    # next, check polygon overlapped
+    # check polygon overlapped (inter UV islands)
     overlapped_uvs = []
     for oip, uvlp, bmp in zip(overlapped_isl_pairs,
                               overlapped_uv_layer_pairs,
@@ -1285,6 +1295,41 @@ def get_overlapped_uv_info(bm_list, faces_list, uv_layer_list,
                                            "subject_face": f_subject,
                                            "clip_uv_layer": uvlp[0],
                                            "subject_uv_layer": uvlp[1],
+                                           "subject_uvs": subject_uvs,
+                                           "polygons": polygons})
+
+    # check polygon overlapped (intra UV island)
+    for info, uv_layer, bm in isl:
+        for i in range(len(info["faces"])):
+            clip = info["faces"][i]
+            f_clip = clip["face"]
+            clip_uvs = [l[uv_layer].uv.copy() for l in f_clip.loops]
+            for j in range(len(info["faces"])):
+                if j <= i:
+                    continue
+
+                subject = info["faces"][j]
+                f_subject = subject["face"]
+
+                # fast operation, apply bounding box algorithm
+                if (clip["max_uv"].x < subject["min_uv"].x) or \
+                   (subject["max_uv"].x < clip["min_uv"].x) or \
+                   (clip["max_uv"].y < subject["min_uv"].y) or \
+                   (subject["max_uv"].y < clip["min_uv"].y):
+                    continue
+
+                subject_uvs = [l[uv_layer].uv.copy() for l in f_subject.loops]
+                # slow operation, apply Weiler-Atherton cliping algorithm
+                result, polygons = \
+                    __do_weiler_atherton_cliping(clip_uvs, subject_uvs,
+                                                 mode, same_polygon_threshold)
+                if result:
+                    overlapped_uvs.append({"clip_bmesh": bm,
+                                           "subject_bmesh": bm,
+                                           "clip_face": f_clip,
+                                           "subject_face": f_subject,
+                                           "clip_uv_layer": uv_layer,
+                                           "subject_uv_layer": uv_layer,
                                            "subject_uvs": subject_uvs,
                                            "polygons": polygons})
 
