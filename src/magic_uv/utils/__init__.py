@@ -28,11 +28,13 @@ if "bpy" in locals():
     importlib.reload(addon_updater)
     importlib.reload(bl_class_registry)
     importlib.reload(compatibility)
+    importlib.reload(graph)
     importlib.reload(property_class_registry)
 else:
     from . import addon_updater
     from . import bl_class_registry
     from . import compatibility
+    from . import graph
     from . import property_class_registry
 
 import bpy

@@ -28,6 +28,8 @@ import bpy
 from ..op.copy_paste_uv_uvedit import (
     MUV_OT_CopyPasteUVUVEdit_CopyUV,
     MUV_OT_CopyPasteUVUVEdit_PasteUV,
+    MUV_OT_CopyPasteUVUVEdit_CopyUVIsland,
+    MUV_OT_CopyPasteUVUVEdit_PasteUVIsland,
 )
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils import compatibility as compat
@@ -50,9 +52,22 @@ class MUV_PT_UVEdit_CopyPasteUV(bpy.types.Panel):
         layout = self.layout
         layout.label(text="", icon=compat.icon('IMAGE'))
 
-    def draw(self, _):
+    def draw(self, context):
         layout = self.layout
+        sc = context.scene
 
+        layout.label(text="Face:")
         row = layout.row(align=True)
         row.operator(MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname, text="Copy")
         row.operator(MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname, text="Paste")
+
+        layout.separator()
+
+        layout.label(text="Island:")
+        row = layout.row(align=True)
+        row.operator(MUV_OT_CopyPasteUVUVEdit_CopyUVIsland.bl_idname,
+                     text="Copy")
+        ops = row.operator(MUV_OT_CopyPasteUVUVEdit_PasteUVIsland.bl_idname,
+                           text="Paste")
+        ops.unique_target = sc.muv_copy_paste_uv_uvedit_unique_target
+        layout.prop(sc, "muv_copy_paste_uv_uvedit_unique_target")

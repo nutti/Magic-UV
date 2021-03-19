@@ -302,6 +302,30 @@ def get_island_info(obj, only_selected=True):
     return get_island_info_from_bmesh(bm, only_selected)
 
 
+# Return island info.
+#
+# Format:
+#
+# [
+#   {
+#     faces: [
+#       {
+#         face: BMFace
+#         max_uv: Vector (2D)
+#         min_uv: Vector (2D)
+#         ave_uv: Vector (2D)
+#       },
+#       ...
+#     ]
+#     center: Vector (2D)
+#     size: Vector (2D)
+#     num_uv: int
+#     group: int
+#     max: Vector (2D)
+#     min: Vector (2D)
+#   },
+#   ...
+# ]
 def get_island_info_from_bmesh(bm, only_selected=True):
     if not bm.loops.layers.uv:
         return None

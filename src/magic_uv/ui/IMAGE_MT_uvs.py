@@ -28,6 +28,8 @@ import bpy
 from ..op.copy_paste_uv_uvedit import (
     MUV_OT_CopyPasteUVUVEdit_CopyUV,
     MUV_OT_CopyPasteUVUVEdit_PasteUV,
+    MUV_OT_CopyPasteUVUVEdit_CopyUVIsland,
+    MUV_OT_CopyPasteUVUVEdit_PasteUVIsland,
 )
 from ..op.align_uv_cursor import MUV_OT_AlignUVCursor
 from ..op.align_uv import (
@@ -58,12 +60,21 @@ class MUV_MT_CopyPasteUV_UVEdit(bpy.types.Menu):
     bl_label = "Copy/Paste UV"
     bl_description = "Copy and Paste UV coordinate among object"
 
-    def draw(self, _):
+    def draw(self, context):
         layout = self.layout
+        sc = context.scene
 
+        layout.label(text="Face")
         layout.operator(MUV_OT_CopyPasteUVUVEdit_CopyUV.bl_idname, text="Copy")
         layout.operator(MUV_OT_CopyPasteUVUVEdit_PasteUV.bl_idname,
                         text="Paste")
+
+        layout.label(text="Island")
+        layout.operator(MUV_OT_CopyPasteUVUVEdit_CopyUVIsland.bl_idname,
+                        text="Copy")
+        ops = layout.operator(MUV_OT_CopyPasteUVUVEdit_PasteUVIsland.bl_idname,
+                              text="Paste")
+        ops.unique_target = sc.muv_copy_paste_uv_uvedit_unique_target
 
 
 @BlClassRegistry()
