@@ -34,7 +34,7 @@ from bpy.props import BoolProperty
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..utils.graph import Graph, Node, graph_is_isomorphic
+from ..utils.graph import graph_is_isomorphic
 from ..utils import compatibility as compat
 
 
@@ -335,65 +335,6 @@ class MUV_OT_CopyPasteUVUVEdit_PasteUVIsland(bpy.types.Operator):
             return False
         return _is_valid_context(context)
 
-    def _is_connected(self, l1, l2, uv_layer):
-        uv1 = l1[uv_layer].uv
-        uv2 = l2[uv_layer].uv
-        return uv1.x == uv2.x and uv1.y == uv2.y
-
-    def _create_uv_graph(self, loops, uv_layer):
-        # For looking up faster.
-        loop_index_to_loop = {}     # { loop index: loop }
-        for l in loops:
-            loop_index_to_loop[l.index] = l
-
-        # Setup relationship between uv_vert and loops.
-        # uv_vert is a representative of the loops which shares same
-        # UV coordinate.
-        uv_vert_to_loops = {}   # { uv_vert: loops belonged to uv_vert }
-        loop_to_uv_vert = {}    # { loop: uv_vert belonged to }
-        for l in loops:
-            found = False
-            for k in uv_vert_to_loops.keys():
-                if self._is_connected(k, l, uv_layer):
-                    uv_vert_to_loops[k].append(l)
-                    loop_to_uv_vert[l] = k
-                    found = True
-                    break
-            if not found:
-                uv_vert_to_loops[l] = [l]
-                loop_to_uv_vert[l] = l
-
-        # Collect adjacent uv_vert.
-        uv_adj_verts = {}       # { uv_vert: adj uv_vert list }
-        for v, vs in uv_vert_to_loops.items():
-            uv_adj_verts[v] = []
-            for ll in vs:
-                ln = ll.link_loop_next
-                lp = ll.link_loop_prev
-                uv_adj_verts[v].append(loop_to_uv_vert[ln])
-                uv_adj_verts[v].append(loop_to_uv_vert[lp])
-            uv_adj_verts[v] = list(set(uv_adj_verts[v]))
-
-        # Setup uv_vert graph.
-        graph = Graph()
-        for v in uv_adj_verts.keys():
-            graph.add_node(
-                Node(v.index, {"uv_vert": v, "loops": uv_vert_to_loops[v]})
-            )
-        edges = []
-        for v, adjs in uv_adj_verts.items():
-            n1 = graph.get_node(v.index)
-            for a in adjs:
-                n2 = graph.get_node(a.index)
-                edges.append(tuple(sorted((n1.key, n2.key))))
-        edges = list(set(edges))
-        for e in edges:
-            n1 = graph.get_node(e[0])
-            n2 = graph.get_node(e[1])
-            graph.add_edge(n1, n2)
-
-        return graph
-
     def execute(self, context):
         sc = context.scene
         props = sc.muv_props.copy_paste_uv_island
@@ -451,8 +392,8 @@ class MUV_OT_CopyPasteUVUVEdit_PasteUVIsland(bpy.types.Operator):
                 src_uv_layer = sdata["uv_layer"]
 
                 # Create UV graph.
-                src_uv_graph = self._create_uv_graph(src_loops, src_uv_layer)
-                dst_uv_graph = self._create_uv_graph(dst_loops, dst_uv_layer)
+                src_uv_graph = common.create_uv_graph(src_loops, src_uv_layer)
+                dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
 
                 # Check if the graph is isomorphic.
                 # If the graph is isomorphic, matching pair is returned.

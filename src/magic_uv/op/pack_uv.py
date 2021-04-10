@@ -37,6 +37,7 @@ from mathutils import Vector
 
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils.graph import graph_is_isomorphic
 from ..utils import compatibility as compat
 from .. import common
 
@@ -163,12 +164,18 @@ class _Properties:
             default=(0.001, 0.001),
             size=2
         )
+        scene.muv_pack_uv_accurate_island_copy = BoolProperty(
+            name="Accurate Island Copy",
+            description="Copy islands topologically",
+            default=True
+        )
 
     @classmethod
     def del_props(cls, scene):
         del scene.muv_pack_uv_enabled
         del scene.muv_pack_uv_allowable_center_deviation
         del scene.muv_pack_uv_allowable_size_deviation
+        del scene.muv_pack_uv_accurate_island_copy
 
 
 @BlClassRegistry()
@@ -213,6 +220,11 @@ class MUV_OT_PackUV(bpy.types.Operator):
         max=10.0,
         default=(0.001, 0.001),
         size=2
+    )
+    accurate_island_copy = BoolProperty(
+        name="Accurate Island Copy",
+        description="Copy islands topologically",
+        default=True
     )
 
     @classmethod
@@ -276,16 +288,52 @@ class MUV_OT_PackUV(bpy.types.Operator):
             src_bm = island_to_bm[group[0]["id"]]
             src_uv_layer = island_to_uv_layer[group[0]["id"]]
             src_loop_lists = bm_to_loop_lists[src_bm]
+
+            src_loops = []
+            for f in group[0]["faces"]:
+                for l in f["face"].loops:
+                    src_loops.append(l)
+
+            src_uv_graph = common.create_uv_graph(src_loops, src_uv_layer)
+
             for g in group[1:]:
                 dst_bm = island_to_bm[g["id"]]
                 dst_uv_layer = island_to_uv_layer[g["id"]]
                 dst_loop_lists = bm_to_loop_lists[dst_bm]
-                for (src_face, dest_face) in zip(
-                        group[0]['sorted'], g['sorted']):
-                    for (src_loop, dest_loop) in zip(
-                            src_face['face'].loops, dest_face['face'].loops):
-                        dst_loop_lists[dest_loop.index][dst_uv_layer].uv = \
-                            src_loop_lists[src_loop.index][src_uv_layer].uv
+
+                dst_loops = []
+                for f in g["faces"]:
+                    for l in f["face"].loops:
+                        dst_loops.append(l)
+
+                dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
+
+                if self.accurate_island_copy:
+                    # Check if the graph is isomorphic.
+                    # If the graph is isomorphic, matching pair is returned.
+                    result, pairs = graph_is_isomorphic(
+                        src_uv_graph, dst_uv_graph)
+                    if not result:
+                        self.report(
+                            {'WARNING'},
+                            "Island does not match. "
+                            "Disable 'Accurate Island Copy' and try again")
+                        return {'CANCELLED'}
+
+                    # Paste UV island.
+                    for n1, n2 in pairs.items():
+                        uv1 = n1.value["uv_vert"][src_uv_layer].uv
+                        l2 = n2.value["loops"]
+                        for l in l2:
+                            l[dst_uv_layer].uv = uv1
+                else:
+                    for (src_face, dest_face) in zip(
+                            group[0]['sorted'], g['sorted']):
+                        for (src_loop, dest_loop) in zip(
+                                src_face['face'].loops,
+                                dest_face['face'].loops):
+                            dst_loop_lists[dest_loop.index][dst_uv_layer].uv = \
+                                src_loop_lists[src_loop.index][src_uv_layer].uv
 
         # restore face/UV selection
         bpy.ops.uv.select_all(action='DESELECT')

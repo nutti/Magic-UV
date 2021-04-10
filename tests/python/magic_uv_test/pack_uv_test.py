@@ -42,7 +42,8 @@ class TestPackUV(common.TestBase):
             rotate=True,
             margin=0.03,
             allowable_center_deviation=(0.02, 0.05),
-            allowable_size_deviation=(0.003, 0.0004)
+            allowable_size_deviation=(0.003, 0.0004),
+            accurate_island_copy=False
         )
         self.assertSetEqual(result, {'FINISHED'})
 
