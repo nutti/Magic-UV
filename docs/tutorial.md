@@ -2,7 +2,7 @@
 
 ## Features
 
-* [Copy/Pate UV](#copypaste-uv)
+* [Copy/Paste UV](#copypaste-uv)
 * [Transfer UV](#transfer-uv)
 * [Flip/Rotate UV](#fliprotate-uv)
 * [Mirror UV](#mirror-uv)
