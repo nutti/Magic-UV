@@ -332,8 +332,10 @@ class MUV_OT_PackUV(bpy.types.Operator):
                         for (src_loop, dest_loop) in zip(
                                 src_face['face'].loops,
                                 dest_face['face'].loops):
-                            dst_loop_lists[dest_loop.index][dst_uv_layer].uv = \
-                                src_loop_lists[src_loop.index][src_uv_layer].uv
+                            src_lidx = src_loop.index
+                            dst_lidx = dest_loop.index
+                            dst_loop_lists[dst_lidx][dst_uv_layer].uv = \
+                                src_loop_lists[src_lidx][src_uv_layer].uv
 
         # restore face/UV selection
         bpy.ops.uv.select_all(action='DESELECT')
