@@ -1401,6 +1401,7 @@ def _is_uv_loop_connected(l1, l2, uv_layer):
     uv2 = l2[uv_layer].uv
     return uv1.x == uv2.x and uv1.y == uv2.y
 
+
 def create_uv_graph(loops, uv_layer):
     # For looking up faster.
     loop_index_to_loop = {}     # { loop index: loop }
