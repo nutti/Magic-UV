@@ -25,7 +25,6 @@ __date__ = "6 Mar 2021"
 
 from math import fabs
 
-import pprint
 import bpy
 from bpy.props import (
     FloatProperty,
@@ -344,8 +343,10 @@ class MUV_OT_PackUV(bpy.types.Operator):
 
                 dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
 
-                pprint.pprint(src_uv_graph)
-                pprint.pprint(dst_uv_graph)
+                print("Src")
+                dump_graph(src_uv_graph)
+                print("Dst")
+                dump_graph(dst_uv_graph)
 
                 uv_stride = Vector(((stride_idx + 1) * self.stride.x,
                                     (stride_idx + 1) * self.stride.y))
