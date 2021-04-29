@@ -36,6 +36,13 @@ class TestPackUV(common.TestBase):
         result = bpy.ops.uv.muv_pack_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
+    def test_ok_without_accurate_island_copy(self):
+        print("[TEST] (OK) Default")
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.uv_texture_add(accurate_island_copy=False)
+        result = bpy.ops.uv.muv_pack_uv()
+        self.assertSetEqual(result, {'FINISHED'})
+
     def test_ok_user_specified(self):
         print("[TEST] (OK) User specified")
         bpy.ops.mesh.select_all(action='SELECT')
@@ -45,7 +52,7 @@ class TestPackUV(common.TestBase):
             margin=0.03,
             allowable_center_deviation=(0.02, 0.05),
             allowable_size_deviation=(0.003, 0.0004),
-            accurate_island_copy=False,
+            accurate_island_copy=True,
             stride=(1.0, -1.0),
             apply_pack_uv=False,
         )
@@ -54,6 +61,42 @@ class TestPackUV(common.TestBase):
     @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
                      "Not supported in <2.80")
     def test_ok_multiple_objects(self):
+        print("[TEST] (OK) Multiple Objects")
+
+        # Duplicate object.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        obj_names = ["Cube", "Cube.001"]
+        common.select_object_only(obj_names[0])
+        common.duplicate_object_without_uv()
+
+        for name in obj_names:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            common.select_object_only(name)
+            compat.set_active_object(bpy.data.objects[name])
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.uv_texture_add()
+            bpy.ops.mesh.select_all(action='SELECT')
+
+        # Select two objects.
+        bpy.ops.object.mode_set(mode='OBJECT')
+        compat.set_active_object(bpy.data.objects[obj_names[0]])
+        common.select_objects_only(obj_names)
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        result = bpy.ops.uv.muv_pack_uv(
+            rotate=True,
+            margin=0.03,
+            allowable_center_deviation=(0.02, 0.05),
+            allowable_size_deviation=(0.003, 0.0004),
+            accurate_island_copy=True,
+            stride=(1.0, -1.0),
+            apply_pack_uv=False,
+        )
+        self.assertSetEqual(result, {'FINISHED'})
+
+    @unittest.skipIf(compat.check_version(2, 80, 0) < 0,
+                     "Not supported in <2.80")
+    def test_ok_multiple_objects_without_accurate_island_copy(self):
         print("[TEST] (OK) Multiple Objects")
 
         # Duplicate object.
