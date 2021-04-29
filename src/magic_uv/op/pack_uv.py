@@ -25,6 +25,7 @@ __date__ = "6 Mar 2021"
 
 from math import fabs
 
+import pprint
 import bpy
 from bpy.props import (
     FloatProperty,
@@ -329,7 +330,6 @@ class MUV_OT_PackUV(bpy.types.Operator):
                 for l in f["face"].loops:
                     src_loops.append(l)
 
-            import pprint
             pprint.pprint(group)
 
             src_uv_graph = common.create_uv_graph(src_loops, src_uv_layer)
