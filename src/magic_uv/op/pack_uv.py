@@ -373,7 +373,7 @@ class MUV_OT_PackUV(bpy.types.Operator):
                             dst_lidx = dest_loop.index
                             dst_loop_lists[dst_lidx][dst_uv_layer].uv = \
                                 src_loop_lists[src_lidx][src_uv_layer].uv + \
-                                    uv_stride
+                                uv_stride
 
         # restore face/UV selection
         bpy.ops.uv.select_all(action='DESELECT')
