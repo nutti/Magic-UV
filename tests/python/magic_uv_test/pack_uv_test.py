@@ -43,7 +43,9 @@ class TestPackUV(common.TestBase):
             margin=0.03,
             allowable_center_deviation=(0.02, 0.05),
             allowable_size_deviation=(0.003, 0.0004),
-            accurate_island_copy=False
+            accurate_island_copy=False,
+            stride=(1.0, -1.0),
+            apply_pack_uv=False,
         )
         self.assertSetEqual(result, {'FINISHED'})
 
@@ -76,6 +78,9 @@ class TestPackUV(common.TestBase):
             rotate=True,
             margin=0.03,
             allowable_center_deviation=(0.02, 0.05),
-            allowable_size_deviation=(0.003, 0.0004)
+            allowable_size_deviation=(0.003, 0.0004),
+            accurate_island_copy=False,
+            stride=(1.0, -1.0),
+            apply_pack_uv=False,
         )
         self.assertSetEqual(result, {'FINISHED'})

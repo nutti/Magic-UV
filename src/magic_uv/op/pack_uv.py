@@ -154,7 +154,8 @@ class _Properties:
             min=0.000001,
             max=10.0,
             default=(0.001, 0.001),
-            size=2
+            size=2,
+            subtype='XYZ'
         )
         scene.muv_pack_uv_allowable_size_deviation = FloatVectorProperty(
             name="Allowable Size Deviation",
@@ -162,7 +163,8 @@ class _Properties:
             min=0.000001,
             max=10.0,
             default=(0.001, 0.001),
-            size=2
+            size=2,
+            subtype='XYZ'
         )
         scene.muv_pack_uv_accurate_island_copy = BoolProperty(
             name="Accurate Island Copy",
@@ -175,7 +177,8 @@ class _Properties:
             min=-100.0,
             max=100.0,
             default=(0.0, 0.0),
-            size=2
+            size=2,
+            subtype='XYZ'
         )
         scene.muv_pack_uv_apply_pack_uv = BoolProperty(
             name="Apply Pack UV",
@@ -226,7 +229,8 @@ class MUV_OT_PackUV(bpy.types.Operator):
         min=0.000001,
         max=10.0,
         default=(0.001, 0.001),
-        size=2
+        size=2,
+        subtype='XYZ'
     )
     allowable_size_deviation = FloatVectorProperty(
         name="Allowable Size Deviation",
@@ -234,7 +238,8 @@ class MUV_OT_PackUV(bpy.types.Operator):
         min=0.000001,
         max=10.0,
         default=(0.001, 0.001),
-        size=2
+        size=2,
+        subtype='XYZ'
     )
     accurate_island_copy = BoolProperty(
         name="Accurate Island Copy",
@@ -247,7 +252,8 @@ class MUV_OT_PackUV(bpy.types.Operator):
         min=-100.0,
         max=100.0,
         default=(0.0, 0.0),
-        size=2
+        size=2,
+        subtype='XYZ'
     )
     apply_pack_uv = BoolProperty(
         name="Apply Pack UV",
@@ -337,8 +343,8 @@ class MUV_OT_PackUV(bpy.types.Operator):
 
                 dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
 
-                uv_stride = Vector(((stride_idx + 1) * self.stride.x),
-                                   ((stride_idx + 1) * self.stride.y))
+                uv_stride = Vector(((stride_idx + 1) * self.stride.x,
+                                    (stride_idx + 1) * self.stride.y))
                 if self.accurate_island_copy:
                     # Check if the graph is isomorphic.
                     # If the graph is isomorphic, matching pair is returned.

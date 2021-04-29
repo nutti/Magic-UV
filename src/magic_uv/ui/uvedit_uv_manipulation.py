@@ -204,15 +204,14 @@ class MUV_PT_UVEdit_UVManipulation(bpy.types.Panel):
                 sc.muv_pack_uv_accurate_island_copy
             ops.stride = sc.muv_pack_uv_stride
             ops.apply_pack_uv = sc.muv_pack_uv_apply_pack_uv
+            box.prop(sc, "muv_pack_uv_apply_pack_uv")
+            box.prop(sc, "muv_pack_uv_accurate_island_copy")
             box.label(text="Allowable Center Deviation:")
             box.prop(sc, "muv_pack_uv_allowable_center_deviation", text="")
             box.label(text="Allowable Size Deviation:")
             box.prop(sc, "muv_pack_uv_allowable_size_deviation", text="")
-            box.prop(sc, "muv_pack_uv_accurate_island_copy")
-            box.label("Stride:")
+            box.label(text="Stride:")
             box.prop(sc, "muv_pack_uv_stride", text="")
-            box.label("Apply Pack UV:")
-            box.prop(sc, "muv_pack_uv_apply_pack_uv", text="")
 
         box = layout.box()
         box.prop(sc, "muv_clip_uv_enabled", text="Clip UV")
