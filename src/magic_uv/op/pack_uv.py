@@ -330,8 +330,6 @@ class MUV_OT_PackUV(bpy.types.Operator):
                 for l in f["face"].loops:
                     src_loops.append(l)
 
-            pprint.pprint(group)
-
             src_uv_graph = common.create_uv_graph(src_loops, src_uv_layer)
 
             for stride_idx, g in enumerate(group[1:]):
@@ -345,6 +343,9 @@ class MUV_OT_PackUV(bpy.types.Operator):
                         dst_loops.append(l)
 
                 dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
+
+                pprint.pprint(src_uv_graph)
+                pprint.pprint(dst_uv_graph)
 
                 uv_stride = Vector(((stride_idx + 1) * self.stride.x,
                                     (stride_idx + 1) * self.stride.y))
