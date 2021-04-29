@@ -31,6 +31,8 @@ class TestPackUV(common.TestBase):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.uv_texture_add()
+        if compat.check_version(2, 80, 0) < 0:
+            bpy.ops.uv.smart_project()
         result = bpy.ops.uv.muv_pack_uv()
         self.assertSetEqual(result, {'FINISHED'})
 
