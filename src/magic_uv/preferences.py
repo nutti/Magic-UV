@@ -137,6 +137,9 @@ def image_uvs_menu_fn(self, context):
     ops = layout.operator(MUV_OT_PackUV.bl_idname, text="Pack UV")
     ops.allowable_center_deviation = sc.muv_pack_uv_allowable_center_deviation
     ops.allowable_size_deviation = sc.muv_pack_uv_allowable_size_deviation
+    ops.accurate_island_copy = sc.muv_pack_uv_accurate_island_copy
+    ops.stride = sc.muv_pack_uv_stride
+    ops.apply_pack_uv = sc.muv_pack_uv_apply_pack_uv
     # Select UV
     layout.menu(MUV_MT_SelectUV.bl_idname, text="Select UV")
     # Smooth UV
