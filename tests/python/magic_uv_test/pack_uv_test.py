@@ -39,8 +39,8 @@ class TestPackUV(common.TestBase):
     def test_ok_without_accurate_island_copy(self):
         print("[TEST] (OK) Default")
         bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.uv_texture_add(accurate_island_copy=False)
-        result = bpy.ops.uv.muv_pack_uv()
+        bpy.ops.mesh.uv_texture_add()
+        result = bpy.ops.uv.muv_pack_uv(accurate_island_copy=False)
         self.assertSetEqual(result, {'FINISHED'})
 
     def test_ok_user_specified(self):
