@@ -37,7 +37,7 @@ from mathutils import Vector
 
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
-from ..utils.graph import graph_is_isomorphic, dump_graph
+from ..utils.graph import graph_is_isomorphic
 from ..utils import compatibility as compat
 from .. import common
 
@@ -342,11 +342,6 @@ class MUV_OT_PackUV(bpy.types.Operator):
                         dst_loops.append(l)
 
                 dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
-
-                print("Src")
-                dump_graph(src_uv_graph)
-                print("Dst")
-                dump_graph(dst_uv_graph)
 
                 uv_stride = Vector(((stride_idx + 1) * self.stride.x,
                                     (stride_idx + 1) * self.stride.y))
