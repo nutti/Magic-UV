@@ -267,15 +267,22 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                     # test if the vertices x values are the same sign
                     dst = _get_face_center(f_dst, transformed_verts)
                     src = _get_face_center(f_src, transformed_verts)
-                    if (dst.x > 0 and src.x > 0) or (dst.x < 0 and src.x < 0):
-                        continue
 
                     # invert source axis
                     if axis == 'X':
+                        if ((dst.x > 0 and src.x > 0) or
+                                (dst.x < 0 and src.x < 0)):
+                            continue
                         src.x = -src.x
                     elif axis == 'Y':
-                        src.y = -src.z
+                        if ((dst.y > 0 and src.y > 0) or
+                                (dst.y < 0 and src.y < 0)):
+                            continue
+                        src.y = -src.y
                     elif axis == 'Z':
+                        if ((dst.z > 0 and src.z > 0) or
+                                (dst.z < 0 and src.z < 0)):
+                            continue
                         src.z = -src.z
 
                     # do mirror UV
