@@ -42,6 +42,10 @@ from ..utils import compatibility as compat
 
 
 def _is_valid_context_for_measure(context):
+    # only 'VIEW_3D' space is allowed to execute
+    if not common.is_valid_space(context, ['VIEW_3D']):
+        return False
+
     # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
@@ -51,14 +55,15 @@ def _is_valid_context_for_measure(context):
     if context.object.mode != 'EDIT':
         return False
 
-    # only 'VIEW_3D' space is allowed to execute
-    if not common.is_valid_space(context, ['VIEW_3D']):
-        return False
 
     return True
 
 
 def _is_valid_context_for_apply(context):
+    # only 'VIEW_3D' space is allowed to execute
+    if not common.is_valid_space(context, ['VIEW_3D']):
+        return False
+        
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False
@@ -67,9 +72,6 @@ def _is_valid_context_for_apply(context):
     if context.object.mode != 'EDIT':
         return False
 
-    # only 'VIEW_3D' space is allowed to execute
-    if not common.is_valid_space(context, ['VIEW_3D']):
-        return False
 
     return True
 

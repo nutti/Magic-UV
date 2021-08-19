@@ -35,6 +35,10 @@ from ..utils.property_class_registry import PropertyClassRegistry
 
 
 def _is_valid_context(context):
+    # only 'VIEW_3D' space is allowed to execute
+    if not common.is_valid_space(context, ['VIEW_3D']):
+        return False
+
     # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
@@ -42,10 +46,6 @@ def _is_valid_context(context):
 
     # only edit mode is allowed to execute
     if context.object.mode != 'EDIT':
-        return False
-
-    # only 'VIEW_3D' space is allowed to execute
-    if not common.is_valid_space(context, ['VIEW_3D']):
         return False
 
     return True

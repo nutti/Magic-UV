@@ -42,18 +42,18 @@ else:
 
 
 def _is_valid_context(context):
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
+    if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
+        return False
+
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False
 
     # only edit mode is allowed to execute
     if context.object.mode != 'EDIT':
-        return False
-
-    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
-    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
-    # after the execution
-    if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
         return False
 
     return True
@@ -441,9 +441,9 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             b = random.random()
             new_color = [r, g, b]
             for color in exist_colors:
-                if ((fabs(new_color[0] - color[0]) < allowable) and
-                        (fabs(new_color[1] - color[1]) < allowable) and
-                        (fabs(new_color[2] - color[2]) < allowable)):
+                if ((fabs(new_color[0] - color[0]) < allowable)
+                        and (fabs(new_color[1] - color[1]) < allowable)
+                        and (fabs(new_color[2] - color[2]) < allowable)):
                     break
             else:
                 return new_color
