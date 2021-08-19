@@ -442,8 +442,8 @@ class StateNone(StateBase):
                         arr = [1, 3, 6, 8]
                         if i in arr:
                             return (
-                                State.UNIFORM_SCALING_1
-                                + arr.index(i)
+                                State.UNIFORM_SCALING_1 +
+                                arr.index(i)
                             )
                     else:
                         return State.TRANSLATING + i
@@ -579,8 +579,8 @@ class StateManager:
             obj = StateRotating(self.__cmd_exec, ctrl_points)
         elif next_state == State.NONE:
             obj = StateNone(self.__cmd_exec)
-        elif (State.UNIFORM_SCALING_1 <= next_state
-              <= State.UNIFORM_SCALING_4):
+        elif (State.UNIFORM_SCALING_1 <= next_state <=
+              State.UNIFORM_SCALING_4):
             obj = StateUniformScaling(
                 self.__cmd_exec, next_state, ctrl_points)
 

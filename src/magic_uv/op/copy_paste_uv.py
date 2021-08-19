@@ -155,8 +155,8 @@ def get_dest_face_info(ops_obj, bm, uv_layers, src_info, strategy,
         if strategy == 'N_N' and src_face_count != dest_face_count:
             ops_obj.report(
                 {'WARNING'},
-                "Number of selected faces is different from copied"
-                + "(src:{}, dest:{})"
+                "Number of selected faces is different from copied" +
+                "(src:{}, dest:{})"
                 .format(src_face_count, dest_face_count))
             return None
         dest_info[layer.name] = face_info
@@ -206,8 +206,8 @@ def _get_select_history_dest_face_info(ops_obj, bm, uv_layers, src_info,
         if strategy == 'N_N' and src_face_count != dest_face_count:
             ops_obj.report(
                 {'WARNING'},
-                "Number of selected faces is different from copied"
-                + "(src:{}, dest:{})"
+                "Number of selected faces is different from copied" +
+                "(src:{}, dest:{})"
                 .format(src_face_count, dest_face_count))
             return None
         dest_info[layer.name] = face_info

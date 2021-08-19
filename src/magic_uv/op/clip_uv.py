@@ -180,8 +180,8 @@ class MUV_OT_ClipUV(bpy.types.Operator):
 
                 selected_loops = [
                     l for l in face.loops
-                    if l[uv_layer].select
-                    or context.scene.tool_settings.use_uv_select_sync
+                    if l[uv_layer].select or
+                    context.scene.tool_settings.use_uv_select_sync
                 ]
                 if not selected_loops:
                     continue

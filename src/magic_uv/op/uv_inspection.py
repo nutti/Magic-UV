@@ -441,9 +441,9 @@ class MUV_OT_UVInspection_PaintUVIsland(bpy.types.Operator):
             b = random.random()
             new_color = [r, g, b]
             for color in exist_colors:
-                if ((fabs(new_color[0] - color[0]) < allowable)
-                        and (fabs(new_color[1] - color[1]) < allowable)
-                        and (fabs(new_color[2] - color[2]) < allowable)):
+                if ((fabs(new_color[0] - color[0]) < allowable) and
+                        (fabs(new_color[1] - color[1]) < allowable) and
+                        (fabs(new_color[2] - color[2]) < allowable)):
                     break
             else:
                 return new_color
