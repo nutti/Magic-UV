@@ -275,7 +275,7 @@ class MUV_OT_MirrorUV(bpy.types.Operator):
                             continue
                         src.x = -src.x
                     elif axis == 'Y':
-                        if ((dst.y > 0 and src.y > 0) or 
+                        if ((dst.y > 0 and src.y > 0) or
                                 (dst.y < 0 and src.y < 0)):
                             continue
                         src.y = -src.y
