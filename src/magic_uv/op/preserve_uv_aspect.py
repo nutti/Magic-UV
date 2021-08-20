@@ -38,7 +38,7 @@ def _is_valid_context(context):
     # only 'VIEW_3D' space is allowed to execute
     if not common.is_valid_space(context, ['VIEW_3D']):
         return False
-        
+
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False

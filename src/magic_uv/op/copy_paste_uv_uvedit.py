@@ -44,7 +44,7 @@ def _is_valid_context(context):
     # after the execution
     if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
         return False
-    
+
     # Multiple objects editing mode is not supported in this feature.
     objs = common.get_uv_editable_objects(context)
     if len(objs) != 1:
