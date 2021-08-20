@@ -48,7 +48,6 @@ def _is_valid_context(context):
     if context.object.mode != 'EDIT':
         return False
 
-
     return True
 
 

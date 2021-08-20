@@ -55,7 +55,6 @@ def _is_valid_context_for_measure(context):
     if context.object.mode != 'EDIT':
         return False
 
-
     return True
 
 
@@ -71,7 +70,6 @@ def _is_valid_context_for_apply(context):
     # only edit mode is allowed to execute
     if context.object.mode != 'EDIT':
         return False
-
 
     return True
 

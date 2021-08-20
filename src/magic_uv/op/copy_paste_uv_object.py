@@ -57,7 +57,6 @@ def _is_valid_context(context):
     if context.object.mode != 'OBJECT':
         return False
 
-
     return True
 
 
