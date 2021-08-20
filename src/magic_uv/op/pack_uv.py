@@ -43,18 +43,18 @@ from .. import common
 
 
 def _is_valid_context(context):
+    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
+    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
+    # after the execution
+    if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
+        return False
+
     objs = common.get_uv_editable_objects(context)
     if not objs:
         return False
 
     # only edit mode is allowed to execute
     if context.object.mode != 'EDIT':
-        return False
-
-    # 'IMAGE_EDITOR' and 'VIEW_3D' space is allowed to execute.
-    # If 'View_3D' space is not allowed, you can't find option in Tool-Shelf
-    # after the execution
-    if not common.is_valid_space(context, ['IMAGE_EDITOR', 'VIEW_3D']):
         return False
 
     return True
