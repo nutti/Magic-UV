@@ -26,9 +26,10 @@ __date__ = "6 Mar 2021"
 
 bl_info = {
     "name": "Magic UV",
-    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs"
+    "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs, "
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, "
-              "Alexander Milovsky, Dusan Stevanovic, MatthiasThDs",
+              "Alexander Milovsky, Dusan Stevanovic, MatthiasThDs, "
+              "theCryingMan, PratikBorhade302",
     "version": (6, 5, 0),
     "blender": (2, 80, 0),
     "location": "See Add-ons Preferences",
