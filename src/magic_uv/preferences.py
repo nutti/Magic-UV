@@ -1,22 +1,6 @@
-# <pep8-80 compliant>
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
+# <pep8-80 compliant>
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -59,9 +43,7 @@ from .ui.IMAGE_MT_uvs import (
     MUV_MT_UVInspection,
 )
 from .utils.bl_class_registry import BlClassRegistry
-from .utils.addon_updater import AddonUpdaterManager
 from .utils import compatibility as compat
-from . import updater
 
 
 def view3d_uvmap_menu_fn(self, context):
@@ -170,14 +152,6 @@ def remove_builtin_menu():
     bpy.types.IMAGE_MT_uvs.remove(image_uvs_menu_fn)
     bpy.types.VIEW3D_MT_object.remove(view3d_object_menu_fn)
     bpy.types.VIEW3D_MT_uv_map.remove(view3d_uvmap_menu_fn)
-
-
-def get_update_candidate_branches(_, __):
-    manager = AddonUpdaterManager.get_instance()
-    if not manager.candidate_checked():
-        return []
-
-    return [(name, name, "") for name in manager.get_candidate_branch_names()]
 
 
 def set_debug_mode(self, value):
@@ -304,7 +278,6 @@ class MUV_Preferences(AddonPreferences):
         items=[
             ('INFO', "Information", "Information about this add-on"),
             ('CONFIG', "Configuration", "Configuration about this add-on"),
-            ('UPDATE', "Update", "Update this add-on"),
         ],
         default='INFO'
     )
@@ -337,13 +310,6 @@ class MUV_Preferences(AddonPreferences):
         name="UV Bounding Box",
         description="UV Bounding Box",
         default=False
-    )
-
-    # for add-on updater
-    updater_branch_to_update = EnumProperty(
-        name="branch",
-        description="Target branch to update add-on",
-        items=get_update_candidate_branches
     )
 
     def draw(self, _):
@@ -523,6 +489,3 @@ class MUV_Preferences(AddonPreferences):
                 col.prop(self, "uv_bounding_box_cp_size")
                 col.prop(self, "uv_bounding_box_cp_react_size")
                 layout.separator()
-
-        elif self.category == 'UPDATE':
-            updater.draw_updater_ui(self)

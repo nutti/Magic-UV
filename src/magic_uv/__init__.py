@@ -1,22 +1,6 @@
-# <pep8-80 compliant>
+# SPDX-License-Identifier: GPL-2.0-or-later
 
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
+# <pep8-80 compliant>
 
 __author__ = "Nutti <nutti.metro@gmail.com>"
 __status__ = "production"
@@ -36,8 +20,6 @@ bl_info = {
     "description": "UV Toolset. See Add-ons Preferences for details",
     "warning": "",
     "support": "COMMUNITY",
-    "wiki_url": "https://docs.blender.org/manual/en/dev/addons/"
-                "uv/magic_uv.html",
     "doc_url": "{BLENDER_MANUAL_URL}/addons/uv/magic_uv.html",
     "tracker_url": "https://github.com/nutti/Magic-UV",
     "category": "UV",
@@ -51,27 +33,23 @@ if "bpy" in locals():
     utils.bl_class_registry.BlClassRegistry.cleanup()
     importlib.reload(op)
     importlib.reload(ui)
-    importlib.reload(properites)
+    importlib.reload(properties)
     importlib.reload(preferences)
-    importlib.reload(updater)
 else:
     import bpy
     from . import common
     from . import utils
     from . import op
     from . import ui
-    from . import properites
+    from . import properties
     from . import preferences
-    from . import updater
 
 import bpy
 
 
 def register():
-    updater.register_updater(bl_info)
-
     utils.bl_class_registry.BlClassRegistry.register()
-    properites.init_props(bpy.types.Scene)
+    properties.init_props(bpy.types.Scene)
     user_prefs = utils.compatibility.get_user_preferences(bpy.context)
     if user_prefs.addons['magic_uv'].preferences.enable_builtin_menu:
         preferences.add_builtin_menu()
@@ -79,7 +57,7 @@ def register():
 
 def unregister():
     preferences.remove_builtin_menu()
-    properites.clear_props(bpy.types.Scene)
+    properties.clear_props(bpy.types.Scene)
     utils.bl_class_registry.BlClassRegistry.unregister()
 
 
