@@ -1,7 +1,33 @@
 # Change Log
 
 
-## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.5...master)
+## [Unreleased](https://github.com/nutti/Magic-UV/compare/v6.6...master)
+
+
+## [Version 6.6](https://github.com/nutti/Magic-UV/compare/v6.5...v6.6) - 2022.X.XX
+
+### Added Features
+
+* Copy/Paste UV Island
+
+
+### Updated Features
+
+* Pack UV
+  * Add options "Accurate Island Copy", "Stride", "Apply Pack UV"
+
+
+### Other Updates
+
+* Add 'develop' branch to the update target of updater
+* Make documents official
+* Fix bugs
+
+
+### Contributors
+
+* [**@theCryingMan**](https://github.com/theCryingMan)
+* [**@PratikBorhade302**](https://github.com/PratikBorhade302)
 
 
 ## [Version 6.5](https://github.com/nutti/Magic-UV/compare/v6.4...v6.5) - 2021.3.6

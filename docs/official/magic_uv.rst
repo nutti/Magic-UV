@@ -121,14 +121,14 @@ Seams
    You can paste UV to the multiple objects.
 
 
-UV Editor
+UV Editor (Face)
 ^^^^^^^^^
 
 .. reference::
 
    :Editor:    UV Editor
    :Menu:      :menuselection:`UV --> Copy/Paste UV`
-   :Panel:     :menuselection:`Sidebar --> Magic UV --> Copy/Paste UV`
+   :Panel:     :menuselection:`Sidebar --> Magic UV --> Copy/Paste UV --> Face`
 
 Copy and paste UV coordinates among same/different object's faces in UV Editor.
 
@@ -142,6 +142,32 @@ Copy and paste UV coordinates among same/different object's faces in UV Editor.
 .. note::
 
    You must select UVs which consist closed loop (i.e. face).
+
+
+UV Editor (Island)
+^^^^^^^^^
+
+.. reference::
+
+   :Editor:    UV Editor
+   :Menu:      :menuselection:`UV --> Copy/Paste UV`
+   :Panel:     :menuselection:`Sidebar --> Magic UV --> Copy/Paste UV --> Island`
+
+Copy and paste UV coordinates based on the UV islands.
+
+Unique Target
+   If enabled, paste to the target uniquely.
+
+.. rubric:: Usage
+
+#. Select UV islands you want to copy.
+#. Click *Copy*.
+#. Select UV islands you want to paste.
+#. Click *Paste*.
+
+.. tip::
+
+   Selection of UV island can easily be done by using the island selection mode.
 
 
 .. _transfer-uv:
@@ -734,6 +760,12 @@ Allowable Center Deviation
    Provides a way to specify the center deviation that regards as the same island.
 Allowable Size Deviation
    Provides a way to specify the size deviation that regards as the same island.
+Accurate Island Copy
+   If enabled, copy islands topologically in island integration phase.
+Stride
+   Move coordinates amount of UV islands after island integration.
+Apply Pack UV
+   If enabled, apply Blender intrinsic Pack UV operation.
 
 .. rubric:: Usage
 
