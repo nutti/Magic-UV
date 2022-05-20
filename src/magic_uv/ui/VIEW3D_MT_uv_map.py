@@ -139,14 +139,14 @@ class MUV_MT_WorldScaleUV(bpy.types.Menu):
 
         ops = layout.operator(
             MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
-            text="Apply (Same Desity)")
+            text="Apply (Same Density)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = True
         ops.show_dialog = True
 
         ops = layout.operator(
             MUV_OT_WorldScaleUV_ApplyScalingDensity.bl_idname,
-            text="Apply (Scaling Desity)")
+            text="Apply (Scaling Density)")
         ops.src_density = sc.muv_world_scale_uv_src_density
         ops.same_density = False
         ops.show_dialog = True
