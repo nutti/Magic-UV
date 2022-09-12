@@ -13,6 +13,8 @@ from bpy.props import (
 )
 import bmesh
 import math
+from mathutils import Vector, Matrix
+from numpy.linalg import solve
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
@@ -210,29 +212,6 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            # get reference info
-            cv0 = common_verts[0]["vert"].co
-            cv1 = common_verts[1]["vert"].co
-            cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
-            cuv1 = common_verts[1]["ref_loop"][uv_layer].uv
-            ov0 = ref_other_verts[0]["vert"].co
-            ouv0 = ref_other_verts[0]["loop"][uv_layer].uv
-
-            # AB = shared edge, P = third vert
-            # X = third vert projected onto shared edge
-            # hdiff = XP = distance perpendicular to shared edge
-            # vdiff = AX = distance parallel to shared edge
-            ref_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov0)
-            ref_vdiff = x - cv0
-            # swap verts on shared edge if zero delta
-            if (ref_hdiff.length == 0 or ref_vdiff.length == 0):
-                cv0, cv1, cuv0, cuv1 = cv1, cv0, cuv1, cuv0
-                ref_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov0)
-                ref_vdiff = x - cv0
-
-            ref_uv_hdiff, x = common.diff_point_to_segment(cuv0, cuv1, ouv0)
-            ref_uv_vdiff = x - cuv0
-
             # get target other vertices info
             tgt_other_verts = []
             for dl in tgt_face.loops:
@@ -247,23 +226,51 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            # get target info
+            # get reference info
+            A = common_verts[0]["vert"].co
+            B = common_verts[1]["vert"].co
+            C = ref_other_verts[0]["vert"].co
+            Auv = common_verts[0]["ref_loop"][uv_layer].uv
+            Buv = common_verts[1]["ref_loop"][uv_layer].uv
+            Cuv = ref_other_verts[0]["loop"][uv_layer].uv
+
+            # AB = shared edge, C = third vert of ref face
+            # set up a 2D coordinate system with coordinates relative to AB
+            # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
+            XC, x = common.diff_point_to_segment(A, B, C)
+            AX = x - A
+            AB_2d = Vector(( 0.0, (B-A).length ))
+            AC_2d = Vector(( XC.length, math.copysign(AX.length,AX.dot(B-A)) ))
+            AB_uv = Buv - Auv
+            AC_uv = Cuv - Auv
+
+            # find affine transformation from this 2D system to UV
+            '''
+            [u] = [m11 m12] @ [x]
+            [v]   [m21 m22]   [y]       [u1]   [x1 y1 0  0 ]   [m11]
+                                        [v1] = [0  0  x1 y1] @ [m12]
+            u = m11*x + m12*y           [u2]   [x1 y1 0  0 ]   [m21]
+            v = m21*x + m22*y           [v2]   [0  0  x1 y1]   [m22]
+            '''
+            texCoordsVec = Vector((AB_uv.x, AB_uv.y, AC_uv.x, AC_uv.y))
+            world2DMatrix = Matrix(((AB_2d.x, AB_2d.y, 0,       0      ),
+                                    (0,       0,       AB_2d.x, AB_2d.y),
+                                    (AC_2d.x, AC_2d.y, 0,       0      ),
+                                    (0,       0,       AC_2d.x, AC_2d.y)))
+            mCoeffs = solve(world2DMatrix, texCoordsVec)
+            tformMtx = Matrix(( (mCoeffs[0], mCoeffs[1]),
+                                (mCoeffs[2], mCoeffs[3]) ))
+
+            # find UVs for target vertices
             for info in tgt_other_verts:
-                ov = info["vert"].co
-                tgt_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov)
-                tgt_vdiff = x - cv0
-
-                # parallel: depends on where the verts get projected
-                fact_v = tgt_vdiff.length / ref_vdiff.length
-                fact_v *= math.copysign(1,tgt_vdiff.dot(cv1-cv0))
-                fact_v *= math.copysign(1,ref_vdiff.dot(cv1-cv0))
-                duv_v = ref_uv_vdiff * fact_v
-                # perpendicular: always on the opposite side
-                fact_h = -tgt_hdiff.length / ref_hdiff.length
-                duv_h = ref_uv_hdiff * fact_h
-
-                # get target UV
-                info["target_uv"] = cuv0 + duv_h + duv_v
+                D = info["vert"].co
+                ZD, z = common.diff_point_to_segment(A, B, D)
+                AZ = z - A
+                AD_2d = Vector(( -ZD.length,
+                                math.copysign(AZ.length, AZ.dot(B-A)) ))
+                AD_uv = tformMtx @ AD_2d
+                Duv = AD_uv + Auv
+                info["target_uv"] = Duv
 
             # apply to common UVs
             for info in common_verts:
