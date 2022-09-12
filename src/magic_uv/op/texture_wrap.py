@@ -12,6 +12,7 @@ from bpy.props import (
     BoolProperty,
 )
 import bmesh
+import math
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
@@ -210,19 +211,27 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 return {'CANCELLED'}
 
             # get reference info
-            ref_info = {}
             cv0 = common_verts[0]["vert"].co
             cv1 = common_verts[1]["vert"].co
             cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
             cuv1 = common_verts[1]["ref_loop"][uv_layer].uv
             ov0 = ref_other_verts[0]["vert"].co
             ouv0 = ref_other_verts[0]["loop"][uv_layer].uv
-            ref_info["vert_vdiff"] = cv1 - cv0
-            ref_info["uv_vdiff"] = cuv1 - cuv0
-            ref_info["vert_hdiff"], _ = common.diff_point_to_segment(
-                cv0, cv1, ov0)
-            ref_info["uv_hdiff"], _ = common.diff_point_to_segment(
-                cuv0, cuv1, ouv0)
+
+            # AB = shared edge, P = third vert
+            # X = third vert projected onto shared edge
+            # hdiff = XP = distance perpendicular to shared edge
+            # vdiff = AX = distance parallel to shared edge
+            ref_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov0)
+            ref_vdiff = x - cv0
+            # swap verts on shared edge if zero delta
+            if (ref_hdiff.length == 0 or ref_vdiff.length == 0):
+                cv0, cv1, cuv0, cuv1 = cv1, cv0, cuv1, cuv0
+                ref_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov0)
+                ref_vdiff = x - cv0
+
+            ref_uv_hdiff, x = common.diff_point_to_segment(cuv0, cuv1, ouv0)
+            ref_uv_vdiff = x - cuv0
 
             # get target other vertices info
             tgt_other_verts = []
@@ -240,21 +249,18 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
 
             # get target info
             for info in tgt_other_verts:
-                cv0 = common_verts[0]["vert"].co
-                cv1 = common_verts[1]["vert"].co
-                cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
                 ov = info["vert"].co
-                info["vert_hdiff"], x = common.diff_point_to_segment(
-                    cv0, cv1, ov)
-                info["vert_vdiff"] = x - common_verts[0]["vert"].co
+                tgt_hdiff, x = common.diff_point_to_segment(cv0, cv1, ov)
+                tgt_vdiff = x - cv0
 
-                # calclulate factor
-                fact_h = -info["vert_hdiff"].length / \
-                    ref_info["vert_hdiff"].length
-                fact_v = info["vert_vdiff"].length / \
-                    ref_info["vert_vdiff"].length
-                duv_h = ref_info["uv_hdiff"] * fact_h
-                duv_v = ref_info["uv_vdiff"] * fact_v
+                # parallel: depends on where the verts get projected
+                fact_v = tgt_vdiff.length / ref_vdiff.length
+                fact_v *= math.copysign(1,tgt_vdiff.dot(cv1-cv0))
+                fact_v *= math.copysign(1,ref_vdiff.dot(cv1-cv0))
+                duv_v = ref_uv_vdiff * fact_v
+                # perpendicular: always on the opposite side
+                fact_h = -tgt_hdiff.length / ref_hdiff.length
+                duv_h = ref_uv_hdiff * fact_h
 
                 # get target UV
                 info["target_uv"] = cuv0 + duv_h + duv_v
