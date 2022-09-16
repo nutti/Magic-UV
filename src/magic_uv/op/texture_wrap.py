@@ -14,7 +14,7 @@ from bpy.props import (
 )
 import bmesh
 from mathutils import Vector, Matrix
-from numpy.linalg import solve
+from numpy import linalg
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
@@ -247,10 +247,6 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 ab_uv = b_uv - a_uv
                 ac_uv = c_uv - a_uv
 
-                # check for collinear verts
-                if xc_3d.length < 1e-5:
-                    continue
-
                 # find affine transformation from this 2D system to UV
                 #  [u] = [m11 m12] @ [x]
                 #  [v]   [m21 m22]   [y]       [u1]   [x1 y1 0  0 ]   [m11]
@@ -263,11 +259,11 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                                     (ac_2d.x, ac_2d.y, 0,       0      ),
                                     (0,       0,       ac_2d.x, ac_2d.y)))
                 try:
-                    m_coeffs = solve(matrix_2d, vector_uv)
+                    m_coeffs = linalg.solve(matrix_2d, vector_uv)
                     tform_mtx = Matrix(((m_coeffs[0], m_coeffs[1]),
                                         (m_coeffs[2], m_coeffs[3])))
                     break
-                except:
+                except linalg.LinAlgError:
                     pass # loop and try a different C
 
             if tform_mtx is None:
