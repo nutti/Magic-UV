@@ -8,13 +8,13 @@ __version__ = "6.6"
 __date__ = "22 Apr 2022"
 
 import math
+from numpy import linalg
 import bpy
 from bpy.props import (
     BoolProperty,
 )
 import bmesh
 from mathutils import Vector, Matrix
-from numpy import linalg
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
@@ -241,11 +241,16 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
                 xc_3d, x_3d = common.diff_point_to_segment(a_3d, b_3d, c_3d)
                 ax_3d = x_3d - a_3d
-                ab_2d = Vector((0.0, (b_3d - a_3d).length))
+                ab_3d = b_3d - a_3d
+                ab_2d = Vector((0.0, ab_3d.length))
                 ac_2d = Vector((xc_3d.length,
-                        math.copysign(ax_3d.length, ax_3d.dot(b_3d - a_3d))))
+                                math.copysign(ax_3d.length, ax_3d.dot(ab_3d))))
                 ab_uv = b_uv - a_uv
                 ac_uv = c_uv - a_uv
+
+                # extra check for collinear verts
+                if xc_3d.length < 1e-5:
+                    continue
 
                 # find affine transformation from this 2D system to UV
                 #  [u] = [m11 m12] @ [x]
@@ -254,10 +259,10 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 #  u = m11*x + m12*y           [u2]   [x1 y1 0  0 ]   [m21]
                 #  v = m21*x + m22*y           [v2]   [0  0  x1 y1]   [m22]
                 vector_uv = Vector((ab_uv.x, ab_uv.y, ac_uv.x, ac_uv.y))
-                matrix_2d = Matrix(((ab_2d.x, ab_2d.y, 0,       0      ),
-                                    (0,       0,       ab_2d.x, ab_2d.y),
-                                    (ac_2d.x, ac_2d.y, 0,       0      ),
-                                    (0,       0,       ac_2d.x, ac_2d.y)))
+                matrix_2d = Matrix(((ab_2d.x, ab_2d.y, 0, 0),
+                                    (0, 0, ab_2d.x, ab_2d.y),
+                                    (ac_2d.x, ac_2d.y, 0, 0),
+                                    (0, 0, ac_2d.x, ac_2d.y)))
                 try:
                     m_coeffs = linalg.solve(matrix_2d, vector_uv)
                     tform_mtx = Matrix(((m_coeffs[0], m_coeffs[1]),
@@ -276,7 +281,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 zd_3d, z_3d = common.diff_point_to_segment(a_3d, b_3d, d_3d)
                 az_3d = z_3d - a_3d
                 ad_2d = Vector((-zd_3d.length,
-                        math.copysign(az_3d.length, az_3d.dot(b_3d - a_3d))))
+                                math.copysign(az_3d.length, az_3d.dot(ab_3d))))
                 ad_uv = tform_mtx @ ad_2d
                 d_uv = ad_uv + a_uv
                 info["target_uv"] = d_uv
