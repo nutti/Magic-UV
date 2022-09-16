@@ -226,39 +226,53 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            # get reference info
-            a_3d = common_verts[0]["vert"].co
-            b_3d = common_verts[1]["vert"].co
-            c_3d = ref_other_verts[0]["vert"].co
-            a_uv = common_verts[0]["ref_loop"][uv_layer].uv
-            b_uv = common_verts[1]["ref_loop"][uv_layer].uv
-            c_uv = ref_other_verts[0]["loop"][uv_layer].uv
+            tform_mtx = None
+            for other_vert in ref_other_verts:
+                # get reference info
+                a_3d = common_verts[0]["vert"].co
+                b_3d = common_verts[1]["vert"].co
+                c_3d = other_vert["vert"].co
+                a_uv = common_verts[0]["ref_loop"][uv_layer].uv
+                b_uv = common_verts[1]["ref_loop"][uv_layer].uv
+                c_uv = other_vert["loop"][uv_layer].uv
 
-            # AB = shared edge, C = third vert of ref face
-            # set up a 2D coordinate system with coordinates relative to AB
-            # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
-            xc_3d, x_3d = common.diff_point_to_segment(a_3d, b_3d, c_3d)
-            ax_3d = x_3d - a_3d
-            ab_2d = Vector((0.0, (b_3d - a_3d).length))
-            ac_2d = Vector((xc_3d.length,
-                    math.copysign(ax_3d.length, ax_3d.dot(b_3d - a_3d))))
-            ab_uv = b_uv - a_uv
-            ac_uv = c_uv - a_uv
+                # AB = shared edge, C = third vert of ref face
+                # set up a 2D coordinate system with coordinates relative to AB
+                # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
+                xc_3d, x_3d = common.diff_point_to_segment(a_3d, b_3d, c_3d)
+                ax_3d = x_3d - a_3d
+                ab_2d = Vector((0.0, (b_3d - a_3d).length))
+                ac_2d = Vector((xc_3d.length,
+                        math.copysign(ax_3d.length, ax_3d.dot(b_3d - a_3d))))
+                ab_uv = b_uv - a_uv
+                ac_uv = c_uv - a_uv
 
-            # find affine transformation from this 2D system to UV
-            #  [u] = [m11 m12] @ [x]
-            #  [v]   [m21 m22]   [y]       [u1]   [x1 y1 0  0 ]   [m11]
-            #                              [v1] = [0  0  x1 y1] @ [m12]
-            #  u = m11*x + m12*y           [u2]   [x1 y1 0  0 ]   [m21]
-            #  v = m21*x + m22*y           [v2]   [0  0  x1 y1]   [m22]
-            vector_uv = Vector((ab_uv.x, ab_uv.y, ac_uv.x, ac_uv.y))
-            matrix_2d = Matrix(((ab_2d.x, ab_2d.y, 0,       0      ),
-                                (0,       0,       ab_2d.x, ab_2d.y),
-                                (ac_2d.x, ac_2d.y, 0,       0      ),
-                                (0,       0,       ac_2d.x, ac_2d.y)))
-            m_coeffs = solve(matrix_2d, vector_uv)
-            tform_mtx = Matrix(((m_coeffs[0], m_coeffs[1]),
-                                (m_coeffs[2], m_coeffs[3])))
+                # check for collinear verts
+                if xc_3d.length < 1e-5:
+                    continue
+
+                # find affine transformation from this 2D system to UV
+                #  [u] = [m11 m12] @ [x]
+                #  [v]   [m21 m22]   [y]       [u1]   [x1 y1 0  0 ]   [m11]
+                #                              [v1] = [0  0  x1 y1] @ [m12]
+                #  u = m11*x + m12*y           [u2]   [x1 y1 0  0 ]   [m21]
+                #  v = m21*x + m22*y           [v2]   [0  0  x1 y1]   [m22]
+                vector_uv = Vector((ab_uv.x, ab_uv.y, ac_uv.x, ac_uv.y))
+                matrix_2d = Matrix(((ab_2d.x, ab_2d.y, 0,       0      ),
+                                    (0,       0,       ab_2d.x, ab_2d.y),
+                                    (ac_2d.x, ac_2d.y, 0,       0      ),
+                                    (0,       0,       ac_2d.x, ac_2d.y)))
+                try:
+                    m_coeffs = solve(matrix_2d, vector_uv)
+                    tform_mtx = Matrix(((m_coeffs[0], m_coeffs[1]),
+                                        (m_coeffs[2], m_coeffs[3])))
+                    break
+                except:
+                    pass # loop and try a different C
+
+            if tform_mtx is None:
+                self.report({'WARNING'}, "Invalid reference face")
+                return {'CANCELLED'}
 
             # find UVs for target vertices
             for info in tgt_other_verts:
