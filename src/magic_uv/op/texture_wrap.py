@@ -21,6 +21,8 @@ from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..utils import compatibility as compat
 
+EPS_COLLINEAR = 1e-6
+
 
 def _is_valid_context(context):
     # only 'VIEW_3D' space is allowed to execute
@@ -227,7 +229,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            tform_mtx = None
+            transform_matrix = None
             for other_vert in ref_other_verts:
                 # get reference info
                 a_3d = common_verts[0]["vert"].co
@@ -237,7 +239,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 b_uv = common_verts[1]["ref_loop"][uv_layer].uv
                 c_uv = other_vert["loop"][uv_layer].uv
 
-                # AB = shared edge, C = third vert of ref face
+                # AB = shared edge, C = third vert of reference face
                 # set up a 2D coordinate system with coordinates relative to AB
                 # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
                 xc_3d, x_3d = common.diff_point_to_segment(a_3d, b_3d, c_3d)
@@ -250,7 +252,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 ac_uv = c_uv - a_uv
 
                 # extra check for collinear verts
-                if xc_3d.length < 1e-5:
+                if ab_3d.cross(c_3d - a_3d).length < EPS_COLLINEAR:
                     continue
 
                 # find affine transformation from this 2D system to UV
@@ -266,24 +268,27 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                                     (0, 0, ac_2d.x, ac_2d.y)))
                 try:
                     m_coeffs = linalg.solve(matrix_2d, vector_uv)
-                    tform_mtx = Matrix(((m_coeffs[0], m_coeffs[1]),
-                                        (m_coeffs[2], m_coeffs[3])))
-                    break
+                    transform_matrix = Matrix(((m_coeffs[0], m_coeffs[1]),
+                                               (m_coeffs[2], m_coeffs[3])))
+                    break   # success, for most faces on first iteration
                 except linalg.LinAlgError:
                     pass    # loop and try a different third vert
 
-            if tform_mtx is None:
+            if transform_matrix is None:
                 self.report({'WARNING'}, "Invalid reference face")
                 return {'CANCELLED'}
 
             # find UVs for target vertices
             for info in tgt_other_verts:
+                # AB = shared edge, D = vert of target face, Z = its projection
+                # ZD & AZ are D's coordinates in the 2D system relative to AB
                 d_3d = info["vert"].co
                 zd_3d, z_3d = common.diff_point_to_segment(a_3d, b_3d, d_3d)
                 az_3d = z_3d - a_3d
                 ad_2d = Vector((-zd_3d.length,
                                 math.copysign(az_3d.length, az_3d.dot(ab_3d))))
-                ad_uv = compat.matmul(tform_mtx, ad_2d)
+                # get UV by applying the reference face's affine transformation
+                ad_uv = compat.matmul(transform_matrix, ad_2d)
                 d_uv = ad_uv + a_uv
                 info["target_uv"] = d_uv
 
