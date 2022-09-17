@@ -269,7 +269,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                                         (m_coeffs[2], m_coeffs[3])))
                     break
                 except linalg.LinAlgError:
-                    pass # loop and try a different C
+                    pass    # loop and try a different third vert
 
             if tform_mtx is None:
                 self.report({'WARNING'}, "Invalid reference face")
