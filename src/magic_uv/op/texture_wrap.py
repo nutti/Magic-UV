@@ -19,6 +19,7 @@ from mathutils import Vector, Matrix
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility as compat
 
 
 def _is_valid_context(context):
@@ -282,7 +283,7 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 az_3d = z_3d - a_3d
                 ad_2d = Vector((-zd_3d.length,
                                 math.copysign(az_3d.length, az_3d.dot(ab_3d))))
-                ad_uv = tform_mtx @ ad_2d
+                ad_uv = compat.matmul(tform_mtx, ad_2d)
                 d_uv = ad_uv + a_uv
                 info["target_uv"] = d_uv
 
