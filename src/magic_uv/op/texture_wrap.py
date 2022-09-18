@@ -7,15 +7,21 @@ __status__ = "production"
 __version__ = "6.6"
 __date__ = "22 Apr 2022"
 
+import math
+from numpy import linalg
 import bpy
 from bpy.props import (
     BoolProperty,
 )
 import bmesh
+from mathutils import Vector, Matrix
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
+from ..utils import compatibility as compat
+
+EPS_COLLINEAR = 1e-6
 
 
 def _is_valid_context(context):
@@ -209,21 +215,6 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            # get reference info
-            ref_info = {}
-            cv0 = common_verts[0]["vert"].co
-            cv1 = common_verts[1]["vert"].co
-            cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
-            cuv1 = common_verts[1]["ref_loop"][uv_layer].uv
-            ov0 = ref_other_verts[0]["vert"].co
-            ouv0 = ref_other_verts[0]["loop"][uv_layer].uv
-            ref_info["vert_vdiff"] = cv1 - cv0
-            ref_info["uv_vdiff"] = cuv1 - cuv0
-            ref_info["vert_hdiff"], _ = common.diff_point_to_segment(
-                cv0, cv1, ov0)
-            ref_info["uv_hdiff"], _ = common.diff_point_to_segment(
-                cuv0, cuv1, ouv0)
-
             # get target other vertices info
             tgt_other_verts = []
             for dl in tgt_face.loops:
@@ -238,26 +229,68 @@ class MUV_OT_TextureWrap_Set(bpy.types.Operator):
                 self.report({'WARNING'}, "More than 1 vertex must be unshared")
                 return {'CANCELLED'}
 
-            # get target info
+            transform_matrix = None
+            for other_vert in ref_other_verts:
+                # get reference info
+                a_3d = common_verts[0]["vert"].co
+                b_3d = common_verts[1]["vert"].co
+                c_3d = other_vert["vert"].co
+                a_uv = common_verts[0]["ref_loop"][uv_layer].uv
+                b_uv = common_verts[1]["ref_loop"][uv_layer].uv
+                c_uv = other_vert["loop"][uv_layer].uv
+
+                # AB = shared edge, C = third vert of reference face
+                # set up a 2D coordinate system with coordinates relative to AB
+                # X = C projected onto AB, XC/AX = perpendicular/parallel to AB
+                xc_3d, x_3d = common.diff_point_to_segment(a_3d, b_3d, c_3d)
+                ax_3d = x_3d - a_3d
+                ab_3d = b_3d - a_3d
+                ab_2d = Vector((0.0, ab_3d.length))
+                ac_2d = Vector((xc_3d.length,
+                                math.copysign(ax_3d.length, ax_3d.dot(ab_3d))))
+                ab_uv = b_uv - a_uv
+                ac_uv = c_uv - a_uv
+
+                # extra check for collinear verts
+                if ab_3d.cross(c_3d - a_3d).length < EPS_COLLINEAR:
+                    continue
+
+                # find affine transformation from this 2D system to UV
+                #  [u] = [m11 m12] @ [x]
+                #  [v]   [m21 m22]   [y]       [u1]   [x1 y1 0  0 ]   [m11]
+                #                              [v1] = [0  0  x1 y1] @ [m12]
+                #  u = m11*x + m12*y           [u2]   [x1 y1 0  0 ]   [m21]
+                #  v = m21*x + m22*y           [v2]   [0  0  x1 y1]   [m22]
+                vector_uv = Vector((ab_uv.x, ab_uv.y, ac_uv.x, ac_uv.y))
+                matrix_2d = Matrix(((ab_2d.x, ab_2d.y, 0, 0),
+                                    (0, 0, ab_2d.x, ab_2d.y),
+                                    (ac_2d.x, ac_2d.y, 0, 0),
+                                    (0, 0, ac_2d.x, ac_2d.y)))
+                try:
+                    m_coeffs = linalg.solve(matrix_2d, vector_uv)
+                    transform_matrix = Matrix(((m_coeffs[0], m_coeffs[1]),
+                                               (m_coeffs[2], m_coeffs[3])))
+                    break   # success, for most faces on first iteration
+                except linalg.LinAlgError:
+                    pass    # loop and try a different third vert
+
+            if transform_matrix is None:
+                self.report({'WARNING'}, "Invalid reference face")
+                return {'CANCELLED'}
+
+            # find UVs for target vertices
             for info in tgt_other_verts:
-                cv0 = common_verts[0]["vert"].co
-                cv1 = common_verts[1]["vert"].co
-                cuv0 = common_verts[0]["ref_loop"][uv_layer].uv
-                ov = info["vert"].co
-                info["vert_hdiff"], x = common.diff_point_to_segment(
-                    cv0, cv1, ov)
-                info["vert_vdiff"] = x - common_verts[0]["vert"].co
-
-                # calclulate factor
-                fact_h = -info["vert_hdiff"].length / \
-                    ref_info["vert_hdiff"].length
-                fact_v = info["vert_vdiff"].length / \
-                    ref_info["vert_vdiff"].length
-                duv_h = ref_info["uv_hdiff"] * fact_h
-                duv_v = ref_info["uv_vdiff"] * fact_v
-
-                # get target UV
-                info["target_uv"] = cuv0 + duv_h + duv_v
+                # AB = shared edge, D = vert of target face, Z = its projection
+                # ZD & AZ are D's coordinates in the 2D system relative to AB
+                d_3d = info["vert"].co
+                zd_3d, z_3d = common.diff_point_to_segment(a_3d, b_3d, d_3d)
+                az_3d = z_3d - a_3d
+                ad_2d = Vector((-zd_3d.length,
+                                math.copysign(az_3d.length, az_3d.dot(ab_3d))))
+                # get UV by applying the reference face's affine transformation
+                ad_uv = compat.matmul(transform_matrix, ad_2d)
+                d_uv = ad_uv + a_uv
+                info["target_uv"] = d_uv
 
             # apply to common UVs
             for info in common_verts:
