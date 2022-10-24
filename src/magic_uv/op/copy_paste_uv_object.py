@@ -144,7 +144,10 @@ class MUV_MT_CopyPasteUVObject_CopyUV(bpy.types.Menu):
         obj = objs[0]
 
         # create sub menu
-        uv_maps = compat.get_object_uv_layers(obj).keys()
+        uv_layers = compat.get_object_uv_layers(obj)
+        uv_maps = []
+        if uv_layers is not None:
+            uv_maps = uv_layers.keys()
 
         ops = layout.operator(MUV_OT_CopyPasteUVObject_CopyUV.bl_idname,
                               text="[Default]")

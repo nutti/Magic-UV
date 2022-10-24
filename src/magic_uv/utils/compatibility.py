@@ -113,6 +113,8 @@ def object_has_uv_layers(obj):
 
 
 def get_object_uv_layers(obj):
+    if obj.type != 'MESH':
+        return None
     if check_version(2, 80, 0) < 0:
         return obj.data.uv_textures
     else:
