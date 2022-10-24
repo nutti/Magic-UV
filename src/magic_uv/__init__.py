@@ -13,7 +13,7 @@ bl_info = {
     "author": "Nutti, Mifth, Jace Priester, kgeogeo, mem, imdjs, "
               "Keith (Wahooney) Boshoff, McBuff, MaxRobinot, "
               "Alexander Milovsky, Dusan Stevanovic, MatthiasThDs, "
-              "theCryingMan, PratikBorhade302",
+              "theCryingMan, PratikBorhade302, chedap",
     "version": (6, 6, 0),
     "blender": (2, 80, 0),
     "location": "See Add-ons Preferences",
