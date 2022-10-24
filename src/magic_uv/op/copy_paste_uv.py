@@ -463,7 +463,7 @@ class MUV_OT_CopyPasteUV_PasteUV(bpy.types.Operator):
         if ret:
             return {'CANCELLED'}
 
-        face_count = len(props.src_info[list(dest_info.keys())[0]])
+        face_count = len(dest_info[list(dest_info.keys())[0]])
         self.report({'INFO'}, "{} face(s) are pasted".format(face_count))
 
         bmesh.update_edit_mesh(obj.data)
@@ -693,7 +693,7 @@ class MUV_OT_CopyPasteUV_SelSeqPasteUV(bpy.types.Operator):
         if ret:
             return {'CANCELLED'}
 
-        face_count = len(props.src_info[list(dest_info.keys())[0]])
+        face_count = len(dest_info[list(dest_info.keys())[0]])
         self.report({'INFO'}, "{} face(s) are pasted".format(face_count))
 
         bmesh.update_edit_mesh(obj.data)
