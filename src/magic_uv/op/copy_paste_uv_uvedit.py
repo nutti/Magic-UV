@@ -373,6 +373,9 @@ class MUV_OT_CopyPasteUVUVEdit_PasteUVIsland(bpy.types.Operator):
                         src_loops.append(l)
                 src_uv_layer = sdata["uv_layer"]
 
+                if len(src_loops) != len(dst_loops):
+                    continue
+
                 # Create UV graph.
                 src_uv_graph = common.create_uv_graph(src_loops, src_uv_layer)
                 dst_uv_graph = common.create_uv_graph(dst_loops, dst_uv_layer)
