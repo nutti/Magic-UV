@@ -57,6 +57,7 @@ class _Properties:
             uv_info_ini = []
             ctrl_points_ini = []
             ctrl_points = []
+            uv_selection = set()
 
         scene.muv_props.uv_bounding_box = Props()
 
@@ -358,6 +359,9 @@ class CommandExecuter:
 
     def push(self, cmd):
         self.__cmd_list.append(cmd)
+
+    def clear(self):
+        self.__cmd_list.clear()
 
 
 class State(IntEnum):
@@ -674,6 +678,30 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
                 context, mathutils.Vector(
                     context.region.view2d.view_to_region(cp.x, cp.y)))
 
+    def __get_uv_selection(self, context):
+        sc = context.scene
+        objs = common.get_uv_editable_objects(context)
+        selection = set()
+
+        for obj in objs:
+            bm = bmesh.from_edit_mesh(obj.data)
+            if common.check_version(2, 73, 0) >= 0:
+                bm.faces.ensure_lookup_table()
+            if not bm.loops.layers.uv:
+                continue
+            uv_layer = bm.loops.layers.uv.verify()
+            for f in bm.faces:
+                if not f.select:
+                    continue
+                for l in f.loops:
+                    if sc.muv_uv_bounding_box_boundary == 'UV_SEL':
+                        if l[uv_layer].select:
+                            selection.add(l)
+                    elif sc.muv_uv_bounding_box_boundary == 'UV':
+                        selection.add(l)
+
+        return selection
+
     def __get_uv_info(self, context):
         """
         Get UV coordinate
@@ -795,7 +823,38 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
            common.mouse_on_regions(event, 'IMAGE_EDITOR', region_types):
             return {'PASS_THROUGH'}
 
-        if event.type == 'TIMER':
+        # Need refresh when bmesh is invalid, UVs are not selected and so on.
+        need_refresh = False
+        if props.uv_info_ini is None:
+            need_refresh = True
+            common.debug_print(
+                "[UV Bounding Box] Need refresh (Reason: No selection)")
+        if not need_refresh:
+            for info in props.uv_info_ini:
+                if not info["bmesh"].is_valid:
+                    need_refresh = True
+                    common.debug_print(
+                        "[UV Bounding Box] Need refresh "
+                        "(Reason: bmesh is invalid)")
+                    break
+        if not need_refresh:
+            new_selection = self.__get_uv_selection(context)
+            if props.uv_selection != new_selection:
+                props.uv_selection = new_selection
+                need_refresh = True
+                common.debug_print(
+                    "[UV Bounding Box] Need refresh "
+                    "(Reason: UV selection is changed)")
+        if need_refresh:
+            self.__cmd_exec.clear()
+            props.ctrl_points_ini.clear()
+            props.ctrl_points.clear()
+            props.uv_info_ini = self.__get_uv_info(context)
+            if props.uv_info_ini is None:
+                return {'PASS_THROUGH'}
+            props.ctrl_points_ini = self.__get_ctrl_point(props.uv_info_ini)
+
+        if event.type == 'TIMER' and not need_refresh:
             trans_mat = self.__cmd_exec.execute()
             self.__update_uvs(context, props.uv_info_ini, trans_mat)
             props.ctrl_points = self.__update_ctrl_point(
