@@ -119,11 +119,11 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
 
     position = EnumProperty(
         items=(
-            ('CENTER', "Center", "Align to Center"),
             ('LEFT_TOP', "Left Top", "Align to Left Top"),
             ('LEFT_MIDDLE', "Left Middle", "Align to Left Middle"),
             ('LEFT_BOTTOM', "Left Bottom", "Align to Left Bottom"),
             ('MIDDLE_TOP', "Middle Top", "Align to Middle Top"),
+            ('CENTER', "Center", "Align to Center"),
             ('MIDDLE_BOTTOM', "Middle Bottom", "Align to Middle Bottom"),
             ('RIGHT_TOP', "Right Top", "Align to Right Top"),
             ('RIGHT_MIDDLE', "Right Middle", "Align to Right Middle"),
@@ -151,6 +151,21 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
+    def draw(self, context):
+        layout = self.layout
+        column = layout.column()
+
+        row = column.row()
+        row.label(text="Align Method:")
+        row = column.row()
+        row.prop(self, "base", expand=True)
+        
+        row = column.row()
+        row.label(text="Align Position:")
+        row = column.row()
+        grid = layout.grid_flow(columns=3, align=True)
+        grid.prop(self, "position", expand=True)
+        
     def execute(self, context):
         area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
                                           'IMAGE_EDITOR')
