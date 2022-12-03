@@ -164,6 +164,8 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         row = column.row()
         grid = layout.grid_flow(columns=3, align=True)
         grid.prop(self, "position", expand=True)
+
+    def execute(self, context):
     def execute(self, context):
         area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
                                           'IMAGE_EDITOR')
