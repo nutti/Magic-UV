@@ -166,7 +166,6 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         grid.prop(self, "position", expand=True)
 
     def execute(self, context):
-    def execute(self, context):
         area, _, space = common.get_space('IMAGE_EDITOR', 'WINDOW',
                                           'IMAGE_EDITOR')
         if compat.check_version(2, 80, 0) < 0:
