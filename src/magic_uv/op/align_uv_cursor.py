@@ -159,7 +159,6 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         row.label(text="Align Method:")
         row = column.row()
         row.prop(self, "base", expand=True)
-        
         row = column.row()
         row.label(text="Align Position:")
         row = column.row()
