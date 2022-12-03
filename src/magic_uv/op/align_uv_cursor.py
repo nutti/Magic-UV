@@ -151,7 +151,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
             return True
         return _is_valid_context(context)
 
-    def draw(self, context):
+    def draw(self, _):
         layout = self.layout
         column = layout.column()
 
