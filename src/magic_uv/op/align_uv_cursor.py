@@ -38,7 +38,10 @@ class _Properties:
             if compat.check_version(2, 80, 0) < 0:
                 bd_size = common.get_uvimg_editor_board_size(area)
             else:
-                bd_size = [1.0, 1.0]
+                if space.uv_editor.show_pixel_coords:
+                    bd_size = common.get_uvimg_editor_board_size(area)
+                else:
+                    bd_size = [1.0, 1.0]
             loc = space.cursor_location
 
             if bd_size[0] < 0.000001:
@@ -60,7 +63,10 @@ class _Properties:
             if compat.check_version(2, 80, 0) < 0:
                 bd_size = common.get_uvimg_editor_board_size(area)
             else:
-                bd_size = [1.0, 1.0]
+                if space.uv_editor.show_pixel_coords:
+                    bd_size = common.get_uvimg_editor_board_size(area)
+                else:
+                    bd_size = [1.0, 1.0]
             cx = bd_size[0] * value[0]
             cy = bd_size[1] * value[1]
             space.cursor_location = Vector((cx, cy))
@@ -75,7 +81,7 @@ class _Properties:
             name="UV Cursor Location",
             size=2,
             precision=4,
-            soft_min=-1.0,
+            soft_min=0.0,
             soft_max=1.0,
             step=1,
             default=(0.000, 0.000),
@@ -171,7 +177,10 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
         if compat.check_version(2, 80, 0) < 0:
             bd_size = common.get_uvimg_editor_board_size(area)
         else:
-            bd_size = [1.0, 1.0]
+            if space.uv_editor.show_pixel_coords:
+                bd_size = common.get_uvimg_editor_board_size(area)
+            else:
+                bd_size = [1.0, 1.0]
 
         large_value = 1e7
         if self.base == 'UV':
@@ -198,7 +207,7 @@ class MUV_OT_AlignUVCursor(bpy.types.Operator):
                             min_.y = min(min_.y, uv.y)
                             no_selected_face = False
             if no_selected_face:
-                max_ = Vector((1.0, 1.0))
+                max_ = Vector(bd_size)
                 min_ = Vector((0.0, 0.0))
             center = Vector((
                 (max_.x + min_.x) / 2.0, (max_.y + min_.y) / 2.0
