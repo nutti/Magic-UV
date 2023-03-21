@@ -24,12 +24,7 @@ from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..utils import compatibility as compat
-
-
-if compat.check_version(2, 80, 0) >= 0:
-    from ..lib import bglx as bgl
-else:
-    import bgl
+from ..gpu_utils import imm
 
 
 def _is_valid_context(context):
@@ -217,19 +212,19 @@ class MUV_OT_UVSculpt(bpy.types.Operator):
         fact_r = cos(theta)
         color = prefs.uv_sculpt_brush_color
 
-        bgl.glBegin(bgl.GL_LINE_STRIP)
-        bgl.glColor4f(color[0], color[1], color[2], color[3])
+        imm.immBegin(imm.GL_LINE_STRIP)
+        imm.immColor4f(color[0], color[1], color[2], color[3])
         x = sc.muv_uv_sculpt_radius * cos(0.0)
         y = sc.muv_uv_sculpt_radius * sin(0.0)
         for _ in range(num_segment):
-            bgl.glVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
+            imm.immVertex2f(x + obj.current_mco.x, y + obj.current_mco.y)
             tx = -y
             ty = x
             x = x + tx * fact_t
             y = y + ty * fact_t
             x = x * fact_r
             y = y * fact_r
-        bgl.glEnd()
+        imm.immEnd()
 
     def __init__(self):
         self.__loop_info = {}       # { Object: loop_info }

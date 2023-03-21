@@ -27,6 +27,7 @@ bl_info = {
 if "bpy" in locals():
     import importlib
     importlib.reload(common)
+    importlib.reload(gpu_utils)
     importlib.reload(utils)
     utils.bl_class_registry.BlClassRegistry.cleanup()
     importlib.reload(op)
@@ -36,6 +37,7 @@ if "bpy" in locals():
 else:
     import bpy
     from . import common
+    from . import gpu_utils
     from . import utils
     from . import op
     from . import ui
@@ -46,6 +48,7 @@ import bpy
 
 
 def register():
+    gpu_utils.shader.ShaderManager.register_shaders()
     utils.bl_class_registry.BlClassRegistry.register()
     properties.init_props(bpy.types.Scene)
     user_prefs = utils.compatibility.get_user_preferences(bpy.context)
@@ -57,6 +60,7 @@ def unregister():
     preferences.remove_builtin_menu()
     properties.clear_props(bpy.types.Scene)
     utils.bl_class_registry.BlClassRegistry.unregister()
+    gpu_utils.shader.ShaderManager.unregister_shaders()
 
 
 if __name__ == "__main__":

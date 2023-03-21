@@ -9,6 +9,7 @@ from enum import IntEnum
 import math
 
 import bpy
+import gpu
 import mathutils
 import bmesh
 from bpy.props import BoolProperty, EnumProperty
@@ -17,11 +18,7 @@ from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..utils import compatibility as compat
-
-if compat.check_version(2, 80, 0) >= 0:
-    from ..lib import bglx as bgl
-else:
-    import bgl
+from ..gpu_utils import imm
 
 
 MAX_VALUE = 100000.0
@@ -653,12 +650,17 @@ class MUV_OT_UVBoundingBox(bpy.types.Operator):
             [pos.x + offset, pos.y + offset],
             [pos.x + offset, pos.y - offset]
         ]
-        bgl.glEnable(bgl.GL_BLEND)
-        bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
+
+        blend_orig = gpu.state.blend_get()
+        gpu.state.blend_set('ALPHA')
+
+        imm.immBegin(imm.GL_QUADS)
+        imm.immColor4f(1.0, 1.0, 1.0, 1.0)
         for (x, y) in verts:
-            bgl.glVertex2f(x, y)
-        bgl.glEnd()
+            imm.immVertex2f(x, y)
+        imm.immEnd()
+
+        gpu.state.blend_set(blend_orig)
 
     @classmethod
     def draw_bb(cls, _, context):

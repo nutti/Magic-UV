@@ -6,8 +6,6 @@ __version__ = "6.6"
 __date__ = "22 Apr 2022"
 
 import bpy
-import bgl
-import blf
 
 
 def check_version(major, minor, _):
@@ -127,18 +125,6 @@ def icon(icon):
             return 'IMAGE_COL'
 
     return icon
-
-
-def set_blf_font_color(font_id, r, g, b, a):
-    if check_version(2, 80, 0) >= 0:
-        blf.color(font_id, r, g, b, a)
-    else:
-        bgl.glColor4f(r, g, b, a)
-
-
-def set_blf_blur(font_id, radius):
-    if check_version(2, 80, 0) < 0:
-        blf.blur(font_id, radius)
 
 
 def get_all_space_types():

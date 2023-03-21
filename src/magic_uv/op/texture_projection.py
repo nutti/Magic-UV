@@ -18,16 +18,13 @@ from bpy.props import (
     FloatVectorProperty,
 )
 import mathutils
+import gpu
 
 from .. import common
 from ..utils.bl_class_registry import BlClassRegistry
 from ..utils.property_class_registry import PropertyClassRegistry
 from ..utils import compatibility as compat
-
-if compat.check_version(2, 80, 0) >= 0:
-    from ..lib import bglx as bgl
-else:
-    import bgl
+from ..gpu_utils import imm
 
 
 _Rect = namedtuple('Rect', 'x0 y0 x1 y1')
@@ -333,36 +330,23 @@ class MUV_OT_TextureProjection(bpy.types.Operator):
             [1.0, 0.0]
         ]
 
-        # OpenGL configuration
-        if compat.check_version(2, 80, 0) >= 0:
-            bgl.glEnable(bgl.GL_BLEND)
-            bgl.glEnable(bgl.GL_TEXTURE_2D)
-            bgl.glActiveTexture(bgl.GL_TEXTURE0)
-            if img.bindcode:
-                bind = img.bindcode
-                bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
-        else:
-            bgl.glEnable(bgl.GL_BLEND)
-            bgl.glEnable(bgl.GL_TEXTURE_2D)
-            if img.bindcode:
-                bind = img.bindcode[0]
-                bgl.glBindTexture(bgl.GL_TEXTURE_2D, bind)
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D,
-                                    bgl.GL_TEXTURE_MIN_FILTER, bgl.GL_LINEAR)
-                bgl.glTexParameteri(bgl.GL_TEXTURE_2D,
-                                    bgl.GL_TEXTURE_MAG_FILTER, bgl.GL_LINEAR)
-                bgl.glTexEnvi(
-                    bgl.GL_TEXTURE_ENV, bgl.GL_TEXTURE_ENV_MODE,
-                    bgl.GL_MODULATE)
-
         # render texture
-        bgl.glBegin(bgl.GL_QUADS)
-        bgl.glColor4f(1.0, 1.0, 1.0,
-                      sc.muv_texture_projection_tex_transparency)
+
+        gpu_img = gpu.texture.from_image(img)
+        blend_orig = gpu.state.blend_get()
+        gpu.state.blend_set('ALPHA')
+
+        imm.immSetTexture(gpu_img)
+        imm.immBegin(imm.GL_QUADS)
+        imm.immColor4f(1.0, 1.0, 1.0,
+                       sc.muv_texture_projection_tex_transparency)
         for (v1, v2), (u, v) in zip(positions, tex_coords):
-            bgl.glTexCoord2f(u, v)
-            bgl.glVertex2f(v1, v2)
-        bgl.glEnd()
+            imm.immTexCoord2f(u, v)
+            imm.immVertex2f(v1, v2)
+        imm.immEnd()
+        imm.immSetTexture(None)
+
+        gpu.state.blend_set(blend_orig)
 
     def invoke(self, context, _):
         if not MUV_OT_TextureProjection.is_running(context):
